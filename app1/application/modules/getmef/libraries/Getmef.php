@@ -223,13 +223,10 @@ class Getmef extends CI_Controller
 	{
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
 		
-		$default['category'] 	= 'home1';
+		$default['category'] 		= 'home1';
 		$default['theme_path'] 	= FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR;
-		if (! empty($data['org_id'])) {
-			$default['menus'] 		= $this->getFrontendMenu($data['org_id']);
-			$default['dashboard'] 	= $this->getFrontendDashboard($data['org_id']);
-		}
-		$default['content'] 	= FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR.$content.'.tpl';
+		$default['menus'] 			= $this->getFrontendMenu();
+		$default['content'] 		= FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR.$content.'.tpl';
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);
 		$this->fenomx->view(FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR.'index', array_merge($default, $data));

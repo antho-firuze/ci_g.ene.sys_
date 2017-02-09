@@ -11,12 +11,14 @@ class Frontend extends Getmef
 		
 	}
 	
-	function index($org_id = 0)
+	function index()
 	{
 		// if ((bool)$this->session->userdata('user_id'))
 			// redirect('dashboard');
 		
-		// $data['org_id'] = $org_id;
+		$data['title'] = '';
+		$data['short_desc'] = '';
+		$data['description'] = '';
 		$this->frontend_view('include/page', $data);
 	}
 	
