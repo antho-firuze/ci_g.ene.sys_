@@ -81,8 +81,8 @@
 <script>
 	{* DECLARE VARIABLE *}
 	{var $api_base_url = $.const.API_BASE_URL}
-	{var $head_title = $head_title !: $.const.APP_TITLE}
-	{var $page_title = '<b>GENESYS</b>Ultimate'}
+	{var $head_title = $head_title !: $.const.TITLE_F}
+	{var $page_title = $.const.TITLE_F}
 	{var $logo_text_mn = $.const.WEB_LOGO_TEXT_MN_F}
 	{var $logo_text_lg = $.const.WEB_LOGO_TEXT_LG_F}
 	{* {var $photo_url = $api_base_url ~ $.php.urldecode( ($.session.photo_url) )} *}
@@ -93,9 +93,9 @@
 	{* {var $org_name = $.session.org_name} *}
 	{* {var $role_name = $.session.role_name} *}
 	
-	{var $home_link = $.php.base_url('systems')}
-	{var $login_link = $.php.base_url('login')}
-	{* {var $logout_link = $.php.base_url('logout')} *}
+	{var $home_link = $.php.base_url()~$.const.HOME_LNK}
+	{var $login_link = $.php.base_url()~$.const.LOGIN_LNK}
+	{* {var $logout_link = $.php.base_url()~$.const.LOGOUT_LNK} *}
 	{* {var $profile_link = $.php.base_url('profile')} *}
 	{var $skin = $.session.skin !: 'skin-purple'}
 	{var $sidebar = $.session.sidebar !: ''}

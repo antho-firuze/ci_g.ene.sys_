@@ -27,7 +27,7 @@ class Getmef extends CI_Controller
 		$this->backend_default_theme  = 'adminlte';
 		$this->frontend_default_theme = 'adminlte';
 		
-		$this->load->model('frontend/frontend_model');
+		$this->load->model('z_libs/getmef_model');
 	}
 	
 	function _check_token()
@@ -198,7 +198,7 @@ class Getmef extends CI_Controller
 		$result['data'] = [];
 		if ($this->org_id >= 0)
 		{
-			$result['data'] = $this->frontend_model->getMenu($this->org_id);
+			$result['data'] = $this->getmef_model->getMenu($this->org_id);
 		}
 		return $result['data'];
 	}
@@ -210,7 +210,7 @@ class Getmef extends CI_Controller
 		$result['data'] = [];
 		if ($org_id >= 0)
 		{
-			$result['data'] = $this->frontend_model->getDashboard($org_id);
+			$result['data'] = $this->getmef_model->getDashboard($org_id);
 		}
 		return $result['data'];
 		

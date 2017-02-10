@@ -53,22 +53,21 @@
 						<a href="{$home_link}"><i class="fa fa-dashboard"></i><span>Dashboard</span> </a>
 					</li>
 				{/if} *}
-				
 				<li class="treeview {if ($idx == 1)}active{/if}">
-					<a href="{$menu->url1}"><i class="fa {$menu->icon1 !: 'fa-circle'}"></i>
+					<a href="{$.php.base_url('page/')~$menu->page_id1}"><i class="fa {$menu->icon1 !: 'fa-circle'}"></i>
 						<span>{$menu->name1}</span> {if !empty($menu->menu_id2)} <i class="fa fa-angle-left pull-right"></i>{/if}
 					</a>
 				  
 				{if ($menu_id2 != $menu->menu_id2 && !empty($menu->menu_id2)) }
 					<ul class="treeview-menu">
 						<li>
-							<a href="{$menu->url2}"><i class="fa {$menu->icon2 !: 'fa-circle-o'}"></i> {$menu->name2} 
+							<a href="{$.php.base_url('page/')~$menu->page_id2}"><i class="fa {$menu->icon2 !: 'fa-circle-o'}"></i> {$menu->name2} 
 							{if !empty($menu->menu_id3)} <i class="fa fa-angle-left pull-right"></i>{/if}
 							</a>
 					
 					{if ($menu_id3 != $menu->menu_id3 && !empty($menu->menu_id3)) }
 						<ul class="treeview-menu">
-							<li><a href="{$menu->url3}"><i class="fa {$menu->icon2 !: 'fa-circle-o'}"></i> {$menu->name3}</a>
+							<li><a href="{$.php.base_url('page/')~$menu->page_id3}"><i class="fa {$menu->icon2 !: 'fa-circle-o'}"></i> {$menu->name3}</a>
 							
 						{var $close_menu3 = 1}
 						{var $menu_id3 = $menu->menu_id3}
@@ -93,13 +92,13 @@
 				{/if}
 				
 				{if ($menu_id2 != $menu->menu_id2 && !empty($menu->menu_id2)) }
-					<li><a href="{$menu->url2}"><i class="fa fa-circle-o"></i> {$menu->name2}</a>
+					<li><a href="{$.php.base_url('page/')~$menu->page_id2}"><i class="fa fa-circle-o"></i> {$menu->name2}</a>
 					
 					{var $close_menu2 = 1}
 					{var $menu_id2 = $menu->menu_id2}
 					
 				{elseif ($menu_id2 == $menu->menu_id2)}
-					<li><a href="{$menu->url3}"><i class="fa fa-circle-o"></i> {$menu->name3}</a>
+					<li><a href="{$.php.base_url('page/')~$menu->page_id3}"><i class="fa fa-circle-o"></i> {$menu->name3}</a>
 					
 					{var $close_menu3 = 1}
 					{var $menu_id3 = $menu->menu_id3}
@@ -116,7 +115,7 @@
 			</li>
 		{/if}
         <li class="header">OTHERS</li>
-        <li><a href="{$login_link}" id="go-sign-out"><i class="fa fa-circle-o text-red"></i> <span>Login</span></a></li>
+        <li><a target="_blank" href="{$login_link}" id="go-sign-out"><i class="fa fa-circle-o text-red"></i> <span>Login</span></a></li>
 		{* 
         <li class="header">OTHERS</li>
         <li><a href="#" id="go-change-pwd"><i class="fa fa-circle-o text-aqua"></i> <span>Change Password</span></a></li>

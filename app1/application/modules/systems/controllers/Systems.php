@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-require APPPATH . '/modules/getmeb/libraries/Getmeb.php';
+require APPPATH . '/modules/z_libs/libraries/Getmeb.php';
 
 class Systems extends Getmeb
 {

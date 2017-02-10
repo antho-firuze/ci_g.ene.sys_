@@ -63,14 +63,15 @@
 	var conhead = $('.content-header');
 	var info_list = $('<ul id="info_marquee" class="info-marquee marquee" />');
 	$.ajax({ url: setInfo_url, method: "GET", async: true, dataType: 'json',
-		data: { "org_id": 0, "validf": format_ymd() },
 		success: function(data) {
 			$.each(data.data.rows, function(k, v){
 				console.log(v.description);
-				$('<li />').html(v.description).appendTo(info_list);
+				if (v.description != '') {
+					$('<li />').html(v.description).appendTo(info_list);
+					conhead.prepend(info_list);
+					$('#info_marquee').marquee({ yScroll: "bottom" });
+				}
 			});
-			conhead.prepend(info_list);
-			$('#info_marquee').marquee({ yScroll: "bottom" });
 		},
 		error: function(data) {
 			console.log(data.responseText);

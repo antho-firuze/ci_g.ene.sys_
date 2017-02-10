@@ -12,8 +12,8 @@
 <script type="text/javascript" src="{$.const.ASSET_URL}genesys/js/common.func.js"></script>
 <script>
 	{* DECLARE VARIABLE *}
-	{var $head_title = $head_title !: $.const.APP_TITLE}
-	{var $page_title = '<b>GENESYS</b>Ultimate'}
+	{var $head_title = $head_title !: $.const.APP_TITLE_B}
+	{var $page_title = $.const.TITLE_B}
 	
 	{var $home_link = $.php.base_url('systems')}
 	var base_url = '{$.php.base_url()}';

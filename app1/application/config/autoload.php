@@ -58,7 +58,7 @@ $autoload['packages'] = array();
 |
 |	$autoload['libraries'] = array('user_agent' => 'ua');
 */
-$autoload['libraries'] = array('database', 'session', 'fenom/fenomx');
+$autoload['libraries'] = array('database', 'session', 'z_libs/fenomx');
 
 /*
 | -------------------------------------------------------------------
@@ -89,7 +89,7 @@ $autoload['drivers'] = array();
 |
 |	$autoload['helper'] = array('url', 'file');
 */
-$autoload['helper'] = array('url', 'cookie', 'z_func/common', 'z_func/DBX', 'systems/systems');
+$autoload['helper'] = array('url', 'cookie', 'z_libs/common', 'z_libs/DBX', 'systems/systems');
 
 /*
 | -------------------------------------------------------------------

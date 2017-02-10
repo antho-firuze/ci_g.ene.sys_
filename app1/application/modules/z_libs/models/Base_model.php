@@ -1,6 +1,6 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Z_Model extends CI_Model
+class Base_Model extends CI_Model
 {
 
 	protected $errors;

@@ -1,8 +1,8 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-require APPPATH . '/modules/z_func/models/Z_Model.php';
+require APPPATH . '/modules/z_libs/models/Base_model.php';
 
-class System_Model extends Z_Model
+class System_Model extends Base_model
 {
 
 	public function __construct()
