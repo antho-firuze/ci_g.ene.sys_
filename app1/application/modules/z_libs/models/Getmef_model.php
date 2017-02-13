@@ -1,8 +1,6 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-require APPPATH . '/modules/z_libs/models/Base_model.php';
-
-class Getmef_Model extends Base_Model
+class Getmef_Model extends CI_Model
 {
 
 	function getMenu($org_id)
@@ -37,7 +35,7 @@ class Getmef_Model extends Base_Model
 		$params['where']['ad.org_id'] 	  = $org_id;
 		$params['order']	= "ad.type, ad.lineno";
 		
-		return $this->mget_rec($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 	function getInfo($params)
@@ -47,7 +45,7 @@ class Getmef_Model extends Base_Model
 		$params['where']['ai.is_active']  = '1';
 		$params['where']['ai.is_deleted'] = '0';
 		
-		return $this->mget_rec_count($params);
+		return $this->base_model->mget_rec_count($params);
 	}
 	
 	function getPage($id = NULL, $name = NULL)
@@ -62,7 +60,7 @@ class Getmef_Model extends Base_Model
 			$params['where']['wp.id'] = $id;
 		
 		$rs = [];
-		$rs = $this->mget_rec($params);
+		$rs = $this->base_model->mget_rec($params);
 		
 		// echo $rs[0]->title;
 		// var_dump($rs);
