@@ -1,8 +1,6 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-require APPPATH . '/modules/z_libs/models/Base_model.php';
-
-class Frontend_Model extends Base_Model
+class Frontend_Model extends CI_Model
 {
 
 	public function __construct()
@@ -17,7 +15,7 @@ class Frontend_Model extends Base_Model
 		$params['table'] 	= "z_completion_slip as cs";
 		$params['where']['cs.no_slip'] = $id;
 		
-		return $this->mget_rec($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 	
