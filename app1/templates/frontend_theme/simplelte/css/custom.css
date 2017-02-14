@@ -29,7 +29,19 @@
     text-align: right;
     text-overflow: ellipsis;
     white-space: nowrap;
-		padding-right: 2%;
+		padding-right: 1%;
+  }
+}
+@media (min-width: 401px) {
+  .dl-horizontal dt {
+    float: left;
+    width: 50%;
+    overflow: hidden;
+    clear: left;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+		padding-right: 1%;
   }
   .dl-horizontal dd {
     margin-left: 180px;
