@@ -20,7 +20,7 @@
 .content-header {
     padding: 0px;
 }
-@media (min-width: 400px) {
+@media (min-width: 300px) {
   .dl-horizontal dt {
     float: left;
     width: 50%;
