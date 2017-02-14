@@ -6,8 +6,8 @@ class Getmef extends CI_Controller
 	public $asset_path;
 	public $styles		= array();
 	public $scripts		= array();
-	public $backend_default_theme;
-	public $frontend_default_theme;
+	public $backend_default_theme 	= 'adminlte';
+	public $frontend_default_theme 	= 'adminlte';
 	public $org_id 		= 0;
 	
 	function __construct() {
@@ -20,12 +20,6 @@ class Getmef extends CI_Controller
 		}
 		
 		parent::__construct();
-		
-		define('URL_SEPARATOR', '/');
-		define('ASSET_URL', base_url().'assets/');
-
-		$this->backend_default_theme  = 'adminlte';
-		$this->frontend_default_theme = 'adminlte';
 		
 		$this->load->model('z_libs/getmef_model');
 	}
@@ -226,6 +220,18 @@ class Getmef extends CI_Controller
 		$default['category'] 		= 'home1';
 		$default['theme_path'] 	= FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR;
 		$default['menus'] 			= $this->getFrontendMenu();
+		$default['content'] 		= FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR.$content.'.tpl';
+		$default['elapsed_time']= $elapsed;
+		$default['start_time'] 	= microtime(true);
+		$this->fenomx->view(FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR.'index', array_merge($default, $data));
+	}
+	
+	// VIEW FOR PRODUCT INFO (QRCODE)
+	function custom_view($content, $data=[])
+	{
+		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
+		
+		$default['theme_path'] 	= FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR;
 		$default['content'] 		= FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR.$content.'.tpl';
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);

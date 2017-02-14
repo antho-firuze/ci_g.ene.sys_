@@ -30,7 +30,8 @@ defined('LOGIN_LNK')						OR define('LOGIN_LNK', 'login');
 defined('LOGOUT_LNK')						OR define('LOGOUT_LNK', 'logout');
 
 
-
+// OTHER
+defined('URL_SEPARATOR')				OR define('URL_SEPARATOR', '/');
 
 
 // API SETTINGS

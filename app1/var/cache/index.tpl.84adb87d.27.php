@@ -1,9 +1,5 @@
 <?php 
-<<<<<<< HEAD
-/** Fenom template 'frontend_theme/adminlte/index.tpl' compiled at 2017-02-10 10:13:24 */
-=======
-/** Fenom template 'frontend_theme/adminlte/index.tpl' compiled at 2017-02-12 20:36:30 */
->>>>>>> 9314ddd881b21400a7e09bab74a970b0612a3ee2
+/** Fenom template 'frontend_theme/adminlte/index.tpl' compiled at 2017-02-13 10:22:26 */
 return new Fenom\Render($fenom, function ($var, $tpl) {
 ?> <?php
 /* frontend_theme/adminlte/index.tpl:7: {var $template_url = $.php.base_url() ~ "templates/" ~ $theme_path} */
@@ -268,19 +264,11 @@ return new Fenom\Render($fenom, function ($var, $tpl) {
 	'provider' => false,
 	'name' => 'frontend_theme/adminlte/index.tpl',
 	'base_name' => 'frontend_theme/adminlte/index.tpl',
-<<<<<<< HEAD
 	'time' => 1486717995,
 	'depends' => array (
   0 => 
   array (
     'frontend_theme/adminlte/index.tpl' => 1486717995,
-=======
-	'time' => 1486859209,
-	'depends' => array (
-  0 => 
-  array (
-    'frontend_theme/adminlte/index.tpl' => 1486859209,
->>>>>>> 9314ddd881b21400a7e09bab74a970b0612a3ee2
   ),
 ),
 	'macros' => array(),

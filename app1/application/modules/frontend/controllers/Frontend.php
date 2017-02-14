@@ -67,7 +67,8 @@ class Frontend extends Getmef
 		$data = [];
 		$data = $this->frontend_model->getProduct($id);
 		// return out($data[0]);
-		$this->frontend_view('pages/product_info', (array)$data[0]);
+		$this->frontend_default_theme = 'simplelte';
+		$this->custom_view('pages/product_info', (array)$data[0]);
 	}
 	
 	function fgid($id = NULL)
