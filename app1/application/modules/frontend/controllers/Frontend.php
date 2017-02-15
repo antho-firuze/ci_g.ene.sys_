@@ -71,8 +71,9 @@ class Frontend extends Getmef
 		
 		if (count($data) > 0) {
 			$this->custom_view('pages/product_info', (array)$data[0]);
-		} 
+		} else {
 			$this->custom_view('pages/empty');
+		}
 	}
 	
 	function fgid($id = NULL)
