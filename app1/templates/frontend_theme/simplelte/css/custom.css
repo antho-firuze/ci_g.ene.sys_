@@ -4,6 +4,14 @@
 */
 
 /* General Links */
+.arrow-down {
+  width: 10px; 
+  height: 0; 
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  
+  border-top: 20px solid #d73925;
+}
 .content-wrapper, .right-side, .main-footer {
     margin-left: 0px;
 }
@@ -31,6 +39,9 @@
     white-space: nowrap;
 		padding-right: 1%;
   }
+	.main-footer .custom-text{
+		width: 100%;
+	}
 }
 @media (min-width: 401px) {
   .dl-horizontal dt {
@@ -69,9 +80,6 @@
   .dl-horizontal dd {
     margin-left: 180px;
   }
-}
-
-@media (min-width: 992px) {
 	.content-header > .breadcrumb {
 		top: 55px !important;
 	}

@@ -15,6 +15,8 @@
 }
 </style>
   <div class="content-wrapper">
+		<div class="arrow-down img-center"></div>
+	
     <!-- Content Header (Page header) -->
     <section class="content-header">
       {* <ol class="breadcrumb">
@@ -113,13 +115,13 @@
        <!-- Small boxes (Stat box) -->
       <div class="row">
         <section class="col-lg-12 connectedSortable">
-          <div class="box box-success">
+          <div class="box box-danger">
             <!-- <div class="box-header with-border">
               <h3 class="box-title">Product</h3>
             </div> -->
             <div class="box-body">
 							<div style="width:100%;text-align:center;">
-								<span style="font-weight:bold;">Sole Distributed by </span>- 
+								<span style="font-weight:bold;">Sole Distributed by </span> 
 								<span style="font-weight:bold; color:#d73925">Fajar Benua Indopack </span>
  								<img class="img-responsive img-center" style="width:50px;" src="{$.php.base_url()}upload/images/Logo-FBI.png" alt="PT. FBI">
 							</div>
