@@ -101,10 +101,10 @@ $db['default'] = array(
 
 $db['sqlsvr12'] = array(
 	// 'dsn'	=> '',
-	'hostname' => '192.168.10.250',
+	'hostname' => '115.85.74.130,8795',
 	'username' => 'sa',
 	'password' => 'admin123',
-	'database' => 'penjadwalan_produksi',
+	'database' => 'PURCHASING',
 	'dbdriver' => 'sqlsrv',
 	
 	'dbprefix' => '',
