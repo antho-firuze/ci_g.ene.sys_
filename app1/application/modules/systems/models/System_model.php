@@ -1,8 +1,6 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-require APPPATH . '/modules/z_libs/models/Base_model.php';
-
-class System_Model extends Base_model
+class System_Model extends CI_model
 {
 
 	public function __construct()
@@ -29,7 +27,7 @@ class System_Model extends Base_model
 		$params['join'][] 	= ['a_role as ar', 'au.role_id = ar.id', 'left'];
 		$params['where']['au.is_deleted'] 	= '0';
 		
-		return $this->mget_rec($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 	function getUser($params)
@@ -51,7 +49,7 @@ class System_Model extends Base_model
 		$params['join'][] 	= ['a_user as au4', 'au.supervisor_id = au4.id', 'left'];
 		$params['where']['au.is_deleted'] 	= '0';
 		
-		return $this->mget_rec_count($params);
+		return $this->base_model->mget_rec_count($params);
 	}
 	
 	function getUserConfig($params)
@@ -61,7 +59,7 @@ class System_Model extends Base_model
 		$params['where']['auc.is_active'] 	= '1';
 		$params['where']['auc.is_deleted'] 	= '0';
 		
-		return $this->mget_rec($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 	function getUserWCount($params)
@@ -74,7 +72,7 @@ class System_Model extends Base_model
 		$params['join'][] 	= ['a_role as ar', 'au.role_id = ar.id', 'left'];
 		$params['where']['au.is_deleted'] 	= '0';
 		
-		return $this->mget_rec_count($params);
+		return $this->base_model->mget_rec_count($params);
 	}
 	
 	function updateUser($data, $cond)
@@ -111,7 +109,7 @@ class System_Model extends Base_model
 		$params['where']	= "am.is_active = '1' and am.is_deleted = '0' and arm.is_active = '1' and arm.is_deleted = '0' and am.is_parent = '0'";
 		$params['order']	= "am.name";
 		
-		return $this->mget_rec($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 	function getRole($params)
@@ -123,7 +121,7 @@ class System_Model extends Base_model
 		$params['join'][] 	= ['a_role as ar', 'au.role_id = ar.id', 'left'];
 		$params['where']['au.is_deleted'] 	= '0';
 		
-		return $this->mget_rec($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 	function getRoleMenu($role_id)
@@ -177,7 +175,7 @@ class System_Model extends Base_model
 		$params['where']	= "ad.is_active = '1' and ad.is_deleted = '0' and ard.is_active = '1' and ard.is_deleted = '0'";
 		$params['order']	= "ad.type, ad.lineno";
 		
-		return $this->mget_rec($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 	function createUserRecent($data)
@@ -212,7 +210,7 @@ class System_Model extends Base_model
 		$params['table'] 	= "a_info as ai";
 		$params['where']['ai.is_deleted'] 	= '0';
 		
-		return $this->mget_rec_count($params);
+		return $this->base_model->mget_rec_count($params);
 	}
 	
 	function getCountry($params)
@@ -220,7 +218,7 @@ class System_Model extends Base_model
 		$params['select']	= !array_key_exists('select', $params) ? "*" : $params['select'];
 		$params['table'] 	= "c_1country";
 		
-		return $this->mget_rec_count($params);
+		return $this->base_model->mget_rec_count($params);
 	}
 	
 	function getProvince($params)
@@ -228,7 +226,7 @@ class System_Model extends Base_model
 		$params['select']	= !array_key_exists('select', $params) ? "*" : $params['select'];
 		$params['table'] 	= "c_2province";
 		
-		return $this->mget_rec_count($params);
+		return $this->base_model->mget_rec_count($params);
 	}
 	
 	function getCity($params)
@@ -236,7 +234,7 @@ class System_Model extends Base_model
 		$params['select']	= !array_key_exists('select', $params) ? "*" : $params['select'];
 		$params['table'] 	= "c_3city";
 		
-		return $this->mget_rec_count($params);
+		return $this->base_model->mget_rec_count($params);
 	}
 	
 	function getDistrict($params)
@@ -244,7 +242,7 @@ class System_Model extends Base_model
 		$params['select']	= !array_key_exists('select', $params) ? "*" : $params['select'];
 		$params['table'] 	= "c_4district";
 		
-		return $this->mget_rec_count($params);
+		return $this->base_model->mget_rec_count($params);
 	}
 	
 	function getVillage($params)
@@ -252,7 +250,7 @@ class System_Model extends Base_model
 		$params['select']	= !array_key_exists('select', $params) ? "*" : $params['select'];
 		$params['table'] 	= "c_5village";
 		
-		return $this->mget_rec_count($params);
+		return $this->base_model->mget_rec_count($params);
 	}
 	
 }

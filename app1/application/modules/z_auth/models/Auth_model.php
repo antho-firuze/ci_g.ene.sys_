@@ -46,7 +46,7 @@ class Auth_model extends CI_Model
 		parent::__construct();
 		$this->load->database();
 		$this->load->config('z_auth/auth', TRUE);
-		$this->lang->load('auth');
+		$this->lang->load('z_auth/auth');
 
 		// initialize db tables data
 		$this->tables  = $this->config->item('tables', 'auth');

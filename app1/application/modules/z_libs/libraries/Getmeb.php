@@ -6,8 +6,9 @@ class Getmeb extends CI_Controller
 	public $asset_path;
 	public $styles		= array();
 	public $scripts		= array();
-	public $backend_default_theme;
-	public $frontend_default_theme;
+	public $backend_default_theme  	= 'adminlte';
+	public $frontend_default_theme 	= 'adminlte';
+	public $org_id 		= 0;
 	
 	function __construct() {
 		header('Access-Control-Allow-Origin: *');
@@ -19,12 +20,7 @@ class Getmeb extends CI_Controller
 		}
 		
 		parent::__construct();
-		
-		define('URL_SEPARATOR', '/');
-		define('ASSET_URL', base_url().'assets/');
-
-		$this->backend_default_theme  = 'adminlte';
-		$this->frontend_default_theme = 'adminlte';
+		defined('ASSET_URL')						OR define('ASSET_URL', base_url().'/assets/');
 	}
 	
 	function _check_token()
@@ -254,55 +250,6 @@ class Getmeb extends CI_Controller
 		$default['start_time'] 	= microtime(true);
 		$this->fenomx->view(BACKEND_THEME.$this->backend_default_theme.URL_SEPARATOR.'index', array_merge($default, $data));
 	}
-	
-	function getFrontendMenu($org_id)
-	{
-		$org_id = is_numeric($org_id) ? $org_id : -1;
-		
-		$result['data'] = [];
-		if ($org_id >= 0)
-		{
-			$result['data'] = $this->frontend_model->getMenu($org_id);
-		}
-		return $result['data'];
-		/* $params = ['org_id' => $org_id];
-		$result = $this->getAPI('frontend', 'menulist', $params);
-		return $result->data; */
-	}
-	
-	function getFrontendDashboard($org_id)
-	{
-		$org_id = is_numeric($org_id) ? $org_id : -1;
-		
-		$result['data'] = [];
-		if ($org_id >= 0)
-		{
-			$result['data'] = $this->frontend_model->getDashboard($org_id);
-		}
-		return $result['data'];
-		
-		/* $params = ['id' => $org_id];
-		$result = $this->getAPI('frontend', 'dashboard', $params);
-		return $result->data; */
-	}
-	
-	function frontend_view($content, $data=[])
-	{
-		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
-		
-		$default['category'] 	= 'home1';
-		$default['theme_path'] 	= FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR;
-		if (! empty($data['org_id'])) {
-			$default['menus'] 		= $this->getFrontendMenu($data['org_id']);
-			$default['dashboard'] 	= $this->getFrontendDashboard($data['org_id']);
-		}
-		$default['content'] 	= FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR.$content.'.tpl';
-		$default['elapsed_time']= $elapsed;
-		$default['start_time'] 	= microtime(true);
-		$this->fenomx->view(FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR.'index', array_merge($default, $data));
-	}
-	
-	// function qr_view($content, $data)
 	
 	// NOT USING REST-API
 	function _check_session()

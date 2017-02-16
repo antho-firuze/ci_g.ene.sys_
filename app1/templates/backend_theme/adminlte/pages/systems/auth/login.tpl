@@ -5,7 +5,6 @@
 	Github: antho-firuze
 *}
 {var $template_url = $.php.base_url() ~ "templates/" ~ $theme_path}
-{* {var $template_url = "{$.php.base_url()}{$template_url}"} *}
 <!DOCTYPE html>
 <html>
 <head>

@@ -53,9 +53,16 @@ $route['default_controller'] = 'frontend';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
+// FRONTEND
 $route['cs/(:any)'] = "frontend/cs/$1";
 $route['page'] = "frontend/page";
 $route['page/(:any)'] = "frontend/page/$1";
 
-$route['login'] = "systems/login";
+// BACKEND
+$route['sys'] = "systems";
+$route['sys/(:any)'] = "systems/$1";
+$route['hrd'] = "hrd";
+$route['hrd/(:any)'] = "hrd/$1";
+$route['info'] = "info";
+$route['info/(:any)'] = "info/$1";
 

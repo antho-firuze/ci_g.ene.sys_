@@ -11,24 +11,21 @@ class Systems extends Getmeb
 		$this->load->model('systems/system_model');
 	}
 	
-	/* function _remap($method, $params = array())
+	function _remap($method, $params = array())
 	{
-		if (! method_exists($this, $method))
-			show_404();
-		
 		if (! in_array($method, ['authentication', 'login', 'logout']))
 		{
 			if (! (bool)$this->session->userdata('user_id'))
-				redirect('login');
+				redirect('/');
 		}
 		
 		return call_user_func_array(array($this, $method), $params);
-	} */
+	}
 
 	function index()
 	{
-		echo 'testing';
-		// redirect('dashboard');
+		// echo 'testing';
+		redirect('sys/dashboard');
 	}
 	
 	function authentication()
@@ -234,7 +231,7 @@ class Systems extends Getmeb
 		} */
 
 		// redirect('login');
-		redirect('frontend');
+		redirect('/');
 	}
 	
 	// REQUIRED LOGIN
@@ -645,7 +642,8 @@ class Systems extends Getmeb
 	
 	function test()
 	{
-		return out($this->getFrontendMenu(11));
+		return out($this->_check_session());
+		// return out($this->getFrontendMenu(11));
 		
 		// $arr = ['assets/plugins/raphael/raphael-min.js'];
 		// $arr_s = serialize($arr);
