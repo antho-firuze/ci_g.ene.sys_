@@ -13,7 +13,7 @@
 *				- Base on Window
 *
 */
-$lang['testing']						= 'English';
+$lang['testing']						= 'Bahasa Indonesia';
 
 //FORM BUTTON
 $lang['form_btn_insert'] 		= 'INSERT';

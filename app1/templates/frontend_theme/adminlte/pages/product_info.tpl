@@ -120,7 +120,7 @@
 
 	var conhead = $('.content-header');
 	var info_list = $('<ul id="info_marquee" class="info-marquee marquee" />');
-	$.ajax({ url: setInfo_url, method: "GET", async: true, dataType: 'json',
+	$.ajax({ url: InfoLst_url, method: "GET", async: true, dataType: 'json',
 		data: { "org_id": 0, "validf": format_ymd() },
 		success: function(data) {
 			$.each(data.data.rows, function(k, v){

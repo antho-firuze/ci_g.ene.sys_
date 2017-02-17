@@ -13,7 +13,7 @@ class Systems extends Getmeb
 	
 	function _remap($method, $params = array())
 	{
-		if (! in_array($method, ['authentication', 'login', 'logout']))
+		if (! in_array($method, ['x_auth', 'x_login', 'x_logout']))
 		{
 			if (! (bool)$this->session->userdata('user_id'))
 				redirect('/');
@@ -28,7 +28,12 @@ class Systems extends Getmeb
 		redirect('sys/dashboard');
 	}
 	
-	function authentication()
+	function dashboard()
+	{
+		$this->backend_view('dashboard', 1);
+	}
+	
+	function x_auth()
 	{
 		$this->load->library('z_auth/auth');
 
@@ -78,10 +83,16 @@ class Systems extends Getmeb
 			'select' => 'attribute, value', 
 			'where' => ['user_id' => $id]
 		]);
+		
+		if (array_key_exists('language', $userConfig))
+			$this->lang->load('systems/genesys', $userConfig->language);
+		else
+			$this->lang->load('systems/genesys', 'english');
+		
 		$dataConfig = [];
 		foreach($userConfig as $k => $v)
 			$dataConfig[$v->attribute] = $v->value;
-			
+		
 		$data = array_merge($dataUser, $dataConfig);
 		$this->session->set_userdata($data);
 		
@@ -104,7 +115,7 @@ class Systems extends Getmeb
 		$this->xresponse(TRUE);
 	}
 	
-	function unlockscreen()
+	function x_unlock()
 	{
 		$this->load->library('z_auth/auth');
 
@@ -148,7 +159,7 @@ class Systems extends Getmeb
 		$this->xresponse(TRUE); */
 	}
 	
-	function change_passwd()
+	function x_chgpwd()
 	{
 		$this->load->library('z_auth/auth');
 
@@ -193,13 +204,12 @@ class Systems extends Getmeb
 		$this->xresponse(TRUE, ['message' => $result->message], $request->status_code); */
 	}
 	
-	function login()
+	function x_login()
 	{
-		$data['validate_link'] = site_url('systems/authentication');
-		$this->backend_view('login', 'pages/systems/auth/login', $data);
+		$this->backend_view('login', 'pages/systems/auth/login');
 	}
 	
-	function logout()
+	function x_logout()
 	{
 		$this->session->unset_userdata( array('user_id') );
 
@@ -235,7 +245,7 @@ class Systems extends Getmeb
 	}
 	
 	// REQUIRED LOGIN
-	function menulist()
+	/* function x_menulist()
 	{
 		$params = $this->input->get();
 		// $this->getAPI('system', 'menulist', $params, FALSE);
@@ -251,16 +261,11 @@ class Systems extends Getmeb
 		}
 		$result['data'] = $this->system_model->getMenu($params);
 		$this->xresponse(true, $result);
-	}
+	} */
 	
-	function dashboard()
+	/* function x_setUserRecent()
 	{
-		$this->backend_view('dashboard', 1);
-	}
-	
-	function setUserRecent()
-	{
-		$sess 	= $this->_check_session();
+		$sess 	= $this->_get_session();
 		$params = (count($params = $this->input->get()) < 1) ? '' : '?'.http_build_query($params);
 		
 		$data = [
@@ -269,21 +274,25 @@ class Systems extends Getmeb
 		];
 		// log_message('error', $data['value']);
 		$this->system_model->createUserRecent($data);
-
-		/* $params = (count($params = $this->input->get()) < 1) ? '' : '?'.http_build_query($params);
-		$data = ['value' => current_url().$params];
-		// $data = ['value' => $this->uri->uri_string().$params];
-		// log_message('error', $data['value']);
-		$this->postAPI('system', 'userRecent', $data, TRUE); */
+	} */
+	
+	function x_srcmenu()
+	{
+		$sess 	= $this->_get_session();
+		$params = $this->input->get();
+		$result['data'] = [];
+		if (key_exists('q', $params)) 
+			if (!empty($params['q']))
+				$params['like']	= DBX::like_or('am.name', $params['q']);
+		$result['data'] = $this->system_model->getMenu($params);
+		$this->xresponse(TRUE, $result);
 	}
 	
-	function setUserConfig()
+	function x_config()
 	{
-		$sess 	= $this->_check_session();
-		
+		$sess 	= $this->_get_session();
 		$data = json_decode($this->input->raw_input_stream);
 		$this->session->set_userdata((array)$data);
-		
 		$return = 0; 
 		$result['data'] = [];
 		foreach($data as $key => $value)
@@ -305,14 +314,11 @@ class Systems extends Getmeb
 			}
 		}
 		$this->xresponse(TRUE, $result);
-		/* $data = json_decode($this->input->raw_input_stream);
-		$this->session->set_userdata((array)$data);
-		$this->postAPI('system', 'userConfig', $data, FALSE); */
 	}
 	
-	function profile($mode=NULL)
+	function x_profile($mode=NULL)
 	{
-		$this->setUserRecent();
+		// $this->x_setUserRecent();
 		if ($mode='r') {
 			
 		}
@@ -329,9 +335,29 @@ class Systems extends Getmeb
 		$this->backend_view('crud', 'pages/systems/profile');
 	}
 	
-	function user($mode=NULL)
+	function x_page()
 	{
-		$sess 	= $this->_check_session();
+		$sess 	= $this->_get_session();
+		$params = $this->input->get();
+		
+		$data = [];
+		if (key_exists('pageid', $params)) 
+			if (!empty($params['pageid'])) {
+				$data = (array) $this->system_model->getMenuById($params['pageid']);
+				// var_dump($data);
+				// echo $data[0]->path.URL_SEPARATOR.$data[0]->url;
+				// echo $data->path.URL_SEPARATOR.$data->url;
+				// echo $data['path'].URL_SEPARATOR.$data['url'];
+				$this->backend_view('crud', $data['path'].URL_SEPARATOR.$data['url'], $data);
+				return;
+			} 
+				
+		show_404();
+	}
+	
+	function a_user($mode=NULL)
+	{
+		$sess 	= $this->_get_session();
 		$method = $_SERVER['REQUEST_METHOD'];
 		if ($method == 'GET') {
 			if ($mode=='data'){
@@ -352,7 +378,9 @@ class Systems extends Getmeb
 				$this->getAPI('system', 'user', $arg, FALSE); */
 			}
 			
-			$this->backend_view('crud', 'pages/systems/user');
+			$data['title'] = 'Users';
+			$data['short_desc'] = '';
+			$this->backend_view('crud', 'pages/systems/user', $data);
 		}
 		
 		if ($method == 'POST') {
@@ -368,7 +396,7 @@ class Systems extends Getmeb
 			if (! $id = $this->auth->register($data->username, $data->password, $data->email, $additional_data))
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 
-			// $this->setUserRecent();
+			// $this->x_setUserRecent();
 			$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 			/* $data = json_decode($this->input->raw_input_stream);
 			$this->postAPI('system', 'user', $data, FALSE); */
@@ -405,7 +433,7 @@ class Systems extends Getmeb
 				if (! $this->system_model->updateUser($datas, [ 'id'=>(int)$params['id']]))
 					$this->xresponse(FALSE, ['message' => $this->db->error()->message], 401);
 
-				$this->setUserRecent();
+				// $this->x_setUserRecent();
 				$this->xresponse(TRUE, ['message' => $this->lang->line('success_update')]);
 			}
 			
@@ -438,9 +466,9 @@ class Systems extends Getmeb
 		} */
 	}
 	
-	function userlist()
+	function a_userlist()
 	{
-		$sess 	= $this->_check_session();
+		$sess 	= $this->_get_session();
 		$params = $this->input->get();
 		
 		$result['data'] = [];
@@ -456,9 +484,9 @@ class Systems extends Getmeb
 		$this->getAPI('system', 'userlist', $params, FALSE); */
 	}
 	
-	function supervisorlist()
+	function a_supervisorlist()
 	{
-		$sess 	= $this->_check_session();
+		$sess 	= $this->_get_session();
 		$params = $this->input->get();
 		
 		$result['data'] = [];
@@ -474,7 +502,7 @@ class Systems extends Getmeb
 		$this->getAPI('system', 'userlist', $params, FALSE); */
 	}
 	
-	function info($mode=NULL)
+	function a_info($mode=NULL)
 	{
 		switch($_SERVER['REQUEST_METHOD']){
 		case 'GET':
@@ -506,12 +534,12 @@ class Systems extends Getmeb
 		case 'POST':
 			$data = json_decode($this->input->raw_input_stream);
 			$this->postAPI('system', 'info', $data, FALSE);
-			$this->setUserRecent();
+			// $this->x_setUserRecent();
 			
 			// echo "post";
 			break;
 		case 'PUT':
-			$this->setUserRecent();
+			// $this->x_setUserRecent();
 			echo "put";
 			break;
 		case 'DELETE':
@@ -520,11 +548,10 @@ class Systems extends Getmeb
 		}
 	}
 	
-	function infolist()
+	function a_infolist()
 	{
-		$sess 	= $this->_check_session();
+		$sess 	= $this->_get_session();
 		$params = $this->input->get();
-		// $this->getAPI('system', 'infolist', $params, FALSE);
 		$params['where']['ai.client_id'] = $sess->client_id;
 		$params['where']['ai.org_id'] 	 = $sess->org_id;
 		$params['where']['ai.valid_from <='] = datetime_db_format();
@@ -532,7 +559,7 @@ class Systems extends Getmeb
 		$this->xresponse(TRUE, $result);
 	}
 	
-	function countrylist()
+	function c_countrylist()
 	{
 		$params = $this->input->get();
 		// $this->getAPI('system', 'countrylist', $params, FALSE);
@@ -547,9 +574,9 @@ class Systems extends Getmeb
 		$this->xresponse(TRUE, $result);
 	}
 	
-	function provincelist()
+	function c_provincelist()
 	{
-		$sess 	= $this->_check_session();
+		$sess 	= $this->_get_session();
 		$params = $this->input->get();
 		// $this->getAPI('system', 'provincelist', $params, FALSE);
 		if (key_exists('q', $params)) 
@@ -565,7 +592,7 @@ class Systems extends Getmeb
 		$this->xresponse(TRUE, $result);
 	}
 	
-	function citylist()
+	function c_citylist()
 	{
 		$params = $this->input->get();
 		// $this->getAPI('system', 'citylist', $params, FALSE);
@@ -582,7 +609,7 @@ class Systems extends Getmeb
 		$this->xresponse(TRUE, $result);
 	}
 	
-	function districtlist()
+	function c_districtlist()
 	{
 		$params = $this->input->get();
 		// $this->getAPI('system', 'districtlist', $params, FALSE);
@@ -599,7 +626,7 @@ class Systems extends Getmeb
 		$this->xresponse(TRUE, $result);
 	}
 	
-	function villagelist()
+	function c_villagelist()
 	{
 		$params = $this->input->get();
 		// $this->getAPI('system', 'villagelist', $params, FALSE);
@@ -617,7 +644,7 @@ class Systems extends Getmeb
 	}
 	
 	
-	function smarty()
+	function z_smarty()
 	{
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
 		$data['template'] = 'SMARTY !';
@@ -625,7 +652,7 @@ class Systems extends Getmeb
 		$this->smarty->view('welcome_message', $data);
 	}
 	
-	function fenom()
+	function z_fenom()
 	{
 		$GLOBALS['identifier'] = ['user_id' => 1234567];
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
@@ -635,14 +662,16 @@ class Systems extends Getmeb
 		$this->fenom->view("index", $data);
 	}
 	
-	function smarty_test()
+	function z_smarty_test()
 	{
 		$this->smarty->testInstall();
 	}
 	
-	function test()
+	function z_test()
 	{
-		return out($this->_check_session());
+		$this->lang->load('systems/genesys', 'indonesia');
+		echo $this->lang->line('testing');
+		// return out($this->_get_session());
 		// return out($this->getFrontendMenu(11));
 		
 		// $arr = ['assets/plugins/raphael/raphael-min.js'];

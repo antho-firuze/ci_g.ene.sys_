@@ -93,19 +93,13 @@
 	{* {var $org_name = $.session.org_name} *}
 	{* {var $role_name = $.session.role_name} *}
 	
-	{var $home_link = $.php.base_url()~$.const.HOME_LNK}
+	{var $home_link = $.php.base_url()~$.const.HOME_F_LNK}
 	{var $login_link = $.php.base_url()~$.const.LOGIN_LNK}
-	{* {var $logout_link = $.php.base_url()~$.const.LOGOUT_LNK} *}
-	{* {var $profile_link = $.php.base_url('profile')} *}
 	{var $skin = $.session.skin !: 'skin-purple'}
 	{var $sidebar = $.session.sidebar !: ''}
 	var base_url = '{$.php.base_url()}';
 	var api_base_url = '{$.const.API_BASE_URL}';
-	var setUnlockScreen_url = '{$.php.base_url('unlockscreen')}';
-	var setUserConfig_url = '{$.php.base_url('setUserConfig')}';
-	var setMenuSearch_url = '{$.php.base_url('search_menu')}';
-	var setCHPass_url = '{$.php.base_url('change_passwd')}';
-	var setInfo_url = '{$.php.base_url('frontend/infolist')}';
+	var InfoLst_url = '{$.php.base_url()~$.const.INFOLST_LNK}';
 	var username = '{$.session.name}';
 
 	store('skin', '{$skin}');

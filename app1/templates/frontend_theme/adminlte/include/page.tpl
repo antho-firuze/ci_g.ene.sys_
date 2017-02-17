@@ -60,7 +60,7 @@
 	
 	$(".connectedSortable .box-header, .connectedSortable .nav-tabs-custom").css("cursor", "move");
 	 *}
-	var conhead = $('.content-header');
+	{* var conhead = $('.content-header');
 	var info_list = $('<ul id="info_marquee" class="info-marquee marquee" />');
 	$.ajax({ url: setInfo_url, method: "GET", async: true, dataType: 'json',
 		success: function(data) {
@@ -85,5 +85,5 @@
 			conhead.prepend(info_list);
 			$('#info_marquee').marquee();
 		}
-	});
+	}); *}
 </script>

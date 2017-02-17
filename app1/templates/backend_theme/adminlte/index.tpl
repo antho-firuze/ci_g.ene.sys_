@@ -153,11 +153,10 @@
 <script>
 	{* DECLARE VARIABLE *}
 	{var $api_base_url = $.const.API_BASE_URL}
-	{var $head_title = $head_title !: $.const.APP_TITLE}
-	{var $page_title = '<b>GENESYS</b>Ultimate'}
-	{var $logo_text_mn = $.const.APP_LOGO_TEXT_MN}
-	{var $logo_text_lg = $.const.APP_LOGO_TEXT_LG}
-	{* {var $photo_url = $api_base_url ~ $.php.urldecode( ($.session.photo_url) )} *}
+	{var $head_title = $head_title !: $.const.APP_TITLE_B}
+	{var $page_title = $.const.TITLE_B}
+	{var $logo_text_mn = $.const.WEB_LOGO_TEXT_MN_B}
+	{var $logo_text_lg = $.const.WEB_LOGO_TEXT_LG_B}
 	{var $photo_url = $.php.base_url() ~ $.php.urldecode( ($.session.photo_url) )}
 	{var $name = $.session.name}
 	{var $description = $.session.description}
@@ -166,26 +165,25 @@
 	{var $org_name = $.session.org_name}
 	{var $role_name = $.session.role_name}
 	
-	{var $home_link = $.php.base_url('systems')}
-	{var $logout_link = $.php.base_url('logout')}
-	{var $profile_link = $.php.base_url('profile')}
+	{var $home_link = $.php.base_url()~$.const.HOME_B_LNK}
+	{var $login_link = $.php.base_url()~$.const.LOGIN_LNK}
+	{var $logout_link = $.php.base_url()~$.const.LOGOUT_LNK}
+	{var $profile_link = $.php.base_url()~$.const.PROFILE_LNK}
 	{var $skin = $.session.skin !: 'skin-purple'}
 	{var $sidebar = $.session.sidebar !: ''}
 	var base_url = '{$.php.base_url()}';
 	var template_url = '{$template_url}';
 	var api_base_url = '{$.const.API_BASE_URL}';
-	var setUnlockScreen_url = '{$.php.base_url('unlockscreen')}';
-	var setUserConfig_url = '{$.php.base_url('setUserConfig')}';
-	var setMenuSearch_url = '{$.php.base_url('systems/menulist')}';
-	var setCHPass_url = '{$.php.base_url('change_passwd')}';
-	var setInfo_url = '{$.php.base_url('systems/infolist')}';
+	var Unlock_url = '{$.php.base_url()~$.const.UNLOCK_LNK}';
+	var Config_url = '{$.php.base_url()~$.const.CONFIG_LNK}';
+	var SrcMenu_url = '{$.php.base_url()~$.const.SRCMENU_LNK}';
+	var ChgPwd_url = '{$.php.base_url()~$.const.CHGPWD_LNK}';
+	var InfoLst_url = '{$.php.base_url()~$.const.INFOLST_LNK}';
 	var username = '{$.session.name}';
 
 	store('skin', '{$skin}');
 	store('sidebar', '{$sidebar}');
 	store('screen_timeout', '{$.session.screen_timeout !: 60000}');
-	
-	
 	
 	{var $dashboard = $dashboard !: []}
 	{var $content_box_3 = $content_box_3 !: []}

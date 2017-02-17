@@ -1,16 +1,20 @@
+{var $url_module = $.php.base_url('systems/a_user')}
+
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        Users
-        <small></small>
+        {$title}
+        <small>{$short_desc}</small>
       </h1>
+			<!--
       <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li><a href="{$home_link}"><i class="fa fa-dashboard"></i> Home</a></li>
         <li><a href="#">System Management</a></li>
         <li class="active">User</li>
       </ol>
+			-->
     </section>
 
     <!-- Main content -->
@@ -39,10 +43,10 @@
 <script>
 	{* Section 1: For parsing URL Parameters *}
 	var $param = {}, $id, $q,
-			$url = "{$.php.base_url()}systems/user/data";
+			$url_data = '{$url_module ~ "/data"}';
 	if ($id = getURLParameter('id')) $param['id'] = $id;
 	if ($q  = getURLParameter('q'))	$param['q'] = $q;
-	if ($.param($param)) $url = $url + "?" + $.param($param);
+	if ($.param($param)) $url_data = $url_data + "?" + $.param($param);
 	
 	{* Section 2: For building Datatables *}
 	var setCustomLeftButton = ''+
@@ -56,7 +60,7 @@
 	dataTable1 = tableData1.DataTable({
 		"pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true,
 		"ajax": {
-			"url": $url,
+			"url": $url_data,
 			"data": function(d){ return $.extend({}, d, { "q": $q });	},
 			"dataFilter": function(data){
 				var json = jQuery.parseJSON( data );
@@ -151,7 +155,7 @@
 					var button = this;
 					button.spin();
 					
-					$.ajax({ url: '{$.php.base_url('systems/user?id=')}'+data.id, method: "PUT", async: true, dataType: 'json',
+					$.ajax({ url: '{$url_module ~ "?id="}'+data.id, method: "PUT", async: true, dataType: 'json',
 						data: form.serializeJSON(),
 						success: function(data) {
 							dialog.close();
@@ -292,7 +296,7 @@
 		{* line for check permission *}
 		
 		form = createForm1();
-		BootstrapDialog.show({ title: 'Update User', message: form,
+		BootstrapDialog.show({ title: 'Create User', message: form,
 			buttons: [{
 				icon: 'glyphicon glyphicon-send',
 				cssClass: 'btn-primary',
@@ -303,7 +307,7 @@
 					var button = this;
 					button.spin();
 					
-					$.ajax({ url: '{$.php.base_url('systems/user')}', method: "POST", async: true, dataType: 'json',
+					$.ajax({ url: '{$url_module}', method: "POST", async: true, dataType: 'json',
 						data: form.serializeJSON(),
 						success: function(data) {
 							dialog.close();
@@ -381,7 +385,7 @@
 					var button = this;
 					button.spin();
 					
-					$.ajax({ url: '{$.php.base_url('systems/user?id=')}'+ids.join(), method: "DELETE", async: true, dataType: 'json',
+					$.ajax({ url: '{$url_module ~ "?id="}'+ids.join(), method: "DELETE", async: true, dataType: 'json',
 						data: form.serializeJSON(),
 						success: function(data) {
 							dialog.close();

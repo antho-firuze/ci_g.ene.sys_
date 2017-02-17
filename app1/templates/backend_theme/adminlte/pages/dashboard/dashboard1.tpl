@@ -57,14 +57,16 @@
 
 	var conhead = $('.content-header');
 	var info_list = $('<ul id="info_marquee" class="info-marquee marquee" />');
-	$.ajax({ url: setInfo_url, method: "GET", async: true, dataType: 'json',
+	$.ajax({ url: InfoLst_url, method: "GET", async: true, dataType: 'json',
 		success: function(data) {
 			$.each(data.data.rows, function(k, v){
-				console.log(v.description);
-				$('<li />').html(v.description).appendTo(info_list);
+				{* console.log(v.description); *}
+				if (v.description) {
+					$('<li />').html(v.description).appendTo(info_list);
+					conhead.prepend(info_list);
+					$('#info_marquee').marquee({ yScroll: "bottom" });
+				}
 			});
-			conhead.prepend(info_list);
-			$('#info_marquee').marquee({ yScroll: "bottom" });
 		},
 		error: function(data) {
 			if (data.status==500){
@@ -73,9 +75,7 @@
 				var error = JSON.parse(data.responseText);
 				var message = error.message;
 			}
-			$('<li />').html(message).appendTo(info_list);
-			conhead.prepend(info_list);
-			$('#info_marquee').marquee();
+			console.log('[Error: info_list]: '+message);
 		}
 	});
 </script>

@@ -106,10 +106,29 @@ class System_Model extends CI_model
 		$params['select']	= !array_key_exists('select', $params) ? "am.*" : $params['select'];
 		$params['table'] 	= "a_role_menu arm";
 		$params['join'][] 	= ['a_menu am', 'am.id = arm.menu_id', 'left'];
-		$params['where']	= "am.is_active = '1' and am.is_deleted = '0' and arm.is_active = '1' and arm.is_deleted = '0' and am.is_parent = '0'";
+		// $params['where']	= "am.is_active = '1' and am.is_deleted = '0' and arm.is_active = '1' and arm.is_deleted = '0' and am.is_parent = '0'";
+		$params['where']['am.is_active']	= '1';
+		$params['where']['am.is_deleted']	= '0';
+		$params['where']['arm.is_active']	= '1';
+		$params['where']['arm.is_deleted']	= '0';
+		$params['where']['am.is_parent']	= '0';
 		$params['order']	= "am.name";
-		
+
 		return $this->base_model->mget_rec($params);
+	}
+	
+	function getMenuById($id)
+	{
+		$params['select']	= "am.*";
+		$params['table'] 	= "a_menu am";
+		$params['where']['am.id']	= $id;
+
+		$data = [];
+		$data = $this->base_model->mget_rec($params);
+		
+		$data[0]->title = $data[0]->name;
+		$data[0]->short_desc = $data[0]->description;
+		return $data[0];
 	}
 	
 	function getRole($params)

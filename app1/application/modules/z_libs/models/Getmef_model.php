@@ -59,15 +59,12 @@ class Getmef_Model extends CI_Model
 		else
 			$params['where']['wp.id'] = $id;
 		
-		$rs = [];
-		$rs = $this->base_model->mget_rec($params);
+		$data = [];
+		$data = (array) $this->base_model->mget_rec($params)[0];
 		
-		// echo $rs[0]->title;
-		// var_dump($rs);
-		// echo $rs[0]->title;
-		$data['title'] = $rs[0]->title;
-		$data['short_desc'] = $rs[0]->short_desc;
-		$data['description'] = $rs[0]->description;
+		// $data['title'] = $data[0]->name;
+		// $data['short_desc'] = $data[0]->short_desc;
+		// $data['description'] = $data[0]->description;
 		return $data;
 	}
 	

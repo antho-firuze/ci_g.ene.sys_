@@ -188,7 +188,7 @@ class Getmeb extends CI_Controller
 	
 	function getBackendMenu()
 	{
-		$sess 	= $this->_check_session();
+		$sess 	= $this->_get_session();
 		
 		$result['data'] = $this->system_model->getRoleMenu($sess->role_id);
 		return $result['data'];
@@ -199,7 +199,7 @@ class Getmeb extends CI_Controller
 	
 	function getBackendDashboard()
 	{
-		$sess 	= $this->_check_session();
+		$sess 	= $this->_get_session();
 		$params = [];
 		
 		$params['where']['ard.role_id'] = $sess->role_id;
@@ -252,7 +252,7 @@ class Getmeb extends CI_Controller
 	}
 	
 	// NOT USING REST-API
-	function _check_session()
+	function _get_session()
 	{
 		
 		return (object) $this->session->userdata();

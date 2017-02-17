@@ -281,7 +281,7 @@ function lock_screen()
       change_skin($(this).data('skin'));
 	
 	  $.ajax({
-		  url: setUserConfig_url,
+		  url: Config_url,
 		  method: "POST",
 		  dataType: 'json',
 		  data: '{"skin": "'+$(this).data('skin')+'"}'
@@ -296,7 +296,7 @@ function lock_screen()
 			store('sidebar', 'sidebar-collapse');
 		
 		$.ajax({
-		  url: setUserConfig_url,
+		  url: Config_url,
 		  method: "POST",
 		  dataType: 'json',
 		  data: '{ "sidebar": "' + get('sidebar') +'" }'
@@ -309,7 +309,7 @@ function lock_screen()
 		init_screen_timeout();
 		
 		$.ajax({
-			url: setUserConfig_url,
+			url: Config_url,
 			method: "POST",
 			dataType: 'json',
 			data: '{"screen_timeout": "'+$("#timeout_list").val()+'"}'
@@ -369,7 +369,7 @@ function lock_screen()
 		
 		if (! form_lck.valid()) return false;
 		
-		$.ajax({ url: setUnlockScreen_url, method: "GET", async: true, dataType: 'json',
+		$.ajax({ url: Unlock_url, method: "GET", async: true, dataType: 'json',
 			headers: {
 				"X-AUTH": "Basic " + btoa(form_lck.find("input[name='name']").val() + ":" + form_lck.find("input[name='password']").val())
 			},
@@ -403,8 +403,8 @@ function lock_screen()
 		// cache: false,
 		source: function(term, response){
 			try { xhr.abort(); } catch(e){}
-			xhr = $.getJSON(setMenuSearch_url, { q: term }, function(data){ response(data.data); });
-			// $.getJSON(setMenuSearch_url, { q: term }, function(data){ response(data.data); });
+			xhr = $.getJSON(SrcMenu_url, { q: term }, function(data){ response(data.data); });
+			// $.getJSON(SrcMenu_url, { q: term }, function(data){ response(data.data); });
 		},
 		renderItem: function (item, search){
 			search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
@@ -449,7 +449,7 @@ function lock_screen()
 					// dialog.setClosable(false);
 					// dialog.enableButtons(false);
 					
-					$.ajax({ url: setCHPass_url, method: "POST", async: true, dataType: 'json',
+					$.ajax({ url: ChgPwd_url, method: "POST", async: true, dataType: 'json',
 						data: '{"password_new": "'+form.find("input[name='password_new']").val()+'"}',
 						headers: {
 							"X-AUTH": "Basic " + btoa(form.find("input[name='name']").val() + ":" + form.find("input[name='password']").val())

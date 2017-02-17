@@ -177,13 +177,35 @@
   var page_settings = $("<form method='post' />")
 	.append("<h4 class='control-sidebar-heading'>General Settings</h4>");
   
+  var select_screen_timeout = 
+    $("<div />", {"class": "form-group"})
+	  .append("<label>Screen Timeout</label>");
+	  
+  var j_timeout = { 
+	"60000":"1 minute",
+	"120000":"2 minutes",
+	"180000":"3 minutes",
+	"300000":"5 minutes",
+	"600000":"10 minutes",
+	"900000":"15 minutes",
+	"1200000":"20 minutes",
+	"1500000":"25 minutes",
+	"1800000":"30 minutes",
+	"2700000":"45 minutes",
+	"3600000":"1 hour",
+	"7200000":"2 hours",
+	"10800000":"3 hours",
+	"14400000":"4 hours",
+	"18000000":"5 hours"
+   };
+  select_screen_timeout.append(setSelectList("timeout_list", "timeout_list", "form-control", j_timeout));
+  page_settings.append(select_screen_timeout);
+  
   tab_pane_settings.append(page_settings);
   
   tab_pane.append(tab_pane_settings);
   tab_pane.append(tab_pane_options);
   
-  setup();
-
   /**
    * Replaces the old skin with the new skin
    * @param String cls the new skin class
@@ -200,192 +222,33 @@
   }
 
   /**
-   * Retrieve default settings and apply them to the template
+   * Store a new settings in the browser
    *
+   * @param String name Name of the setting
+   * @param String val Value of the setting
    * @returns void
    */
-  function setup() {
-    var tmp = get('skin');
-    if (tmp && $.inArray(tmp, my_skins))
-      change_skin(tmp);
-
-    //Add the change skin listener
-    $("[data-skin]").on('click', function (e) {
-      e.preventDefault();
-      change_skin($(this).data('skin'));
-	
-	  $.ajax({
-		  url: setUserConfig_url,
-		  method: "POST",
-		  dataType: 'json',
-		  data: '{"skin": "'+$(this).data('skin')+'"}'
-	  });
-    });
-
-    //Add the change sidebar toggle
-	$("[class='sidebar-toggle']").on("click", function(){
-		if (get('sidebar'))
-			store('sidebar', '');
-		else
-			store('sidebar', 'sidebar-collapse');
-		
-		$.ajax({
-		  url: setUserConfig_url,
-		  method: "POST",
-		  dataType: 'json',
-		  data: '{ "sidebar": "' + get('sidebar') +'" }'
-		});
-	});
-		
+  function store(name, val) {
+    if (typeof (Storage) !== "undefined") {
+      localStorage.setItem(name, val);
+    } else {
+      window.alert('Please use a modern browser to properly view this template!');
+    }
   }
+
+  /**
+   * Get a prestored setting
+   *
+   * @param String name Name of of the setting
+   * @returns String The value of the setting | null
+   */
+  function get(name) {
+    if (typeof (Storage) !== "undefined") {
+      return localStorage.getItem(name);
+    } else {
+      window.alert('Please use a modern browser to properly view this template!');
+    }
+  }
+
 })(jQuery);
 
-
-/** 
- * Initialize 
- *
- */
-(function ($) {
-
-	"use strict";
-  
-	/* 
-	* FOR SEARCHING MENU 
-	*/
-	// init();
-	
-	function init() {
-		var xhr;
-		$('input[name="q"]').autoComplete({
-			minChars: 1,
-			delay: 0,
-			source: function(term, response){
-				try { xhr.abort(); } catch(e){}
-				xhr = $.getJSON(setMenuSearch_url, { q: term }, function(data){ 
-					response(data.data);
-				});
-				/* $.getJSON(setMenuSearch_url, { q: term }, function(data){ 
-					response(data.data);
-				}); */
-			},
-			renderItem: function (item, search){
-				search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-				var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
-				return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion" data-href="' + item[1] + '" data-val="' + item[0] + '"><i class="fa fa-circle-o"></i> '+ item[0].replace(re, "<b>$1</b>") + '</div>';
-			},
-			onSelect: function(e, term, item){
-				// window.location.replace(base_url+item.data('href'));
-				window.location.href = base_url+item.data('href');
-			} 
-		})
-		.closest('form')
-		.submit(function(e){
-			e.preventDefault();
-			
-			var q = $('input[name="q"]');
-			var tx = q.val();
-			q.val('').trigger('keyup'); 
-			q.focus();
-			q.val(tx).trigger('keyup'); 
-				
-			return false;
-		});
-	}
-	
-	/* 
-	* Change Password Process 
-	*/
-	$('#go-change-pwd').on('click', function(e){
-		e.preventDefault();
-
-		var content = $('<div />');
-		var form = $('<form />', {class: 'form-horizontal'});
-		var input_username = 
-			$('<div />', {class: 'form-group'})
-			.append('<label for="username" class="col-sm-4 control-label">User Name</label>'
-			+ '<div class="col-sm-8"><input type="text" class="form-control" id="username" value="'+username+'" name="name" disabled></div>');
-		form.append(input_username);
-		var input_passold = 
-			$('<div />', {class: 'form-group'})
-			.append('<label for="password" class="col-sm-4 control-label">Password (Old)</label>'
-			+ '<div class="col-sm-8"><input type="password" class="form-control" id="password" name="password"></div>');
-		form.append(input_passold);
-		var input_passnew = 
-			$('<div />', {class: 'form-group'})
-			.append('<label for="password_new" class="col-sm-4 control-label">Password (New)</label>'
-			+ '<div class="col-sm-8"><input type="password" class="form-control" id="password_new" name="password_new"></div>');
-		form.append(input_passnew);
-		var input_passconfirm = 
-			$('<div />', {class: 'form-group'})
-			.append('<label for="password_confirm" class="col-sm-4 control-label">Password (Confirm)</label>'
-			+ '<div class="col-sm-8"><input type="password" class="form-control" id="password_confirm" name="password_confirm"></div>');
-		form.append(input_passconfirm);
-		content.append(form);
-		
-		BootstrapDialog.show({ cssClass: 'modal-primary',
-			title: 'Change Password',
-			message: content,
-			buttons: [{
-				icon: 'glyphicon glyphicon-send',
-				cssClass: 'btn-primary',
-                label: '&nbsp;&nbsp;Save',
-                action: function(dialog) {
-					
-					if (! form.valid()) return false;
-					
-					var button = this;
-					button.spin();
-					
-					// dialog.setClosable(false);
-					// dialog.enableButtons(false);
-					
-					$.ajax({ url: setCHPass_url, method: "POST", async: true, dataType: 'json',
-						data: '{"password_new": "'+form.find("input[name='password_new']").val()+'"}',
-						headers: {
-							"X-AUTH": "Basic " + btoa(form.find("input[name='name']").val() + ":" + form.find("input[name='password']").val())
-						},
-						success: function(data) {
-							BootstrapDialog.alert({ type:'modal-info', title:'Notification', message:data.message, callback: function(){
-									dialog.close();
-								}
-							});
-						},
-						error: function(data) {
-							var error = JSON.parse(data.responseText);
-							
-							button.stopSpin();
-							dialog.enableButtons(true);
-							dialog.setClosable(true);
-							
-							BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:error.message });
-						}
-					});
-                }
-            }, {
-                label: 'Close',
-                action: function(dialog) { dialog.close(); }
-            }],
-			onshown: function(dialog) {
-				form.validate({
-					rules: {
-						password: {
-							required: true
-						},
-						password_new: {
-							required: true,
-							minlength: 3
-						},
-						password_confirm: {
-							required: true,
-							minlength: 3,
-							equalTo: "#password_new"
-						},
-					}
-				});
-				$('#password').focus();
-				// dialog.getModalDialog().css("top", Math.max(0, ($(window).height() - dialog.getModalContent().height()) / 2));
-			}
-		});
-	});
-	
-})(jQuery);

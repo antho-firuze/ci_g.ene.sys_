@@ -14,7 +14,7 @@
 	{var $head_title = $head_title !: $.const.APP_TITLE_B}
 	{var $page_title = $.const.TITLE_B}
 	
-	{var $home_link = $.php.base_url('systems')}
+	{var $home_link = $.php.base_url()~$.const.HOME_B_LNK}
 	var base_url = '{$.php.base_url()}';
 </script>
 <meta charset="utf-8">
@@ -50,7 +50,7 @@
   <div class="login-box-body">
     <p class="login-box-msg">Sign in to start your session</p>
 
-    <form action="{$validate_link}">
+    <form action="{$.php.base_url()~$.const.AUTH_LNK}">
       <div class="form-group has-feedback">
         <span class="glyphicon glyphicon-user form-control-feedback"></span>
         <input type="text" class="form-control" placeholder="User Name" name="username">
