@@ -9,6 +9,9 @@ class Systems extends Getmeb
 		parent::__construct();
 		
 		$this->load->model('systems/system_model');
+		
+		$this->method = $_SERVER['REQUEST_METHOD'];
+		
 	}
 	
 	function _remap($method, $params = array())
@@ -83,11 +86,6 @@ class Systems extends Getmeb
 			'select' => 'attribute, value', 
 			'where' => ['user_id' => $id]
 		]);
-		
-		if (array_key_exists('language', $userConfig))
-			$this->lang->load('systems/genesys', $userConfig->language);
-		else
-			$this->lang->load('systems/genesys', 'english');
 		
 		$dataConfig = [];
 		foreach($userConfig as $k => $v)
@@ -265,11 +263,10 @@ class Systems extends Getmeb
 	
 	/* function x_setUserRecent()
 	{
-		$sess 	= $this->_get_session();
 		$params = (count($params = $this->input->get()) < 1) ? '' : '?'.http_build_query($params);
 		
 		$data = [
-			'user_id'	=> $sess->user_id,
+			'user_id'	=> $this->sess->user_id,
 			'value'		=> current_url().$params
 		];
 		// log_message('error', $data['value']);
@@ -278,7 +275,6 @@ class Systems extends Getmeb
 	
 	function x_srcmenu()
 	{
-		$sess 	= $this->_get_session();
 		$params = $this->input->get();
 		$result['data'] = [];
 		if (key_exists('q', $params)) 
@@ -290,14 +286,13 @@ class Systems extends Getmeb
 	
 	function x_config()
 	{
-		$sess 	= $this->_get_session();
 		$data = json_decode($this->input->raw_input_stream);
 		$this->session->set_userdata((array)$data);
 		$return = 0; 
 		$result['data'] = [];
 		foreach($data as $key => $value)
 		{
-			$cond = ['user_id' => $sess->user_id, 'attribute' => $key];
+			$cond = ['user_id' => $this->sess->user_id, 'attribute' => $key];
 			$qry = $this->db->get_where('a_user_config', $cond, 1);
 			if ($qry->num_rows() < 1)
 			{
@@ -318,7 +313,7 @@ class Systems extends Getmeb
 	
 	function x_profile($mode=NULL)
 	{
-		/* $sess 	= $this->_get_session();
+		/* 
 		$params = $this->input->get();
 		
 		$data = [];
@@ -338,7 +333,6 @@ class Systems extends Getmeb
 	*/
 	function x_page()
 	{
-		$sess 	= $this->_get_session();
 		$params = $this->input->get();
 		
 		$data = [];
@@ -352,12 +346,10 @@ class Systems extends Getmeb
 		show_404();
 	}
 	
-	function a_user($mode=NULL)
+	function a_user()
 	{
-		$sess 	= $this->_get_session();
-		$method = $_SERVER['REQUEST_METHOD'];
-		if ($method == 'GET') {
-			$params = $this->input->get();
+		$params = $this->input->get();
+		if ($this->method == 'GET') {
 			if (key_exists('id', $params)) 
 				if (!empty($params['id'])) {
 					$params['where']['au.id'] = $params['id'];
@@ -370,35 +362,24 @@ class Systems extends Getmeb
 			}
 			$result['data'] = $this->system_model->getUser($params);
 			$this->xresponse(TRUE, $result);
-			/* $arg = (object) $this->input->get();
-			$this->getAPI('system', 'user', $arg, FALSE); */
 		}
 		
-		if ($method == 'POST') {
+		if ($this->method == 'POST') {
 			$data 	= (object) $this->post();
-			
 			$additional_data = [
-				'client_id'		=> $sess->client_id,
-				'created_by'	=> $sess->user_id,
+				'client_id'		=> $this->sess->client_id,
+				'created_by'	=> $this->sess->user_id,
 				'created_at'	=> date('Y-m-d H:i:s')
 			];
-			
 			$this->load->library('z_auth/auth');
 			if (! $id = $this->auth->register($data->username, $data->password, $data->email, $additional_data))
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 
-			// $this->x_setUserRecent();
 			$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
-			/* $data = json_decode($this->input->raw_input_stream);
-			$this->postAPI('system', 'user', $data, FALSE); */
 		}
 		
-		if ($method == 'PUT') {
-			$params = $this->input->get();
+		if ($this->method == 'PUT') {
 			$data = json_decode($this->input->raw_input_stream);
-			// log_message('error', $data);
-			// return out($fields);
-			// return;
 			$fields = [
 				'is_active', 'is_deleted', 'name', 'description', 'email', 'api_token', 'remember_token', 
 				'is_online', 'supervisor_id', 'bpartner_id', 'is_fullbpaccess', 'is_expired', 'security_question',
@@ -419,25 +400,19 @@ class Systems extends Getmeb
 					}
 				}
 			}
-			
 			if (key_exists('id', $params) && !empty($params['id'])) {
 				if (! $this->system_model->updateUser($datas, [ 'id'=>(int)$params['id']]))
 					$this->xresponse(FALSE, ['message' => $this->db->error()->message], 401);
 
-				// $this->x_setUserRecent();
 				$this->xresponse(TRUE, ['message' => $this->lang->line('success_update')]);
 			}
-			
 			$this->xresponse(FALSE, ['message' => $this->lang->line('error_update')], 400);
-			// $this->putAPI('system', 'user', $params, $datas, FALSE);
 		}
 		
-		if ($method == 'DELETE') {
-			$params = $this->input->get();
-			
+		if ($this->method == 'DELETE') {
 			if (key_exists('id', $params) && !empty($params['id'])) {
-				if (! $this->system_model->deleteUser($params['id'], $sess->user_id))
-					$this->xresponse(FALSE, ['message' => $this->system_model->errors()], 401);
+				if (! $this->system_model->deleteUser($params['id'], $this->sess->user_id))
+					$this->xresponse(FALSE, ['message' => $this->db->error()->message], 401);
 				
 				$this->xresponse(TRUE, ['message' => $this->lang->line('success_delete')]);
 			}
@@ -459,12 +434,11 @@ class Systems extends Getmeb
 	
 	function a_userlist()
 	{
-		$sess 	= $this->_get_session();
 		$params = $this->input->get();
 		
 		$result['data'] = [];
-		$params['where']['au.client_id'] = $sess->client_id;
-		$params['where']['au.org_id'] 	 = $sess->org_id;
+		$params['where']['au.client_id'] = $this->sess->client_id;
+		$params['where']['au.org_id'] 	 = $this->sess->org_id;
 		if (key_exists('id', $params)) 
 		{
 			$params['where']['au.id'] 	 = $params['id'];
@@ -477,12 +451,11 @@ class Systems extends Getmeb
 	
 	function a_supervisorlist()
 	{
-		$sess 	= $this->_get_session();
 		$params = $this->input->get();
 		
 		$result['data'] = [];
-		$params['where']['au.client_id'] = $sess->client_id;
-		$params['where']['au.org_id'] 	 = $sess->org_id;
+		$params['where']['au.client_id'] = $this->sess->client_id;
+		$params['where']['au.org_id'] 	 = $this->sess->org_id;
 		if (key_exists('id', $params)) 
 		{
 			$params['where']['au.id'] 	 = $params['id'];
@@ -541,10 +514,9 @@ class Systems extends Getmeb
 	
 	function a_infolist()
 	{
-		$sess 	= $this->_get_session();
 		$params = $this->input->get();
-		$params['where']['ai.client_id'] = $sess->client_id;
-		$params['where']['ai.org_id'] 	 = $sess->org_id;
+		$params['where']['ai.client_id'] = $this->sess->client_id;
+		$params['where']['ai.org_id'] 	 = $this->sess->org_id;
 		$params['where']['ai.valid_from <='] = datetime_db_format();
 		$result['data'] = $this->system_model->getInfo($params);
 		$this->xresponse(TRUE, $result);
@@ -567,7 +539,6 @@ class Systems extends Getmeb
 	
 	function c_provincelist()
 	{
-		$sess 	= $this->_get_session();
 		$params = $this->input->get();
 		// $this->getAPI('system', 'provincelist', $params, FALSE);
 		if (key_exists('q', $params)) 
@@ -660,9 +631,18 @@ class Systems extends Getmeb
 	
 	function z_test()
 	{
-		$this->lang->load('systems/genesys', 'indonesia');
+		// $this->session->userdata();
+		
+		// $userConfig = (object) $this->system_model->getUserConfig([
+			// 'select' => 'attribute, value', 
+			// 'where' => ['user_id' => 11]
+		// ]);
+		
+		// echo $this->session->userdata('language');
+		
+		// $this->lang->load('systems/genesys', 'indonesia');
+		// $this->lang->load('systems/genesys', 'english');
 		echo $this->lang->line('testing');
-		// return out($this->_get_session());
 		// return out($this->getFrontendMenu(11));
 		
 		// $arr = ['assets/plugins/raphael/raphael-min.js'];

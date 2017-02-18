@@ -9,6 +9,8 @@ class Getmeb extends CI_Controller
 	public $backend_default_theme  	= 'adminlte';
 	public $frontend_default_theme 	= 'adminlte';
 	public $org_id 		= 0;
+	public $method;
+	public $sess;
 	
 	function __construct() {
 		header('Access-Control-Allow-Origin: *');
@@ -21,6 +23,9 @@ class Getmeb extends CI_Controller
 		
 		parent::__construct();
 		defined('ASSET_URL')						OR define('ASSET_URL', base_url().'/assets/');
+		
+		$this->sess = (object) $this->session->userdata();
+		$this->lang->load('systems/genesys', ($this->sess->language ? $this->sess->language : 'english'));
 	}
 	
 	function _check_token()
@@ -188,9 +193,7 @@ class Getmeb extends CI_Controller
 	
 	function getBackendMenu()
 	{
-		$sess 	= $this->_get_session();
-		
-		$result['data'] = $this->system_model->getRoleMenu($sess->role_id);
+		$result['data'] = $this->system_model->getRoleMenu($this->sess->role_id);
 		return $result['data'];
 		/* $params = ['id' => $this->session->userdata('role_id')];
 		$result = $this->getAPI('system', 'rolemenu', $params);
@@ -199,10 +202,8 @@ class Getmeb extends CI_Controller
 	
 	function getBackendDashboard()
 	{
-		$sess 	= $this->_get_session();
 		$params = [];
-		
-		$params['where']['ard.role_id'] = $sess->role_id;
+		$params['where']['ard.role_id'] = $this->sess->role_id;
 		$result['data'] = $this->system_model->getRoleDashboard($params);
 		return $result['data'];
 		
@@ -249,13 +250,6 @@ class Getmeb extends CI_Controller
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);
 		$this->fenomx->view(BACKEND_THEME.$this->backend_default_theme.URL_SEPARATOR.'index', array_merge($default, $data));
-	}
-	
-	// NOT USING REST-API
-	function _get_session()
-	{
-		
-		return (object) $this->session->userdata();
 	}
 	
 }

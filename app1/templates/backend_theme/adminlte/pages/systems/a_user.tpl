@@ -115,7 +115,7 @@
 		form.append(BSHelper.Input({ type:"email", label:"Email", idname:"email", required: true, placeholder:"string(255)" }));
 		form.append(BSHelper.Checkbox({ label:"Is Active", idname:"is_active" }));
 		form.append(BSHelper.Checkbox({ label:"Is Full BP Access", idname:"is_fullbpaccess" }));
-		form.append(BSHelper.Combobox({ label:"Supervisor", idname:"supervisor_id", url:"{$.php.base_url('systems/supervisorlist')}", required: false, isCombogrid: true, placeholder:"typed or choose" }));
+		form.append(BSHelper.Combobox({ label:"Supervisor", idname:"supervisor_id", url:"{$.php.base_url('systems/a_supervisorlist')}", required: false, isCombogrid: true, placeholder:"typed or choose" }));
 		return form;
 	}
 	
