@@ -5,8 +5,8 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        Users
-        <small></small>
+        {$title}
+        <small>{$short_desc}</small>
       </h1>
 			<!--
       <ol class="breadcrumb">
@@ -42,11 +42,8 @@
   <!-- /.content-wrapper -->
 <script>
 	{* Section 1: For parsing URL Parameters *}
-	var $param = {}, $id, $q,
-			$url_data = '{$url_module ~ "/data"}';
-	if ($id = getURLParameter('id')) $param['id'] = $id;
-	if ($q  = getURLParameter('q'))	$param['q'] = $q;
-	if ($.param($param)) $url_data = $url_data + "?" + $.param($param);
+	var origin_url = window.location.origin+window.location.pathname;
+	var $param = {}, $id, $q;
 	
 	{* Section 2: For building Datatables *}
 	var setCustomLeftButton = ''+
@@ -60,7 +57,7 @@
 	dataTable1 = tableData1.DataTable({
 		"pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true,
 		"ajax": {
-			"url": $url_data,
+			"url": '{$url_module}'+window.location.search,
 			"data": function(d){ return $.extend({}, d, { "q": $q });	},
 			"dataFilter": function(data){
 				var json = jQuery.parseJSON( data );
@@ -101,9 +98,9 @@
 	{* Don't change this code: Re-coding dataTables search method *}
 	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
 		$q = $(this).val();
-		$url = getURLOrigin() + (!($q)?'':"?q=" + $q);
+		$url = insertParam('q', $q);
 		dataTable1.ajax.reload( null, false );
-		history.pushState({}, '', $url);
+		history.pushState({}, '', origin_url +'?'+ $url);
 	});		
 	
 	DTHelper.initCheckList(tableData1, dataTable1);

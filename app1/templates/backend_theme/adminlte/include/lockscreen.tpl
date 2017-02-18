@@ -5,7 +5,7 @@
     <a href="#">{$page_title}</a>
   </div>
   <!-- User name -->
-  <div class="lockscreen-name">{$name}</div>
+  <div class="lockscreen-name">{$.session.name}</div>
 
   <!-- START LOCK SCREEN ITEM -->
   <div class="lockscreen-item">
@@ -18,7 +18,7 @@
     <!-- lockscreen credentials (contains the form) -->
     <form class="lockscreen-credentials">
       <div class="input-group">
-        <input type="hidden" class="form-control" name="name" value="{$name}">
+        <input type="hidden" class="form-control" name="name" value="{$.session.name}">
         <input type="password" class="form-control" placeholder="password" name="password">
 
         <div class="input-group-btn">

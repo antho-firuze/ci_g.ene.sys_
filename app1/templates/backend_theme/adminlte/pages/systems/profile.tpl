@@ -22,9 +22,9 @@
             <div class="box-body box-profile">
               <img class="profile-user-img img-responsive img-circle" src="{$photo_url}" alt="User profile picture">
 
-              <h3 class="profile-username text-center">{$name}</h3>
+              <h3 class="profile-username text-center">{$.session.name}</h3>
 
-              <p class="text-muted text-center">{$description}</p>
+              <p class="text-muted text-center">{$.session.description}</p>
 
               <ul class="list-group list-group-unbordered">
                 <li class="list-group-item">

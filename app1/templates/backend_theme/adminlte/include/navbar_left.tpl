@@ -7,7 +7,7 @@
           <img src="{$photo_url}" class="img-circle" alt="User Image">
         </div>
         <div class="pull-left info">
-          <p>{$name}</p>
+          <p>{$.session.name}</p>
           <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
         </div>
       </div>

@@ -124,7 +124,7 @@
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
               <img src="{$photo_url}" class="user-image" alt="User Image">
-              <span class="hidden-xs">{$name}</span>
+              <span class="hidden-xs">{$.session.name}</span>
             </a>
             <ul class="dropdown-menu">
               <!-- User image -->
@@ -132,8 +132,8 @@
                 <img src="{$photo_url}" class="img-circle" alt="User Image">
 
                 <p>
-                  {$name} - {$email}
-                  <small>{$description}</small>
+                  {$.session.name} - {$.session.email}
+                  <small>{$.session.description}</small>
                 </p>
               </li>
               <!-- Menu Body -->
@@ -143,7 +143,7 @@
                     Client:
                   </div>
                   <div class="col-xs-8 text-left">
-                    <a href="#">{$client_name}</a>
+                    <a href="#">{$.session.client_name}</a>
                   </div>
 				</div>
 			    <div class="row">
@@ -151,7 +151,7 @@
                     Organization:
                   </div>
                   <div class="col-xs-8 text-left">
-                    <a href="#">{$org_name}</a>
+                    <a href="#">{$.session.org_name}</a>
                   </div>
 				</div>
 			    <div class="row">
@@ -159,7 +159,7 @@
                     Role:
                   </div>
                   <div class="col-xs-8 text-left">
-                    <a href="#">{$role_name}</a>
+                    <a href="#">{$.session.role_name}</a>
                   </div>
 				</div>
                 <!-- /.row -->

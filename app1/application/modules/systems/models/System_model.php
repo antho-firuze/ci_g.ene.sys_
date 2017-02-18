@@ -52,6 +52,28 @@ class System_Model extends CI_model
 		return $this->base_model->mget_rec_count($params);
 	}
 	
+	function getUserById($id)
+	{
+		$select = "au.id,au.client_id,au.org_id,au.role_id,au.is_active,au.is_deleted,
+			au.created_by,au.updated_by,au.deleted_by,au.created_at,au.updated_at,au.deleted_at,
+			au.name,au.description,au.email,au.last_login,au.is_online,au.supervisor_id,
+			au.bpartner_id,au.is_fullbpaccess,au.is_expired,au.security_question,au.security_answer,
+			au.ip_address,au.photo_url,ao.name as org_name, ar.name as role_name, au4.name as supervisor_name,
+			au1.name as _created_by, au2.name as _updated_by, au3.name as _deleted_by";
+		$params['select']	= $select;
+		$params['table'] 	= "a_user as au";
+		$params['join'][] 	= ['a_client as ac', 'au.client_id = ac.id', 'left'];
+		$params['join'][] 	= ['a_org as ao', 'au.org_id = ao.id', 'left'];
+		$params['join'][] 	= ['a_role as ar', 'au.role_id = ar.id', 'left'];
+		$params['join'][] 	= ['a_user as au1', 'au.created_by = au1.id', 'left'];
+		$params['join'][] 	= ['a_user as au2', 'au.updated_by = au2.id', 'left'];
+		$params['join'][] 	= ['a_user as au3', 'au.deleted_by = au3.id', 'left'];
+		$params['join'][] 	= ['a_user as au4', 'au.supervisor_id = au4.id', 'left'];
+		$params['where']['au.id'] 	= $id;
+		
+		return $this->base_model->mget_rec_count($params);
+	}
+	
 	function getUserConfig($params)
 	{
 		$params['select']	= !array_key_exists('select', $params) ? "auc.*" : $params['select'];

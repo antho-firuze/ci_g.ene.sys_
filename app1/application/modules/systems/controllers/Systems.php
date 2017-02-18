@@ -318,23 +318,24 @@ class Systems extends Getmeb
 	
 	function x_profile($mode=NULL)
 	{
-		// $this->x_setUserRecent();
-		if ($mode='r') {
-			
-		}
-		if ($mode='c') {
-			
-		}
-		if ($mode='u') {
-			
-		}
-		if ($mode='d') {
-			
-		}
+		/* $sess 	= $this->_get_session();
+		$params = $this->input->get();
+		
+		$data = [];
+		if (key_exists('id', $params)) 
+			if (!empty($params['id'])) {
+				$data = (array) $this->system_model->getUserById($params['id']);
+				$this->xresponse(TRUE, $data);
+			}
+				
+		show_404(); */
 		
 		$this->backend_view('crud', 'pages/systems/profile');
 	}
 	
+	/*
+	*		x_page?pageid=19
+	*/
 	function x_page()
 	{
 		$sess 	= $this->_get_session();
@@ -344,13 +345,9 @@ class Systems extends Getmeb
 		if (key_exists('pageid', $params)) 
 			if (!empty($params['pageid'])) {
 				$data = (array) $this->system_model->getMenuById($params['pageid']);
-				// var_dump($data);
-				// echo $data[0]->path.URL_SEPARATOR.$data[0]->url;
-				// echo $data->path.URL_SEPARATOR.$data->url;
-				// echo $data['path'].URL_SEPARATOR.$data['url'];
 				$this->backend_view('crud', $data['path'].URL_SEPARATOR.$data['url'], $data);
 				return;
-			} 
+			}
 				
 		show_404();
 	}
@@ -360,27 +357,21 @@ class Systems extends Getmeb
 		$sess 	= $this->_get_session();
 		$method = $_SERVER['REQUEST_METHOD'];
 		if ($method == 'GET') {
-			if ($mode=='data'){
-				$params = $this->input->get();
-				if (key_exists('id', $params)) 
-				{
+			$params = $this->input->get();
+			if (key_exists('id', $params)) 
+				if (!empty($params['id'])) {
 					$params['where']['au.id'] = $params['id'];
 				}
-				if (key_exists('q', $params) && !empty($params['q']))
-				{
-					$params['like'] = empty($params['sf']) 
-						? DBX::like_or('au.name, au.description', $params['q'])
-						: DBX::like_or($params['sf'], $params['q']);
-				}
-				$result['data'] = $this->system_model->getUser($params);
-				$this->xresponse(TRUE, $result);
-				/* $arg = (object) $this->input->get();
-				$this->getAPI('system', 'user', $arg, FALSE); */
+			if (key_exists('q', $params) && !empty($params['q']))
+			{
+				$params['like'] = empty($params['sf']) 
+					? DBX::like_or('au.name, au.description', $params['q'])
+					: DBX::like_or($params['sf'], $params['q']);
 			}
-			
-			$data['title'] = 'Users';
-			$data['short_desc'] = '';
-			$this->backend_view('crud', 'pages/systems/user', $data);
+			$result['data'] = $this->system_model->getUser($params);
+			$this->xresponse(TRUE, $result);
+			/* $arg = (object) $this->input->get();
+			$this->getAPI('system', 'user', $arg, FALSE); */
 		}
 		
 		if ($method == 'POST') {
