@@ -22,6 +22,7 @@ class Systems extends Getmeb
 				redirect('/');
 		}
 		
+		$this->ctrl_method = $method;
 		return call_user_func_array(array($this, $method), $params);
 	}
 
@@ -63,9 +64,9 @@ class Systems extends Getmeb
 
 		// User Data
 		// $user = $this->db->get_where('a_user', ['id'=>$id])->row();
-		$params['select'] = 'au.id, au.client_id, au.org_id, au.role_id, au.name, au.description, au.email, 
-			au.photo_url, ac.name as client_name, ao.name as org_name, ar.name as role_name';
-		$params['where']['au.id'] = $id;
+		$params['select'] = 't1.id, t1.client_id, t1.org_id, t1.role_id, t1.name, t1.description, t1.email, 
+			t1.photo_url, ac.name as client_name, ao.name as org_name, ar.name as role_name';
+		$params['where']['t1.id'] = $id;
 		$user = (object) $this->system_model->getUserAuthentication($params)[0];
 		$dataUser = [
 			'user_id' 	=> $id,
@@ -350,29 +351,22 @@ class Systems extends Getmeb
 	{
 		$params = $this->input->get();
 		if ($this->method == 'GET') {
-			if (key_exists('id', $params)) 
-				if (!empty($params['id'])) {
-					$params['where']['au.id'] = $params['id'];
-				}
+			if (key_exists('id', $params) && !empty($params['id'])) 
+				$params['where']['t1.id'] = $params['id'];
+			
 			if (key_exists('q', $params) && !empty($params['q']))
-			{
 				$params['like'] = empty($params['sf']) 
-					? DBX::like_or('au.name, au.description', $params['q'])
+					? DBX::like_or('t1.name, t1.description', $params['q'])
 					: DBX::like_or($params['sf'], $params['q']);
-			}
+
 			$result['data'] = $this->system_model->getUser($params);
 			$this->xresponse(TRUE, $result);
 		}
 		
 		if ($this->method == 'POST') {
 			$data 	= (object) $this->post();
-			$additional_data = [
-				'client_id'		=> $this->sess->client_id,
-				'created_by'	=> $this->sess->user_id,
-				'created_at'	=> date('Y-m-d H:i:s')
-			];
 			$this->load->library('z_auth/auth');
-			if (! $id = $this->auth->register($data->username, $data->password, $data->email, $additional_data))
+			if (! $id = $this->auth->register($data->username, $data->password, $data->email, array_merge($this->fixed_data, $this->create_log)))
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 
 			$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
@@ -381,9 +375,7 @@ class Systems extends Getmeb
 		if ($this->method == 'PUT') {
 			$data = json_decode($this->input->raw_input_stream);
 			$fields = [
-				'is_active', 'is_deleted', 'name', 'description', 'email', 'api_token', 'remember_token', 
-				'is_online', 'supervisor_id', 'bpartner_id', 'is_fullbpaccess', 'is_expired', 'security_question',
-				'security_answer', 'ip_address', 'photo_url'
+				'is_active', 'is_deleted', 'name', 'description', 'email', 'api_token', 'remember_token', 'is_online', 'supervisor_id', 'bpartner_id', 'is_fullbpaccess', 'is_expired', 'security_question', 'security_answer', 'ip_address', 'photo_url'
 			];
 			$boolfields = ['is_active', 'is_fullbpaccess'];
 			$nullfields = ['supervisor_id'];
@@ -394,14 +386,98 @@ class Systems extends Getmeb
 					} 
 					elseif (in_array($f, $nullfields)){
 						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+					} else {
+						$datas[$f] = $data->{$f};
+					}
+				}
+			}
+			
+			if (! $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), [ 'id'=>(int)$params['id']]))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		
+		if ($this->method == 'DELETE') {
+			if (! $this->deleteRecords($this->ctrl_method, $params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		
+		/* switch($_SERVER['REQUEST_METHOD']){
+		case 'GET':
+			break;
+		case 'POST':
+			break;
+		case 'PUT':
+			break;
+		case 'DELETE':
+			break;
+		} */
+	}
+	
+	/* function a_userlist()
+	{
+		$params = $this->input->get();
+		
+		$result['data'] = [];
+		$params['where']['t1.client_id'] = $this->sess->client_id;
+		$params['where']['t1.org_id'] 	 = $this->sess->org_id;
+		if (key_exists('id', $params)) 
+		{
+			$params['where']['t1.id'] 	 = $params['id'];
+		}
+		$result['data'] = $this->system_model->getUser($params);
+		$this->xresponse(TRUE, $result);
+	} */
+	
+	function a_role()
+	{
+		$params = $this->input->get();
+		if ($this->method == 'GET') {
+			if (key_exists('id', $params) && !empty($params['id'])) 
+				$params['where']['t1.id'] = $params['id'];
+			
+			if (key_exists('q', $params) && !empty($params['q']))
+				$params['like'] = empty($params['sf']) 
+					? DBX::like_or('t1.name, t1.description', $params['q'])
+					: DBX::like_or($params['sf'], $params['q']);
+
+			$result['data'] = $this->system_model->getRole($params);
+			$this->xresponse(TRUE, $result);
+		}
+		
+		if ($this->method == 'POST') {
+			$data 	= (object) $this->post();
+			$this->load->library('z_auth/auth');
+			if (! $id = $this->auth->register($data->username, $data->password, $data->email, array_merge($this->fixed_data, $this->create_log)))
+				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+
+			$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
+		}
+		
+		if ($this->method == 'PUT') {
+			$data = json_decode($this->input->raw_input_stream);
+			$fields = [
+				'is_active', 'is_deleted', 'name', 'description', 'email', 'api_token', 'remember_token', 'is_online', 'supervisor_id', 'bpartner_id', 'is_fullbpaccess', 'is_expired', 'security_question', 'security_answer', 'ip_address', 'photo_url'
+			];
+			$boolfields = ['is_active', 'is_fullbpaccess'];
+			$nullfields = ['supervisor_id'];
+			foreach($fields as $f){
+				if (key_exists($f, $data)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
 					} 
-					else {
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+					} else {
 						$datas[$f] = $data->{$f};
 					}
 				}
 			}
 			if (key_exists('id', $params) && !empty($params['id'])) {
-				if (! $this->system_model->updateUser($datas, [ 'id'=>(int)$params['id']]))
+				if (! $this->system_model->updateUser(array_merge($datas, $this->update_log), [ 'id'=>(int)$params['id']]))
 					$this->xresponse(FALSE, ['message' => $this->db->error()->message], 401);
 
 				$this->xresponse(TRUE, ['message' => $this->lang->line('success_update')]);
@@ -419,34 +495,6 @@ class Systems extends Getmeb
 			
 			$this->xresponse(FALSE, ['message' => $this->lang->line('error_delete')], 400);
 		}
-		
-		/* switch($_SERVER['REQUEST_METHOD']){
-		case 'GET':
-			break;
-		case 'POST':
-			break;
-		case 'PUT':
-			break;
-		case 'DELETE':
-			break;
-		} */
-	}
-	
-	function a_userlist()
-	{
-		$params = $this->input->get();
-		
-		$result['data'] = [];
-		$params['where']['au.client_id'] = $this->sess->client_id;
-		$params['where']['au.org_id'] 	 = $this->sess->org_id;
-		if (key_exists('id', $params)) 
-		{
-			$params['where']['au.id'] 	 = $params['id'];
-		}
-		$result['data'] = $this->system_model->getUser($params);
-		$this->xresponse(TRUE, $result);
-		/* $params = $this->input->get();
-		$this->getAPI('system', 'userlist', $params, FALSE); */
 	}
 	
 	function a_supervisorlist()
@@ -454,11 +502,11 @@ class Systems extends Getmeb
 		$params = $this->input->get();
 		
 		$result['data'] = [];
-		$params['where']['au.client_id'] = $this->sess->client_id;
-		$params['where']['au.org_id'] 	 = $this->sess->org_id;
+		$params['where']['t1.client_id'] = $this->sess->client_id;
+		$params['where']['t1.org_id'] 	 = $this->sess->org_id;
 		if (key_exists('id', $params)) 
 		{
-			$params['where']['au.id'] 	 = $params['id'];
+			$params['where']['t1.id'] 	 = $params['id'];
 		}
 		$result['data'] = $this->system_model->getUser($params);
 		$this->xresponse(TRUE, $result);
@@ -475,17 +523,17 @@ class Systems extends Getmeb
 				
 				if (key_exists('id', $params)) 
 				{
-					$params['where']['ai.id'] = $params['id'];
+					$params['where']['t1.id'] = $params['id'];
 				}
 				if (key_exists('q', $params)) 
 				{
 					$params['like'] = empty($params['sf']) 
-						? DBX::like_or('ai.description', $params['q'])
+						? DBX::like_or('t1.description', $params['q'])
 						: DBX::like_or($params['sf'], $params['q']);
 				}
 				if (key_exists('validf', $params)) 
 				{
-					$params['where']['ai.valid_from <='] = $params['validf'];
+					$params['where']['t1.valid_from <='] = $params['validf'];
 				}
 				$result['data'] = $this->system_model->getInfo($params);
 				$this->xresponse(TRUE, $result);
@@ -515,9 +563,9 @@ class Systems extends Getmeb
 	function a_infolist()
 	{
 		$params = $this->input->get();
-		$params['where']['ai.client_id'] = $this->sess->client_id;
-		$params['where']['ai.org_id'] 	 = $this->sess->org_id;
-		$params['where']['ai.valid_from <='] = datetime_db_format();
+		$params['where']['t1.client_id'] = $this->sess->client_id;
+		$params['where']['t1.org_id'] 	 = $this->sess->org_id;
+		$params['where']['t1.valid_from <='] = datetime_db_format();
 		$result['data'] = $this->system_model->getInfo($params);
 		$this->xresponse(TRUE, $result);
 	}
@@ -642,7 +690,8 @@ class Systems extends Getmeb
 		
 		// $this->lang->load('systems/genesys', 'indonesia');
 		// $this->lang->load('systems/genesys', 'english');
-		echo $this->lang->line('testing');
+		// echo $this->lang->line('testing');
+		echo $this->ctrl_method;
 		// return out($this->getFrontendMenu(11));
 		
 		// $arr = ['assets/plugins/raphael/raphael-min.js'];

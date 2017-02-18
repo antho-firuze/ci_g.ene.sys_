@@ -10,7 +10,13 @@ class Getmeb extends CI_Controller
 	public $frontend_default_theme 	= 'adminlte';
 	public $org_id 		= 0;
 	public $method;
+	public $ctrl_method;
 	public $sess;
+	public $fixed_data = array();
+	public $create_log = array();
+	public $update_log = array();
+	public $delete_log = array();
+	public $messages = array();
 	
 	function __construct() {
 		header('Access-Control-Allow-Origin: *');
@@ -25,7 +31,25 @@ class Getmeb extends CI_Controller
 		defined('ASSET_URL')						OR define('ASSET_URL', base_url().'/assets/');
 		
 		$this->sess = (object) $this->session->userdata();
-		$this->lang->load('systems/genesys', ($this->sess->language ? $this->sess->language : 'english'));
+		$this->lang->load('systems/genesys', (!empty($this->sess->language) ? $this->sess->language : 'english'));
+		
+		$this->fixed_data = [
+			'client_id'		=> (!empty($this->sess->client_id) ? $this->sess->client_id : '0'),
+			'org_id'			=> (!empty($this->sess->org_id) ? $this->sess->org_id : '0')
+		];
+		$this->create_log = [
+			'created_by'	=> (!empty($this->sess->user_id) ? $this->sess->user_id : '0'),
+			'created_at'	=> date('Y-m-d H:i:s')
+		];
+		$this->update_log = [
+			'updated_by'	=> (!empty($this->sess->user_id) ? $this->sess->user_id : '0'),
+			'updated_at'	=> date('Y-m-d H:i:s')
+		];
+		$this->delete_log = [
+			'is_deleted'	=> 1,
+			'deleted_by'	=> (!empty($this->sess->user_id) ? $this->sess->user_id : '0'),
+			'deleted_at'	=> date('Y-m-d H:i:s')
+		];
 	}
 	
 	function _check_token()
@@ -60,6 +84,64 @@ class Getmeb extends CI_Controller
         }
 		throw new Exception("Data Authorization cannot be empty.");
 		return FALSE;
+	}
+	
+	function set_message($message)
+	{
+		$this->messages[] = $message;
+
+		return $message;
+	}
+
+	function messages()
+	{
+		$_output = '';
+		foreach ($this->messages as $message)
+		{
+			$messageLang = $this->lang->line($message) ? $this->lang->line($message) : '##' . $message . '##';
+			$_output .= '<p>' . $messageLang . '</p>';
+		}
+
+		return $_output;
+	}
+
+	function updateRecord($table, $data, $cond)
+	{
+		$data = is_object($data) ? (array) $data : $data;
+		
+		if (!key_exists('id', $cond) && empty($cond['id'])) {
+			$this->set_message('update_data_unsuccessful');
+			return false;
+		}
+		
+		$this->db->update($table, $data, $cond);
+		$return = $this->db->affected_rows() == 1;
+		if ($return)
+			// $this->set_message('update_data_successful');
+			$this->set_message('success_update');
+		else
+			$this->set_message('update_data_unsuccessful');
+		
+		return true;
+	}
+	
+	function deleteRecords($table, $ids)
+	{
+		$ids = array_filter(array_map('trim',explode(',',$ids)));
+		$return = 0;
+		foreach($ids as $v)
+		{
+			if ($this->db->update($table, $this->delete_log, ['id'=>$v]))
+			{
+				$return += 1;
+			}
+		}
+		if ($return)
+			$this->set_message('success_delete');
+		else
+			$this->set_message('delete_data_unsuccessful');
+			
+		return $return;
 	}
 	
 	function getAPI($method, $function, $params = [], $keep = TRUE)

@@ -20,107 +20,92 @@ class System_Model extends CI_model
 	
 	function getUserAuthentication($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "au.*" : $params['select'];
-		$params['table'] 	= "a_user as au";
-		$params['join'][] 	= ['a_client as ac', 'au.client_id = ac.id', 'left'];
-		$params['join'][] 	= ['a_org as ao', 'au.org_id = ao.id', 'left'];
-		$params['join'][] 	= ['a_role as ar', 'au.role_id = ar.id', 'left'];
-		$params['where']['au.is_deleted'] 	= '0';
+		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_user as t1";
+		$params['join'][] 	= ['a_client as ac', 't1.client_id = ac.id', 'left'];
+		$params['join'][] 	= ['a_org as ao', 't1.org_id = ao.id', 'left'];
+		$params['join'][] 	= ['a_role as ar', 't1.role_id = ar.id', 'left'];
+		$params['where']['t1.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function getUser($params)
 	{
-		$select = "au.id,au.client_id,au.org_id,au.role_id,au.is_active,au.is_deleted,
-			au.created_by,au.updated_by,au.deleted_by,au.created_at,au.updated_at,au.deleted_at,
-			au.name,au.description,au.email,au.last_login,au.is_online,au.supervisor_id,
-			au.bpartner_id,au.is_fullbpaccess,au.is_expired,au.security_question,au.security_answer,
-			au.ip_address,au.photo_url,ao.name as org_name, ar.name as role_name, au4.name as supervisor_name,
+		$select = "t1.id,t1.client_id,t1.org_id,t1.role_id,t1.is_active,t1.is_deleted,
+			t1.created_by,t1.updated_by,t1.deleted_by,t1.created_at,t1.updated_at,t1.deleted_at,
+			t1.name,t1.description,t1.email,t1.last_login,t1.is_online,t1.supervisor_id,
+			t1.bpartner_id,t1.is_fullbpaccess,t1.is_expired,t1.security_question,t1.security_answer,
+			t1.ip_address,t1.photo_url,ao.name as org_name, ar.name as role_name, au4.name as supervisor_name,
 			au1.name as _created_by, au2.name as _updated_by, au3.name as _deleted_by";
 		$params['select']	= array_key_exists('select', $params) ? $params['select'] : $select;
-		$params['table'] 	= "a_user as au";
-		$params['join'][] 	= ['a_client as ac', 'au.client_id = ac.id', 'left'];
-		$params['join'][] 	= ['a_org as ao', 'au.org_id = ao.id', 'left'];
-		$params['join'][] 	= ['a_role as ar', 'au.role_id = ar.id', 'left'];
-		$params['join'][] 	= ['a_user as au1', 'au.created_by = au1.id', 'left'];
-		$params['join'][] 	= ['a_user as au2', 'au.updated_by = au2.id', 'left'];
-		$params['join'][] 	= ['a_user as au3', 'au.deleted_by = au3.id', 'left'];
-		$params['join'][] 	= ['a_user as au4', 'au.supervisor_id = au4.id', 'left'];
-		$params['where']['au.is_deleted'] 	= '0';
+		$params['table'] 	= "a_user as t1";
+		$params['join'][] 	= ['a_client as ac', 't1.client_id = ac.id', 'left'];
+		$params['join'][] 	= ['a_org as ao', 't1.org_id = ao.id', 'left'];
+		$params['join'][] 	= ['a_role as ar', 't1.role_id = ar.id', 'left'];
+		$params['join'][] 	= ['a_user as au1', 't1.created_by = au1.id', 'left'];
+		$params['join'][] 	= ['a_user as au2', 't1.updated_by = au2.id', 'left'];
+		$params['join'][] 	= ['a_user as au3', 't1.deleted_by = au3.id', 'left'];
+		$params['join'][] 	= ['a_user as au4', 't1.supervisor_id = au4.id', 'left'];
+		$params['where']['t1.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec_count($params);
 	}
 	
 	function getUserById($id)
 	{
-		$select = "au.id,au.client_id,au.org_id,au.role_id,au.is_active,au.is_deleted,
-			au.created_by,au.updated_by,au.deleted_by,au.created_at,au.updated_at,au.deleted_at,
-			au.name,au.description,au.email,au.last_login,au.is_online,au.supervisor_id,
-			au.bpartner_id,au.is_fullbpaccess,au.is_expired,au.security_question,au.security_answer,
-			au.ip_address,au.photo_url,ao.name as org_name, ar.name as role_name, au4.name as supervisor_name,
+		$select = "t1.id,t1.client_id,t1.org_id,t1.role_id,t1.is_active,t1.is_deleted,
+			t1.created_by,t1.updated_by,t1.deleted_by,t1.created_at,t1.updated_at,t1.deleted_at,
+			t1.name,t1.description,t1.email,t1.last_login,t1.is_online,t1.supervisor_id,
+			t1.bpartner_id,t1.is_fullbpaccess,t1.is_expired,t1.security_question,t1.security_answer,
+			t1.ip_address,t1.photo_url,ao.name as org_name, ar.name as role_name, au4.name as supervisor_name,
 			au1.name as _created_by, au2.name as _updated_by, au3.name as _deleted_by";
 		$params['select']	= $select;
-		$params['table'] 	= "a_user as au";
-		$params['join'][] 	= ['a_client as ac', 'au.client_id = ac.id', 'left'];
-		$params['join'][] 	= ['a_org as ao', 'au.org_id = ao.id', 'left'];
-		$params['join'][] 	= ['a_role as ar', 'au.role_id = ar.id', 'left'];
-		$params['join'][] 	= ['a_user as au1', 'au.created_by = au1.id', 'left'];
-		$params['join'][] 	= ['a_user as au2', 'au.updated_by = au2.id', 'left'];
-		$params['join'][] 	= ['a_user as au3', 'au.deleted_by = au3.id', 'left'];
-		$params['join'][] 	= ['a_user as au4', 'au.supervisor_id = au4.id', 'left'];
-		$params['where']['au.id'] 	= $id;
+		$params['table'] 	= "a_user as t1";
+		$params['join'][] 	= ['a_client as ac', 't1.client_id = ac.id', 'left'];
+		$params['join'][] 	= ['a_org as ao', 't1.org_id = ao.id', 'left'];
+		$params['join'][] 	= ['a_role as ar', 't1.role_id = ar.id', 'left'];
+		$params['join'][] 	= ['a_user as au1', 't1.created_by = au1.id', 'left'];
+		$params['join'][] 	= ['a_user as au2', 't1.updated_by = au2.id', 'left'];
+		$params['join'][] 	= ['a_user as au3', 't1.deleted_by = au3.id', 'left'];
+		$params['join'][] 	= ['a_user as au4', 't1.supervisor_id = au4.id', 'left'];
+		$params['where']['t1.id'] 	= $id;
 		
 		return $this->base_model->mget_rec_count($params);
 	}
 	
 	function getUserConfig($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "auc.*" : $params['select'];
-		$params['table'] 	= "a_user_config auc";
-		$params['where']['auc.is_active'] 	= '1';
-		$params['where']['auc.is_deleted'] 	= '0';
+		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_user_config t1";
+		$params['where']['t1.is_active'] 	= '1';
+		$params['where']['t1.is_deleted'] 	= '0';
+		
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function getUserRole($params)
+	{
+		$params['select']	= !array_key_exists('select', $params) ? "t1.*, t2.name as role_name" : $params['select'];
+		$params['table'] 	= "a_user_role t1";
+		$params['join'][] 	= ['a_role as t2', 't1.role_id = t2.id', 'left'];
+		$params['where']['t1.is_active'] 	= '1';
+		$params['where']['t1.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function getUserWCount($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "au.*" : $params['select'];
-		$params['table'] 	= "a_user as au";
-		$params['join'][] 	= ['a_user_config as auc', 'au.id = auc.user_id', 'left'];
-		$params['join'][] 	= ['a_client as ac', 'au.client_id = ac.id', 'left'];
-		$params['join'][] 	= ['a_org as ao', 'au.org_id = ao.id', 'left'];
-		$params['join'][] 	= ['a_role as ar', 'au.role_id = ar.id', 'left'];
-		$params['where']['au.is_deleted'] 	= '0';
+		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_user as t1";
+		$params['join'][] 	= ['a_user_config as auc', 't1.id = auc.user_id', 'left'];
+		$params['join'][] 	= ['a_client as ac', 't1.client_id = ac.id', 'left'];
+		$params['join'][] 	= ['a_org as ao', 't1.org_id = ao.id', 'left'];
+		$params['join'][] 	= ['a_role as ar', 't1.role_id = ar.id', 'left'];
+		$params['where']['t1.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec_count($params);
-	}
-	
-	function updateUser($data, $cond)
-	{
-		$data = is_object($data) ? (array) $data : $data;
-		
-		$data['updated_by'] = $this->session->userdata('user_id');
-		$data['updated_at'] = date('Y-m-d H:i:s');
-		return $this->db->update('a_user', $data, $cond);
-	}
-	
-	function deleteUser($ids, $user_id)
-	{
-		$ids = array_filter(array_map('trim',explode(',',$ids)));
-		
-		$return = 0;
-		
-		foreach($ids as $v)
-		{
-			$data = ['is_deleted' => 1, 'deleted_by' => $user_id, 'deleted_at' => date('Y-m-d H:i:s')];
-			if ($this->db->update('a_user', $data, ['id'=>$v]))
-			{
-				$return += 1;
-			}
-		}
-		return $return;
 	}
 	
 	function getMenu($params)
@@ -155,12 +140,11 @@ class System_Model extends CI_model
 	
 	function getRole($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "au.*" : $params['select'];
-		$params['table'] 	= "a_user as au";
-		$params['join'][] 	= ['a_client as ac', 'au.client_id = ac.id', 'left'];
-		$params['join'][] 	= ['a_org as ao', 'au.org_id = ao.id', 'left'];
-		$params['join'][] 	= ['a_role as ar', 'au.role_id = ar.id', 'left'];
-		$params['where']['au.is_deleted'] 	= '0';
+		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_role as t1";
+		$params['join'][] 	= ['c_currency as cc', 't1.currency_id = cc.id', 'left'];
+		$params['join'][] 	= ['a_user as au4', 't1.supervisor_id = au4.id', 'left'];
+		$params['where']['t1.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec($params);
 	}
@@ -247,9 +231,9 @@ class System_Model extends CI_model
 	
 	function getInfo($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "ai.*" : $params['select'];
-		$params['table'] 	= "a_info as ai";
-		$params['where']['ai.is_deleted'] 	= '0';
+		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_info as t1";
+		$params['where']['t1.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec_count($params);
 	}
