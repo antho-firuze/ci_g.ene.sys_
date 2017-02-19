@@ -195,6 +195,23 @@ function getURLOrigin() {
 	return location.protocol+'//'+location.host+location.pathname;
 }
 
+function setTB(btn){
+	if(typeof(btn)==='undefined') btn = [];
+	var content_grp = $('<div class="btn-group" />');
+	$.each(btn, function() {
+			select.append($('<option />', {value: k}).html(v));
+			content_grp.append($('<button type="button" class="btn btn-primary glyphicon glyphicon-check" title="Select All" id="btn-sall" />'));
+	});
+	if ($.inArray('btn-sall', btn)>=0)
+		$('<button type="button" class="btn btn-primary glyphicon glyphicon-check" title="Select All" id="btn-sall" />').appendTo(content_grp);
+	if ($.inArray('btn-snon', btn)>=0)
+		$('<button type="button" class="btn btn-primary glyphicon glyphicon-unchecked" title="Select None" id="btn-snon" />').appendTo(content_grp);
+	if ($.inArray('btn-check', btn)>=0)
+		$('<button type="button" class="btn btn-primary glyphicon glyphicon-unchecked" title="Select/Unselect" id="btn-check" />').appendTo(content_grp);
+	toolbar_grp.append(content_grp);
+	return toolbar_grp;
+}
+
 // Example: ['btn-sall', 'btn-snon', 'btn-copy', 'btn-new', 'btn-refresh', 'btn-delete', 'btn-message', 'btn-print', 'btn-export', 'btn-import', 'btn-process']
 function setToolbarButton(btn){
 	if(typeof(btn)==='undefined') btn = [];

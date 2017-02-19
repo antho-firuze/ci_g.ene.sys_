@@ -85,12 +85,19 @@
 	.search($q ? $q : '');
 	
 	{* This line for changing toolbar button *}
+	{* 
+		setTB(1, ['btn-copy','btn-new','btn-refresh','btn-delete']);
+		setTB(2, ['btn-message']);
+		setTB(3, ['btn-print','btn-export','btn-import']);
+		setTB(4, ['btn-process']);
+		setTBChild('btn-process', ['btn-process-doc-act','btn-process-a-pros','btn-process-userrole']);
+	*}
 	var toolbar_row = $('<div class="row"><div class="col-md-12"></div></div>');
 	var toolbar_col = toolbar_row.find('.col-md-12').append(
 		setToolbarButton([
 			'btn-copy', 	 'btn-new', 	'btn-refresh', 'btn-delete', 
 			'btn-message', 'btn-print', 'btn-export',  'btn-import', 
-			'btn-process', 'btn-process-doc-act', 'btn-process-a-pros'
+			'btn-process', 'btn-process-doc-act', 'btn-process-a-pros', 'btn-process-userrole'
 		])
 	);
 	$('div.dataTables_wrapper').find('div.row:first').before(toolbar_row);
@@ -115,7 +122,7 @@
 		form.append(BSHelper.Input({ type:"email", label:"Email", idname:"email", required: true, placeholder:"string(255)" }));
 		form.append(BSHelper.Checkbox({ label:"Is Active", idname:"is_active" }));
 		form.append(BSHelper.Checkbox({ label:"Is Full BP Access", idname:"is_fullbpaccess" }));
-		form.append(BSHelper.Combobox({ label:"Supervisor", idname:"supervisor_id", url:"{$.php.base_url('systems/a_supervisorlist')}", required: false, isCombogrid: true, placeholder:"typed or choose" }));
+		form.append(BSHelper.Combobox({ label:"Supervisor", idname:"supervisor_id", url:"{$.php.base_url('systems/a_user')}", required: false, isCombogrid: true, placeholder:"typed or choose" }));
 		return form;
 	}
 	
@@ -141,7 +148,7 @@
 		
 		form = createForm1();
 		form.xform('load', data);  
-		BootstrapDialog.show({ title: 'Update User', message: form,
+		BootstrapDialog.show({ title: 'Update Record', message: form,
 			buttons: [{
 				icon: 'glyphicon glyphicon-send',
 				cssClass: 'btn-primary',
@@ -293,7 +300,7 @@
 		{* line for check permission *}
 		
 		form = createForm1();
-		BootstrapDialog.show({ title: 'Create User', message: form,
+		BootstrapDialog.show({ title: 'Insert Record', message: form,
 			buttons: [{
 				icon: 'glyphicon glyphicon-send',
 				cssClass: 'btn-primary',
@@ -356,7 +363,7 @@
 			return false;
 
 		var confirm = $('<div />');
-		confirm.append( $('<p />').html('Are you sure want to delete this data ?') );
+		confirm.append( $('<p />').html('Are you sure want to delete this record ?') );
 		confirm.append( 
 			BSHelper.TableConfirm({
 				data: data,	rowno: true, showtitle: false, maxrows: 3, 
@@ -371,7 +378,7 @@
 		$.each(data, function(i){	ids[i] = data[i]['id'];	});
 		
 		{* console.log(ids.join()); return; *}
-		BootstrapDialog.show({ title: 'Delete User/s', type: BootstrapDialog.TYPE_DANGER, message: confirm,
+		BootstrapDialog.show({ title: 'Delete Record/s', type: BootstrapDialog.TYPE_DANGER, message: confirm,
 			buttons: [{
 				icon: 'glyphicon glyphicon-send',
 				cssClass: 'btn-danger',

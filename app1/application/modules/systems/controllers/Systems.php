@@ -5,13 +5,15 @@ require APPPATH . '/modules/z_libs/libraries/Getmeb.php';
 class Systems extends Getmeb
 {
 	
+	public $params;
+	
 	function __construct() {
 		parent::__construct();
 		
 		$this->load->model('systems/system_model');
 		
 		$this->method = $_SERVER['REQUEST_METHOD'];
-		
+		$this->params = $this->input->get();
 	}
 	
 	function _remap($method, $params = array())
@@ -23,7 +25,7 @@ class Systems extends Getmeb
 		}
 		
 		$this->ctrl_method = $method;
-		return call_user_func_array(array($this, $method), $params);
+		return call_user_func_array(array($this, $method), $this->params);
 	}
 
 	function index()
@@ -64,10 +66,10 @@ class Systems extends Getmeb
 
 		// User Data
 		// $user = $this->db->get_where('a_user', ['id'=>$id])->row();
-		$params['select'] = 't1.id, t1.client_id, t1.org_id, t1.role_id, t1.name, t1.description, t1.email, 
+		$this->params['select'] = 't1.id, t1.client_id, t1.org_id, t1.role_id, t1.name, t1.description, t1.email, 
 			t1.photo_url, ac.name as client_name, ao.name as org_name, ar.name as role_name';
-		$params['where']['t1.id'] = $id;
-		$user = (object) $this->system_model->getUserAuthentication($params)[0];
+		$this->params['where']['t1.id'] = $id;
+		$user = (object) $this->system_model->getUserAuthentication($this->params)[0];
 		$dataUser = [
 			'user_id' 	=> $id,
 			'client_id'	=> $user->client_id,
@@ -246,25 +248,24 @@ class Systems extends Getmeb
 	// REQUIRED LOGIN
 	/* function x_menulist()
 	{
-		$params = $this->input->get();
 		// $this->getAPI('system', 'menulist', $params, FALSE);
 		$result['data'] = [];
-		$params['select'] = "am.name, am.url, am.icon";
-		// if (key_exists('q', $params)) 
-		if (! empty($params['q'])) 
+		$this->params['select'] = "am.name, am.url, am.icon";
+		// if (key_exists('q', $this->params)) 
+		if (! empty($this->params['q'])) 
 		{
-			$params['like'] = empty($params['sf']) 
-				? DBX::like_or('am.name', $params['q'])
-				: DBX::like_or($params['sf'], $params['q']);
+			$this->params['like'] = empty($this->params['sf']) 
+				? DBX::like_or('am.name', $this->params['q'])
+				: DBX::like_or($this->params['sf'], $this->params['q']);
 			
 		}
-		$result['data'] = $this->system_model->getMenu($params);
+		$result['data'] = $this->system_model->getMenu($this->params);
 		$this->xresponse(true, $result);
 	} */
 	
 	/* function x_setUserRecent()
 	{
-		$params = (count($params = $this->input->get()) < 1) ? '' : '?'.http_build_query($params);
+		$params = (count($params = $this->input->get()) < 1) ? '' : '?'.http_build_query($this->params);
 		
 		$data = [
 			'user_id'	=> $this->sess->user_id,
@@ -276,12 +277,11 @@ class Systems extends Getmeb
 	
 	function x_srcmenu()
 	{
-		$params = $this->input->get();
 		$result['data'] = [];
-		if (key_exists('q', $params)) 
-			if (!empty($params['q']))
-				$params['like']	= DBX::like_or('am.name', $params['q']);
-		$result['data'] = $this->system_model->getMenu($params);
+		if (key_exists('q', $this->params)) 
+			if (!empty($this->params['q']))
+				$this->params['like']	= DBX::like_or('am.name', $this->params['q']);
+		$result['data'] = $this->system_model->getA_Role_Menu($this->params);
 		$this->xresponse(TRUE, $result);
 	}
 	
@@ -315,12 +315,11 @@ class Systems extends Getmeb
 	function x_profile($mode=NULL)
 	{
 		/* 
-		$params = $this->input->get();
 		
 		$data = [];
-		if (key_exists('id', $params)) 
-			if (!empty($params['id'])) {
-				$data = (array) $this->system_model->getUserById($params['id']);
+		if (key_exists('id', $this->params)) 
+			if (!empty($this->params['id'])) {
+				$data = (array) $this->system_model->getUserById($this->params['id']);
 				$this->xresponse(TRUE, $data);
 			}
 				
@@ -334,35 +333,33 @@ class Systems extends Getmeb
 	*/
 	function x_page()
 	{
-		$params = $this->input->get();
 		
 		$data = [];
-		if (key_exists('pageid', $params)) 
-			if (!empty($params['pageid'])) {
-				$data = (array) $this->system_model->getMenuById($params['pageid']);
-				$this->backend_view('crud', $data['path'].URL_SEPARATOR.$data['url'], $data);
-				return;
-			}
+		if (key_exists('pageid', $this->params) && !empty($this->params['pageid'])) {
+			$data = (array) $this->system_model->getMenuById($this->params['pageid']);
+			$this->backend_view('crud', $data['path'].URL_SEPARATOR.$data['url'], $data);
+			return;
+		}
 				
 		show_404();
 	}
 	
 	function a_user()
 	{
-		$params = $this->input->get();
 		if ($this->method == 'GET') {
-			if (key_exists('id', $params) && !empty($params['id'])) 
-				$params['where']['t1.id'] = $params['id'];
+			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			if (key_exists('zone', $this->params) && ($this->params['zone']))
+				$this->params['where']['t1.client_id'] = $this->sess->client_id;
 			
-			if (key_exists('q', $params) && !empty($params['q']))
-				$params['like'] = empty($params['sf']) 
-					? DBX::like_or('t1.name, t1.description', $params['q'])
-					: DBX::like_or($params['sf'], $params['q']);
+			if (key_exists('q', $this->params) && !empty($this->params['q']))
+				$this->params['like'] = empty($this->params['sf']) 
+					? DBX::like_or('t1.name, t1.description', $this->params['q'])
+					: DBX::like_or($this->params['sf'], $this->params['q']);
 
-			$result['data'] = $this->system_model->getUser($params);
+			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
 			$this->xresponse(TRUE, $result);
 		}
-		
 		if ($this->method == 'POST') {
 			$data 	= (object) $this->post();
 			$this->load->library('z_auth/auth');
@@ -371,7 +368,6 @@ class Systems extends Getmeb
 
 			$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 		}
-		
 		if ($this->method == 'PUT') {
 			$data = json_decode($this->input->raw_input_stream);
 			$fields = [
@@ -392,78 +388,38 @@ class Systems extends Getmeb
 				}
 			}
 			
-			if (! $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), [ 'id'=>(int)$params['id']]))
+			if (! $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), [ 'id'=>(int)$this->params['id']]))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		
 		if ($this->method == 'DELETE') {
-			if (! $this->deleteRecords($this->ctrl_method, $params['id']))
+			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		
-		/* switch($_SERVER['REQUEST_METHOD']){
-		case 'GET':
-			break;
-		case 'POST':
-			break;
-		case 'PUT':
-			break;
-		case 'DELETE':
-			break;
-		} */
 	}
-	
-	/* function a_userlist()
-	{
-		$params = $this->input->get();
-		
-		$result['data'] = [];
-		$params['where']['t1.client_id'] = $this->sess->client_id;
-		$params['where']['t1.org_id'] 	 = $this->sess->org_id;
-		if (key_exists('id', $params)) 
-		{
-			$params['where']['t1.id'] 	 = $params['id'];
-		}
-		$result['data'] = $this->system_model->getUser($params);
-		$this->xresponse(TRUE, $result);
-	} */
 	
 	function a_role()
 	{
-		$params = $this->input->get();
 		if ($this->method == 'GET') {
-			if (key_exists('id', $params) && !empty($params['id'])) 
-				$params['where']['t1.id'] = $params['id'];
+			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $params) && !empty($params['q']))
-				$params['like'] = empty($params['sf']) 
-					? DBX::like_or('t1.name, t1.description', $params['q'])
-					: DBX::like_or($params['sf'], $params['q']);
+			if (key_exists('q', $this->params) && !empty($this->params['q']))
+				$this->params['like'] = empty($this->params['sf']) 
+					? DBX::like_or('t1.name, t1.description', $this->params['q'])
+					: DBX::like_or($this->params['sf'], $this->params['q']);
 
-			$result['data'] = $this->system_model->getRole($params);
+			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
 			$this->xresponse(TRUE, $result);
 		}
-		
-		if ($this->method == 'POST') {
-			$data 	= (object) $this->post();
-			$this->load->library('z_auth/auth');
-			if (! $id = $this->auth->register($data->username, $data->password, $data->email, array_merge($this->fixed_data, $this->create_log)))
-				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
-
-			$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
-		}
-		
-		if ($this->method == 'PUT') {
+		if (($this->method == 'POST') || ($this->method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
-			$fields = [
-				'is_active', 'is_deleted', 'name', 'description', 'email', 'api_token', 'remember_token', 'is_online', 'supervisor_id', 'bpartner_id', 'is_fullbpaccess', 'is_expired', 'security_question', 'security_answer', 'ip_address', 'photo_url'
-			];
-			$boolfields = ['is_active', 'is_fullbpaccess'];
-			$nullfields = ['supervisor_id'];
+			$fields = ['is_active','name','description','currency_id','supervisor_id','amt_approval','is_canexport','is_canapproveowndoc','is_accessallorgs','is_useuserorgaccess'];
+			$boolfields = ['is_active','is_canexport','is_canapproveowndoc','is_accessallorgs','is_useuserorgaccess'];
+			$nullfields = ['currency_id','supervisor_id'];
 			foreach($fields as $f){
 				if (key_exists($f, $data)){
 					if (in_array($f, $boolfields)){
@@ -476,181 +432,386 @@ class Systems extends Getmeb
 					}
 				}
 			}
-			if (key_exists('id', $params) && !empty($params['id'])) {
-				if (! $this->system_model->updateUser(array_merge($datas, $this->update_log), [ 'id'=>(int)$params['id']]))
-					$this->xresponse(FALSE, ['message' => $this->db->error()->message], 401);
-
-				$this->xresponse(TRUE, ['message' => $this->lang->line('success_update')]);
-			}
-			$this->xresponse(FALSE, ['message' => $this->lang->line('error_update')], 400);
+			if ($this->method == 'POST')
+				$result = $this->insertRecord($this->ctrl_method, array_merge($datas, $this->update_log));
+			else
+				$result = $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		
 		if ($this->method == 'DELETE') {
-			if (key_exists('id', $params) && !empty($params['id'])) {
-				if (! $this->system_model->deleteUser($params['id'], $this->sess->user_id))
-					$this->xresponse(FALSE, ['message' => $this->db->error()->message], 401);
-				
-				$this->xresponse(TRUE, ['message' => $this->lang->line('success_delete')]);
-			}
-			
-			$this->xresponse(FALSE, ['message' => $this->lang->line('error_delete')], 400);
+			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
 	
-	function a_supervisorlist()
+	function a_menu()
 	{
-		$params = $this->input->get();
-		
-		$result['data'] = [];
-		$params['where']['t1.client_id'] = $this->sess->client_id;
-		$params['where']['t1.org_id'] 	 = $this->sess->org_id;
-		if (key_exists('id', $params)) 
-		{
-			$params['where']['t1.id'] 	 = $params['id'];
-		}
-		$result['data'] = $this->system_model->getUser($params);
-		$this->xresponse(TRUE, $result);
-		/* $params = $this->input->get();
-		$this->getAPI('system', 'userlist', $params, FALSE); */
-	}
-	
-	function a_info($mode=NULL)
-	{
-		switch($_SERVER['REQUEST_METHOD']){
-		case 'GET':
-			if ($mode=='data'){
-				$params = $this->input->get();
-				
-				if (key_exists('id', $params)) 
-				{
-					$params['where']['t1.id'] = $params['id'];
-				}
-				if (key_exists('q', $params)) 
-				{
-					$params['like'] = empty($params['sf']) 
-						? DBX::like_or('t1.description', $params['q'])
-						: DBX::like_or($params['sf'], $params['q']);
-				}
-				if (key_exists('validf', $params)) 
-				{
-					$params['where']['t1.valid_from <='] = $params['validf'];
-				}
-				$result['data'] = $this->system_model->getInfo($params);
-				$this->xresponse(TRUE, $result);
-				/* $arg = (object) $this->input->get();
-				$this->getAPI('system', 'info', $arg, FALSE); */
-			}
+		if ($this->method == 'GET') {
+			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			$this->backend_view('crud', 'systems/info');
-			break;
-		case 'POST':
+			if (key_exists('q', $this->params) && !empty($this->params['q']))
+				$this->params['like'] = empty($this->params['sf']) 
+					? DBX::like_or('t1.name, t1.description', $this->params['q'])
+					: DBX::like_or($this->params['sf'], $this->params['q']);
+
+			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
+			$this->xresponse(TRUE, $result);
+		}
+		if (($this->method == 'POST') || ($this->method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
-			$this->postAPI('system', 'info', $data, FALSE);
-			// $this->x_setUserRecent();
+			$fields = ['is_active','name','description','url','path','icon','is_parent','parent_id'];
+			$boolfields = ['is_active','is_parent'];
+			$nullfields = ['path','icon','parent_id'];
+			foreach($fields as $f){
+				if (key_exists($f, $data)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
+					} 
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+					} else {
+						$datas[$f] = $data->{$f};
+					}
+				}
+			}
+			if ($this->method == 'POST')
+				$result = $this->insertRecord($this->ctrl_method, array_merge($datas, $this->update_log));
+			else
+				$result = $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
 			
-			// echo "post";
-			break;
-		case 'PUT':
-			// $this->x_setUserRecent();
-			echo "put";
-			break;
-		case 'DELETE':
-			echo "del";
-			break;
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->method == 'DELETE') {
+			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
 	
-	function a_infolist()
+	function a_info()
 	{
-		$params = $this->input->get();
-		$params['where']['t1.client_id'] = $this->sess->client_id;
-		$params['where']['t1.org_id'] 	 = $this->sess->org_id;
-		$params['where']['t1.valid_from <='] = datetime_db_format();
-		$result['data'] = $this->system_model->getInfo($params);
-		$this->xresponse(TRUE, $result);
+		if ($this->method == 'GET') {
+			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (key_exists('zone', $this->params) && ($this->params['zone'])) {
+				$this->params['where']['t1.client_id'] = $this->sess->client_id;
+				$this->params['where']['t1.org_id'] 	 = $this->sess->org_id;
+			}
+			if (key_exists('valid', $this->params) && ($this->params['valid'])) {
+				$this->params['where']['t1.is_active'] = '1';
+				$this->params['where']['t1.valid_from <='] = datetime_db_format();
+			}
+			
+			if (key_exists('q', $this->params) && !empty($this->params['q']))
+				$this->params['like'] = empty($this->params['sf']) 
+					? DBX::like_or('t1.description', $this->params['q'])
+					: DBX::like_or($this->params['sf'], $this->params['q']);
+
+			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
+			$this->xresponse(TRUE, $result);
+		}
+		if (($this->method == 'POST') || ($this->method == 'PUT')) {
+			$data = json_decode($this->input->raw_input_stream);
+			$fields = ['is_active', 'description', 'valid_from', 'valid_till'];
+			$boolfields = [];
+			$nullfields = ['valid_from','valid_till'];
+			foreach($fields as $f){
+				if (key_exists($f, $data)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
+					} 
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+					} else {
+						$datas[$f] = $data->{$f};
+					}
+				}
+			}
+			if ($this->method == 'POST')
+				$result = $this->insertRecord($this->ctrl_method, array_merge($datas, $this->update_log));
+			else
+				$result = $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->method == 'DELETE') {
+			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
 	}
 	
-	function c_countrylist()
+	function c_1country()
 	{
-		$params = $this->input->get();
-		// $this->getAPI('system', 'countrylist', $params, FALSE);
-		if (key_exists('q', $params)) 
-			$params['like'] = empty($params['sf']) 
-				? DBX::like_or('name', $params['q'])
-				: DBX::like_or($params['sf'], $params['q']);
-		if (key_exists('id', $params)) 
-			$params['where']['id'] = $params['id'];
-		
-		$result['data'] = $this->system_model->getCountry($params);
-		$this->xresponse(TRUE, $result);
+		if ($this->method == 'GET') {
+			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (key_exists('q', $this->params) && !empty($this->params['q']))
+				$this->params['like'] = empty($this->params['sf']) 
+					? DBX::like_or('t1.name', $this->params['q'])
+					: DBX::like_or($this->params['sf'], $this->params['q']);
+
+			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
+			$this->xresponse(TRUE, $result);
+		}
+		if (($this->method == 'POST') || ($this->method == 'PUT')) {
+			$data = json_decode($this->input->raw_input_stream);
+			$fields = ['name'];
+			$boolfields = [];
+			$nullfields = [];
+			foreach($fields as $f){
+				if (key_exists($f, $data)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
+					} 
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+					} else {
+						$datas[$f] = $data->{$f};
+					}
+				}
+			}
+			if ($this->method == 'POST')
+				$result = $this->insertRecord($this->ctrl_method, array_merge($datas, $this->update_log));
+			else
+				$result = $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->method == 'DELETE') {
+			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
 	}
 	
-	function c_provincelist()
+	function c_2province()
 	{
-		$params = $this->input->get();
-		// $this->getAPI('system', 'provincelist', $params, FALSE);
-		if (key_exists('q', $params)) 
-			$params['like'] = empty($params['sf']) 
-				? DBX::like_or('name', $params['q'])
-				: DBX::like_or($params['sf'], $params['q']);
-		if (key_exists('id', $params)) 
-			$params['where']['id'] = $params['id'];
-		if (key_exists('country_id', $params)) 
-			$params['where']['country_id'] = $params['country_id'];
-		
-		$result['data'] = $this->system_model->getProvince($params);
-		$this->xresponse(TRUE, $result);
+		if ($this->method == 'GET') {
+			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (key_exists('country_id', $this->params) && !empty($this->params['country_id'])) 
+				$this->params['where']['t1.country_id'] = $this->params['country_id'];
+			
+			if (key_exists('q', $this->params) && !empty($this->params['q']))
+				$this->params['like'] = empty($this->params['sf']) 
+					? DBX::like_or('t1.name', $this->params['q'])
+					: DBX::like_or($this->params['sf'], $this->params['q']);
+
+			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
+			$this->xresponse(TRUE, $result);
+		}
+		if (($this->method == 'POST') || ($this->method == 'PUT')) {
+			$data = json_decode($this->input->raw_input_stream);
+			$fields = ['name', 'country_id'];
+			$boolfields = [];
+			$nullfields = [];
+			foreach($fields as $f){
+				if (key_exists($f, $data)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
+					} 
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+					} else {
+						$datas[$f] = $data->{$f};
+					}
+				}
+			}
+			if ($this->method == 'POST')
+				$result = $this->insertRecord($this->ctrl_method, array_merge($datas, $this->update_log));
+			else
+				$result = $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->method == 'DELETE') {
+			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
 	}
 	
-	function c_citylist()
+	function c_3city()
 	{
-		$params = $this->input->get();
-		// $this->getAPI('system', 'citylist', $params, FALSE);
-		if (key_exists('q', $params)) 
-			$params['like'] = empty($params['sf']) 
-				? DBX::like_or('name', $params['q'])
-				: DBX::like_or($params['sf'], $params['q']);
-		if (key_exists('id', $params)) 
-			$params['where']['id'] = $params['id'];
-		if (key_exists('province_id', $params)) 
-			$params['where']['province_id'] = $params['province_id'];
-		
-		$result['data'] = $this->system_model->getCity($params);
-		$this->xresponse(TRUE, $result);
+		if ($this->method == 'GET') {
+			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (key_exists('province_id', $this->params) && !empty($this->params['province_id'])) 
+				$this->params['where']['t1.province_id'] = $this->params['province_id'];
+			
+			if (key_exists('q', $this->params) && !empty($this->params['q']))
+				$this->params['like'] = empty($this->params['sf']) 
+					? DBX::like_or('t1.name', $this->params['q'])
+					: DBX::like_or($this->params['sf'], $this->params['q']);
+
+			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
+			$this->xresponse(TRUE, $result);
+		}
+		if (($this->method == 'POST') || ($this->method == 'PUT')) {
+			$data = json_decode($this->input->raw_input_stream);
+			$fields = ['name', 'province_id'];
+			$boolfields = [];
+			$nullfields = [];
+			foreach($fields as $f){
+				if (key_exists($f, $data)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
+					} 
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+					} else {
+						$datas[$f] = $data->{$f};
+					}
+				}
+			}
+			if ($this->method == 'POST')
+				$result = $this->insertRecord($this->ctrl_method, array_merge($datas, $this->update_log));
+			else
+				$result = $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->method == 'DELETE') {
+			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
 	}
 	
-	function c_districtlist()
+	function c_4district()
 	{
-		$params = $this->input->get();
-		// $this->getAPI('system', 'districtlist', $params, FALSE);
-		if (key_exists('q', $params)) 
-			$params['like'] = empty($params['sf']) 
-				? DBX::like_or('name', $params['q'])
-				: DBX::like_or($params['sf'], $params['q']);
-		if (key_exists('id', $params)) 
-			$params['where']['id'] = $params['id'];
-		if (key_exists('city_id', $params)) 
-			$params['where']['city_id'] = $params['city_id'];
-		
-		$result['data'] = $this->system_model->getDistrict($params);
-		$this->xresponse(TRUE, $result);
+		if ($this->method == 'GET') {
+			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (key_exists('city_id', $this->params) && !empty($this->params['city_id'])) 
+				$this->params['where']['t1.city_id'] = $this->params['city_id'];
+			
+			if (key_exists('q', $this->params) && !empty($this->params['q']))
+				$this->params['like'] = empty($this->params['sf']) 
+					? DBX::like_or('t1.name', $this->params['q'])
+					: DBX::like_or($this->params['sf'], $this->params['q']);
+
+			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
+			$this->xresponse(TRUE, $result);
+		}
+		if (($this->method == 'POST') || ($this->method == 'PUT')) {
+			$data = json_decode($this->input->raw_input_stream);
+			$fields = ['name', 'city_id'];
+			$boolfields = [];
+			$nullfields = [];
+			foreach($fields as $f){
+				if (key_exists($f, $data)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
+					} 
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+					} else {
+						$datas[$f] = $data->{$f};
+					}
+				}
+			}
+			if ($this->method == 'POST')
+				$result = $this->insertRecord($this->ctrl_method, array_merge($datas, $this->update_log));
+			else
+				$result = $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->method == 'DELETE') {
+			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
 	}
 	
-	function c_villagelist()
+	function c_5village()
 	{
-		$params = $this->input->get();
-		// $this->getAPI('system', 'villagelist', $params, FALSE);
-		if (key_exists('q', $params)) 
-			$params['like'] = empty($params['sf']) 
-				? DBX::like_or('name', $params['q'])
-				: DBX::like_or($params['sf'], $params['q']);
-		if (key_exists('id', $params)) 
-			$params['where']['id'] = $params['id'];
-		if (key_exists('district_id', $params)) 
-			$params['where']['district_id'] = $params['district_id'];
-		
-		$result['data'] = $this->system_model->getVillage($params);
-		$this->xresponse(TRUE, $result);
+		if ($this->method == 'GET') {
+			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (key_exists('district_id', $this->params) && !empty($this->params['district_id'])) 
+				$this->params['where']['t1.district_id'] = $this->params['district_id'];
+			
+			if (key_exists('q', $this->params) && !empty($this->params['q']))
+				$this->params['like'] = empty($this->params['sf']) 
+					? DBX::like_or('t1.name', $this->params['q'])
+					: DBX::like_or($this->params['sf'], $this->params['q']);
+
+			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
+			$this->xresponse(TRUE, $result);
+		}
+		if (($this->method == 'POST') || ($this->method == 'PUT')) {
+			$data = json_decode($this->input->raw_input_stream);
+			$fields = ['name', 'district_id'];
+			$boolfields = [];
+			$nullfields = [];
+			foreach($fields as $f){
+				if (key_exists($f, $data)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
+					} 
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+					} else {
+						$datas[$f] = $data->{$f};
+					}
+				}
+			}
+			if ($this->method == 'POST')
+				$result = $this->insertRecord($this->ctrl_method, array_merge($datas, $this->update_log));
+			else
+				$result = $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->method == 'DELETE') {
+			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
 	}
 	
 	

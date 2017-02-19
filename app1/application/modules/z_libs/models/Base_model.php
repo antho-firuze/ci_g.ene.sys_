@@ -24,6 +24,12 @@ class Base_Model extends CI_Model
 		if ( array_key_exists('like', $params)) $this->db->where($params['like']);
 		if ( array_key_exists('sort', $params)) $this->db->order_by($params['sort'], $params['order']);
 		if ( array_key_exists('ob', $params)) 	$this->db->order_by($params['ob']);
+		
+		// LIMITATION FOR JQUERY DATATABLES COMPONENT
+		if ( array_key_exists('start', $params) && array_key_exists('length', $params) )
+			$this->db->limit($params['length'], $params['start']);
+		
+		// LIMITATION FOR JQUERY JEASYUI COMPONENT
 		if ( array_key_exists('page', $params) && array_key_exists('rows', $params))
 		{
 			$params['page'] = empty($params['page']) ? 1 : $params['page'];

@@ -1,4 +1,4 @@
-{var $url_module = $.php.base_url('systems/a_role')}
+{var $url_module = $.php.base_url('systems/a_menu')}
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -104,14 +104,12 @@
 		form.html('');
 		form.append(BSHelper.Input({ type:"text", label:"Name", idname:"name", readonly:false, required: true, placeholder:"string(60)" }));
 		form.append(BSHelper.TextArea({ label:"Description", idname:"description", placeholder:"string(2000)" }));
+		form.append(BSHelper.TextArea({ label:"Icon", idname:"icon", placeholder:"string(2000)" }));
+		form.append(BSHelper.TextArea({ label:"Table", idname:"url", placeholder:"string(2000)" }));
+		form.append(BSHelper.TextArea({ label:"Path", idname:"path", placeholder:"string(2000)" }));
 		form.append(BSHelper.Checkbox({ label:"Is Active", idname:"is_active" }));
-		form.append(BSHelper.Checkbox({ label:"Is Can Export", idname:"is_canexport" }));
-		form.append(BSHelper.Checkbox({ label:"Is Can Report", idname:"is_canreport" }));
-		form.append(BSHelper.Checkbox({ label:"Is Can Approved Own Doc", idname:"is_canapproveowndoc" }));
-		form.append(BSHelper.Checkbox({ label:"Is Access All Orgs", idname:"is_accessallorgs" }));
-		form.append(BSHelper.Checkbox({ label:"Is Use User Org Access", idname:"is_useuserorgaccess" }));
-		form.append(BSHelper.Combobox({ label:"Currency", idname:"currency_id", url:"{$.php.base_url('systems/c_currency')}", required: false, isCombogrid: true, placeholder:"typed or choose" }));
-		form.append(BSHelper.Combobox({ label:"Supervisor", idname:"supervisor_id", url:"{$.php.base_url('systems/a_user')}", required: false, isCombogrid: true, placeholder:"typed or choose" }));
+		form.append(BSHelper.Checkbox({ label:"Is Parent", idname:"is_parent" }));
+		form.append(BSHelper.Combobox({ label:"Parent", idname:"parent_id", url:"{$.php.base_url('systems/a_menu')}", required: false, isCombogrid: true, placeholder:"typed or choose" }));
 		return form;
 	}
 	

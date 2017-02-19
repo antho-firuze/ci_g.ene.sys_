@@ -105,6 +105,26 @@ class Getmeb extends CI_Controller
 		return $_output;
 	}
 
+	function insertRecord($table, $data)
+	{
+		$data = is_object($data) ? (array) $data : $data;
+		
+		if (!key_exists('id', $cond) && empty($cond['id'])) {
+			$this->set_message('error_saving');
+			return false;
+		}
+		
+		$this->db->insert($table, $data);
+		$return = $this->db->affected_rows() == 1;
+		if ($return)
+			// $this->set_message('update_data_successful');
+			$this->set_message('success_saving');
+		else
+			$this->set_message('error_saving');
+		
+		return true;
+	}
+	
 	function updateRecord($table, $data, $cond)
 	{
 		$data = is_object($data) ? (array) $data : $data;
