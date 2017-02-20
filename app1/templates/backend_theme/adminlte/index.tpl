@@ -150,6 +150,7 @@
 <html>
 <head>
 <script type="text/javascript" src="{$.const.ASSET_URL}genesys/js/common.func.js"></script>
+<script type="text/javascript" src="{$.const.ASSET_URL}genesys/js/form_crud.js"></script>
 <script>
 	{* DECLARE VARIABLE *}
 	{var $head_title = $head_title !: $.const.APP_TITLE_B}

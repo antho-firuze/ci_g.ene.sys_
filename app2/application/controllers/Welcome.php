@@ -22,4 +22,17 @@ class Welcome extends CI_Controller {
 	{
 		$this->load->view('welcome_message');
 	}
+	
+	function mdetect() {
+		$detect = new Mobile_Detect();
+		// return log_array($detect);
+		
+		if ( $detect->isTablet() || $detect->isMobile() )
+			$sess['is_mobile'] = 1;
+		else
+			$sess['is_mobile'] = 0;
+			
+		return var_dump($sess);
+	}
+
 }

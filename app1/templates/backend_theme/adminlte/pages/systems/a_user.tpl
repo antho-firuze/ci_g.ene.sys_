@@ -85,22 +85,14 @@
 	.search($q ? $q : '');
 	
 	{* This line for changing toolbar button *}
-	{* 
-		setTB(1, ['btn-copy','btn-new','btn-refresh','btn-delete']);
-		setTB(2, ['btn-message']);
-		setTB(3, ['btn-print','btn-export','btn-import']);
-		setTB(4, ['btn-process']);
-		setTBChild('btn-process', ['btn-process-doc-act','btn-process-a-pros','btn-process-userrole']);
-	*}
-	var toolbar_row = $('<div class="row"><div class="col-md-12"></div></div>');
-	var toolbar_col = toolbar_row.find('.col-md-12').append(
-		setToolbarButton([
-			'btn-copy', 	 'btn-new', 	'btn-refresh', 'btn-delete', 
-			'btn-message', 'btn-print', 'btn-export',  'btn-import', 
-			'btn-process', 'btn-process-doc-act', 'btn-process-a-pros', 'btn-process-userrole'
-		])
-	);
-	$('div.dataTables_wrapper').find('div.row:first').before(toolbar_row);
+	$('div.dataTables_wrapper').find('div.row:first').before( setToolbarButton() );
+	addProcessMenu('btn-process1', 'User Role');
+	addProcessMenu('btn-process2', 'User Organization');
+	addProcessMenu('btn-process3', 'User Substitute');
+
+	{* AVAILABLE BUTTON LIST ['btn-copy','btn-new','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-process'] *}
+	setDisableToolBtn(['btn-copy','btn-message','btn-print','btn-export','btn-import']);
+	setDisableMenuProcess([]);
 	
 	{* Don't change this code: Re-coding dataTables search method *}
 	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
@@ -269,27 +261,26 @@
 	});
 	
 	{* btn-role in DataTable on click *}
-	tableData1.find('tbody').on( 'click', '[name="btn-role"]', function(){
+	{* tableData1.find('tbody').on( 'click', '[name="btn-role"]', function(){
 		var data = dataTable1.row( $(this).parents('tr') ).data();
 		console.log($(this).attr('title'));
-    });
+    }); *}
 	
 	{* btn-org in DataTable on click *}
-	tableData1.find('tbody').on( 'click', '[name="btn-org"]', function () {
+	{* tableData1.find('tbody').on( 'click', '[name="btn-org"]', function () {
 		var data = dataTable1.row( $(this).parents('tr') ).data();
 		console.log($(this).attr('title'));
-    });
+    }); *}
 	
 	{* btn-subs in DataTable on click *}
-	tableData1.find('tbody').on( 'click', '[name="btn-subs"]', function () {
+	{* tableData1.find('tbody').on( 'click', '[name="btn-subs"]', function () {
 		var data = dataTable1.row( $(this).parents('tr') ).data();
 		console.log($(this).attr('title'));
-    });
+    }); *}
 	
 	{* btn-copy in Toolbar on click *}
 	$('#btn-copy').click(function(){
 		console.log('Debug: Copy');
-		
 		{* line for check permission *}
 	});
 	
@@ -422,31 +413,44 @@
 	
 	{* btn-message in Toolbar on click *}
 	$('#btn-message').click(function(){
-		console.log('Debug: Chat/Message/Attach');
+		console.log('Debug: '+$(this).attr('title'));
 		{* dataTable1.ajax.reload( null, false ); *}
 	});
 	
 	{* btn-print in Toolbar on click *}
 	$('#btn-print').click(function(){
-		console.log('Debug: Print');
+		console.log('Debug: '+$(this).attr('title'));
 		{* dataTable1.ajax.reload( null, false ); *}
 	});
 	
 	{* btn-export in Toolbar on click *}
 	$('#btn-export').click(function(){
-		console.log('Debug: Export');
+		console.log('Debug: '+$(this).attr('title'));
 		{* dataTable1.ajax.reload( null, false ); *}
 	});
 	
 	{* btn-import in Toolbar on click *}
 	$('#btn-import').click(function(){
-		console.log('Debug: Import');
+		console.log('Debug: '+$(this).attr('title'));
 		{* dataTable1.ajax.reload( null, false ); *}
 	});
 	
-	{* btn-process-doc-act in Toolbar on click *}
-	$('#btn-process-doc-act').click(function(){
-		console.log('Debug: Document Action');
+	{* btn-process1 in Toolbar on click *}
+	$('#btn-process1').click(function(){
+		if ($(this).parent().hasClass('disabled')) return false;
+		console.log('Debug: '+$(this).html());
+		{* dataTable1.ajax.reload( null, false ); *}
+	});
+	
+	$('#btn-process2').click(function(){
+		if ($(this).parent().hasClass('disabled')) return false;
+		console.log('Debug: '+$(this).html());
+		{* dataTable1.ajax.reload( null, false ); *}
+	});
+	
+	$('#btn-process3').click(function(){
+		if ($(this).parent().hasClass('disabled')) return false;
+		console.log('Debug: '+$(this).html());
 		{* dataTable1.ajax.reload( null, false ); *}
 	});
 	
