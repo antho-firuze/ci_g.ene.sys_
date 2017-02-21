@@ -30,7 +30,7 @@
       <!-- Small boxes (Stat box) -->
       <div class="row">
         <section class="col-lg-12 connectedSortable">
-          <div class="box box-success">
+          <div class="box box-danger">
             <!-- <div class="box-header with-border">
               <h3 class="box-title">Product</h3>
             </div> -->
@@ -45,7 +45,7 @@
       <!-- Small boxes (Stat box) -->
       <div class="row">
         <section class="col-lg-12 connectedSortable">
-          <div class="box box-success">
+          <div class="box box-danger">
             <!-- <div class="box-header with-border">
               <h3 class="box-title">Product</h3>
             </div> -->
@@ -61,7 +61,7 @@
       <div class="row">
         <!-- Left col -->
         <section class="col-lg-12 connectedSortable">
-          <div class="box box-success">
+          <div class="box box-danger">
             <div class="box-header with-border">
               <h3 class="box-title">General Informations</h3>
             </div>
@@ -85,7 +85,7 @@
         <!-- /.Left col -->
         <!-- right col (We are only adding the ID to make the widgets sortable)-->
         <section class="col-lg-12 connectedSortable">
-          <div class="box box-success">
+          <div class="box box-danger">
             <div class="box-header with-border">
               <h3 class="box-title">Materials & Certification</h3>
             </div>
@@ -134,7 +134,7 @@
        <!-- Small boxes (Stat box) -->
       <div class="row">
         <section class="col-lg-12 connectedSortable">
-          <div class="box box-success">
+          <div class="box box-danger">
             <!-- <div class="box-header with-border">
               <h3 class="box-title">Product</h3>
             </div> -->
