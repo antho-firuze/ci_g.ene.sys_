@@ -31,7 +31,7 @@ function setToolbarButton(){
 	btnGroup3.append($('<button type="button" class="btn bg-purple glyphicon glyphicon-print" title="Print" id="btn-print" />'));
 	btnGroup3.append($('<button type="button" class="btn btn-warning glyphicon glyphicon-open" title="Export" id="btn-export" />'));
 	btnGroup3.append($('<button type="button" class="btn btn-warning glyphicon glyphicon-save" title="Import" id="btn-import" />'));
-	btnGroup4.append($('<button type="button" class="btn bg-purple glyphicon glyphicon-cog dropdown-toggle" data-toggle="dropdown" title="Process" /><ul class="dropdown-menu" />'));
+	btnGroup4.append($('<button type="button" class="btn bg-purple glyphicon glyphicon-cog dropdown-toggle" data-toggle="dropdown" title="Process" id="btn-process" /><ul class="dropdown-menu" />'));
 
 	return container;
 }
