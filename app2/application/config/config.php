@@ -25,7 +25,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 // $config['base_url'] = '';
 $config['base_url'] = 'http://localhost/ci/app1/';
-// $config['base_url'] = 'http://iproduct.trigraha.com/';
+// $config['base_url'] = 'http://apps.fajarbenua.co.id/';
 
 /*
 |--------------------------------------------------------------------------
