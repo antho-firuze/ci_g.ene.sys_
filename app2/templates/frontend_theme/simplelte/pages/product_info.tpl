@@ -109,6 +109,23 @@
           </div>
         </section>
         <!-- right col -->
+        <!-- Left col -->
+        <section class="col-lg-12 connectedSortable">
+          <div class="box box-danger">
+            <div class="box-header with-border">
+              <h3 class="box-title">SWG Information & Guide</h3>
+            </div>
+            <div class="box-body">
+							<center>
+								<a href=''>SWG Basic Knowledge</a>
+								<br><a href=''>Material Selection</a>
+								<br><a href=''>Torque Installation Guide</a>
+							</center>
+            </div>
+            <!-- /.box-body -->
+          </div>
+        </section>
+        <!-- /.Left col -->
       </div>
       <!-- /.row (main row) -->
 
@@ -122,8 +139,8 @@
             <div class="box-body">
 							<div style="width:100%;text-align:center;">
 								<span style="font-weight:bold;">Sole Distributed by </span> 
-								<span style="font-weight:bold; color:#d73925">Fajar Benua Indopack </span>
- 								<img class="img-responsive img-center" style="width:50px;" src="{$.php.base_url()}upload/images/Logo-FBI.png" alt="PT. FBI">
+								<span ><a style="font-weight:bold; color:#d73925" target="_blank" href="http://www.fajarbenua.co.id">Fajar Benua Indopack </a></span>
+ 								<a target="_blank" href="http://www.fajarbenua.co.id"><img class="img-responsive img-center" style="width:50px;" src="{$.php.base_url()}upload/images/Logo-FBI.png" alt="PT. FBI"></a>
 							</div>
            </div>
             <!-- /.box-body -->
@@ -139,7 +156,10 @@
               <h3 class="box-title">Product</h3>
             </div> -->
             <div class="box-body">
-              <img class="img-responsive img-center" style="display: block; width:250px;" src="{$.php.base_url()}upload/images/fajar-tri-energy.png" alt="PT. FBI">
+							<div style="width:100%;text-align:center;">
+								<span style="font-weight:bold;">Member of</span> 
+ 								<img class="img-responsive img-center" style="width:250px;" src="{$.php.base_url()}upload/images/fajar-tri-energy.png" alt="HD GROUP">
+							</div>
             </div>
             <!-- /.box-body -->
           </div>
@@ -192,15 +212,16 @@
 	var stand = '-';
 	switch(part.substring(0,1)) {
     case 'A':
-			stand = 'ANSI';
+			stand = 'ASME B 16.20';
+			
 			{var $stand = 'ANSI'}
 			break;
     case 'D':
-			stand = 'DIN';
+			stand = 'DIN EN 1514-2';
 			{var $stand = 'DIN'}
 			break;
     case 'J':
-			stand = 'JIS';
+			stand = 'JIS B 2404';
 			{var $stand = 'JIS'}
 			break;
     case 'C':
