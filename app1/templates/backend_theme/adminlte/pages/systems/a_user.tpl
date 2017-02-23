@@ -48,6 +48,7 @@
 	{* Section 2: For building Datatables *}
 	var setCustomLeftButton = ''+
 		'<button type="button" class="btn btn-xs btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />' +
+		'<button type="button" class="btn btn-xs btn-danger glyphicon glyphicon-trash" title="Edit" name="btn-delete" />' +
 		'<button type="button" class="btn btn-xs btn-default glyphicon glyphicon-chevron-right" title="Detail" name="btn-detail" />';
 	var setCustomRightButton = ''+
 		'<button type="button" class="btn btn-xs btn-default glyphicon glyphicon-th-list" title="Role" name="btn-role" />' +
@@ -69,16 +70,16 @@
 		},
 		"columns": [
 			{ "width": "3%", orderable: false, className: "dt-body-center", "title": "<input type='checkbox' class='head-check'>" },
-			{ "width": "7%", orderable: false, className: "dt-body-center" },
+			{ "width": "7.5%", orderable: false, className: "dt-body-center" },
 			{ "data": "name", 		 	 "title": "Name" },
 			{ "data": "email", 		 	 "title": "Email" },
 			{ "data": "description", "title": "Description", orderable: false },
-			{ "width": "9%", orderable: false, className: "dt-body-center" },
+			{* { "width": "9%", orderable: false, className: "dt-body-center" }, *}
 		],
 		"columnDefs": [
 			{	"targets": 0,	"defaultContent": '<input type="checkbox" class="line-check">' },
 			{	"targets": 1,	"defaultContent": setCustomLeftButton	},
-			{	"targets":-1, "defaultContent": setCustomRightButton}
+			{* {	"targets":-1, "defaultContent": setCustomRightButton} *}
 		],
 		"order": [[ 2, 'asc' ]]
 	})
@@ -92,7 +93,7 @@
 
 	{* AVAILABLE BUTTON LIST ['btn-copy','btn-new','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-process'] *}
 	setDisableToolBtn(['btn-copy','btn-message','btn-print','btn-export','btn-import']);
-	setDisableMenuProcess([]);
+	setDisableMenuProcess(['btn-process2','btn-process3']);
 	
 	{* Don't change this code: Re-coding dataTables search method *}
 	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
@@ -179,6 +180,77 @@
 			onshown: function(dialog) {
 				form.validate({ ignore:'', rules:{ password_confirm:{ equalTo: "#password_new" }} });
 				form.find('#name').focus();
+			}
+		});
+	});
+	
+	tableData1.find('tbody').on( 'click', '[name="btn-delete"]', function () {
+		var data = dataTable1.row( $(this).parents('tr') ).data();
+		
+		{* line for check permission *}
+		
+		var ids = [];
+		
+		{* if (data.count() < 1)
+			return false; *}
+
+		{* $('#btn-delete').click(); *}
+		console.log(data); return false;
+		var confirm = $('<div />');
+		confirm.append( $('<p />').html('Are you sure want to delete this record ?') );
+		confirm.append( 
+			BSHelper.TableConfirm({
+				data: data,	rowno: true, showtitle: false, maxrows: 3, 
+				columns:[
+					{ data:"name"					,title:"Name" },
+					{ data:"email"				,title:"Email" },
+					{ data:"description"	,title:"Description" },
+				]
+			})
+		);
+		
+		console.log(data); return false;
+		$.each(data, function(i){	ids[i] = data[i]['id'];	});
+		
+		{* console.log(ids.join()); return; *}
+		BootstrapDialog.show({ title: 'Delete Record/s', type: BootstrapDialog.TYPE_DANGER, message: confirm,
+			buttons: [{
+				icon: 'glyphicon glyphicon-send',
+				cssClass: 'btn-danger',
+				label: '&nbsp;&nbsp;Delete',
+				action: function(dialog) {
+					if (! form.valid()) return false;
+					
+					var button = this;
+					button.spin();
+					
+					$.ajax({ url: '{$url_module ~ "?id="}'+ids.join(), method: "DELETE", async: true, dataType: 'json',
+						data: form.serializeJSON(),
+						success: function(data) {
+							dialog.close();
+							dataTable1.ajax.reload( null, false );
+							Lobibox.notify('info', { msg: data.message });
+						},
+						error: function(data) {
+							if (data.status==500){
+								var message = data.statusText;
+							} else {
+								var error = JSON.parse(data.responseText);
+								var message = error.message;
+							}
+							button.stopSpin();
+							dialog.enableButtons(true);
+							dialog.setClosable(true);
+							BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+						}
+					});
+				}
+			}, {
+					label: 'Close',
+					action: function(dialog) { dialog.close(); }
+			}],
+			onshown: function(dialog) {
+				{**}
 			}
 		});
 	});
@@ -350,6 +422,7 @@
 		var data = dataTable1.rows('.selected').data();
 		var ids = [];
 		
+		{* console.log(data); return false; *}
 		if (data.count() < 1)
 			return false;
 

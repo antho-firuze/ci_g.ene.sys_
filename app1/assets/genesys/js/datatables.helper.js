@@ -118,6 +118,7 @@
 	DTHelper.defaults = {
 		setCustomLeftButton: ''+
 			'<button type="button" class="btn btn-xs btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />'+
+			'<button type="button" class="btn btn-xs btn-danger glyphicon glyphicon-trash" title="Delete" name="btn-delete" />'+
 			'<button type="button" class="btn btn-xs btn-default glyphicon glyphicon-chevron-right" title="Detail" name="btn-detail" />',
 		setCustomRightButton: '',
 		tableData1: $('<table class="table table-bordered table-hover" />'),
