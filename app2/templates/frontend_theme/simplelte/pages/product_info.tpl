@@ -105,7 +105,7 @@
                 <dd>{$filler} / -</dd>
               </dl>
             </div>
-            <!-- /.box-body -->
+            <!-- /.box-body --> 
           </div>
         </section>
         <!-- right col -->
