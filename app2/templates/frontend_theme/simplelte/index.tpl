@@ -23,6 +23,7 @@
 	<script src="{$template_url}plugins/slimScroll/jquery.slimscroll.min.js"></script>
 	<script src="{$template_url}plugins/jQueryUI/jquery-ui.min.js"></script>
 	<script src="{$template_url}plugins/marquee/lib/jquery.marquee.min.js"></script>
+	<script type="text/javascript" src='{$.php.base_url()}assets/genesys/js/bootstrap.helper.js'></script>
 {/var}
 <!DOCTYPE html>
 <html>
