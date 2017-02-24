@@ -63,7 +63,7 @@
  * Different environments will require different levels of error reporting.
  * By default development will show errors but testing and live will hide them.
  */
-switch (ENVIRONMENT) 
+switch (ENVIRONMENT)
 {
 	case 'development':
 		error_reporting(-1);
@@ -312,4 +312,11 @@ switch (ENVIRONMENT)
  *
  * And away we go...
  */
+include FCPATH.'config.inc.php';
+if (function_exists('ini_set')) {
+    @ini_set('max_execution_time', 300);
+    @ini_set('date.timezone', TIME_ZONE);
+}
+@date_default_timezone_set(TIME_ZONE);
+// include FCPATH.'proxy.inc.php';
 require_once BASEPATH.'core/CodeIgniter.php';

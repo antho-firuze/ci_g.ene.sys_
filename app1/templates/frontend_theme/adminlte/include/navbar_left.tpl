@@ -115,7 +115,8 @@
 			</li>
 		{/if}
         <li class="header">OTHERS</li>
-        <li><a target="_blank" href="{$login_link}" id="go-sign-out"><i class="fa fa-circle-o text-red"></i> <span>Login</span></a></li>
+        {* <li><a target="_blank" href="{$login_link}" id="go-sign-out"><i class="fa fa-circle-o text-red"></i> <span>Login</span></a></li> *}
+        <li><a href="{$login_link}" id="go-sign-out"><i class="fa fa-circle-o text-red"></i> <span>Login</span></a></li>
 		{* 
         <li class="header">OTHERS</li>
         <li><a href="#" id="go-change-pwd"><i class="fa fa-circle-o text-aqua"></i> <span>Change Password</span></a></li>

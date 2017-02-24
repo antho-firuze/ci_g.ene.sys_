@@ -1,8 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-include_once 'constants_app.php';
-
 /*
 |--------------------------------------------------------------------------
 | Display Debug backtrace

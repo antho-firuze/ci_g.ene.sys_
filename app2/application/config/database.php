@@ -74,16 +74,9 @@ $active_group = 'default';
 $query_builder = TRUE;
 
 $db['default'] = array(
-	// 'dsn'	=> '',
-	// 'hostname' => 'localhost',
-	// 'username' => 'root',
-	// 'password' => 'admin123',
-	// 'database' => 'db_genesys_remake',
-	// 'dbdriver' => 'mysqli',
-	
-	'hostname' => 'pgsql:host=119.18.158.218;port=4111;dbname=db_genesys;user=postgres;password=admin123',
-	'dbdriver' => 'pdo',
-	
+	'dsn'	=> DB_DSN,
+	'hostname' => DB_HOST,
+	'dbdriver' => DB_DRIVER,
 	'dbprefix' => '',
 	'pconnect' => FALSE,
 	'db_debug' => (ENVIRONMENT !== 'production'),
@@ -100,7 +93,7 @@ $db['default'] = array(
 );
 
 $db['sqlsvr12'] = array(
-	// 'dsn'	=> '',
+	'dsn'	=> '',
 	'hostname' => '115.85.74.130,8795',
 	'username' => 'sa',
 	'password' => 'admin123',

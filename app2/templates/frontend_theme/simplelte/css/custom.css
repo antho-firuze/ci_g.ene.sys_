@@ -31,22 +31,7 @@
 @media (min-width: 300px) {
   .dl-horizontal dt {
     float: left;
-    width: 50%;
-    overflow: hidden;
-    clear: left;
-    text-align: right;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-		padding-right: 1%;
-  }
-	.main-footer .custom-text{
-		width: 100%;
-	}
-}
-@media (min-width: 401px) {
-  .dl-horizontal dt {
-    float: left;
-    width: 50%;
+    width: 33%;
     overflow: hidden;
     clear: left;
     text-align: right;
@@ -55,7 +40,7 @@
 		padding-right: 1%;
   }
   .dl-horizontal dd {
-    margin-left: 180px;
+    margin-left: 34%;
   }
 	.main-footer .custom-text{
 		width: 100%;
@@ -67,7 +52,7 @@
 }
 
 @media (min-width: 768px) {
-  .dl-horizontal dt {
+/*   .dl-horizontal dt {
     float: left;
     width: 50%;
     overflow: hidden;
@@ -76,10 +61,10 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 		padding-right: 1%;
-  }
-  .dl-horizontal dd {
+  } */
+  /* .dl-horizontal dd {
     margin-left: 180px;
-  }
+  } */
 	.content-header > .breadcrumb {
 		top: 55px !important;
 	}

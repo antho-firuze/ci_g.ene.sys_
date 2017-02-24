@@ -141,7 +141,7 @@
 		
 		form = createForm1();
 		form.xform('load', data);  
-		BootstrapDialog.show({ title: 'Update Record', message: form,
+		BootstrapDialog.show({ title: 'Update Record', type: BootstrapDialog.TYPE_PRIMARY, message: form,
 			buttons: [{
 				icon: 'glyphicon glyphicon-send',
 				cssClass: 'btn-primary',
@@ -198,6 +198,9 @@
 		console.log(data); return false;
 		var confirm = $('<div />');
 		confirm.append( $('<p />').html('Are you sure want to delete this record ?') );
+		confirm.append( $("<table class='table'><thead></thead><tbody><tr><td></td></tr></tbody></table>") );
+		tr = confirm.find('tr');
+		tr.append( $('<td />').html() );
 		confirm.append( 
 			BSHelper.TableConfirm({
 				data: data,	rowno: true, showtitle: false, maxrows: 3, 
@@ -429,7 +432,7 @@
 		var confirm = $('<div />');
 		confirm.append( $('<p />').html('Are you sure want to delete this record ?') );
 		confirm.append( 
-			BSHelper.TableConfirm({
+			BSHelper.Table({
 				data: data,	rowno: true, showtitle: false, maxrows: 3, 
 				columns:[
 					{ data:"name"					,title:"Name" },
