@@ -167,9 +167,6 @@
       <div class="row">
         <section class="col-lg-12 connectedSortable">
           <div class="box box-danger">
-            <!-- <div class="box-header with-border">
-              <h3 class="box-title">Product</h3>
-            </div> -->
             <div class="box-body">
 							<div style="width:100%;text-align:center;">
 								<span style="font-weight:bold;">Member of</span> 
@@ -184,7 +181,6 @@
    </section>
     <!-- /.content -->
   </div>
-  
   
 <script>
 	$(".connectedSortable").sortable({
@@ -251,19 +247,20 @@
 	$('#standard_desc').html(stand_desc);
 	
 	{* console.log( eval('('+ {$certificates} +')') ); *}
-	console.log({$id});
+	{* console.log({$id}); *}
+	{* 
 	{foreach $certificates as $c}
-		console.log( {$c['file_name']} );
+		console.log({$c->file_name});
 	{/foreach}
-	
-	$('.swg-certifications').append(
+	 *}
+	{* $('.swg-certifications').append( *}
 		{* BSHelper.Accordion({ 
 			dataList: 
 		}) *}
 
 		{* getCertificates({$id}) *}
 		{* $('<div class="panel-group" />').html('testing') *}
-	);
+	{* ); *}
 	
 	var swgbasicknowledge = '<p>Spiral wound gasket is one of the basic elements for flanged joints in piping system of process plants.&nbsp;Gaskets are used to create a static seal between two stationary members of a mechanical assembly (the flanged joint). The gasket must be able to seal under all the operating conditions of the system including extreme upsets of temperature and pressure.</p><p>A spiral wound gasket is manufactured by spirally winding a preformed metal strip and a filler on the outer periphery of metal winding mandrels. The winding mandrel outside diameter forms the inner diameter of the gasket and the laminations are continually wound until the required outer diameter is attained.</p><p>Spiral wound gaskets should always be in contact with the flange and should not protrude into the pipe or project from the flange. Spiral wound gaskets can be used for sealing flange joints, manhole and handhold covers, tube covers, boilers, heat exchangers, pressure vessels, pumps, compressors and valves; in industries such as petrochemical, pharmaceutical, shipbuilding, and food processing, in power industries and nuclear power stations.</p><p><strong>Spiral Wound Gasket Components</strong></p><ol><li>Outer ring/ Centering ring : function as reinforcement.</li><li>Inner ring : function as a buffer from internal pressure.</li><li>Sealing element/Basic : function as joint sealing.</li></ol><p>&nbsp;</p><img class="img-responsive img-center" style="width:350px;" src="{$.php.base_url()}upload/images/swg/swg.png" alt="SWG">';
 	

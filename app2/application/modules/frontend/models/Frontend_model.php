@@ -14,7 +14,6 @@ class Frontend_Model extends CI_Model
 		$params['select']	= "t1.*, 'jfi' as company";
 		$params['table'] 	= "completion_slip as t1";
 		$params['where']['t1.no_slip'] = $id;
-		
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -24,9 +23,10 @@ class Frontend_Model extends CI_Model
 		$params['table'] 	= "cs_files as t1";
 		$params['join'][] = ['certificate_files as t2', 't1.id_certificate_files = t2.id', 'left'];
 		$params['where']['t1.id_cs'] = $id;
-		
-		// return $this->db->query($query)->result();
 		return $this->base_model->mget_rec($params);
+		
+		// $query = 'SELECT "t2".* FROM "cs_files" as "t1" LEFT JOIN "certificate_files" as "t2" ON "t1"."id_certificate_files" = "t2"."id" WHERE "t1"."id_cs" = '.$id;
+		// return $this->db->query($query)->result();
 	}
 	
 	

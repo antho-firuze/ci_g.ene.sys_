@@ -50,8 +50,25 @@ class Frontend extends Getmef
 		// $this->getAPI('frontend', 'infolist', [], FALSE);
 	}
 	
-	function test()
+	function test($id)
 	{
+		$this->db = $this->load->database('sqlsvr12', TRUE);
+		
+		$this->frontend_default_theme = 'simplelte';
+		
+		$result['data'] = [];
+		if (!empty($id)) {
+			$result['data'] = $this->frontend_model->getProduct($id);
+			$result['data'][0]->certificates = $this->frontend_model->getCertificates($result['data'][0]->id);
+		}
+		// $this->xresponse(TRUE, $result['data']);
+		// echo $result['data'][0]->certificates->id;
+		// var_dump($result['data'][0]);
+		$this->custom_view('pages/test', (array)$result['data'][0]);
+
+		// return;
+		
+		$this->db = $this->load->database('default', TRUE);
 		/* $connection = array(
 			'UID'			=> 'sa',
 			'PWD'			=> 'admin123',
@@ -74,15 +91,15 @@ class Frontend extends Getmef
 		// return $this->db->get()->result();
 		// $this->db = $this->load->database('default', TRUE);
 		
-		$sqlsvr12 = $this->load->database('sqlsvr12', TRUE);
-		$params['select']	= "cs.*, 'jfi' as company";
-		$params['table'] 	= "completion_slip as cs";
-		$params['where']['cs.no_slip'] = '2014-001-0000015';
-		$sqlsvr12->select($params['select']);
-		$sqlsvr12->from($params['table']);
-		if ( array_key_exists('where', $params)) $sqlsvr12->where($params['where']);
+		// $sqlsvr12 = $this->load->database('sqlsvr12', TRUE);
+		// $params['select']	= "cs.*, 'jfi' as company";
+		// $params['table'] 	= "completion_slip as cs";
+		// $params['where']['cs.no_slip'] = '2014-001-0000015';
+		// $sqlsvr12->select($params['select']);
+		// $sqlsvr12->from($params['table']);
+		// if ( array_key_exists('where', $params)) $sqlsvr12->where($params['where']);
 		
-		return out($sqlsvr12->get()->result());
+		// return out($sqlsvr12->get()->result());
 		// return out($this->frontend_model->getProduct('2014-001-0000015'));
 
 	}
@@ -104,7 +121,7 @@ class Frontend extends Getmef
 		$result['data'] = [];
 		if (!empty($id)) {
 			$result['data'] = $this->frontend_model->getProduct($id);
-			$result['data'][0]->certificates = $this->frontend_model->getCertificates($result['data'][0]->id)[0];
+			$result['data'][0]->certificates = $this->frontend_model->getCertificates($result['data'][0]->id);
 		}
 		// $this->xresponse(TRUE, $result['data'][0]->id);
 		// echo $result['data'][0]->certificates->id;
