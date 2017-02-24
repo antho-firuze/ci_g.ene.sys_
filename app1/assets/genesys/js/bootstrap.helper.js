@@ -56,6 +56,23 @@
 		return tab_shelter;
 	};
 	
+	BSHelper.Accordion = function(options){
+		var o = $.extend( {}, BSHelper.defaults, options );
+		
+		var id = 'accordion'+BSHelper.newGuid();
+		var shelter = $('<div class="panel-group" id="'+id+'" />');
+
+		$.each(o.dataList, function(i){
+			var id2 = 'collapse'+i;
+			var panel = $('<div class="panel panel-'+o.dataList[i]['paneltype']+'" />');
+			panel.append($('<div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" data-parent="#'+id+'" href="#'+id2+'">'+o.dataList[i]['title']+'</a></h4></div>'));
+			
+			panel.append($('<div id="'+id2+'" class="panel-collapse collapse"><div class="panel-body">'+o.dataList[i]['body']+'</div></div>'));
+			shelter.append(panel);
+		});
+		return shelter;
+	};
+	
 	BSHelper.Input = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
 		
@@ -425,6 +442,11 @@
 				c++;
 			});
 			tr.appendTo(thead);
+		}
+		
+		if (o.data.length > o.maxrows){
+			var _confirm_text = o.confirm_text.replace(/({rows_count})/gi, o.data.length);
+			return $('<p />').html(_confirm_text);
 		}
 		
 		// TABLE DETAIL

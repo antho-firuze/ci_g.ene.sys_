@@ -10,6 +10,7 @@ class Frontend extends Getmef
 		parent::__construct();
 		
 		$this->load->model('frontend/frontend_model');
+		$this->params = $this->input->get();
 	}
 	
 	function index()
@@ -98,16 +99,36 @@ class Frontend extends Getmef
 	{
 		$this->db = $this->load->database('sqlsvr12', TRUE);
 		
-		$data = [];
-		$data = $this->frontend_model->getProduct($id);
-		// return out($data[0]);
 		$this->frontend_default_theme = 'simplelte';
 		
-		if (count($data) > 0) {
-			$this->custom_view('pages/product_info', (array)$data[0]);
+		$result['data'] = [];
+		if (!empty($id)) {
+			$result['data'] = $this->frontend_model->getProduct($id);
+			$result['data'][0]->certificates = $this->frontend_model->getCertificates($result['data'][0]->id)[0];
+		}
+		// $this->xresponse(TRUE, $result['data'][0]->id);
+		// echo $result['data'][0]->certificates->id;
+		// var_dump($result['data'][0]);
+		// return;
+		
+		if (count($result['data']) > 0) {
+			$this->custom_view('pages/product_info', (array)$result['data'][0]);
 		} else {
 			$this->custom_view('pages/empty');
 		}
+		
+		$this->db = $this->load->database('default', TRUE);
+	}
+	
+	function getCertificates()
+	{
+		$this->db = $this->load->database('sqlsvr12', TRUE);
+		
+		$result['data'] = [];
+		if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			$result['data'] = $this->frontend_model->getCertificates($this->params['id']);
+
+		$this->xresponse(TRUE, $result);
 		
 		$this->db = $this->load->database('default', TRUE);
 	}

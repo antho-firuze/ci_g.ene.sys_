@@ -11,13 +11,22 @@ class Frontend_Model extends CI_Model
 
 	function getProduct($id = NULL)
 	{
-		
-		$params['select']	= "cs.*, 'jfi' as company";
-		$params['table'] 	= "completion_slip as cs";
-		$params['where']['cs.no_slip'] = $id;
+		$params['select']	= "t1.*, 'jfi' as company";
+		$params['table'] 	= "completion_slip as t1";
+		$params['where']['t1.no_slip'] = $id;
 		
 		return $this->base_model->mget_rec($params);
+	}
+	
+	function getCertificates($id = NULL)
+	{
+		$params['select']	= "t2.*";
+		$params['table'] 	= "cs_files as t1";
+		$params['join'][] = ['certificate_files as t2', 't1.id_certificate_files = t2.id', 'left'];
+		$params['where']['t1.id_cs'] = $id;
 		
+		// return $this->db->query($query)->result();
+		return $this->base_model->mget_rec($params);
 	}
 	
 	

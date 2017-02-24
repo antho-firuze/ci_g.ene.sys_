@@ -24,6 +24,7 @@
 	<script src="{$template_url}plugins/jQueryUI/jquery-ui.min.js"></script>
 	<script src="{$template_url}plugins/marquee/lib/jquery.marquee.min.js"></script>
 	<script type="text/javascript" src='{$.php.base_url()}assets/genesys/js/bootstrap.helper.js'></script>
+	<script src="{$template_url}js/product_info.js"></script>
 {/var}
 <!DOCTYPE html>
 <html>
@@ -57,6 +58,7 @@
 	var setMenuSearch_url = '{$.php.base_url('search_menu')}';
 	var setCHPass_url = '{$.php.base_url('change_passwd')}';
 	var setInfo_url = '{$.php.base_url('frontend/infolist')}';
+	var getCertificate_url = '{$.php.base_url('frontend/getCertificates')}';
 	var username = '{$.session.name}';
 
 	store('skin', '{$skin}');
