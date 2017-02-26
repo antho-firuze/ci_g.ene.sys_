@@ -14,6 +14,7 @@
 	<link rel="stylesheet" href="{$template_url}plugins/jQueryUI/jquery-ui.min.css">
 	<link rel="stylesheet" href="{$template_url}css/custom.css">
 	<link rel="stylesheet" href="{$template_url}plugins/marquee/css/jquery.marquee.min.css">
+	<link rel="stylesheet" href="{$template_url}plugins/Magnific-Popup/magnific-popup.css">
 	
 	<script src="{$template_url}plugins/jQuery/jQuery-2.1.4.min.js"></script>
 	<script src="{$template_url}bootstrap/js/bootstrap.min.js"></script>
@@ -23,6 +24,7 @@
 	<script src="{$template_url}plugins/slimScroll/jquery.slimscroll.min.js"></script>
 	<script src="{$template_url}plugins/jQueryUI/jquery-ui.min.js"></script>
 	<script src="{$template_url}plugins/marquee/lib/jquery.marquee.min.js"></script>
+	<script src="{$template_url}plugins/Magnific-Popup/jquery.magnific-popup.min.js"></script>
 	<script type="text/javascript" src='{$.php.base_url()}assets/genesys/js/bootstrap.helper.js'></script>
 	<script src="{$template_url}js/product_info.js"></script>
 {/var}

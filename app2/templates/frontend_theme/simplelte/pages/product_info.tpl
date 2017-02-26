@@ -255,13 +255,16 @@
 		];
 	
 	{foreach $certificates as $c}
-		var bodyHtml = '<button type="button" style="float:right;" class="btn btn-default" aria-label="Left Align"><a href="{$.php.base_url()}upload/images/certificate/{$c->file_name}" download="{$c->file_name}"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a></button><img class="img-responsive img-center" style="width:350px;" src="{$.php.base_url()}upload/images/certificate/{$c->file_name}" alt="{$c->title}">';
+		var bodyHtml = '<button type="button" style="float:right;" class="btn btn-default" aria-label="Left Align"><a href="{$.php.base_url()}upload/images/certificate/{$c->file_name}" download="{$c->file_name}"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a></button><a id="cert{$c->id}" href="{$.php.base_url()}upload/images/certificate/{$c->file_name}"><img class="img-responsive img-center" style="width:350px;" src="{$.php.base_url()}upload/images/certificate/{$c->file_name}" alt="{$c->title}" /></a>';
 		certs.push( { paneltype:"default",title:'{$c->title}',body:bodyHtml } );
 	{/foreach}
 	{* console.log(certs); *}
 	{* console.log(b); *}
 	
-	$('.swg-certifications').append( BSHelper.Accordion({ dataList: certs }) );
+	$('.swg-certifications').append( BSHelper.Accordion({ dataList:certs }) );
+	{foreach $certificates as $c}
+		$('#cert{$c->id}').magnificPopup({ type: 'image' }); 
+	{/foreach}
 	
 	var swgbasicknowledge = '<p>Spiral wound gasket is one of the basic elements for flanged joints in piping system of process plants.&nbsp;Gaskets are used to create a static seal between two stationary members of a mechanical assembly (the flanged joint). The gasket must be able to seal under all the operating conditions of the system including extreme upsets of temperature and pressure.</p><p>A spiral wound gasket is manufactured by spirally winding a preformed metal strip and a filler on the outer periphery of metal winding mandrels. The winding mandrel outside diameter forms the inner diameter of the gasket and the laminations are continually wound until the required outer diameter is attained.</p><p>Spiral wound gaskets should always be in contact with the flange and should not protrude into the pipe or project from the flange. Spiral wound gaskets can be used for sealing flange joints, manhole and handhold covers, tube covers, boilers, heat exchangers, pressure vessels, pumps, compressors and valves; in industries such as petrochemical, pharmaceutical, shipbuilding, and food processing, in power industries and nuclear power stations.</p><p><strong>Spiral Wound Gasket Components</strong></p><ol><li>Outer ring/ Centering ring : function as reinforcement.</li><li>Inner ring : function as a buffer from internal pressure.</li><li>Sealing element/Basic : function as joint sealing.</li></ol><p>&nbsp;</p><img class="img-responsive img-center" style="width:350px;" src="{$.php.base_url()}upload/images/swg/swg.png" alt="SWG">';
 	
