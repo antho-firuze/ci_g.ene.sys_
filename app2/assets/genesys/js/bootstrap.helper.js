@@ -63,7 +63,7 @@
 		var shelter = $('<div class="panel-group" id="'+id+'" />');
 
 		$.each(o.dataList, function(i){
-			var id2 = 'collapse'+i;
+			var id2 = 'collapse'+BSHelper.newGuid();
 			var panel = $('<div class="panel panel-'+o.dataList[i]['paneltype']+'" />');
 			panel.append($('<div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" data-parent="#'+id+'" href="#'+id2+'">'+o.dataList[i]['title']+'</a></h4></div>'));
 			
