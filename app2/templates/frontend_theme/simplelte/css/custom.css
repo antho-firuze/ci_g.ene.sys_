@@ -39,6 +39,7 @@
 }
 .box-header .box-title {
     font-weight: 600;
+		color: white;
 }
 @media (min-width: 300px) {
   .dl-horizontal dt {
