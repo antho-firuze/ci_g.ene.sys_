@@ -31,9 +31,6 @@
       <div class="row">
         <section class="col-lg-12 connectedSortable">
           <div class="box box-danger">
-            <!-- <div class="box-header with-border">
-              <h3 class="box-title">Product</h3>
-            </div> -->
             <div class="box-body">
               <img class="img-center" style="width: 300px;" src="{$.php.base_url()}upload/images/Jeil-Fajar-Transparent.png" alt="PT. JFI">
 						</div>
@@ -46,9 +43,9 @@
       <div class="row">
         <section class="col-lg-12 connectedSortable">
           <div class="box box-danger">
-            <!-- <div class="box-header with-border">
+            <div class="box-header with-border">
               <h3 class="box-title">Product</h3>
-            </div> -->
+            </div>
             <div class="box-body">
 							<a id="productpicture" href="{$.php.base_url()}upload/images/swg/{$type}.jpg">
 								<img class="img-center" style="width: 100%;" src="{$.php.base_url()}upload/images/swg/{$type}.jpg" alt="Product picture">
@@ -291,7 +288,7 @@
 	$("#torqueinstallation").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: 10 });
 	$("#targettorque").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: 10 });
  *}	
-	$("#metalwinding").mCustomScrollbar({ setWidth:'100%', axis:'yx', scrollbarPosition:'outside', theme:'dark' });
+	$("#metalwinding").mCustomScrollbar({ contentTouchScroll:25, documentTouchScroll:true, setWidth:'100%', axis:'yx', scrollbarPosition:'outside', theme:'dark' });
 	$("#fillermaterials").mCustomScrollbar({ setWidth:'100%', axis:'yx', scrollbarPosition:'outside', theme:'dark' });
 	$("#torqueinstallation").mCustomScrollbar({ setWidth:'100%', axis:'yx', scrollbarPosition:'outside', theme:'dark' });
 	$("#targettorque").mCustomScrollbar({ setWidth:'100%', axis:'yx', scrollbarPosition:'outside', theme:'dark' });
