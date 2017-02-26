@@ -286,8 +286,13 @@
 		})
 	);
 	$('#swgimage').magnificPopup({ type: 'image' }); 
-	$("#metalwinding").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: 10 });
+{* 	$("#metalwinding").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: 10 });
 	$("#fillermaterials").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: 10 });
 	$("#torqueinstallation").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: 10 });
 	$("#targettorque").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: 10 });
+ *}	
+	$("#metalwinding").mCustomScrollbar({ setHeight:'500px', setWidth:'100%', axis:'yx', scrollbarPosition:'outside' });
+	$("#fillermaterials").mCustomScrollbar({ setHeight:'500px', setWidth:'100%', axis:'yx', scrollbarPosition:'outside' });
+	$("#torqueinstallation").mCustomScrollbar({ setHeight:'500px', setWidth:'100%', axis:'yx', scrollbarPosition:'outside' });
+	$("#targettorque").mCustomScrollbar({ setHeight:'500px', setWidth:'100%', axis:'yx', scrollbarPosition:'outside' });
 </script>
