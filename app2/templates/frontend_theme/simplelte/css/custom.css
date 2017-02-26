@@ -4,6 +4,12 @@
 */
 
 /* General Links */
+.mCSB_outside+.mCSB_scrollTools {
+    right: -11px;
+}
+.mCustomScrollBox+.mCSB_scrollTools+.mCSB_scrollTools.mCSB_scrollTools_horizontal, .mCustomScrollBox+.mCSB_scrollTools.mCSB_scrollTools_horizontal {
+    bottom: -11px;
+}
 .arrow-down {
   width: 10px; 
   height: 0; 
