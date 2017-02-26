@@ -286,8 +286,8 @@
 		})
 	);
 	$('#swgimage').magnificPopup({ type: 'image' }); 
-	$("#metalwinding").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: -200 });
-	$("#fillermaterials").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: -200 });
-	$("#torqueinstallation").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: -200 });
-	$("#targettorque").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: -200 });
+	$("#metalwinding").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: 10 });
+	$("#fillermaterials").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: 10 });
+	$("#torqueinstallation").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: 10 });
+	$("#targettorque").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: 10 });
 </script>
