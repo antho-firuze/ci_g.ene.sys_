@@ -291,8 +291,8 @@
 	$("#torqueinstallation").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: 10 });
 	$("#targettorque").slimScroll({ height: '500px', width: '100%', axis: 'both', touchScrollStep: 10 });
  *}	
-	$("#metalwinding").mCustomScrollbar({ setHeight:'500px', setWidth:'100%', axis:'yx', scrollbarPosition:'outside' });
-	$("#fillermaterials").mCustomScrollbar({ setHeight:'500px', setWidth:'100%', axis:'yx', scrollbarPosition:'outside' });
-	$("#torqueinstallation").mCustomScrollbar({ setHeight:'500px', setWidth:'100%', axis:'yx', scrollbarPosition:'outside' });
-	$("#targettorque").mCustomScrollbar({ setHeight:'500px', setWidth:'100%', axis:'yx', scrollbarPosition:'outside' });
+	$("#metalwinding").mCustomScrollbar({ setHeight:'500px', setWidth:'100%', axis:'yx', scrollbarPosition:'outside', theme:'dark' });
+	$("#fillermaterials").mCustomScrollbar({ setHeight:'500px', setWidth:'100%', axis:'yx', scrollbarPosition:'outside', theme:'dark' });
+	$("#torqueinstallation").mCustomScrollbar({ setHeight:'500px', setWidth:'100%', axis:'yx', scrollbarPosition:'outside', theme:'dark' });
+	$("#targettorque").mCustomScrollbar({ setHeight:'500px', setWidth:'100%', axis:'yx', scrollbarPosition:'outside', theme:'dark' });
 </script>

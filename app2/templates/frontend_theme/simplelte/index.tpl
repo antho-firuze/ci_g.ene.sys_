@@ -12,10 +12,10 @@
 	<link rel="stylesheet" href="{$template_url}dist/css/AdminLTE.min.css">
 	<link rel="stylesheet" href="{$template_url}dist/css/skins/_all-skins.min.css">
 	<link rel="stylesheet" href="{$template_url}plugins/jQueryUI/jquery-ui.min.css">
-	<link rel="stylesheet" href="{$template_url}css/custom.css">
 	<link rel="stylesheet" href="{$template_url}plugins/marquee/css/jquery.marquee.min.css">
 	<link rel="stylesheet" href="{$template_url}plugins/Malihu-Scrollbar/jquery.mCustomScrollbar.min.css">
 	<link rel="stylesheet" href="{$template_url}plugins/Magnific-Popup/magnific-popup.css">
+	<link rel="stylesheet" href="{$template_url}css/custom.css">
 	
 	<script src="{$template_url}plugins/jQuery/jQuery-2.1.4.min.js"></script>
 	<script src="{$template_url}bootstrap/js/bootstrap.min.js"></script>
