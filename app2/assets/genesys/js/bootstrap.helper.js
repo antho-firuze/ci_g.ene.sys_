@@ -65,11 +65,12 @@
 		$.each(o.dataList, function(i){
 			var id2 = 'collapse'+BSHelper.newGuid();
 			var panel = $('<div class="panel panel-'+o.dataList[i]['paneltype']+'" />');
-			panel.append($('<div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" data-parent="#'+id+'" href="#'+id2+'">'+o.dataList[i]['title']+'</a></h4></div>'));
+			panel.append($('<div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" data-parent="#'+id+'" href="#'+id2+'">'+o.dataList[i]['title']+'<span class="pull-right glyphicon glyphicon-triangle-bottom"></span></a></h4></div>'));
 			
 			panel.append($('<div id="'+id2+'" class="panel-collapse collapse"><div class="panel-body">'+o.dataList[i]['body']+'</div></div>'));
 			shelter.append(panel);
 		});
+		
 		return shelter;
 	};
 	

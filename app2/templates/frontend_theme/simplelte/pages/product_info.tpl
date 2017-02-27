@@ -306,4 +306,10 @@
 	$("#fillermaterials").mCustomScrollbar({ setWidth:'100%', axis:'yx', scrollbarPosition:'outside', theme:'dark' });
 	$("#torqueinstallation").mCustomScrollbar({ setWidth:'100%', axis:'yx', scrollbarPosition:'outside', theme:'dark' });
 	$("#targettorque").mCustomScrollbar({ setWidth:'100%', axis:'yx', scrollbarPosition:'outside', theme:'dark' });
+	
+	$('.collapse').on('shown.bs.collapse', function(){
+		$(this).parent().find(".glyphicon-triangle-bottom").removeClass("glyphicon-triangle-bottom").addClass("glyphicon-triangle-top");
+	}).on('hidden.bs.collapse', function(){
+		$(this).parent().find(".glyphicon-triangle-top").removeClass("glyphicon-triangle-top").addClass("glyphicon-triangle-bottom");
+	});
 </script>
