@@ -107,9 +107,6 @@
             </div>
             <div class="box-body">
               <dl class="dl-horizontal">
-                <dt>Standard</dt>
-                <dd id="standard"></dd>			
-                <dd id="standard_desc" style="font-style:italic"></dd>			
                 <dt>Size</dt>
                 <dd>{$size}</dd>			
                 <dt>Inner Ring</dt>
