@@ -86,7 +86,24 @@
         <section class="col-lg-12 connectedSortable">
           <div class="box box-danger">
             <div class="box-header with-border">
-              <h3 class="box-title">Materials</h3>
+              <h3 class="box-title">Standard</h3>
+            </div>
+            <div class="box-body">
+              <dl class="dl-horizontal">
+                <dt>Standard</dt>
+                <dd id="standard"></dd>			
+                <dd id="standard_desc" style="font-style:italic"></dd>			
+              </dl>
+            </div>
+            <!-- /.box-body --> 
+          </div>
+        </section>
+        <!-- right col -->
+        <!-- right col (We are only adding the ID to make the widgets sortable)-->
+        <section class="col-lg-12 connectedSortable">
+          <div class="box box-danger">
+            <div class="box-header with-border">
+              <h3 class="box-title">Material Specification</h3>
             </div>
             <div class="box-body">
               <dl class="dl-horizontal">
