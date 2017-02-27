@@ -8,7 +8,6 @@ class Getmeb extends CI_Controller
 	public $scripts		= array();
 	public $backend_default_theme  	= 'adminlte';
 	public $frontend_default_theme 	= 'adminlte';
-	public $org_id 		= 0;
 	public $method;
 	public $ctrl_method;
 	public $sess;

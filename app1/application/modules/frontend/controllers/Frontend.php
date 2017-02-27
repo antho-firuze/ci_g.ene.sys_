@@ -38,41 +38,4 @@ class Frontend extends Getmef
 		$this->xresponse(true, $result);
 	}
 	
-	function test()
-	{
-		/* $connection = array(
-			'UID'			=> 'sa',
-			'PWD'			=> 'admin123',
-			'Database'		=> 'db_genesys'
-		);
-		if (sqlsrv_connect('tcp:115.85.74.130,8795', $connection))
-			echo 'TRUE';
-		else
-			echo 'FALSE';
-		// var_dump(sqlsrv_errors());
-		return; */
-		// $this->db = $this->load->database('sqlsvr12', TRUE);
-		// $params['select']	= "cs.*, 'jfi' as company";
-		// $params['table'] 	= "completion_slip as cs";
-		// $params['where']['cs.no_slip'] = '2014-001-0000015';
-		// $this->db->select($params['select']);
-		// $this->db->from($params['table']);
-		// if ( array_key_exists('where', $params)) $this->db->where($params['where']);
-		
-		// return $this->db->get()->result();
-		// $this->db = $this->load->database('default', TRUE);
-		
-		$sqlsvr12 = $this->load->database('sqlsvr12', TRUE);
-		$params['select']	= "cs.*, 'jfi' as company";
-		$params['table'] 	= "completion_slip as cs";
-		$params['where']['cs.no_slip'] = '2014-001-0000015';
-		$sqlsvr12->select($params['select']);
-		$sqlsvr12->from($params['table']);
-		if ( array_key_exists('where', $params)) $sqlsvr12->where($params['where']);
-		
-		return out($sqlsvr12->get()->result());
-		// return out($this->frontend_model->getProduct('2014-001-0000015'));
-
-	}
-
 }
