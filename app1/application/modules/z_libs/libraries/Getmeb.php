@@ -28,7 +28,7 @@ class Getmeb extends CI_Controller
 		}
 		
 		parent::__construct();
-		defined('ASSET_URL')						OR define('ASSET_URL', base_url().'/assets/');
+		define('ASSET_URL', base_url().'/assets/');
 		
 		$this->sess = (object) $this->session->userdata();
 		$this->lang->load('systems/genesys', (!empty($this->sess->language) ? $this->sess->language : 'english'));

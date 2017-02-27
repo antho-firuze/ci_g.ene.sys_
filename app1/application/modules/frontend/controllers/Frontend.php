@@ -4,49 +4,38 @@ require APPPATH . '/modules/z_libs/libraries/Getmef.php';
 
 class Frontend extends Getmef 
 {
-	public $org_id = 16;
-	
 	function __construct() {
 		parent::__construct();
 		
 		$this->load->model('frontend/frontend_model');
+		$this->params = $this->input->get();
 	}
 	
 	function index()
 	{
-		$data = $this->getmef_model->getPage();
-		$this->frontend_view('include/page', $data);
-	}
-	
-	function hrd()
-	{
-		$data = $this->getmef_model->getPage();
-		$this->frontend_view('include/page', $data);
+		$this->page();
 	}
 	
 	function page($id = 0)
 	{
-		$data = $this->getmef_model->getPage($id);
-		// var_dump($data);
-		// $data['org_id'] = 0;
-		// $data['title'] = 'Page Title';
-		// $data['short_desc'] = 'Page Short Description';
-		// $data['description'] = 'Page Body';
+		if (!empty($id)) 
+			$params['where']['t1.id'] = $id;
+		else 
+			$params['where']['t1.is_default'] = '1';
+	
+		if (count($this->getmef_model->getPage($params)) < 1)
+			show_404();
+
+		$data = (array)$this->getmef_model->getPage($params)[0];
 		$this->frontend_view('include/page', $data);
 	}
 	
 	function infolist()
 	{
-		$arg = (object) $this->input->get();
-		$params = (array) $arg;
-		
-		$params['where']['ai.client_id'] = DEFAULT_CLIENT_ID;
-		$params['where']['ai.org_id'] 	 = DEFAULT_ORG_ID;
-		$params['where']['ai.valid_from <='] = datetime_db_format();
+		$params['where']['t1.valid_from <='] = datetime_db_format();
 
 		$result['data'] = $this->getmef_model->getInfo($params);
 		$this->xresponse(true, $result);
-		// $this->getAPI('frontend', 'infolist', [], FALSE);
 	}
 	
 	function test()
@@ -86,44 +75,4 @@ class Frontend extends Getmef
 
 	}
 
-	function product_info($id)
-	{
-		$data = [];
-		$data = $this->frontend_model->getProduct($id);
-		// return out($data[0]);
-		$this->frontend_view('pages/product_info', (array)$data[0]);
-	}
-	
-	function cs($id = NULL)
-	{
-		$this->db = $this->load->database('sqlsvr12', TRUE);
-		
-		$data = [];
-		$data = $this->frontend_model->getProduct($id);
-		// return out($data[0]);
-		$this->frontend_default_theme = 'simplelte';
-		
-		if (count($data) > 0) {
-			$this->custom_view('pages/product_info', (array)$data[0]);
-		} else {
-			$this->custom_view('pages/empty');
-		}
-		
-		$this->db = $this->load->database('default', TRUE);
-	}
-	
-	function fgid($id = NULL)
-	{
-		if (empty($id)) {
-			redirect('dashboard');
-			out('testing');
-			return;
-		}
-	
-		$data = [];
-		$data = $this->frontend_model->getProduct($id);
-		// return out($data[0]);
-		$this->frontend_view('pages/product_info', (array)$data[0]);
-	}
-	
 }

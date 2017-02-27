@@ -59,8 +59,8 @@
 			{* hideClass:'zoomOutDown' *}
 		});
 	</script>
-	<script src="{$.const.ASSET_URL}genesys/js/common.extend.func.js"></script>
-	<script src="{$.const.ASSET_URL}genesys/js/bootstrap.helper.js"></script>
+	<script src="{$.const.ASSET_URL}js/common.extend.func.js"></script>
+	<script src="{$.const.ASSET_URL}js/bootstrap.helper.js"></script>
 {/var}
 {var $resource['dashboard2']}
 	<link rel="stylesheet" href="{$template_url}bootstrap/css/bootstrap.min.css">
@@ -89,8 +89,8 @@
 	<script src="{$template_url}plugins/jQueryUI/jquery-ui.min.js"></script>
 	<script src="{$template_url}plugins/idletimer/idle-timer.js"></script>
 	<script src="{$template_url}plugins/validation/jquery.validate.min.js"></script>
-	<script src="{$.const.ASSET_URL}genesys/js/common.extend.func.js"></script>
-	<script src="{$.const.ASSET_URL}genesys/js/bootstrap.helper.js"></script>
+	<script src="{$.const.ASSET_URL}js/common.extend.func.js"></script>
+	<script src="{$.const.ASSET_URL}js/bootstrap.helper.js"></script>
 {/var}
 {var $resource['crud']}
 	<link rel="stylesheet" href="{$template_url}bootstrap/css/bootstrap.min.css">
@@ -142,15 +142,15 @@
 			{* hideClass:'zoomOutDown' *}
 		});
 	</script>
-	<script src="{$.const.ASSET_URL}genesys/js/common.extend.func.js"></script>
-	<script src="{$.const.ASSET_URL}genesys/js/bootstrap.helper.js"></script>
-	<script src="{$.const.ASSET_URL}genesys/js/datatables.helper.js"></script>
+	<script src="{$.const.ASSET_URL}js/common.extend.func.js"></script>
+	<script src="{$.const.ASSET_URL}js/bootstrap.helper.js"></script>
+	<script src="{$.const.ASSET_URL}js/datatables.helper.js"></script>
 {/var}
 <!DOCTYPE html>
 <html>
 <head>
-<script type="text/javascript" src="{$.const.ASSET_URL}genesys/js/common.func.js"></script>
-<script type="text/javascript" src="{$.const.ASSET_URL}genesys/js/form_crud.js"></script>
+<script type="text/javascript" src="{$.const.ASSET_URL}js/common.func.js"></script>
+<script type="text/javascript" src="{$.const.ASSET_URL}js/form_crud.js"></script>
 <script>
 	{* DECLARE VARIABLE *}
 	{var $head_title = $head_title !: $.const.APP_TITLE_B}
