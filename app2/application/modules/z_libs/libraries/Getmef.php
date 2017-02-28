@@ -1,13 +1,13 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+/* THIS IS CLASS FOR BASE CONTROLLER (FRONTEND) */
 class Getmef extends CI_Controller
 {
-	public $asset_path;
-	public $styles		= array();
-	public $scripts		= array();
-	public $backend_default_theme 	= 'adminlte';
-	public $frontend_default_theme 	= 'adminlte';
+	/* DEFAULT TEMPLATE */
+	public $theme 	= 'adminlte';
+	/* FOR GETTING PARAMS FROM REQUEST URL */
+	public $params;
 	
 	function __construct() {
 		header('Access-Control-Allow-Origin: *');
@@ -19,7 +19,6 @@ class Getmef extends CI_Controller
 		}
 		
 		parent::__construct();
-		
 		define('ASSET_URL', base_url().'/assets/');
 		
 		$this->load->model('z_libs/getmef_model');
@@ -193,12 +192,12 @@ class Getmef extends CI_Controller
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
 		
 		$default['category'] 		= 'home1';
-		$default['theme_path'] 	= FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR;
+		$default['theme_path'] 	= FRONTEND_THEME.$this->theme.URL_SEPARATOR;
 		$default['menus'] 			= $this->getmef_model->getMenu();
-		$default['content'] 		= FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR.$content.'.tpl';
+		$default['content'] 		= FRONTEND_THEME.$this->theme.URL_SEPARATOR.$content.'.tpl';
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);
-		$this->fenomx->view(FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR.'index', array_merge($default, $data));
+		$this->fenomx->view(FRONTEND_THEME.$this->theme.URL_SEPARATOR.'index', array_merge($default, $data));
 	}
 	
 	// VIEW FOR PRODUCT INFO (QRCODE)
@@ -206,20 +205,11 @@ class Getmef extends CI_Controller
 	{
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
 		
-		$default['theme_path'] 	= FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR;
-		$default['content'] 		= FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR.$content.'.tpl';
+		$default['theme_path'] 	= FRONTEND_THEME.$this->theme.URL_SEPARATOR;
+		$default['content'] 		= FRONTEND_THEME.$this->theme.URL_SEPARATOR.$content.'.tpl';
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);
-		$this->fenomx->view(FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR.'index', array_merge($default, $data));
-	}
-	
-	// function qr_view($content, $data)
-	
-	// NOT USING REST-API
-	function _check_session()
-	{
-		
-		return (object) $this->session->userdata();
+		$this->fenomx->view(FRONTEND_THEME.$this->theme.URL_SEPARATOR.'index', array_merge($default, $data));
 	}
 	
 }
