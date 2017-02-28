@@ -30,13 +30,12 @@ class Systems extends Getmeb
 
 	function index()
 	{
-		// echo 'testing';
 		redirect('sys/dashboard');
 	}
 	
 	function dashboard()
 	{
-		$this->backend_view('dashboard', 1);
+		$this->backend_view('dashboard1', 'pages/dashboard/dashboard1');
 	}
 	
 	function x_auth()

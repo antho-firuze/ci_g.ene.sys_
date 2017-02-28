@@ -8,7 +8,6 @@ class Getmeb extends CI_Controller
 	public $scripts		= array();
 	public $backend_default_theme  	= 'adminlte';
 	public $frontend_default_theme 	= 'adminlte';
-	public $org_id 		= 0;
 	public $method;
 	public $ctrl_method;
 	public $sess;
@@ -28,7 +27,7 @@ class Getmeb extends CI_Controller
 		}
 		
 		parent::__construct();
-		defined('ASSET_URL')						OR define('ASSET_URL', base_url().'/assets/');
+		define('ASSET_URL', base_url().'/assets/');
 		
 		$this->sess = (object) $this->session->userdata();
 		$this->lang->load('systems/genesys', (!empty($this->sess->language) ? $this->sess->language : 'english'));
@@ -293,27 +292,6 @@ class Getmeb extends CI_Controller
 		exit();
 	}
 	
-	function getBackendMenu()
-	{
-		$result['data'] = $this->system_model->getRoleMenu($this->sess->role_id);
-		return $result['data'];
-		/* $params = ['id' => $this->session->userdata('role_id')];
-		$result = $this->getAPI('system', 'rolemenu', $params);
-		return $result->data; */
-	}
-	
-	function getBackendDashboard()
-	{
-		$params = [];
-		$params['where']['ard.role_id'] = $this->sess->role_id;
-		$result['data'] = $this->system_model->getRoleDashboard($params);
-		return $result['data'];
-		
-		/* $params = ['id' => $this->session->userdata('role_id')];
-		$result = $this->getAPI('system', 'roledashboard', $params);
-		return $result->data; */
-	}
-	
 	function backend_view($page, $content, $data=[])
 	{
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
@@ -329,16 +307,10 @@ class Getmeb extends CI_Controller
 			return;
 		}
 
-		if($page=='dashboard')
+		if($page=='dashboard1' || $page=='dashboard2')
 		{
-			if($content == 1){
-				$default['category'] = 'dashboard1';
-				$content = 'pages/dashboard/dashboard1';
-			}elseif($content == 2){
-				$default['category'] = 'dashboard2';
-				$content = 'pages/dashboard/dashboard2';
-			}
-			$default['dashboard'] = $this->getBackendDashboard();
+			$default['category'] = $page;
+			$default['dashboard'] = $this->system_model->getDashboardByRoleId($this->sess->role_id);
 		}
 
 		if($page=='crud')
@@ -347,7 +319,7 @@ class Getmeb extends CI_Controller
 		}
 		
 		$default['theme_path'] 	= BACKEND_THEME.$this->backend_default_theme.URL_SEPARATOR;
-		$default['menus'] 		= $this->getBackendMenu();
+		$default['menus'] 		= $this->system_model->getMenuByRoleId($this->sess->role_id);
 		$default['content'] 	= BACKEND_THEME.$this->backend_default_theme.URL_SEPARATOR.$content.'.tpl';
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);
