@@ -149,6 +149,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="shortcut icon" href="{$.php.base_url()}favicon.ico">
 <script type="text/javascript" src="{$.const.ASSET_URL}js/common.func.js"></script>
 <script type="text/javascript" src="{$.const.ASSET_URL}js/form_crud.js"></script>
 <script>

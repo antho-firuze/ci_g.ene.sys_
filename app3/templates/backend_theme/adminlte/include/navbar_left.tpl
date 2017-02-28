@@ -55,20 +55,20 @@
 				{/if}
 				
 				<li class="treeview">
-					<a href="x_page?pageid={$menu->menu_id1}" data-menu_id="{$menu->menu_id1}"><i class="fa {$menu->icon1 !: 'fa-circle'}"></i>
+					<a href="{$.php.base_url()}systems/x_page?pageid={$menu->menu_id1}" data-menu_id="{$menu->menu_id1}"><i class="fa {$menu->icon1 !: 'fa-circle'}"></i>
 						<span>{$menu->name1}</span> {if !empty($menu->menu_id2)} <i class="fa fa-angle-left pull-right"></i>{/if}
 					</a>
 				  
 				{if ($menu_id2 != $menu->menu_id2 && !empty($menu->menu_id2)) }
 					<ul class="treeview-menu">
 						<li class="{if ($menu->name2 == 'User')} active {/if}">
-							<a href="x_page?pageid={$menu->menu_id2}" data-menu_id="{$menu->menu_id2}"><i class="fa {$menu->icon2 !: 'fa-circle-o'}"></i> {$menu->name2} 
+							<a href="{$.php.base_url()}systems/x_page?pageid={$menu->menu_id2}" data-menu_id="{$menu->menu_id2}"><i class="fa {$menu->icon2 !: 'fa-circle-o'}"></i> {$menu->name2} 
 							{if !empty($menu->menu_id3)} <i class="fa fa-angle-left pull-right"></i>{/if}
 							</a>
 					
 					{if ($menu_id3 != $menu->menu_id3 && !empty($menu->menu_id3)) }
 						<ul class="treeview-menu">
-							<li><a href="x_page?pageid={$menu->menu_id3}" data-menu_id="{$menu->menu_id3}"><i class="fa {$menu->icon2 !: 'fa-circle-o'}"></i> {$menu->name3}</a>
+							<li><a href="{$.php.base_url()}systems/x_page?pageid={$menu->menu_id3}" data-menu_id="{$menu->menu_id3}"><i class="fa {$menu->icon2 !: 'fa-circle-o'}"></i> {$menu->name3}</a>
 							
 						{var $close_menu3 = 1}
 						{var $menu_id3 = $menu->menu_id3}
@@ -93,13 +93,13 @@
 				{/if}
 				
 				{if ($menu_id2 != $menu->menu_id2 && !empty($menu->menu_id2)) }
-					<li><a href="x_page?pageid={$menu->menu_id2}" data-menu_id="{$menu->menu_id2}"><i class="fa fa-circle-o"></i> {$menu->name2}</a>
+					<li><a href="{$.php.base_url()}systems/x_page?pageid={$menu->menu_id2}" data-menu_id="{$menu->menu_id2}"><i class="fa fa-circle-o"></i> {$menu->name2}</a>
 					
 					{var $close_menu2 = 1}
 					{var $menu_id2 = $menu->menu_id2}
 					
 				{elseif ($menu_id2 == $menu->menu_id2)}
-					<li><a href="x_page?pageid={$menu->menu_id3}" data-menu_id="{$menu->menu_id3}"><i class="fa fa-circle-o"></i> {$menu->name3}</a>
+					<li><a href="{$.php.base_url()}systems/x_page?pageid={$menu->menu_id3}" data-menu_id="{$menu->menu_id3}"><i class="fa fa-circle-o"></i> {$menu->name3}</a>
 					
 					{var $close_menu3 = 1}
 					{var $menu_id3 = $menu->menu_id3}

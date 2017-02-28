@@ -4,33 +4,61 @@ require APPPATH . '/modules/z_libs/libraries/Getmeb.php';
 
 class Systems extends Getmeb
 {
-	
-	public $params;
-	
 	function __construct() {
 		parent::__construct();
 		
 		$this->load->model('systems/system_model');
 		
-		$this->method = $_SERVER['REQUEST_METHOD'];
+		$this->r_method = $_SERVER['REQUEST_METHOD'];
 		$this->params = $this->input->get();
 	}
 	
+	/**
+	 * Prevent direct access to this controller via URL
+	 *
+	 * @access public
+	 * @param  string $method name of method to call
+	 * @param  array  $params Parameters that would normally get passed on to the method
+	 * @return void
+	 */
+	/*  
+	public function _remap($method, $params = array())
+	{
+		// get controller name
+		$controller = mb_strtolower(get_class($this));
+		$this->c_method = $method;
+		 
+		if ($controller === mb_strtolower($this->uri->segment(1))) {
+			// if requested controller and this controller have the same name
+			// show 404 error
+			show_404();
+		} elseif (method_exists($this, $method))
+		{
+			// if method exists
+			// call method and pass any parameters we recieved onto it.
+			return call_user_func_array(array($this, $method), $params);
+		} else {
+			// method doesn't exist, show error
+			show_404();
+		}
+	} */
+
 	function _remap($method, $params = array())
 	{
-		if (! in_array($method, ['x_auth', 'x_login', 'x_logout']))
+		$this->c_method = $method;
+		
+		/* THIS METHODS ARE NOT THROUGH CHECKING LOGIN */
+		if (!in_array($method, ['x_auth', 'x_login', 'x_logout']))
 		{
-			if (! (bool)$this->session->userdata('user_id'))
+			if (! $this->_check_is_login())
 				redirect('/');
 		}
-		
-		$this->ctrl_method = $method;
-		return call_user_func_array(array($this, $method), $this->params);
+		return call_user_func_array(array($this, $method), $params);
 	}
 
 	function index()
 	{
-		redirect('sys/dashboard');
+		$this->dashboard();
 	}
 	
 	function dashboard()
@@ -332,20 +360,22 @@ class Systems extends Getmeb
 	*/
 	function x_page()
 	{
-		
 		$data = [];
 		if (key_exists('pageid', $this->params) && !empty($this->params['pageid'])) {
 			$data = (array) $this->system_model->getMenuById($this->params['pageid']);
+			
+			if (! $this->_check_menu($data)) {
+				$this->backend_view('crud', 'pages/404', ['message'=>$this->messages()]);
+				return;
+			}
 			$this->backend_view('crud', $data['path'].URL_SEPARATOR.$data['url'], $data);
 			return;
 		}
-				
-		show_404();
 	}
 	
 	function a_user()
 	{
-		if ($this->method == 'GET') {
+		if ($this->r_method == 'GET') {
 			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			if (key_exists('zone', $this->params) && ($this->params['zone']))
@@ -356,10 +386,10 @@ class Systems extends Getmeb
 					? DBX::like_or('t1.name, t1.description', $this->params['q'])
 					: DBX::like_or($this->params['sf'], $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
+			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
 			$this->xresponse(TRUE, $result);
 		}
-		if ($this->method == 'POST') {
+		if ($this->r_method == 'POST') {
 			$data 	= (object) $this->post();
 			$this->load->library('z_auth/auth');
 			if (! $id = $this->auth->register($data->username, $data->password, $data->email, array_merge($this->fixed_data, $this->create_log)))
@@ -367,7 +397,7 @@ class Systems extends Getmeb
 
 			$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 		}
-		if ($this->method == 'PUT') {
+		if ($this->r_method == 'PUT') {
 			$data = json_decode($this->input->raw_input_stream);
 			$fields = [
 				'is_active', 'is_deleted', 'name', 'description', 'email', 'api_token', 'remember_token', 'is_online', 'supervisor_id', 'bpartner_id', 'is_fullbpaccess', 'is_expired', 'security_question', 'security_answer', 'ip_address', 'photo_url'
@@ -387,13 +417,13 @@ class Systems extends Getmeb
 				}
 			}
 			
-			if (! $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), [ 'id'=>(int)$this->params['id']]))
+			if (! $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), [ 'id'=>(int)$this->params['id']]))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->method == 'DELETE') {
-			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
@@ -402,7 +432,7 @@ class Systems extends Getmeb
 	
 	function a_role()
 	{
-		if ($this->method == 'GET') {
+		if ($this->r_method == 'GET') {
 			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
@@ -411,10 +441,10 @@ class Systems extends Getmeb
 					? DBX::like_or('t1.name, t1.description', $this->params['q'])
 					: DBX::like_or($this->params['sf'], $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
+			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
 			$this->xresponse(TRUE, $result);
 		}
-		if (($this->method == 'POST') || ($this->method == 'PUT')) {
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
 			$fields = ['is_active','name','description','currency_id','supervisor_id','amt_approval','is_canexport','is_canapproveowndoc','is_accessallorgs','is_useuserorgaccess'];
 			$boolfields = ['is_active','is_canexport','is_canapproveowndoc','is_accessallorgs','is_useuserorgaccess'];
@@ -431,18 +461,18 @@ class Systems extends Getmeb
 					}
 				}
 			}
-			if ($this->method == 'POST')
-				$result = $this->insertRecord($this->ctrl_method, array_merge($datas, $this->update_log));
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
 			else
-				$result = $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->method == 'DELETE') {
-			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
@@ -451,7 +481,7 @@ class Systems extends Getmeb
 	
 	function a_menu()
 	{
-		if ($this->method == 'GET') {
+		if ($this->r_method == 'GET') {
 			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
@@ -460,10 +490,10 @@ class Systems extends Getmeb
 					? DBX::like_or('t1.name, t1.description', $this->params['q'])
 					: DBX::like_or($this->params['sf'], $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
+			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
 			$this->xresponse(TRUE, $result);
 		}
-		if (($this->method == 'POST') || ($this->method == 'PUT')) {
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
 			$fields = ['is_active','name','description','url','path','icon','is_parent','parent_id'];
 			$boolfields = ['is_active','is_parent'];
@@ -480,18 +510,18 @@ class Systems extends Getmeb
 					}
 				}
 			}
-			if ($this->method == 'POST')
-				$result = $this->insertRecord($this->ctrl_method, array_merge($datas, $this->update_log));
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
 			else
-				$result = $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->method == 'DELETE') {
-			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
@@ -500,7 +530,7 @@ class Systems extends Getmeb
 	
 	function a_info()
 	{
-		if ($this->method == 'GET') {
+		if ($this->r_method == 'GET') {
 			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
@@ -518,10 +548,10 @@ class Systems extends Getmeb
 					? DBX::like_or('t1.description', $this->params['q'])
 					: DBX::like_or($this->params['sf'], $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
+			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
 			$this->xresponse(TRUE, $result);
 		}
-		if (($this->method == 'POST') || ($this->method == 'PUT')) {
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
 			$fields = ['is_active', 'description', 'valid_from', 'valid_till'];
 			$boolfields = [];
@@ -538,18 +568,18 @@ class Systems extends Getmeb
 					}
 				}
 			}
-			if ($this->method == 'POST')
-				$result = $this->insertRecord($this->ctrl_method, array_merge($datas, $this->update_log));
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
 			else
-				$result = $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->method == 'DELETE') {
-			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
@@ -558,7 +588,7 @@ class Systems extends Getmeb
 	
 	function c_1country()
 	{
-		if ($this->method == 'GET') {
+		if ($this->r_method == 'GET') {
 			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
@@ -567,10 +597,10 @@ class Systems extends Getmeb
 					? DBX::like_or('t1.name', $this->params['q'])
 					: DBX::like_or($this->params['sf'], $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
+			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
 			$this->xresponse(TRUE, $result);
 		}
-		if (($this->method == 'POST') || ($this->method == 'PUT')) {
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
 			$fields = ['name'];
 			$boolfields = [];
@@ -587,18 +617,18 @@ class Systems extends Getmeb
 					}
 				}
 			}
-			if ($this->method == 'POST')
-				$result = $this->insertRecord($this->ctrl_method, array_merge($datas, $this->update_log));
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
 			else
-				$result = $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->method == 'DELETE') {
-			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
@@ -607,7 +637,7 @@ class Systems extends Getmeb
 	
 	function c_2province()
 	{
-		if ($this->method == 'GET') {
+		if ($this->r_method == 'GET') {
 			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
@@ -619,10 +649,10 @@ class Systems extends Getmeb
 					? DBX::like_or('t1.name', $this->params['q'])
 					: DBX::like_or($this->params['sf'], $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
+			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
 			$this->xresponse(TRUE, $result);
 		}
-		if (($this->method == 'POST') || ($this->method == 'PUT')) {
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
 			$fields = ['name', 'country_id'];
 			$boolfields = [];
@@ -639,18 +669,18 @@ class Systems extends Getmeb
 					}
 				}
 			}
-			if ($this->method == 'POST')
-				$result = $this->insertRecord($this->ctrl_method, array_merge($datas, $this->update_log));
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
 			else
-				$result = $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->method == 'DELETE') {
-			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
@@ -659,7 +689,7 @@ class Systems extends Getmeb
 	
 	function c_3city()
 	{
-		if ($this->method == 'GET') {
+		if ($this->r_method == 'GET') {
 			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
@@ -671,10 +701,10 @@ class Systems extends Getmeb
 					? DBX::like_or('t1.name', $this->params['q'])
 					: DBX::like_or($this->params['sf'], $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
+			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
 			$this->xresponse(TRUE, $result);
 		}
-		if (($this->method == 'POST') || ($this->method == 'PUT')) {
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
 			$fields = ['name', 'province_id'];
 			$boolfields = [];
@@ -691,18 +721,18 @@ class Systems extends Getmeb
 					}
 				}
 			}
-			if ($this->method == 'POST')
-				$result = $this->insertRecord($this->ctrl_method, array_merge($datas, $this->update_log));
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
 			else
-				$result = $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->method == 'DELETE') {
-			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
@@ -711,7 +741,7 @@ class Systems extends Getmeb
 	
 	function c_4district()
 	{
-		if ($this->method == 'GET') {
+		if ($this->r_method == 'GET') {
 			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
@@ -723,10 +753,10 @@ class Systems extends Getmeb
 					? DBX::like_or('t1.name', $this->params['q'])
 					: DBX::like_or($this->params['sf'], $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
+			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
 			$this->xresponse(TRUE, $result);
 		}
-		if (($this->method == 'POST') || ($this->method == 'PUT')) {
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
 			$fields = ['name', 'city_id'];
 			$boolfields = [];
@@ -743,18 +773,18 @@ class Systems extends Getmeb
 					}
 				}
 			}
-			if ($this->method == 'POST')
-				$result = $this->insertRecord($this->ctrl_method, array_merge($datas, $this->update_log));
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
 			else
-				$result = $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->method == 'DELETE') {
-			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
@@ -763,7 +793,7 @@ class Systems extends Getmeb
 	
 	function c_5village()
 	{
-		if ($this->method == 'GET') {
+		if ($this->r_method == 'GET') {
 			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
@@ -775,10 +805,10 @@ class Systems extends Getmeb
 					? DBX::like_or('t1.name', $this->params['q'])
 					: DBX::like_or($this->params['sf'], $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->ctrl_method}($this->params);
+			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
 			$this->xresponse(TRUE, $result);
 		}
-		if (($this->method == 'POST') || ($this->method == 'PUT')) {
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
 			$fields = ['name', 'district_id'];
 			$boolfields = [];
@@ -795,18 +825,18 @@ class Systems extends Getmeb
 					}
 				}
 			}
-			if ($this->method == 'POST')
-				$result = $this->insertRecord($this->ctrl_method, array_merge($datas, $this->update_log));
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
 			else
-				$result = $this->updateRecord($this->ctrl_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->method == 'DELETE') {
-			if (! $this->deleteRecords($this->ctrl_method, $this->params['id']))
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
@@ -851,7 +881,7 @@ class Systems extends Getmeb
 		// $this->lang->load('systems/genesys', 'indonesia');
 		// $this->lang->load('systems/genesys', 'english');
 		// echo $this->lang->line('testing');
-		echo $this->ctrl_method;
+		echo $this->c_method;
 		// return out($this->getFrontendMenu(11));
 		
 		// $arr = ['assets/plugins/raphael/raphael-min.js'];

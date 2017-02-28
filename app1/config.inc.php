@@ -56,15 +56,15 @@ define('DATE_FORMAT_B', 'd/m/Y');
 define('TIME_FORMAT_B', 'h:i:s');
 define('DATETIME_FORMAT_B', 'd/m/Y h:i:s');
 
-define('HOME_B_LNK', 'sys');
-define('AUTH_LNK', 'sys/x_auth');
-define('LOGIN_LNK', 'sys/x_login');
-define('LOGOUT_LNK', 'sys/x_logout');
-define('UNLOCK_LNK', 'sys/x_unlock');
-define('CONFIG_LNK', 'sys/x_config');
-define('SRCMENU_LNK', 'sys/x_srcmenu');
-define('CHGPWD_LNK', 'sys/x_chgpwd');
-define('PROFILE_LNK', 'sys/x_profile');
+define('HOME_B_LNK', 'systems');
+define('AUTH_LNK', 'systems/x_auth');
+define('LOGIN_LNK', 'systems/x_login');
+define('LOGOUT_LNK', 'systems/x_logout');
+define('UNLOCK_LNK', 'systems/x_unlock');
+define('CONFIG_LNK', 'systems/x_config');
+define('SRCMENU_LNK', 'systems/x_srcmenu');
+define('CHGPWD_LNK', 'systems/x_chgpwd');
+define('PROFILE_LNK', 'systems/x_profile');
 define('INFOLST_LNK', 'frontend/infolist');
 
 // OTHER
@@ -72,7 +72,7 @@ define('URL_SEPARATOR', '/');
 
 // API SETTINGS
 define('APPLICATION_KEY', 'lLHi5iSpufGDO%2BSEuzwz7JaN0sWk7OeZIcXwiwpHQ88%3D');
-define('API_BASE_URL', 'http://iproduct.trigraha.com:4222/_g.ene.sys_api_/');
+define('API_BASE_URL', '');
 define('API_URL', API_BASE_URL.'api/v1/');
 
 

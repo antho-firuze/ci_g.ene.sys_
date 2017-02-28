@@ -1,6 +1,9 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Test extends CI_Controller {
+require APPPATH . '/modules/z_libs/libraries/Getmeb.php';
+
+class Test extends Getmeb {
+// class Test extends CI_Controller {
 
 	public $mdl_grp		= 'testing';
 
@@ -93,6 +96,11 @@ class Test extends CI_Controller {
 	}
 	
 	function index() {
+		// echo $this->_check_class(null) ? 'true' : 'false';
+		echo $this->_check_path('pages/systems/a_user') ? 'true' : 'false';
+		// echo class_exists('systems', FALSE)?'true':'false';
+		// echo CI::$APP->router->directory;
+
 		// $data['header'] = 'test header';
 		// $data['footer'] = 'test footer';
 		// $this->fenomx->view("index.tpl", $data);
@@ -106,7 +114,7 @@ class Test extends CI_Controller {
 		// echo $this->config->item('svr_service');
 		// var_dump($_SESSION);
 		// echo $GLOBALS["userId"];
-		echo "userId";
+		// echo "userId";
 		
 		// $x = get_api_sig();
 		// echo $x;

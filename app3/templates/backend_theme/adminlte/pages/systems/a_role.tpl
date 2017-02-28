@@ -47,7 +47,8 @@
 	
 	{* Section 2: For building Datatables *}
 	var setCustomLeftButton = ''+
-		'<button type="button" class="btn btn-xs btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />';
+		'<button type="button" class="btn btn-xs btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />'+
+		'<button type="button" class="btn btn-xs btn-danger glyphicon glyphicon-trash" title="Delete" name="btn-delete" />';
 	var tableData1 = $('<table class="table table-bordered table-hover" />').appendTo( $('.box-body') ),
 	dataTable1 = tableData1.DataTable({
 		"pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true,
@@ -77,16 +78,11 @@
 	.search($q ? $q : '');
 	
 	{* This line for changing toolbar button *}
-	var toolbar_row = $('<div class="row"><div class="col-md-12"></div></div>');
-	var toolbar_col = toolbar_row.find('.col-md-12').append(
-		setToolbarButton([
-			'btn-copy', 	 'btn-new', 	'btn-refresh', 'btn-delete', 
-			'btn-message', 'btn-print', 'btn-export',  'btn-import', 
-			'btn-process', 'btn-process-doc-act', 'btn-process-a-pros'
-		])
-	);
-	$('div.dataTables_wrapper').find('div.row:first').before(toolbar_row);
+	$('div.dataTables_wrapper').find('div.row:first').before( setToolbarButton() );
 	
+	{* AVAILABLE BUTTON LIST ['btn-copy','btn-new','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-process'] *}
+	setDisableToolBtn(['btn-copy','btn-message','btn-print','btn-export','btn-import','btn-process']);
+
 	{* Don't change this code: Re-coding dataTables search method *}
 	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
 		$q = $(this).val();
@@ -162,6 +158,75 @@
 			onshown: function(dialog) {
 				form.validate({ ignore:'' });
 				form.find('#name').focus();
+			}
+		});
+	});
+	
+	tableData1.find('tbody').on( 'click', '[name="btn-delete"]', function () {
+		var data = dataTable1.row( $(this).parents('tr') ).data();
+		
+		{* line for check permission *}
+		
+		console.log(data); return false;
+		var ids = [];
+		
+		if (data.count() < 1)
+			return false;
+
+		var confirm = $('<div />');
+		confirm.append( $('<p />').html('Are you sure want to delete this record ?') );
+		confirm.append( 
+			BSHelper.TableConfirm({
+				data: data,	rowno: true, showtitle: false, maxrows: 3, 
+				columns:[
+					{ data:"name"					,title:"Name" },
+					{ data:"email"				,title:"Email" },
+					{ data:"description"	,title:"Description" },
+				]
+			})
+		);
+		
+		$.each(data, function(i){	ids[i] = data[i]['id'];	});
+		
+		{* console.log(ids.join()); return; *}
+		BootstrapDialog.show({ title: 'Delete Record/s', type: BootstrapDialog.TYPE_DANGER, message: confirm,
+			buttons: [{
+				icon: 'glyphicon glyphicon-send',
+				cssClass: 'btn-danger',
+				label: '&nbsp;&nbsp;Delete',
+				action: function(dialog) {
+					if (! form.valid()) return false;
+					
+					var button = this;
+					button.spin();
+					
+					$.ajax({ url: '{$url_module ~ "?id="}'+ids.join(), method: "DELETE", async: true, dataType: 'json',
+						data: form.serializeJSON(),
+						success: function(data) {
+							dialog.close();
+							dataTable1.ajax.reload( null, false );
+							Lobibox.notify('info', { msg: data.message });
+						},
+						error: function(data) {
+							if (data.status==500){
+								var message = data.statusText;
+							} else {
+								var error = JSON.parse(data.responseText);
+								var message = error.message;
+							}
+							button.stopSpin();
+							dialog.enableButtons(true);
+							dialog.setClosable(true);
+							BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+						}
+					});
+				}
+			}, {
+					label: 'Close',
+					action: function(dialog) { dialog.close(); }
+			}],
+			onshown: function(dialog) {
+				{**}
 			}
 		});
 	});
