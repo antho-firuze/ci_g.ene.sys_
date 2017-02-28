@@ -1,21 +1,27 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+/* THIS IS CLASS FOR BASE CONTROLLER (BACKEND) */
 class Getmeb extends CI_Controller
 {
-	public $asset_path;
-	public $styles		= array();
-	public $scripts		= array();
-	public $backend_default_theme  	= 'adminlte';
-	public $frontend_default_theme 	= 'adminlte';
-	public $org_id 		= 0;
-	public $method;
-	public $ctrl_method;
+	/* DEFAULT TEMPLATE */
+	public $theme  	= 'adminlte';
+	/* FOR REQUEST METHOD */
+	public $r_method;	
+	/* FOR CONTROLLER METHOD */
+	public $c_method;
+	/* FOR GETTING PARAMS FROM REQUEST URL */
+	public $params;
+	/* FOR STORE SESSION DATA */
 	public $sess;
+	
+	/* FOR ADDITIONAL CRUD FIXED DATA */
 	public $fixed_data = array();
 	public $create_log = array();
 	public $update_log = array();
 	public $delete_log = array();
+	
+	/* FOR GETTING ERROR MESSAGE OR SUCCESS MESSAGE */
 	public $messages = array();
 	
 	function __construct() {
@@ -28,7 +34,7 @@ class Getmeb extends CI_Controller
 		}
 		
 		parent::__construct();
-		defined('ASSET_URL')						OR define('ASSET_URL', base_url().'/assets/');
+		define('ASSET_URL', base_url().'/assets/');
 		
 		$this->sess = (object) $this->session->userdata();
 		$this->lang->load('systems/genesys', (!empty($this->sess->language) ? $this->sess->language : 'english'));
@@ -52,6 +58,39 @@ class Getmeb extends CI_Controller
 		];
 	}
 	
+	function _check_menu($data=[])
+	{
+		/* CHECK METHOD */
+		if (empty($data['method'])) {
+			$this->set_message('ERROR: Menu [method] is could not be empty !');
+			return FALSE;
+		}
+
+		/* CHECK PATH FILE */
+		if (!$this->_check_path($data['path'].URL_SEPARATOR.$data['method'])) {
+			$this->set_message('ERROR: Menu [path] is could not be found or file not exist !');
+			return FALSE;
+		}
+		
+		/* CHECK CLASS/CONTROLLER */
+		if (!$this->_check_class($data['class'])) {
+			$this->set_message('ERROR: Menu [class] is could not be found or file not exist !');
+			return FALSE;
+		}
+		
+		return TRUE;
+	}
+	
+	function _check_path($path)
+	{
+		return file_exists(APPPATH.'../templates/'.BACKEND_THEME.$this->theme.URL_SEPARATOR.$path.'.tpl') ? TRUE : FALSE;
+	}
+	
+	function _check_class($class)
+	{
+		return file_exists(APPPATH.'modules/'.$class.'/controllers/'.$class.'.php') ? TRUE : FALSE;
+	}
+	
 	function _check_token()
 	{
 		$jwt 	= $this->input->server('HTTP_TOKEN');
@@ -63,6 +102,11 @@ class Getmeb extends CI_Controller
 			return $e->getMessage();
 		}
 		return TRUE;
+	}
+	
+	function _check_is_login()
+	{
+		return (bool)$this->session->userdata('user_id') ? TRUE : FALSE;
 	}
 	
 	function _decrypt_data($auth = NULL)
@@ -293,52 +337,23 @@ class Getmeb extends CI_Controller
 		exit();
 	}
 	
-	function getBackendMenu()
-	{
-		$result['data'] = $this->system_model->getRoleMenu($this->sess->role_id);
-		return $result['data'];
-		/* $params = ['id' => $this->session->userdata('role_id')];
-		$result = $this->getAPI('system', 'rolemenu', $params);
-		return $result->data; */
-	}
-	
-	function getBackendDashboard()
-	{
-		$params = [];
-		$params['where']['ard.role_id'] = $this->sess->role_id;
-		$result['data'] = $this->system_model->getRoleDashboard($params);
-		return $result['data'];
-		
-		/* $params = ['id' => $this->session->userdata('role_id')];
-		$result = $this->getAPI('system', 'roledashboard', $params);
-		return $result->data; */
-	}
-	
 	function backend_view($page, $content, $data=[])
 	{
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
 		
 		if($page=='login')
 		{
-			$default['theme_path'] 	= BACKEND_THEME.$this->backend_default_theme.URL_SEPARATOR;
+			$default['theme_path'] 	= BACKEND_THEME.$this->theme.URL_SEPARATOR;
 			$default['elapsed_time']= $elapsed;
 			$default['start_time'] 	= microtime(true);
-
-			$this->fenomx->view(BACKEND_THEME.$this->backend_default_theme.URL_SEPARATOR.$content, array_merge($default, $data));
-			
+			$this->fenomx->view(BACKEND_THEME.$this->theme.URL_SEPARATOR.$content, array_merge($default, $data));
 			return;
 		}
 
-		if($page=='dashboard')
+		if($page=='dashboard1' || $page=='dashboard2')
 		{
-			if($content == 1){
-				$default['category'] = 'dashboard1';
-				$content = 'pages/dashboard/dashboard1';
-			}elseif($content == 2){
-				$default['category'] = 'dashboard2';
-				$content = 'pages/dashboard/dashboard2';
-			}
-			$default['dashboard'] = $this->getBackendDashboard();
+			$default['category'] = $page;
+			$default['dashboard'] = $this->system_model->getDashboardByRoleId($this->sess->role_id);
 		}
 
 		if($page=='crud')
@@ -346,12 +361,12 @@ class Getmeb extends CI_Controller
 			$default['category'] = 'crud';
 		}
 		
-		$default['theme_path'] 	= BACKEND_THEME.$this->backend_default_theme.URL_SEPARATOR;
-		$default['menus'] 		= $this->getBackendMenu();
-		$default['content'] 	= BACKEND_THEME.$this->backend_default_theme.URL_SEPARATOR.$content.'.tpl';
+		$default['theme_path'] 	= BACKEND_THEME.$this->theme.URL_SEPARATOR;
+		$default['menus'] 		= $this->system_model->getMenuByRoleId($this->sess->role_id);
+		$default['content'] 	= BACKEND_THEME.$this->theme.URL_SEPARATOR.$content.'.tpl';
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);
-		$this->fenomx->view(BACKEND_THEME.$this->backend_default_theme.URL_SEPARATOR.'index', array_merge($default, $data));
+		$this->fenomx->view(BACKEND_THEME.$this->theme.URL_SEPARATOR.'index', array_merge($default, $data));
 	}
 	
 }

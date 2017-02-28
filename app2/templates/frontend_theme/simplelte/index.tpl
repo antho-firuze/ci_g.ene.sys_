@@ -27,13 +27,14 @@
 	<script src="{$template_url}plugins/marquee/lib/jquery.marquee.min.js"></script>
 	<script src="{$template_url}plugins/Malihu-Scrollbar/jquery.mCustomScrollbar.min.js"></script>
 	<script src="{$template_url}plugins/Magnific-Popup/jquery.magnific-popup.min.js"></script>
-	<script type="text/javascript" src='{$.php.base_url()}assets/genesys/js/bootstrap.helper.js'></script>
+	<script type="text/javascript" src="{$.const.ASSET_URL}js/bootstrap.helper.js"></script>
 	<script src="{$template_url}js/product_info.js"></script>
 {/var}
 <!DOCTYPE html>
 <html>
 <head>
-<script type="text/javascript" src='{$.php.base_url()}assets/genesys/js/common.func.js'></script>
+<link rel="shortcut icon" href="{$.php.base_url()}favicon.ico">
+<script type="text/javascript" src="{$.const.ASSET_URL}js/common.func.js"></script>
 <script>
 	{* DECLARE VARIABLE *}
 	{var $api_base_url = $.const.API_BASE_URL}

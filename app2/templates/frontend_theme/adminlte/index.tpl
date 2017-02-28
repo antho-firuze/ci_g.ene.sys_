@@ -77,7 +77,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script type="text/javascript" src='{$.php.base_url()}assets/genesys/js/common.func.js'></script>
+<script type="text/javascript" src="{$.const.ASSET_URL}js/common.func.js"></script>
 <script>
 	{* DECLARE VARIABLE *}
 	{var $api_base_url = $.const.API_BASE_URL}

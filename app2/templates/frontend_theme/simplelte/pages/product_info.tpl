@@ -270,7 +270,7 @@
 		];
 	
 	{foreach $certificates as $c}
-		var bodyHtml = '<button type="button" style="float:right;" class="btn btn-default" aria-label="Left Align"><a href="{$.php.base_url()}upload/images/certificate/{$c->file_name}" download="{$c->file_name}"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a></button><a id="cert{$c->id}" href="{$.php.base_url()}upload/images/certificate/{$c->file_name}"><img class="img-responsive img-center" style="width:350px;" src="{$.php.base_url()}upload/images/certificate/{$c->file_name}" alt="{$c->title}" /></a>';
+		var bodyHtml = '<button type="button" style="float:right;" class="btn btn-default" aria-label="Left Align"><a href="{$.php.base_url()}upload/images/certificate/{$c->file_name}" download="{$c->file_name}"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a></button><a id="cert{$c->id}" href="{$.php.base_url()}upload/images/certificate/{$c->file_name}"><img class="img-responsive img-center" style="width:350px;" src="{$.php.base_url()}upload/images/certificate/{$c->file_name}" alt="{$c->title}" />{$c->title}</a>';
 		certs.push( { paneltype:"default",title:'{$c->title}',body:bodyHtml } );
 	{/foreach}
 	{* console.log(certs); *}

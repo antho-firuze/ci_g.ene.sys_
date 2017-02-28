@@ -9,16 +9,4 @@ class Frontend_Model extends CI_Model
 		
 	}
 
-	function getProduct($id = NULL)
-	{
-		
-		$params['select']	= "cs.*, 'jfi' as company";
-		$params['table'] 	= "completion_slip as cs";
-		$params['where']['cs.no_slip'] = $id;
-		
-		return $this->base_model->mget_rec($params);
-		
-	}
-	
-	
 }

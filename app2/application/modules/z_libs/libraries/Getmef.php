@@ -8,7 +8,6 @@ class Getmef extends CI_Controller
 	public $scripts		= array();
 	public $backend_default_theme 	= 'adminlte';
 	public $frontend_default_theme 	= 'adminlte';
-	public $org_id 		= 0;
 	
 	function __construct() {
 		header('Access-Control-Allow-Origin: *');
@@ -20,6 +19,8 @@ class Getmef extends CI_Controller
 		}
 		
 		parent::__construct();
+		
+		define('ASSET_URL', base_url().'/assets/');
 		
 		$this->load->model('z_libs/getmef_model');
 	}
@@ -187,39 +188,13 @@ class Getmef extends CI_Controller
 		exit();
 	}
 	
-	function getFrontendMenu()
-	{
-		$result['data'] = [];
-		if ($this->org_id >= 0)
-		{
-			$result['data'] = $this->getmef_model->getMenu($this->org_id);
-		}
-		return $result['data'];
-	}
-	
-	function getFrontendDashboard($org_id)
-	{
-		$org_id = is_numeric($org_id) ? $org_id : -1;
-		
-		$result['data'] = [];
-		if ($org_id >= 0)
-		{
-			$result['data'] = $this->getmef_model->getDashboard($org_id);
-		}
-		return $result['data'];
-		
-		/* $params = ['id' => $org_id];
-		$result = $this->getAPI('frontend', 'dashboard', $params);
-		return $result->data; */
-	}
-	
 	function frontend_view($content, $data=[])
 	{
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
 		
 		$default['category'] 		= 'home1';
 		$default['theme_path'] 	= FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR;
-		$default['menus'] 			= $this->getFrontendMenu();
+		$default['menus'] 			= $this->getmef_model->getMenu();
 		$default['content'] 		= FRONTEND_THEME.$this->frontend_default_theme.URL_SEPARATOR.$content.'.tpl';
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);
