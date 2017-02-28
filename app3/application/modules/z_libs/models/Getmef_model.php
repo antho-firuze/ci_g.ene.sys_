@@ -35,7 +35,6 @@ class Getmef_Model extends CI_Model
 		$params['where']['t1.is_active']  = '1';
 		$params['where']['t1.is_deleted'] = '0';
 		$params['order']	= "t1.type, t1.lineno";
-		
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -47,7 +46,6 @@ class Getmef_Model extends CI_Model
 		$params['where']['t1.org_id'] = DEFAULT_ORG_ID;
 		$params['where']['t1.is_active']  = '1';
 		$params['where']['t1.is_deleted'] = '0';
-		
 		return $this->base_model->mget_rec_count($params);
 	}
 	
@@ -59,31 +57,7 @@ class Getmef_Model extends CI_Model
 		$params['where']['t1.org_id'] = DEFAULT_ORG_ID;
 		$params['where']['t1.is_active']  = '1';
 		$params['where']['t1.is_deleted'] = '0';
-		
 		return $this->base_model->mget_rec($params);
 	}
 	
-	/* function getPage($id = NULL, $name = NULL)
-	{
-		$params['select']	= "t1.*";
-		$params['table'] 	= "w_page as t1";
-		$params['where']['t1.is_active']  = '1';
-		$params['where']['t1.is_deleted'] = '0';
-		$params['where']['t1.org_id'] = DEFAULT_ORG_ID;
-		if (empty($id))	
-			$params['where']['t1.is_default'] = '1';
-		else
-			$params['where']['t1.id'] = $id;
-		
-		$data = [];
-		$data = (array) $this->base_model->mget_rec($params)[0];
-		
-		// $data['title'] = $data[0]->name;
-		// $data['short_desc'] = $data[0]->short_desc;
-		// $data['description'] = $data[0]->description;
-		return $data;
-	} */
-	
-
-
 }

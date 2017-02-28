@@ -23,8 +23,10 @@ class Frontend extends Getmef
 		else 
 			$params['where']['t1.is_default'] = '1';
 	
-		if (count($this->getmef_model->getPage($params)) < 1)
-			show_404();
+		if (count($this->getmef_model->getPage($params)) < 1){
+				$this->frontend_view('pages/404', ['message'=>'']);
+				return;
+		}
 			
 		$data = (array)$this->getmef_model->getPage($params)[0];
 		$this->frontend_view('include/page', $data);
