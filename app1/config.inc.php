@@ -22,7 +22,6 @@ define('DB_NAME', '');
 /* Base URL */ 
 define('BASE_URL', 'http://localhost/ci/app1/'); 
 // define('BASE_URL', 'http://apps.hdgroup.id/'); 
-// define('BASE_URL', 'http://iproduct.trigraha.com/'); 
 
 /* Email Domain */ 
 define('EMAIL_DOMAIN', 'localhost'); 
