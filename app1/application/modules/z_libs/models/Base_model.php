@@ -56,6 +56,108 @@ class Base_Model extends CI_Model
 		return $response;
 	}
 	
+	/**
+	 * getValue
+	 *
+	 * Function get value from table with object
+	 *
+	 * @param	string	$sel_field   DB field select
+	 * @param	string	$table    DB table
+	 * @param	string	$where_field   where field or where condition Ex. "field = '1' AND field2 = '2'"
+	 * @param	string	$where_val   value of wherer (If $where_field has condition. Please null)
+	 * @param	string	$orderby   Order by field or NULL 
+	 * @param	string	$sort   asc or desc or NULL 
+	 * @param	string	$groupby   Group by field or NULL 
+	 * @return	Object or FALSE
+	 */
+	public function getValue($sel_field = '*', $table, $where_field, $where_val, $limit = 0, $orderby = '', $sort = '', $groupby = '') {
+		$this->db->select($sel_field);
+		if($where_field || $where_val){
+				if (is_array($where_field) && is_array($where_val)) {
+						for ($i = 0; $i < count($where_field); $i++) {
+								$this->db->where($where_field[$i], $where_val[$i]);
+						}
+				} else {
+						$this->db->where($where_field, $where_val);
+				}
+		}
+		if ($groupby) {
+				$this->db->group_by($groupby);
+		}
+		if ($orderby && $sort) {
+				$this->db->order_by($orderby, $sort);
+		}
+		if ($limit) {
+				$this->db->limit($limit, 0);
+		}
+		$query = $this->db->get($table);
+		if (!empty($query)) {
+				if ($query->num_rows() !== 0) {
+						if ($query->num_rows() === 1) {
+								$row = $query->row();
+						} else {
+								$row = $query->result();
+						}
+						return $row;
+				} else {
+						return FALSE;
+				}
+		} else {
+				return FALSE;
+		}
+	}
+
+	/**
+	 * getValueArray
+	 *
+	 * Function get value from table with array
+	 *
+	 * @param	string	$sel_field   DB field select
+	 * @param	string	$table    DB table
+	 * @param	string	$where_field   where field or where condition Ex. "field = '1' AND field2 = '2'"
+	 * @param	string	$where_val   value of wherer (If $where_field has condition. Please null)
+	 * @param	string	$orderby   Order by field or NULL 
+	 * @param	string	$sort   asc or desc or NULL 
+	 * @param	string	$groupby   Group by field or NULL 
+	 * @return	Array or FALSE
+	 */
+	public function getValueArray($sel_field = '*', $table, $where_field, $where_val, $limit = 0, $orderby = '', $sort = '', $groupby = '') {
+		$this->db->select($sel_field);
+		if($where_field || $where_val){
+				if (is_array($where_field) && is_array($where_val)) {
+						for ($i = 0; $i < count($where_field); $i++) {
+								$this->db->where($where_field[$i], $where_val[$i]);
+						}
+				} else {
+						$this->db->where($where_field, $where_val);
+				}
+		}
+		if ($groupby) {
+				$this->db->group_by($groupby);
+		}
+		if ($orderby && $sort) {
+				$this->db->order_by($orderby, $sort);
+		}
+		if ($limit) {
+				$this->db->limit($limit, 0);
+		}
+		$query = $this->db->get($table);
+		if (!empty($query)) {
+				if ($query->num_rows() !== 0) {
+						if ($query->num_rows() === 1) {
+								$row = $query->row_array();
+						} else {
+								$row = $query->result_array();
+						}
+						return $row;
+				} else {
+						return FALSE;
+				}
+		} else {
+				return FALSE;
+		}
+	}
+
 	// NEW DESIGN FOR DATA REQUEST
 	function get_rec( $params=NULL ) {
 		if ( is_array($params) )

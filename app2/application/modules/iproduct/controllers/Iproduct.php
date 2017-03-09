@@ -5,6 +5,7 @@ require APPPATH . '/modules/z_libs/libraries/Getmef.php';
 class Iproduct extends Getmef 
 {
 	function __construct() {
+		$this->theme = 'simplelte';
 		parent::__construct();
 		
 		$this->load->model('iproduct/iproduct_model');
@@ -15,21 +16,13 @@ class Iproduct extends Getmef
 	{
 		$this->db = $this->load->database('sqlsvr12', TRUE);
 		
-		$this->theme = 'simplelte';
-		
-		$result['data'] = []; 
-		if (!empty($id)) {
-			$result['data'] = $this->iproduct_model->getProduct($id); 
-		}
-		
-		if (count($result['data']) > 0) {
-			$result['data'][0]->certificates = $this->iproduct_model->getCertificates($result['data'][0]->id);
-			$this->custom_view('pages/product_info', (array)$result['data'][0]);
+		$product = $this->base_model->getValueArray('*', 'completion_slip', 'no_slip', $id);
+		if ($product) {
+			$product['certificates'] = $this->iproduct_model->getCertificates($product['id']);
+			$this->custom_view('pages/product_info', $product);
 		} else {
 			$this->custom_view('pages/empty');
 		}
-		
-		$this->db = $this->load->database('default', TRUE);
 	}
 	
 	function getCertificates()
@@ -41,8 +34,6 @@ class Iproduct extends Getmef
 			$result['data'] = $this->iproduct_model->getCertificates($this->params['id']);
 
 		$this->xresponse(TRUE, $result);
-		
-		$this->db = $this->load->database('default', TRUE);
 	}
 	
 }

@@ -62,7 +62,7 @@ class System_Model extends CI_model
 			t1.created_by,t1.updated_by,t1.deleted_by,t1.created_at,t1.updated_at,t1.deleted_at,
 			t1.name,t1.description,t1.email,t1.last_login,t1.is_online,t1.supervisor_id,
 			t1.bpartner_id,t1.is_fullbpaccess,t1.is_expired,t1.security_question,t1.security_answer,
-			t1.ip_address,t1.photo_url,ao.name as org_name, ar.name as role_name, au4.name as supervisor_name,
+			t1.ip_address,t1.photo_file,ao.name as org_name, ar.name as role_name, au4.name as supervisor_name,
 			au1.name as _created_by, au2.name as _updated_by, au3.name as _deleted_by";
 		$params['select']	= array_key_exists('select', $params) ? $params['select'] : $select;
 		$params['table'] 	= "a_user as t1";
@@ -145,20 +145,6 @@ class System_Model extends CI_model
 			return $this->base_model->mget_rec_count($params);
 	}
 	
-	function getMenuById($id)
-	{
-		$params['select']	= "am.*";
-		$params['table'] 	= "a_menu am";
-		$params['where']['am.id']	= $id;
-
-		$data = [];
-		$data = $this->base_model->mget_rec($params);
-		
-		$data[0]->title = $data[0]->name;
-		$data[0]->short_desc = $data[0]->description;
-		return $data[0];
-	}
-	
 	function getA_Role($params)
 	{
 		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
@@ -193,8 +179,25 @@ class System_Model extends CI_model
 		) am3 on am2.id = am3.parent_id 
 		where am1.parent_id = '0'
 		order by am1.line_no, am2.line_no, am3.line_no";
-				
-		return $this->db->query($query)->result();
+		
+		$row = $this->db->query($query);
+		return ($row->num_rows() > 0) ? $row->result() : FALSE;
+	}
+	
+	function getParentMenu($menu_id)
+	{
+		$query = "select lvl0.id as lvl0_id, lvl1.id as lvl1_id, lvl2.id as lvl2_id
+		from a_menu lvl0
+		left join (
+		 select * from a_menu 
+		) lvl1 on lvl1.id = lvl0.parent_id
+		left join (
+		 select * from a_menu 
+		) lvl2 on lvl2.id = lvl1.parent_id
+		where lvl0.id = $menu_id";
+		
+		$row = $this->db->query($query);
+		return ($row->num_rows() > 0) ? $row->result() : FALSE;
 	}
 	
 	function getDashboardByRoleId($role_id)
@@ -210,6 +213,18 @@ class System_Model extends CI_model
 		$params['order']	= "t2.type, t2.lineno";
 		
 		return $this->base_model->mget_rec($params);
+	}
+	
+	function getA_System($params)
+	{
+		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_system as t1";
+		$params['where']['t1.is_deleted'] 	= '0';
+		
+		if (key_exists('list', $params) && ($params['list']))
+			return $this->base_model->mget_rec($params);
+		else
+			return $this->base_model->mget_rec_count($params);
 	}
 	
 	function getA_Info($params)

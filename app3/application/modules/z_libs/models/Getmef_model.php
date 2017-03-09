@@ -23,7 +23,25 @@ class Getmef_Model extends CI_Model
 		) am3 on am2.id = am3.parent_id 
 		where am1.parent_id = '0'
 		order by am1.line_no, am2.line_no, am3.line_no";
-		return $this->db->query($query)->result();
+		
+		$row = $this->db->query($query);
+		return ($row->num_rows() > 0) ? $row->result() : FALSE;
+	}
+	
+	function getParentMenu($menu_id)
+	{
+		$query = "select lvl0.id as lvl0_id, lvl1.id as lvl1_id, lvl2.id as lvl2_id
+		from w_menu lvl0
+		left join (
+		 select * from w_menu 
+		) lvl1 on lvl1.id = lvl0.parent_id
+		left join (
+		 select * from w_menu 
+		) lvl2 on lvl2.id = lvl1.parent_id
+		where lvl0.id = $menu_id";
+		
+		$row = $this->db->query($query);
+		return ($row->num_rows() > 0) ? $row->result() : FALSE;
 	}
 	
 	function getDashboard()

@@ -13,23 +13,33 @@ class Frontend extends Getmef
 	
 	function index()
 	{
-		$this->page();
+		redirect(base_url().'page');
 	}
 	
-	function page($id = 0)
+	function page()
 	{
-		if (!empty($id)) 
-			$params['where']['t1.id'] = $id;
-		else 
-			$params['where']['t1.is_default'] = '1';
-	
-		if (count($this->getmef_model->getPage($params)) < 1){
-				$this->frontend_view('pages/404', ['message'=>'']);
+		if (key_exists('pageid', $this->params) && !empty($this->params['pageid'])) {
+			$menu = $this->base_model->getValue('*', 'w_menu', ['client_id','org_id','id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID, $this->params['pageid']]);
+			if (!$menu){
+				$this->frontend_view('pages/404', ['message'=>'## This page does not exists ! ##']);
 				return;
-		}
+			}
 			
-		$data = (array)$this->getmef_model->getPage($params)[0];
-		$this->frontend_view('include/page', $data);
+			$page = $this->base_model->getValueArray('*', 'w_page', ['client_id','org_id','id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID, $menu->page_id]);
+			if (!$page){
+				$this->frontend_view('pages/404', ['message'=>'## This page does not exists ! ##']);
+				return;
+			}
+			$this->frontend_view('include/page', $page);
+			return;
+		}
+		
+		$page = $this->base_model->getValueArray('*', 'w_page', ['client_id','org_id','is_default'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID, '1']);
+		if ($page){
+			$this->frontend_view('include/page', $page);
+			return;
+		}
+		$this->frontend_view('pages/404', ['message'=>'']);
 	}
 	
 	function infolist()

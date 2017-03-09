@@ -15,7 +15,6 @@
 		"phpoffice/phpexcel": "^1.8",
 		"mobiledetect/mobiledetectlib": "^2.8",
 		"fenom/fenom": "2.*",
-		"smarty/smarty": "~3.1",
 		"mpdf/mpdf": "dev-development",
 		"moxiecode/plupload": "^2.1",
 		"fightbulc/moment": "^1.14",
