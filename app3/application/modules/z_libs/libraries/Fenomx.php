@@ -1,16 +1,13 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 require_once( FCPATH.'../vendor/fenom/fenom/src/Fenom.php' );
-// require_once( '../vendor/fenom/fenom/src/Fenom.php' );
 
 class Fenomx extends Fenom
 {
 	public function __construct()
     {
-        // $this->template_dir = APPPATH . "views";
-        // $this->compile_dir = "../../var/cache";
-        $this->template_dir = FCPATH . "templates";
-        $this->compile_dir = FCPATH . "var/cache";
+        $this->template_dir = TEMPLATE_FCPATH;
+        $this->compile_dir = CACHE_FCPATH;
 		$this->options = array(
 			'strip' 		=> true,
 			'auto_trim' 	=> true,

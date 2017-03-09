@@ -29,40 +29,27 @@ define('EMAIL_DOMAIN', 'localhost');
 /* Time Zone */ 
 define('TIME_ZONE', 'Asia/Jakarta'); 
 
+/* Template Folder */
+define('TEMPLATE_FOLDER', 'templates');
+
+/* Cache Folder */
+define('CACHE_FOLDER', 'var/cache');
+
+/* Fenom Settings */
+define('TEMPLATE_FCPATH', FCPATH . TEMPLATE_FOLDER);
+define('CACHE_FCPATH', FCPATH . CACHE_FOLDER);
+
+/* Default Client & Organization */
 define('DEFAULT_CLIENT_ID', 11);
 define('DEFAULT_ORG_ID', 16);
 
-// FRONTEND CONSTANT VARIABLE
-define('TITLE_F', 'HD GROUPS');
-define('WEB_LOGO_TEXT_MN_F', 'HDG');
-define('WEB_LOGO_TEXT_LG_F', 'HD GROUPS');
-define('FRONTEND_THEME', 'frontend_theme/');
-
-define('DATE_FORMAT_F', 'd/m/Y');
-define('TIME_FORMAT_F', 'h:i:s');
-define('DATETIME_FORMAT_F', 'd/m/Y h:i:s');
-
-define('HOME_F_LNK', 'frontend');
-
-// BACKEND CONSTANT VARIABLES
-define('APP_TITLE_B', 'HD GROUPS - APPS');
-define('TITLE_B', '<b>HD</b> GROUPS');
-define('WEB_LOGO_TEXT_MN_B', 'HDG');
-define('WEB_LOGO_TEXT_LG_B', 'HD GROUPS');
-define('BACKEND_THEME', 'backend_theme/');
-
-define('DATE_FORMAT_B', 'd/m/Y');
-define('TIME_FORMAT_B', 'h:i:s');
-define('DATETIME_FORMAT_B', 'd/m/Y h:i:s');
-
-define('HOME_B_LNK', 'systems');
+/* BACKEND CONSTANT VARIABLES */
 define('AUTH_LNK', 'systems/x_auth');
 define('LOGIN_LNK', 'systems/x_login');
 define('LOGOUT_LNK', 'systems/x_logout');
 define('UNLOCK_LNK', 'systems/x_unlock');
 define('CONFIG_LNK', 'systems/x_config');
 define('SRCMENU_LNK', 'systems/x_srcmenu');
-define('CHGPWD_LNK', 'systems/x_chgpwd');
 define('PROFILE_LNK', 'systems/x_profile');
 define('INFOLST_LNK', 'frontend/infolist');
 
@@ -73,5 +60,3 @@ define('URL_SEPARATOR', '/');
 define('APPLICATION_KEY', 'lLHi5iSpufGDO%2BSEuzwz7JaN0sWk7OeZIcXwiwpHQ88%3D');
 define('API_BASE_URL', '');
 define('API_URL', API_BASE_URL.'api/v1/');
-
-

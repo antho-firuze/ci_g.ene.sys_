@@ -16,6 +16,14 @@ class Test extends Getmeb {
 		// check_auth_restapi();
 	}
 	
+	function getSystem()
+	{
+		
+		echo ($result = $this->base_model->getValue('*', 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID]))
+		? $result->head_title
+		: 'FALSE';
+	}
+	
 	function sess()
 	{
 		$sess = (object) $this->session->userdata();

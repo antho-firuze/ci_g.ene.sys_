@@ -10,7 +10,6 @@ class Systems extends Getmeb
 		$this->load->model('systems/system_model');
 		
 		$this->r_method = $_SERVER['REQUEST_METHOD'];
-		$this->params = $this->input->get();
 	}
 	
 	/**
@@ -58,12 +57,12 @@ class Systems extends Getmeb
 
 	function index()
 	{
-		$this->dashboard();
+		redirect(base_url().'systems/x_page?pageid=1');
 	}
 	
 	function dashboard()
 	{
-		$this->backend_view('dashboard1', 'pages/dashboard/dashboard1');
+		// $this->backend_view('dashboard1', 'pages/dashboard/dashboard1');
 	}
 	
 	function x_auth()
@@ -94,7 +93,7 @@ class Systems extends Getmeb
 		// User Data
 		// $user = $this->db->get_where('a_user', ['id'=>$id])->row();
 		$this->params['select'] = 't1.id, t1.client_id, t1.org_id, t1.role_id, t1.name, t1.description, t1.email, 
-			t1.photo_url, ac.name as client_name, ao.name as org_name, ar.name as role_name';
+			t1.photo_file, ac.name as client_name, ao.name as org_name, ar.name as role_name';
 		$this->params['where']['t1.id'] = $id;
 		$user = (object) $this->system_model->getUserAuthentication($this->params)[0];
 		$dataUser = [
@@ -108,8 +107,7 @@ class Systems extends Getmeb
 			'client_name'	=> $user->client_name,
 			'org_name'		=> $user->org_name,
 			'role_name'		=> $user->role_name,
-			// 'photo_url' 	=> empty($user->photo_url) ? urlencode('http://lorempixel.com/160/160/people/') : urlencode($user->photo_url),
-			'photo_url' 	=> urlencode($user->photo_url),
+			'photo_file' 	=> urlencode($user->photo_file),
 		];
 		
 		$userConfig = (object) $this->system_model->getUserConfig([
@@ -234,7 +232,7 @@ class Systems extends Getmeb
 	
 	function x_login()
 	{
-		$this->backend_view('login', 'pages/systems/auth/login');
+		$this->login_view('pages/systems/auth/login');
 	}
 	
 	function x_logout()
@@ -360,17 +358,16 @@ class Systems extends Getmeb
 	*/
 	function x_page()
 	{
-		$data = [];
 		if (key_exists('pageid', $this->params) && !empty($this->params['pageid'])) {
-			$data = (array) $this->system_model->getMenuById($this->params['pageid']);
-			
-			if (! $this->_check_menu($data)) {
-				$this->backend_view('crud', 'pages/404', ['message'=>$this->messages()]);
+			$menu = $this->base_model->getValueArray('*', 'a_menu', ['client_id','id'], [DEFAULT_CLIENT_ID, $this->params['pageid']]);
+			if (! $this->_check_menu($menu)) {
+				$this->backend_view('pages/404', ['message'=>'<b>'.$this->messages().'</b>']);
 				return;
 			}
-			$this->backend_view('crud', $data['path'].URL_SEPARATOR.$data['url'], $data);
+			$this->backend_view($menu['path'].$menu['url'], $menu);
 			return;
 		}
+		$this->backend_view('pages/404', ['message'=>'']);
 	}
 	
 	function a_user()
@@ -400,7 +397,7 @@ class Systems extends Getmeb
 		if ($this->r_method == 'PUT') {
 			$data = json_decode($this->input->raw_input_stream);
 			$fields = [
-				'is_active', 'is_deleted', 'name', 'description', 'email', 'api_token', 'remember_token', 'is_online', 'supervisor_id', 'bpartner_id', 'is_fullbpaccess', 'is_expired', 'security_question', 'security_answer', 'ip_address', 'photo_url'
+				'is_active', 'is_deleted', 'name', 'description', 'email', 'api_token', 'remember_token', 'is_online', 'supervisor_id', 'bpartner_id', 'is_fullbpaccess', 'is_expired', 'security_question', 'security_answer', 'ip_address', 'photo_file'
 			];
 			$boolfields = ['is_active', 'is_fullbpaccess'];
 			$nullfields = ['supervisor_id'];
