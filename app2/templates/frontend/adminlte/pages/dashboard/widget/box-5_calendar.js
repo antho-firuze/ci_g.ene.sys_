@@ -1,5 +1,0 @@
-<script>
-
-  $("#calendar").datepicker();
-
-</script>
