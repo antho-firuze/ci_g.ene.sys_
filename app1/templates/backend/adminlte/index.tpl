@@ -39,20 +39,23 @@
 <script>
 	{* DECLARE VARIABLE *}
 	{var $photo_url = $.php.base_url() ~ $user_photo_path ~ $.php.urldecode($.session.photo_file)}
-	{var $login_link = $.php.base_url() ~ $.const.LOGIN_LNK}
+	{* {var $login_link = $.php.base_url() ~ $.const.LOGIN_LNK} *}
 	{var $logout_link = $.php.base_url() ~ $.const.LOGOUT_LNK}
 	{var $profile_link = $.php.base_url() ~ $.const.PROFILE_LNK}
-	{var $skin = $.session.skin !: 'skin-purple'}
 	{var $sidebar = $.session.sidebar !: ''}
 	var base_url = '{$.php.base_url()}';
 	var Unlock_url = '{$.php.base_url() ~ $.const.UNLOCK_LNK}';
 	var Config_url = '{$.php.base_url() ~ $.const.CONFIG_LNK}';
 	var InfoLst_url = '{$.php.base_url() ~ $.const.INFOLST_LNK}';
 	var username = '{$.session.name}';
-
-	store('skin', '{$skin}');
-	store('sidebar', '{$sidebar}');
-	store('screen_timeout', '{$.session.screen_timeout !: 60000}');
+	var $skin = 'skin{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
+	var $sidebar = 'sidebar{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
+	var $screen_timeout = 'screen_timeout{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
+	var $lockscreen = 'lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
+	
+	store($skin, "{$.session.skin !: 'skin-purple'}");
+	store($sidebar, "{$.session.sidebar !: ''}");
+	store($screen_timeout, "{$.session.screen_timeout !: 60000}");
 </script>
 
 <script src="{$.const.ASSET_URL}js/form_crud.js"></script>
@@ -89,7 +92,7 @@
 <script src="{$.const.ASSET_URL}js/datatables.helper.js"></script>
 </head>
 
-<body class="hold-transition {$skin} sidebar-mini {$sidebar}">
+<body class="hold-transition sidebar-mini">
 
 <!-- Site wrapper -->
 <div class="wrapper">
@@ -128,5 +131,6 @@
 
 <script src="{$.const.TEMPLATE_URL}js/custom.js"></script>
 <script src="{$.const.TEMPLATE_URL}js/xform.js"></script>
+<script>$(document.body).addClass(get($sidebar)).addClass(get($skin));</script>
 </body>
 </html>

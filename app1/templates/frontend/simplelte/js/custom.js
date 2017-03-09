@@ -195,7 +195,7 @@
     });
 
     $("body").addClass(cls);
-    store('skin', cls);
+    store($skin, cls);
     return false;
   }
 
@@ -205,7 +205,7 @@
    * @returns void
    */
   function setup() {
-    var tmp = get('skin');
+    var tmp = get($skin);
     if (tmp && $.inArray(tmp, my_skins))
       change_skin(tmp);
 
@@ -213,29 +213,15 @@
     $("[data-skin]").on('click', function (e) {
       e.preventDefault();
       change_skin($(this).data('skin'));
-	
-	  $.ajax({
-		  url: setUserConfig_url,
-		  method: "POST",
-		  dataType: 'json',
-		  data: '{"skin": "'+$(this).data('skin')+'"}'
-	  });
     });
 
     //Add the change sidebar toggle
-	$("[class='sidebar-toggle']").on("click", function(){
-		if (get('sidebar'))
-			store('sidebar', '');
-		else
-			store('sidebar', 'sidebar-collapse');
-		
-		$.ajax({
-		  url: setUserConfig_url,
-		  method: "POST",
-		  dataType: 'json',
-		  data: '{ "sidebar": "' + get('sidebar') +'" }'
+		$("[class='sidebar-toggle']").on("click", function(){
+			if (get($sidebar))
+				store($sidebar, '');
+			else
+				store($sidebar, 'sidebar-collapse');
 		});
-	});
 		
   }
 })(jQuery);
