@@ -20,8 +20,7 @@ define('DB_PASS', '');
 define('DB_NAME', ''); 
 
 /* Base URL */ 
-define('BASE_URL', 'http://localhost/ci/app2/'); 
-// define('BASE_URL', 'http://apps.fajarbenua.co.id/'); 
+define('BASE_URL', 'http://'.$_SERVER['HTTP_HOST'].'/'.(($_SERVER['HTTP_HOST']=='localhost')?'ci/app1/':'')); 
 
 /* Email Domain */ 
 define('EMAIL_DOMAIN', 'localhost'); 
@@ -40,8 +39,27 @@ define('TEMPLATE_FCPATH', FCPATH . TEMPLATE_FOLDER);
 define('CACHE_FCPATH', FCPATH . CACHE_FOLDER);
 
 /* Default Client & Organization */
-define('DEFAULT_CLIENT_ID', 11);
-define('DEFAULT_ORG_ID', 11);
+switch ($_SERVER['HTTP_HOST'])
+{
+	case 'apps.hdgroup.id':
+		$client_id = 11;
+		$org_id = 16;
+		break;
+	case 'apps.fajarbenua.co.id':
+		$client_id = 11;
+		$org_id = 11;
+		break;
+	case 'apps.trigraha.com':
+		$client_id = 11;
+		$org_id = 12;
+		break;
+	default:
+		$client_id = 11;
+		$org_id = 16;
+		break;
+}
+define('DEFAULT_CLIENT_ID', $client_id);
+define('DEFAULT_ORG_ID', $org_id);
 
 /* BACKEND CONSTANT VARIABLES */
 define('AUTH_LNK', 'systems/x_auth');
