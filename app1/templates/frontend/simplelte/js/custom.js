@@ -3,19 +3,6 @@
  *
  */
 
-function init_screen_timeout()
-{
-	$(document).idleTimer("destroy");
-	$(document).idleTimer(parseInt(get("screen_timeout")));
-}
-
-function lock_screen()
-{
-	store("lockscreen", 1);
-	$('.lockscreen').slideDown('fast');
-	$(document).idleTimer("destroy");
-}
-
 (function ($) {
 
   "use strict";
@@ -190,30 +177,6 @@ function lock_screen()
   var page_settings = $("<form method='post' />")
 	.append("<h4 class='control-sidebar-heading'>General Settings</h4>");
   
-  var select_screen_timeout = 
-    $("<div />", {"class": "form-group"})
-	  .append("<label>Screen Timeout</label>");
-	  
-  var j_timeout = { 
-	"60000":"1 minute",
-	"120000":"2 minutes",
-	"180000":"3 minutes",
-	"300000":"5 minutes",
-	"600000":"10 minutes",
-	"900000":"15 minutes",
-	"1200000":"20 minutes",
-	"1500000":"25 minutes",
-	"1800000":"30 minutes",
-	"2700000":"45 minutes",
-	"3600000":"1 hour",
-	"7200000":"2 hours",
-	"10800000":"3 hours",
-	"14400000":"4 hours",
-	"18000000":"5 hours"
-   };
-  select_screen_timeout.append(setSelectList("timeout_list", "timeout_list", "form-control", j_timeout));
-  page_settings.append(select_screen_timeout);
-  
   tab_pane_settings.append(page_settings);
   
   tab_pane.append(tab_pane_settings);
@@ -237,35 +200,6 @@ function lock_screen()
   }
 
   /**
-   * Store a new settings in the browser
-   *
-   * @param String name Name of the setting
-   * @param String val Value of the setting
-   * @returns void
-   */
-  function store(name, val) {
-    if (typeof (Storage) !== "undefined") {
-      localStorage.setItem(name, val);
-    } else {
-      window.alert('Please use a modern browser to properly view this template!');
-    }
-  }
-
-  /**
-   * Get a prestored setting
-   *
-   * @param String name Name of of the setting
-   * @returns String The value of the setting | null
-   */
-  function get(name) {
-    if (typeof (Storage) !== "undefined") {
-      return localStorage.getItem(name);
-    } else {
-      window.alert('Please use a modern browser to properly view this template!');
-    }
-  }
-
-  /**
    * Retrieve default settings and apply them to the template
    *
    * @returns void
@@ -281,7 +215,7 @@ function lock_screen()
       change_skin($(this).data('skin'));
 	
 	  $.ajax({
-		  url: Config_url,
+		  url: setUserConfig_url,
 		  method: "POST",
 		  dataType: 'json',
 		  data: '{"skin": "'+$(this).data('skin')+'"}'
@@ -289,40 +223,26 @@ function lock_screen()
     });
 
     //Add the change sidebar toggle
-		$("[class='sidebar-toggle']").on("click", function(){
-			if (get('sidebar'))
-				store('sidebar', '');
-			else
-				store('sidebar', 'sidebar-collapse');
-			
-			$.ajax({
-				url: Config_url,
-				method: "POST",
-				dataType: 'json',
-				data: '{ "sidebar": "' + get('sidebar') +'" }'
-			});
-		});
+	$("[class='sidebar-toggle']").on("click", function(){
+		if (get('sidebar'))
+			store('sidebar', '');
+		else
+			store('sidebar', 'sidebar-collapse');
 		
-    //Add the change timeout_list
-		$("#timeout_list").change(function() {
-			store('screen_timeout', $("#timeout_list").val());
-			init_screen_timeout();
-			
-			$.ajax({
-				url: Config_url,
-				method: "POST",
-				dataType: 'json',
-				data: '{"screen_timeout": "'+$("#timeout_list").val()+'"}'
-			});
+		$.ajax({
+		  url: setUserConfig_url,
+		  method: "POST",
+		  dataType: 'json',
+		  data: '{ "sidebar": "' + get('sidebar') +'" }'
 		});
-	
-		$("#timeout_list").val(get("screen_timeout"));
+	});
+		
   }
 })(jQuery);
 
 
 /** 
- * Initialize Custom
+ * Initialize 
  *
  */
 (function ($) {
@@ -330,94 +250,48 @@ function lock_screen()
 	"use strict";
   
 	/* 
-   	* Initialization for screen timeout
-   	*/
-	init_screen_timeout();
-	
-	var lockscreen = $('.lockscreen');
-	$(document).on("idle.idleTimer", function(event, elem, obj){
-		lock_screen();
-    });
-	
-	(get("lockscreen")==1) ? lockscreen.slideDown() : lockscreen.slideUp();
-	
-	$("#go-lock-screen").click(function(e){
-		e.preventDefault();
-		lock_screen();
-	});
-	
-	$("#go-sign-out").click(function(e){
-		e.preventDefault();
-		if (confirm("Are you sure ?"))
-			window.location.replace($("#go-sign-out").attr('href'));
-	});
-	
-	/* 
-	* Validation for unlock screen 
-	*/
-  var form_lck = $('form.lockscreen-credentials');
-	form_lck.validate({
-	  rules: {
-	    password: {
-	      required: true
-	    }
-	  }
-	});
-	
-	form_lck.submit( function(e) {
-		e.preventDefault();
-		
-		if (! form_lck.valid()) return false;
-		
-		$.ajax({ url: Unlock_url, method: "GET", async: true, dataType: 'json',
-			headers: {
-				"X-AUTH": "Basic " + btoa(form_lck.find("input[name='name']").val() + ":" + form_lck.find("input[name='password']").val())
-			},
-			beforeSend: function(xhr) {
-				form_lck.find('[type="submit"]').attr("disabled", "disabled");
-			},
-			complete: function(xhr, data) {
-				setTimeout(function(){
-					form_lck.find('[type="submit"]').removeAttr("disabled");
-				},1000);
-			},
-			success: function(data) {
-				store("lockscreen", 0);
-				lockscreen.slideUp('fast');
-				init_screen_timeout();
-			},
-			error: function(data) {
-				var error = JSON.parse(data.responseText);
-				dhtmlx.alert({ title: "Notification", type:"alert-error", text: error.message });
-			}
-		});  
-	});
-	
-	/* 
 	* FOR SEARCHING MENU 
 	*/
-	var xhr;
-	$('#searching-menu').autoComplete({
-		minChars: 1,
-		delay: 0,
-		// cache: false,
-		source: function(term, response){
-			try { xhr.abort(); } catch(e){}
-			xhr = $.getJSON(SrcMenu_url, { q: term }, function(data){ response(data.data); });
-			// $.getJSON(SrcMenu_url, { q: term }, function(data){ response(data.data); });
-		},
-		renderItem: function (item, search){
-			search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-			var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
-			/* return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion" data-href="' + item[1] + '" data-val="' + item[0] + '"><i class="fa fa-circle-o"></i> '+ item[0].replace(re, "<b>$1</b>") + '</div>'; */
-			return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion" data-href="' + item['url'] + '" data-val="' + item['name'] + '"><i class="fa fa-circle-o"></i> '+ item['name'].replace(re, "<b>$1</b>") + '</div>';
-		},
-		onSelect: function(e, term, item){
-			// window.location.replace(base_url+item.data('href'));
-			window.location.href = base_url+item.data('href');
-		} 
-	});
-  
+	// init();
+	
+	function init() {
+		var xhr;
+		$('input[name="q"]').autoComplete({
+			minChars: 1,
+			delay: 0,
+			source: function(term, response){
+				try { xhr.abort(); } catch(e){}
+				xhr = $.getJSON(setMenuSearch_url, { q: term }, function(data){ 
+					response(data.data);
+				});
+				/* $.getJSON(setMenuSearch_url, { q: term }, function(data){ 
+					response(data.data);
+				}); */
+			},
+			renderItem: function (item, search){
+				search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+				var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
+				return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion" data-href="' + item[1] + '" data-val="' + item[0] + '"><i class="fa fa-circle-o"></i> '+ item[0].replace(re, "<b>$1</b>") + '</div>';
+			},
+			onSelect: function(e, term, item){
+				// window.location.replace(base_url+item.data('href'));
+				window.location.href = base_url+item.data('href');
+			} 
+		})
+		.closest('form')
+		.submit(function(e){
+			e.preventDefault();
+			
+			var q = $('input[name="q"]');
+			var tx = q.val();
+			q.val('').trigger('keyup'); 
+			q.focus();
+			q.val(tx).trigger('keyup'); 
+				
+			return false;
+		});
+	}
+	
 	/* 
 	* Change Password Process 
 	*/
@@ -426,10 +300,26 @@ function lock_screen()
 
 		var content = $('<div />');
 		var form = $('<form />', {class: 'form-horizontal'});
-		form.append(setForm_Input('text', 'User Name', 'username', username, '', '', false, true, false));
-		form.append(setForm_Input('password', 'Password (Old)', 'password'));
-		form.append(setForm_Input('password', 'Password (New)', 'password_new'));
-		form.append(setForm_Input('password', 'Password (Confirm)', 'password_confirm'));
+		var input_username = 
+			$('<div />', {class: 'form-group'})
+			.append('<label for="username" class="col-sm-4 control-label">User Name</label>'
+			+ '<div class="col-sm-8"><input type="text" class="form-control" id="username" value="'+username+'" name="name" disabled></div>');
+		form.append(input_username);
+		var input_passold = 
+			$('<div />', {class: 'form-group'})
+			.append('<label for="password" class="col-sm-4 control-label">Password (Old)</label>'
+			+ '<div class="col-sm-8"><input type="password" class="form-control" id="password" name="password"></div>');
+		form.append(input_passold);
+		var input_passnew = 
+			$('<div />', {class: 'form-group'})
+			.append('<label for="password_new" class="col-sm-4 control-label">Password (New)</label>'
+			+ '<div class="col-sm-8"><input type="password" class="form-control" id="password_new" name="password_new"></div>');
+		form.append(input_passnew);
+		var input_passconfirm = 
+			$('<div />', {class: 'form-group'})
+			.append('<label for="password_confirm" class="col-sm-4 control-label">Password (Confirm)</label>'
+			+ '<div class="col-sm-8"><input type="password" class="form-control" id="password_confirm" name="password_confirm"></div>');
+		form.append(input_passconfirm);
 		content.append(form);
 		
 		BootstrapDialog.show({ cssClass: 'modal-primary',
@@ -449,7 +339,7 @@ function lock_screen()
 					// dialog.setClosable(false);
 					// dialog.enableButtons(false);
 					
-					$.ajax({ url: ChgPwd_url, method: "POST", async: true, dataType: 'json',
+					$.ajax({ url: setCHPass_url, method: "POST", async: true, dataType: 'json',
 						data: '{"password_new": "'+form.find("input[name='password_new']").val()+'"}',
 						headers: {
 							"X-AUTH": "Basic " + btoa(form.find("input[name='name']").val() + ":" + form.find("input[name='password']").val())
@@ -461,18 +351,13 @@ function lock_screen()
 							});
 						},
 						error: function(data) {
-							if (data.status==500){
-								var message = data.statusText;
-							} else {
-								var error = JSON.parse(data.responseText);
-								var message = error.message;
-							}
+							var error = JSON.parse(data.responseText);
 							
 							button.stopSpin();
 							dialog.enableButtons(true);
 							dialog.setClosable(true);
 							
-							BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+							BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:error.message });
 						}
 					});
                 }
