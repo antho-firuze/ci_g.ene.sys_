@@ -54,7 +54,7 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
 // FRONTEND
-$route['cs/(:any)'] = "frontend/cs/$1";
+$route['cs/(:any)'] = "iproduct/cs/$1";
 $route['page'] = "frontend/page";
 $route['page/(:any)'] = "frontend/page/$1";
 
