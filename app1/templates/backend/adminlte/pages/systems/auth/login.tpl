@@ -148,7 +148,7 @@
 				},1000);
 			},
 			success: function(data) {
-				store("lockscreen", 0);
+				store('lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}', 0);
 				window.location.replace('{$.php.site_url('systems')}');
 				{* window.location.href = '{$.php.site_url('systems')}'; *}
 			},

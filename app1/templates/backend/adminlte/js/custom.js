@@ -6,12 +6,12 @@
 function init_screen_timeout()
 {
 	$(document).idleTimer("destroy");
-	$(document).idleTimer(parseInt(get("screen_timeout")));
+	$(document).idleTimer(parseInt(get($screen_timeout)));
 }
 
 function lock_screen()
 {
-	store("lockscreen", 1);
+	store($lockscreen, 1);
 	$('.lockscreen').slideDown('fast');
 	$(document).idleTimer("destroy");
 }
@@ -232,7 +232,7 @@ function lock_screen()
     });
 
     $("body").addClass(cls);
-    store('skin', cls);
+    store($skin, cls);
     return false;
   }
 
@@ -271,7 +271,7 @@ function lock_screen()
    * @returns void
    */
   function setup() {
-    var tmp = get('skin');
+    var tmp = get($skin);
     if (tmp && $.inArray(tmp, my_skins))
       change_skin(tmp);
 
@@ -290,22 +290,22 @@ function lock_screen()
 
     //Add the change sidebar toggle
 		$("[class='sidebar-toggle']").on("click", function(){
-			if (get('sidebar'))
-				store('sidebar', '');
+			if (get($sidebar))
+				store($sidebar, '');
 			else
-				store('sidebar', 'sidebar-collapse');
+				store($sidebar, 'sidebar-collapse');
 			
 			$.ajax({
 				url: Config_url,
 				method: "POST",
 				dataType: 'json',
-				data: '{ "sidebar": "' + get('sidebar') +'" }'
+				data: '{ "sidebar": "' + get($sidebar) +'" }'
 			});
 		});
 		
     //Add the change timeout_list
 		$("#timeout_list").change(function() {
-			store('screen_timeout', $("#timeout_list").val());
+			store($screen_timeout, $("#timeout_list").val());
 			init_screen_timeout();
 			
 			$.ajax({
@@ -316,7 +316,7 @@ function lock_screen()
 			});
 		});
 	
-		$("#timeout_list").val(get("screen_timeout"));
+		$("#timeout_list").val(get($screen_timeout));
   }
 })(jQuery);
 
@@ -339,7 +339,7 @@ function lock_screen()
 		lock_screen();
     });
 	
-	(get("lockscreen")==1) ? lockscreen.slideDown() : lockscreen.slideUp();
+	(get($lockscreen)==1) ? lockscreen.slideDown() : lockscreen.slideUp();
 	
 	$("#go-lock-screen").click(function(e){
 		e.preventDefault();
@@ -382,7 +382,7 @@ function lock_screen()
 				},1000);
 			},
 			success: function(data) {
-				store("lockscreen", 0);
+				store($lockscreen, 0);
 				lockscreen.slideUp('fast');
 				init_screen_timeout();
 			},

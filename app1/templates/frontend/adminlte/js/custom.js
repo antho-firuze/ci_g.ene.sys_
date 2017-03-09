@@ -219,7 +219,7 @@
     });
 
     $("body").addClass(cls);
-    store('skin', cls);
+    store($skin, cls);
     return false;
   }
 
@@ -258,7 +258,7 @@
    * @returns void
    */
   function setup() {
-    var tmp = get('skin');
+    var tmp = get($skin);
     if (tmp && $.inArray(tmp, my_skins))
       change_skin(tmp);
 
@@ -270,10 +270,10 @@
 
     //Add the change sidebar toggle
 		$("[class='sidebar-toggle']").on("click", function(){
-			if (get('sidebar'))
-				store('sidebar', '');
+			if (get($sidebar))
+				store($sidebar, '');
 			else
-				store('sidebar', 'sidebar-collapse');
+				store($sidebar, 'sidebar-collapse');
 		});
   }
 })(jQuery);

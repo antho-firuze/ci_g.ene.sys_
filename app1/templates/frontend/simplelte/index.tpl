@@ -78,6 +78,6 @@
   
 </div>
 <!-- ./wrapper -->
-<script src="{$.const.TEMPLATE_URL}js/custom.js"></script>
+{* <script src="{$.const.TEMPLATE_URL}js/custom.js"></script> *}
 </body>
 </html>
