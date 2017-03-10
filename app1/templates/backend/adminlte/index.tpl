@@ -20,6 +20,7 @@
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/ionicons/css/ionicons.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/datatables/media/css/dataTables.bootstrap4.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/datatables/extensions/select/css/select.dataTables.min.css')}
+{$.php.link_tag($.const.TEMPLATE_URL~'plugins/datatables/extensions/FixedColumns/css/fixedColumns.bootstrap.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'dist/css/AdminLTE.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'dist/css/skins/_all-skins.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/autoComplete/jquery.auto-complete.css')}
@@ -71,6 +72,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/datatables/media/js/jquery.dataTables.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/datatables/media/js/dataTables.bootstrap4.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/datatables/extensions/select/js/dataTables.select.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/datatables/extensions/FixedColumns/js/dataTables.fixedColumns.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/slimScroll/jquery.slimscroll.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/fastclick/fastclick.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/autoComplete/jquery.auto-complete.min.js"></script>

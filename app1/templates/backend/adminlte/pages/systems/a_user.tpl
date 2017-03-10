@@ -13,22 +13,12 @@
     <!-- Main content -->
     <section class="content">
       <div class="row">
-        <div class="col-xs-12">
-          <div class="box">
-            {* <div class="box-header"> *}
-              {* <h3 class="box-title">Users</h3> *}
-            {* </div> *}
-            <!-- /.box-header -->
-            <div class="box-body">
-            </div>
-            <!-- /.box-body -->
-          </div>
-          <!-- /.box -->
-
-        </div>
+        <div id="toolbar" class="col-lg-12"></div>
         <!-- /.col -->
       </div>
       <!-- /.row -->
+			<div class="box box-body table-responsive no-padding"></div>
+          <!-- /.box -->
     </section>
     <!-- /.content -->
   </div>
@@ -40,16 +30,18 @@
 	
 	{* Section 2: For building Datatables *}
 	var setCustomLeftButton = ''+
-		'<button type="button" class="btn btn-xs btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />' +
-		'<button type="button" class="btn btn-xs btn-danger glyphicon glyphicon-trash" title="Edit" name="btn-delete" />' +
-		'<button type="button" class="btn btn-xs btn-default glyphicon glyphicon-chevron-right" title="Detail" name="btn-detail" />';
+		'<button type="button" style="margin-right:5px;" class="btn btn-xs btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />' +
+		'<button type="button" style="margin-right:5px;" class="btn btn-xs btn-danger glyphicon glyphicon-trash" title="Delete" name="btn-delete" />' +
+		'<button type="button" style="margin-right:5px;" class="btn btn-xs btn-success glyphicon glyphicon-eye-open" title="View" name="btn-view" />'; 
+		{* '<button type="button" style="margin-right:5px;" class="btn btn-xs btn-default glyphicon glyphicon-chevron-right" title="Detail" name="btn-detail" />'; *}
 	var setCustomRightButton = ''+
 		'<button type="button" class="btn btn-xs btn-default glyphicon glyphicon-th-list" title="Role" name="btn-role" />' +
 		'<button type="button" class="btn btn-xs btn-default glyphicon glyphicon-leaf" title="Organization" name="btn-org" />' +
 		'<button type="button" class="btn btn-xs btn-default glyphicon glyphicon-flag" title="User Substitute" name="btn-subs" />';
-	var tableData1 = $('<table class="table table-bordered table-hover" />').appendTo( $('.box-body') ),
+	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="width:100%; table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
 	dataTable1 = tableData1.DataTable({
-		"pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true,
+		"pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, 
+		"sAutoWidth": false, "bAutoWidth": false, "autoWidth": false,
 		"ajax": {
 			"url": '{$url_module}'+window.location.search,
 			"data": function(d){ return $.extend({}, d, { "q": $q });	},
@@ -62,11 +54,11 @@
 			}
 		},
 		"columns": [
-			{ "width": "3%", orderable: false, className: "dt-body-center", "title": "<input type='checkbox' class='head-check'>" },
-			{ "width": "7.5%", orderable: false, className: "dt-body-center" },
-			{ "data": "name", 		 	 "title": "Name" },
-			{ "data": "email", 		 	 "title": "Email" },
-			{ "data": "description", "title": "Description", orderable: false },
+			{ "width": "20px", orderable: false, className: "dt-body-center", "title": "<center><input type='checkbox' class='head-check'></center>" },
+			{ "width": "90px", orderable: false, className: "dt-body-center" },
+			{ "width": "130px", "data": "name", 		 	 "title": "Name" },
+			{ "width": "250px", "data": "email", 		 	 "title": "Email" },
+			{ "width": "250px", "data": "description", "title": "Description", orderable: false },
 			{* { "width": "9%", orderable: false, className: "dt-body-center" }, *}
 		],
 		"columnDefs": [
@@ -79,7 +71,11 @@
 	.search($q ? $q : '');
 	
 	{* This line for changing toolbar button *}
-	$('div.dataTables_wrapper').find('div.row:first').before( setToolbarButton() );
+	$('#toolbar').append( setToolbarButton() ).css('margin-bottom','10px');
+	$('div.box').css('margin-bottom','10px');
+	$('div.dataTables_wrapper').find('div.row:first').insertBefore('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_filter');
+	$('div.dataTables_wrapper').find('div.row:last').insertAfter('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_paginate');
+
 	addProcessMenu('btn-process1', 'User Role');
 	addProcessMenu('btn-process2', 'User Organization');
 	addProcessMenu('btn-process3', 'User Substitute');

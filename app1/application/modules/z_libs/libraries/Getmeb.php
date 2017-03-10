@@ -284,11 +284,12 @@ class Getmeb extends CI_Controller
 	{
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
 		
+		$default['content'] 	= TEMPLATE_PATH.$content.'.tpl';
+		
 		$select = 'head_title, page_title, logo_text_mn, logo_text_lg, date_format, time_format, datetime_format, user_photo_path';
 		$system = ($result = $this->base_model->getValueArray($select, 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID])) ? $result : [];
 		$pageid = (key_exists('pageid', $this->params) && !empty($this->params['pageid'])) ? $this->params['pageid'] : 0;
 		$default['menus'] 		= $this->getMenuStructure($pageid);
-		$default['content'] 	= TEMPLATE_PATH.$content.'.tpl';
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);
 		$this->fenomx->view(TEMPLATE_PATH.'index', array_merge($default, $system, $data));
