@@ -8,8 +8,6 @@ class Systems extends Getmeb
 		parent::__construct();
 		
 		$this->load->model('systems/system_model');
-		
-		$this->r_method = $_SERVER['REQUEST_METHOD'];
 	}
 	
 	/**
@@ -375,16 +373,29 @@ class Systems extends Getmeb
 		if ($this->r_method == 'GET') {
 			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
+			
 			if (key_exists('zone', $this->params) && ($this->params['zone']))
-				$this->params['where']['t1.client_id'] = $this->sess->client_id;
+				$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
 			
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
-				$this->params['like'] = empty($this->params['sf']) 
-					? DBX::like_or('t1.name, t1.description', $this->params['q'])
-					: DBX::like_or($this->params['sf'], $this->params['q']);
+				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
-			$this->xresponse(TRUE, $result);
+			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
+				$array = explode(",", $this->params['filter']);
+				if (!empty($array)) {
+					foreach ($array as $value) {
+						list($k, $v) = explode("=", $value);
+						$this->params['where'][$k] = empty($v)?0:$v;
+					}
+				}
+			}
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
 		}
 		if ($this->r_method == 'POST') {
 			$data 	= (object) $this->post();
@@ -434,12 +445,24 @@ class Systems extends Getmeb
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
-				$this->params['like'] = empty($this->params['sf']) 
-					? DBX::like_or('t1.name, t1.description', $this->params['q'])
-					: DBX::like_or($this->params['sf'], $this->params['q']);
+				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
-			$this->xresponse(TRUE, $result);
+			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
+				$array = explode(",", $this->params['filter']);
+				if (!empty($array)) {
+					foreach ($array as $value) {
+						list($k, $v) = explode("=", $value);
+						$this->params['where'][$k] = empty($v)?0:$v;
+					}
+				}
+			}
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
@@ -483,12 +506,24 @@ class Systems extends Getmeb
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
-				$this->params['like'] = empty($this->params['sf']) 
-					? DBX::like_or('t1.name, t1.description', $this->params['q'])
-					: DBX::like_or($this->params['sf'], $this->params['q']);
+				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
-			$this->xresponse(TRUE, $result);
+			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
+				$array = explode(",", $this->params['filter']);
+				if (!empty($array)) {
+					foreach ($array as $value) {
+						list($k, $v) = explode("=", $value);
+						$this->params['where'][$k] = empty($v)?0:$v;
+					}
+				}
+			}
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
@@ -532,8 +567,8 @@ class Systems extends Getmeb
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('zone', $this->params) && ($this->params['zone'])) {
-				$this->params['where']['t1.client_id'] = $this->sess->client_id;
-				$this->params['where']['t1.org_id'] 	 = $this->sess->org_id;
+				$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
+				$this->params['where']['t1.org_id'] 	 = DEFAULT_ORG_ID;
 			}
 			if (key_exists('valid', $this->params) && ($this->params['valid'])) {
 				$this->params['where']['t1.is_active'] = '1';
@@ -541,12 +576,24 @@ class Systems extends Getmeb
 			}
 			
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
-				$this->params['like'] = empty($this->params['sf']) 
-					? DBX::like_or('t1.description', $this->params['q'])
-					: DBX::like_or($this->params['sf'], $this->params['q']);
+				$this->params['like'] = DBX::like_or('t1.description', $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
-			$this->xresponse(TRUE, $result);
+			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
+				$array = explode(",", $this->params['filter']);
+				if (!empty($array)) {
+					foreach ($array as $value) {
+						list($k, $v) = explode("=", $value);
+						$this->params['where'][$k] = empty($v)?0:$v;
+					}
+				}
+			}
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
@@ -590,12 +637,24 @@ class Systems extends Getmeb
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
-				$this->params['like'] = empty($this->params['sf']) 
-					? DBX::like_or('t1.name', $this->params['q'])
-					: DBX::like_or($this->params['sf'], $this->params['q']);
+				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
-			$this->xresponse(TRUE, $result);
+			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
+				$array = explode(",", $this->params['filter']);
+				if (!empty($array)) {
+					foreach ($array as $value) {
+						list($k, $v) = explode("=", $value);
+						$this->params['where'][$k] = empty($v)?0:$v;
+					}
+				}
+			}
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
@@ -642,12 +701,24 @@ class Systems extends Getmeb
 				$this->params['where']['t1.country_id'] = $this->params['country_id'];
 			
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
-				$this->params['like'] = empty($this->params['sf']) 
-					? DBX::like_or('t1.name', $this->params['q'])
-					: DBX::like_or($this->params['sf'], $this->params['q']);
+				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
-			$this->xresponse(TRUE, $result);
+			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
+				$array = explode(",", $this->params['filter']);
+				if (!empty($array)) {
+					foreach ($array as $value) {
+						list($k, $v) = explode("=", $value);
+						$this->params['where'][$k] = empty($v)?0:$v;
+					}
+				}
+			}
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
@@ -694,12 +765,24 @@ class Systems extends Getmeb
 				$this->params['where']['t1.province_id'] = $this->params['province_id'];
 			
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
-				$this->params['like'] = empty($this->params['sf']) 
-					? DBX::like_or('t1.name', $this->params['q'])
-					: DBX::like_or($this->params['sf'], $this->params['q']);
+				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
-			$this->xresponse(TRUE, $result);
+			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
+				$array = explode(",", $this->params['filter']);
+				if (!empty($array)) {
+					foreach ($array as $value) {
+						list($k, $v) = explode("=", $value);
+						$this->params['where'][$k] = empty($v)?0:$v;
+					}
+				}
+			}
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
@@ -746,12 +829,24 @@ class Systems extends Getmeb
 				$this->params['where']['t1.city_id'] = $this->params['city_id'];
 			
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
-				$this->params['like'] = empty($this->params['sf']) 
-					? DBX::like_or('t1.name', $this->params['q'])
-					: DBX::like_or($this->params['sf'], $this->params['q']);
+				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
-			$this->xresponse(TRUE, $result);
+			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
+				$array = explode(",", $this->params['filter']);
+				if (!empty($array)) {
+					foreach ($array as $value) {
+						list($k, $v) = explode("=", $value);
+						$this->params['where'][$k] = empty($v)?0:$v;
+					}
+				}
+			}
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);
@@ -798,12 +893,24 @@ class Systems extends Getmeb
 				$this->params['where']['t1.district_id'] = $this->params['district_id'];
 			
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
-				$this->params['like'] = empty($this->params['sf']) 
-					? DBX::like_or('t1.name', $this->params['q'])
-					: DBX::like_or($this->params['sf'], $this->params['q']);
+				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			$result['data'] = $this->system_model->{'get'.$this->c_method}($this->params);
-			$this->xresponse(TRUE, $result);
+			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
+				$array = explode(",", $this->params['filter']);
+				if (!empty($array)) {
+					foreach ($array as $value) {
+						list($k, $v) = explode("=", $value);
+						$this->params['where'][$k] = empty($v)?0:$v;
+					}
+				}
+			}
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$data = json_decode($this->input->raw_input_stream);

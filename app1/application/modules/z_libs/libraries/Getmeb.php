@@ -26,6 +26,7 @@ class Getmeb extends CI_Controller
 	
 	function __construct() {
 		parent::__construct();
+		$this->r_method = $_SERVER['REQUEST_METHOD'];
 		$this->params = $this->input->get();
 		define('ASSET_URL', base_url().'/assets/');
 		define('TEMPLATE_URL', base_url().TEMPLATE_FOLDER.'/backend/'.$this->theme.'/');

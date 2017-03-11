@@ -39,6 +39,7 @@ class Frontend extends Getmef
 			$this->frontend_view('include/page', $page);
 			return;
 		}
+		echo DEFAULT_CLIENT_ID;
 		$this->frontend_view('pages/404', ['message'=>'']);
 	}
 	

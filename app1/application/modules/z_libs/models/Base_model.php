@@ -15,6 +15,87 @@ class Base_Model extends CI_Model
 		$this->error_end_delimiter     = '</p>';
 	}
 	
+	/**
+	 * set_error
+	 *
+	 * Set an error message
+	 *
+	 * @return void
+	 * @author Ben Edmunds
+	 **/
+	public function set_error($error)
+	{
+		$this->errors[] = $error;
+
+		return $error;
+	}
+
+	/**
+	 * errors
+	 *
+	 * Get the error message
+	 *
+	 * @return void
+	 * @author Ben Edmunds
+	 **/
+	public function errors()
+	{
+		$_output = '';
+		foreach ($this->errors as $error)
+		{
+			$errorLang = $this->lang->line($error) ? $this->lang->line($error) : $error;
+			$_output .= $this->error_start_delimiter . $errorLang . $this->error_end_delimiter;
+		}
+		
+		$this->clear_errors();
+		
+		return $_output;
+	}
+
+	/**
+	 * errors as array
+	 *
+	 * Get the error messages as an array
+	 *
+	 * @return array
+	 * @author Raul Baldner Junior
+	 **/
+	public function errors_array($langify = TRUE)
+	{
+		if ($langify)
+		{
+			$_output = array();
+			foreach ($this->errors as $error)
+			{
+				$errorLang = $this->lang->line($error) ? $this->lang->line($error) : '##' . $error . '##';
+				$_output[] = $this->error_start_delimiter . $errorLang . $this->error_end_delimiter;
+			}
+			
+			$this->clear_errors();
+		
+			return $_output;
+		}
+		else
+		{
+			return $this->errors;
+		}
+	}
+
+	/**
+	 * clear_errors
+	 *
+	 * Clear Errors
+	 *
+	 * @return void
+	 * @author Ben Edmunds
+	 **/
+	public function clear_errors()
+	{
+		$this->errors = array();
+
+		return TRUE;
+	}
+
 	function mget_rec($params = NULL)
 	{
 		$this->db->select($params['select']);
@@ -36,7 +117,14 @@ class Base_Model extends CI_Model
 			$offset = ($params['page']-1)*$params['rows'];
 			$this->db->limit($params['rows'], $offset);
 		}
-		return $this->db->get()->result();
+
+		if (! $query = $this->db->get() ){
+			// $this->db->error(); // Has keys 'code' and 'message'
+			$this->set_error($this->db->error()['message']);
+			return FALSE;
+		} 
+
+		return $query->result();
 	}
 	
 	function mget_rec_count($params = NULL)
@@ -46,8 +134,8 @@ class Base_Model extends CI_Model
 		if ( array_key_exists('join', $params)) DBX::join($this, $params['join']);
 		if ( array_key_exists('where', $params)) $this->db->where($params['where']);
 		if ( array_key_exists('like', $params)) $this->db->where($params['like']);
-		$result = $this->db->get();
-		$num_row = ($result->num_rows() > 0) ? $result->num_rows() : 0;
+		$query = $this->db->get();
+		$num_row = ($query->num_rows() > 0) ? $query->num_rows() : 0;
 		
 		$result = $this->mget_rec($params);
 		
@@ -396,85 +484,4 @@ class Base_Model extends CI_Model
 		return;
 	}
 	
-	/**
-	 * set_error
-	 *
-	 * Set an error message
-	 *
-	 * @return void
-	 * @author Ben Edmunds
-	 **/
-	public function set_error($error)
-	{
-		$this->errors[] = $error;
-
-		return $error;
-	}
-
-	/**
-	 * errors
-	 *
-	 * Get the error message
-	 *
-	 * @return void
-	 * @author Ben Edmunds
-	 **/
-	public function errors()
-	{
-		$_output = '';
-		foreach ($this->errors as $error)
-		{
-			$errorLang = $this->lang->line($error) ? $this->lang->line($error) : $error;
-			$_output .= $this->error_start_delimiter . $errorLang . $this->error_end_delimiter;
-		}
-		
-		$this->clear_errors();
-		
-		return $_output;
-	}
-
-	/**
-	 * errors as array
-	 *
-	 * Get the error messages as an array
-	 *
-	 * @return array
-	 * @author Raul Baldner Junior
-	 **/
-	public function errors_array($langify = TRUE)
-	{
-		if ($langify)
-		{
-			$_output = array();
-			foreach ($this->errors as $error)
-			{
-				$errorLang = $this->lang->line($error) ? $this->lang->line($error) : '##' . $error . '##';
-				$_output[] = $this->error_start_delimiter . $errorLang . $this->error_end_delimiter;
-			}
-			
-			$this->clear_errors();
-		
-			return $_output;
-		}
-		else
-		{
-			return $this->errors;
-		}
-	}
-
-	/**
-	 * clear_errors
-	 *
-	 * Clear Errors
-	 *
-	 * @return void
-	 * @author Ben Edmunds
-	 **/
-	public function clear_errors()
-	{
-		$this->errors = array();
-
-		return TRUE;
-	}
-
 }

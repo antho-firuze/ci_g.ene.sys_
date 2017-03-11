@@ -56,7 +56,7 @@ class System_Model extends CI_model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function getA_User($params)
+	function get_a_user($params)
 	{
 		$select = "t1.id,t1.client_id,t1.org_id,t1.role_id,t1.is_active,t1.is_deleted,
 			t1.created_by,t1.updated_by,t1.deleted_by,t1.created_at,t1.updated_at,t1.deleted_at,
@@ -115,7 +115,7 @@ class System_Model extends CI_model
 		return $this->base_model->mget_rec_count($params);
 	}
 	
-	function getA_Menu($params)
+	function get_a_menu($params)
 	{
 		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_menu as t1";
@@ -127,7 +127,7 @@ class System_Model extends CI_model
 			return $this->base_model->mget_rec_count($params);
 	}
 	
-	function getA_Role_Menu($params)
+	function get_a_role_menu($params)
 	{
 		$params['select']	= !array_key_exists('select', $params) ? "am.*" : $params['select'];
 		$params['table'] 	= "a_role_menu arm";
@@ -145,7 +145,7 @@ class System_Model extends CI_model
 			return $this->base_model->mget_rec_count($params);
 	}
 	
-	function getA_Role($params)
+	function get_a_role($params)
 	{
 		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_role as t1";
@@ -215,7 +215,7 @@ class System_Model extends CI_model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function getA_System($params)
+	function get_a_system($params)
 	{
 		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_system as t1";
@@ -227,7 +227,7 @@ class System_Model extends CI_model
 			return $this->base_model->mget_rec_count($params);
 	}
 	
-	function getA_Info($params)
+	function get_a_info($params)
 	{
 		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_info as t1";
@@ -239,7 +239,7 @@ class System_Model extends CI_model
 			return $this->base_model->mget_rec_count($params);
 	}
 	
-	function getC_1Country($params)
+	function get_c_1country($params)
 	{
 		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "c_1country as t1";
@@ -250,7 +250,7 @@ class System_Model extends CI_model
 			return $this->base_model->mget_rec_count($params);
 	}
 	
-	function getC_2Province($params)
+	function get_c_2province($params)
 	{
 		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "c_2province as t1";
@@ -261,7 +261,7 @@ class System_Model extends CI_model
 			return $this->base_model->mget_rec_count($params);
 	}
 	
-	function getC_3City($params)
+	function get_c_3city($params)
 	{
 		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "c_3city as t1";
@@ -272,7 +272,7 @@ class System_Model extends CI_model
 			return $this->base_model->mget_rec_count($params);
 	}
 	
-	function getC_4District($params)
+	function get_C_4district($params)
 	{
 		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "c_4district as t1";
@@ -283,7 +283,7 @@ class System_Model extends CI_model
 			return $this->base_model->mget_rec_count($params);
 	}
 	
-	function getC_5Village($params)
+	function get_C_5village($params)
 	{
 		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "c_5village as t1";
