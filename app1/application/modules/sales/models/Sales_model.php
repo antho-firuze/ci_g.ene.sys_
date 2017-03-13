@@ -59,4 +59,18 @@ class Sales_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
+	function get_m_pricelist_item($params)
+	{
+		$params['select']	= !array_key_exists('select', $params) ? "t1.*, t1.code ||'_'|| t1.name as code_name" : $params['select'];
+		$params['table'] 	= "m_pricelist_item as t1";
+		$params['join'][] = ['m_item as t2', 't1.item_id = t2.id', 'inner'];
+		$params['where']['t1.is_deleted'] 	= '0';
+		// $params['where']['t2.is_deleted'] 	= '0';
+		$params['where']['t1.is_active'] 	= '1';
+		// $params['where']['t2.is_active'] 	= '1';
+		// $params['ob']	= 't2.validfrom desc';
+		
+		return $this->base_model->mget_rec($params);
+	}
+	
 }

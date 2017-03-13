@@ -32,7 +32,7 @@ class Test extends Getmeb {
 	
 	function jQueryPlugins() 
 	{
-		$this->fenom->view('test/combogrid');
+		$this->fenomx->view('test/combogrid');
 	}
 	
 	function avatar($word)

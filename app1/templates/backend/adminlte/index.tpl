@@ -20,7 +20,7 @@
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/ionicons/css/ionicons.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/datatables/media/css/dataTables.bootstrap4.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/datatables/extensions/select/css/select.dataTables.min.css')}
-{$.php.link_tag($.const.TEMPLATE_URL~'plugins/datatables/extensions/FixedColumns/css/fixedColumns.bootstrap.min.css')}
+{* {$.php.link_tag($.const.TEMPLATE_URL~'plugins/datatables/extensions/FixedColumns/css/fixedColumns.bootstrap.min.css')} *}
 {$.php.link_tag($.const.TEMPLATE_URL~'dist/css/AdminLTE.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'dist/css/skins/_all-skins.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/autoComplete/jquery.auto-complete.css')}
@@ -29,12 +29,12 @@
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/iCheck/flat/blue.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/iCheck/flat/orange.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-dialog/css/bootstrap-dialog.min.css')}
-{$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-combobox/css/bootstrap-combobox.css')}
+{* {$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-combobox/css/bootstrap-combobox.css')} *}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-combogrid/bootstrap-combogrid.css')}
-{$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-select/css/bootstrap-select.css')}
+{* {$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-select/css/bootstrap-select.css')} *}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/animate/animate.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/lobibox/css/lobibox.min.css')}
-{$.php.link_tag($.const.TEMPLATE_URL~'plugins/ajax-combobox/jquery.ajax-combobox.css')}
+{* {$.php.link_tag($.const.TEMPLATE_URL~'plugins/ajax-combobox/jquery.ajax-combobox.css')} *}
 
 <script src="{$.const.ASSET_URL}js/common.func.js"></script>
 <script>
@@ -65,21 +65,21 @@
 <script src="{$.const.TEMPLATE_URL}plugins/pace/pace.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}bootstrap/js/bootstrap.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-dialog/js/bootstrap-dialog.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+{* <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-combobox/js/bootstrap-combobox.js"></script> *}
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-combogrid/bootstrap-combogrid.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-select/js/bootstrap-select.js"></script>
+{* <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-select/js/bootstrap-select.js"></script> *}
 <script src="{$.const.TEMPLATE_URL}plugins/iCheck/icheck.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/datatables/media/js/jquery.dataTables.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/datatables/media/js/dataTables.bootstrap4.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/datatables/extensions/select/js/dataTables.select.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/datatables/extensions/FixedColumns/js/dataTables.fixedColumns.min.js"></script>
+{* <script src="{$.const.TEMPLATE_URL}plugins/datatables/extensions/FixedColumns/js/dataTables.fixedColumns.min.js"></script> *}
 <script src="{$.const.TEMPLATE_URL}plugins/slimScroll/jquery.slimscroll.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/fastclick/fastclick.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/autoComplete/jquery.auto-complete.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}dist/js/app.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/validation/jquery.validate.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/lobibox/js/notifications.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/ajax-combobox/jquery.ajax-combobox.js"></script>
+{* <script src="{$.const.TEMPLATE_URL}plugins/ajax-combobox/jquery.ajax-combobox.js"></script> *}
 <script>
 	Lobibox.notify.DEFAULTS = $.extend({}, Lobibox.notify.DEFAULTS, { 
 		soundPath:"{$.const.TEMPLATE_URL}plugins/lobibox/sounds/",  

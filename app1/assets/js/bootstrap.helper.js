@@ -76,82 +76,61 @@
 	
 	BSHelper.Input = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
-		
-		var fg = $('<div />', {class:"form-group"});
-		var lbl = $('<label />', {class:"control-label "+o.lblsize, for:o.idname}).html(o.label);
-		var col = $('<div />', {class:o.colsize});
-		var help = $('<p />', {class:"help-block"});
-		
-		var input = $('<input>', {
-			class: "form-control", 
-			id: o.idname, 
-			name: o.idname, 
-			type: o.type, 
-			placeholder: o.placeholder, 
-			value: o.value,
-			autocomplete: "off"
-		}); 
+		var container = $('<div class="form-group"><label class="control-label '+o.lblsize+'" for="'+o.idname+'">'+o.label+'</label><div class="control-input '+o.colsize+'"></div></div>');
+		var input = $('<input>', {class: "form-control "+o.colsize, id: o.idname, name: o.idname, type: o.type, placeholder: o.placeholder, value: o.value, autocomplete: "off"}); 
 		if (o.type=='hidden') return input;
 		if (o.required) input.attr('required','');
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
-		col.append(input);
-		if (o.help) help.html(o.help).appendTo(col);
-		
-		return fg.append(lbl).append(col);
+		container.find('.control-input').append(input);
+		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
+		return container;
+	};
+	
+	BSHelper.FormInput = function(options){
+		var o = $.extend( {}, BSHelper.defaults, options );
+		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label><div class="control-input"></div></div>');
+		var input = $('<input>', {class: "form-control "+o.colsize, id: o.idname, name: o.idname, type: o.type, placeholder: o.placeholder, value: o.value, autocomplete: "off"}); 
+		if (o.type=='hidden') return input;
+		if (o.required) input.attr('required','');
+		if (o.disabled) input.attr('disabled','');
+		if (o.readonly) input.attr('readonly','');
+		container.find('.control-input').append(input);
+		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
+		return container;
 	};
 	
 	BSHelper.TextArea = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
-		
-		var fg = $('<div />', {class:"form-group"});
-		var lbl = $('<label />', {class:"control-label "+o.lblsize, for:o.idname}).html(o.label);
-		var col = $('<div />', {class:o.colsize});
-		var help = $('<p />', {class:"help-block"});
-		
-		var input = $('<textarea />', {
-			class: "form-control", 
-			id: o.idname, 
-			name: o.idname, 
-			placeholder: o.placeholder, 
-			rows: o.rows
-		}).html(o.value); 
-		
+		var container = $('<div class="form-group"><label class="control-label '+o.lblsize+'" for="'+o.idname+'">'+o.label+'</label><div class="control-input '+o.colsize+'"></div></div>');
+		var input = $('<textarea />', {class: "form-control", id: o.idname, name: o.idname, placeholder: o.placeholder, rows: o.rows}).html(o.value); 
 		if (o.required) input.attr('required','');
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
-		col.append(input);
-		if (o.help) help.html(o.help).appendTo(col);
-		
-		return fg.append(lbl).append(col);
+		container.find('.control-input').append(input);
+		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
+		return container;
 	};
 	
 	BSHelper.Checkbox = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
-		
-		var fg = $('<div />', {class:"form-group"});
-		var lbl = $('<label />', {class:"control-label "+o.lblsize, for:o.idname}).html(o.label);
-		var col = $('<div />', {class:o.colsize});
-		var help = $('<p />', {class:"help-block"});
-		var col_checkbox = $('<div />', {class:"checkbox"});
-		
+		var container = $('<div class="form-group"><label class="control-label '+o.lblsize+'" for="'+o.idname+'">'+o.label+'</label><div class="control-input checkbox '+o.colsize+'"></div></div>');
 		var input = $('<input>', {id:o.idname, name:o.idname, type:"checkbox"}); 
 		var input2 = $('<input>', {id:o.idname, name:o.idname, type:"hidden", value:0}); 
-		col.append( col_checkbox.append(lbl).append(input).append(input2) );
-		
+		container.find('.control-input').append( input.append(input2) );
 		if (o.required) input.attr('required','');
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
 		if (parseInt(o.value)) input.prop("checked", true);
-		if (o.help) help.html(o.help).appendTo(col);
+		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
 		
 		input.iCheck({ checkboxClass: 'icheckbox_flat-orange', radioClass: 'iradio_flat-orange'	});
-		
-		return fg.append(lbl).append(col);
+		return container;
 	};
 	
 	BSHelper.Combobox3 = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
+		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label></div>');
 		
 		var fg = $('<div />', {class:"form-group"});
 		var lbl = $('<label />', {class:"control-label "+o.lblsize, for:o.idname}).html(o.label);
@@ -159,8 +138,12 @@
 		var help = $('<p />', {class:"help-block"});
 		
 		var select = $("<select />", { class:"form-control", id:o.idname, name:o.idname });
+		if (o.required) select.attr('required','');
+		if (o.disabled) select.attr('disabled','');
+		if (o.readonly) select.attr('readonly','');
+		container.append(select);
+		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
 
-		//$.getJSON(o.url, { q: '' }, function(data){ 
 		$.getJSON(o.url, {}, function(data){ 
 			//response(data.data); 
 			var i=1;
@@ -169,44 +152,27 @@
 				select.append($('<option />', {value: k}).html(v['name']));
 				i++;
 			});
-			if (o.required) select.attr('required','');
-			if (o.disabled) select.attr('disabled','');
-			if (o.readonly) select.attr('readonly','');
-			col.append(select);
-			
 			// select.selectpicker('render');
-			
 			select.combobox({
 				appendId: '_cb',
 				menu: '<ul class="dropdown-menu dropdown-menu-right"></ul>'
 			});
 		});
-		return fg.append(lbl).append(col);
+		return container;
 	};
 	
 	BSHelper.Combobox2 = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
-		
-		var fg = $('<div />', {class:"form-group"});
-		var lbl = $('<label />', {class:"control-label "+o.lblsize, for:o.idname}).html(o.label);
-		var col = $('<div />', {class:o.colsize});
-
+		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label></div>');
 		var input_grp = $('<div />', {class:"input-group combobox-container"});
-		var input = $('<input>', {
-			class: "form-control", 
-			id: o.idname, 
-			name: o.idname, 
-			type: 'text', 
-			placeholder: o.placeholder, 
-			autocomplete: "off"
-		}); 
+		var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: o.placeholder, value: o.value,	autocomplete: "off"	}); 
 		var btn = $('<div />', {class:"input-group-btn"}).append($('<button type="button" class="btn btn-default dropdown-toggle" aria-label="Combobox autofill suggestions" data-toggle="dropdown"><span class="caret"></span></button>'));
 
 		if (o.required) input.attr('required','');
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
-		col.append( input_grp.append(input).append(btn) );
-		if (o.help) help.html(o.help).appendTo(col);
+		container.append( input_grp.append(input).append(btn) );
+		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
 
 		/* $.getJSON(o.url, {}, function(data){ 
 			input.ajaxComboBox(
@@ -220,14 +186,14 @@
 			);
 		}); */
 		
-		return fg.append(lbl).append(col);
+		return container;
 	};
 	
 	BSHelper.Combobox = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
 		var container = $('<div class="form-group"><label class="control-label '+o.lblsize+'" for="'+o.idname+'">'+o.label+'</label></div>');
-		
 		var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: o.placeholder, value: o.value,	autocomplete: "off"	}); 
+		input.attr('data-url',o.url);
 		if (o.required) input.attr('required','');
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
@@ -235,6 +201,13 @@
 		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
 		
 		if (o.isCombogrid){
+			input.combogrid({ 
+				source: function(term, response){
+					$.getJSON( o.url, term, function(data){ response(data.data); });
+				}
+			});
+		}
+		/* if (o.isCombogrid){
 			var xhr;
 			input.combogrid({ 
 				source: function(term, response){
@@ -250,22 +223,30 @@
 					}); 
 				} 
 			});
-		}
+		} */
 		container.find('.combogrid-container').addClass(o.colsize);
 		return container;
 	};
 	
-	BSHelper.ComboboxForm = function(options){
+	BSHelper.FormCombobox = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label></div>');
 		var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: o.placeholder, value: o.value,	autocomplete: "off"	}); 
+		input.attr('data-url',o.url);
 		if (o.required) input.attr('required','');
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
 		container.append(input);
 		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
 		
-		if (o.isCombogrid){
+		/* if (o.isCombogrid){
+			input.combogrid({ 
+				source: function(term, response){
+					$.getJSON( o.url, term, function(data){ response(data.data); });
+				}
+			});
+		} */
+		/* if (o.isCombogrid){
 			var xhr;
 			input.combogrid({ 
 				source: function(term, response){
@@ -279,9 +260,9 @@
 							console.log( "Request Failed: " + err );
 						}
 					}); 
-				} 
+				}
 			});
-		}
+		} */
 		return container;
 	};
 	
@@ -300,32 +281,18 @@
 			input.ajaxComboBox(data.data.rows);
 		});
 		return container;
-		
 	};
 	
 	BSHelper.Combobox5 = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
-		
-		var fg = $('<div />', {class:"form-group"});
-		var lbl = $('<label />', {class:"control-label "+o.lblsize, for:o.idname}).html(o.label);
-		var col = $('<div />', {class:o.colsize});
-		var help = $('<p />', {class:"help-block"});
-		
-		var input = $('<input>', {
-			class: "form-control", 
-			id: o.idname, 
-			name: o.idname, 
-			type: 'text', 
-			placeholder: o.placeholder, 
-			value: o.value,
-			autocomplete: "off"
-		}); 
+		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label></div>');
+		var input = $('<input>', {class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: o.placeholder,value: o.value,autocomplete: "off"}); 
 		if (o.type=='hidden') return input;
 		if (o.required) input.attr('required','');
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
-		col.append(input);
-		if (o.help) help.html(o.help).appendTo(col);
+		container.append(input);
+		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(col);
 		
 		var xhr;
 		input.autoComplete({
@@ -335,7 +302,6 @@
 			source: function(term, response){
 				try { xhr.abort(); } catch(e){}
 				xhr = $.getJSON(o.url, { q: term }, function(data){ 
-				console.log(data.data);
 				response(data.data); });
 			},
 			renderItem: function (item, search){
@@ -345,8 +311,7 @@
 				return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion"><i class="fa fa-circle-o"></i> '+ item['name'].replace(re, "<b>$1</b>") + '</div>';
 			}
 		});
-		
-		return fg.append(lbl).append(col);
+		return container;
 	};
 	
 	BSHelper.LineDesc = function(options){

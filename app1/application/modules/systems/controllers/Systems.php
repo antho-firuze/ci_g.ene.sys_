@@ -707,6 +707,8 @@ class Systems extends Getmeb
 			
 			if (key_exists('country_id', $this->params) && !empty($this->params['country_id'])) 
 				$this->params['where']['t1.country_id'] = $this->params['country_id'];
+			else
+				$this->params['where']['t1.country_id'] = 0;
 			
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);

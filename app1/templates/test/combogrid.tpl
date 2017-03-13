@@ -1,4 +1,4 @@
-{var $template_url = $.php.base_url() ~ "templates/backend_theme/adminlte/"}
+{var $template_url = $.php.base_url() ~ "templates/backend/adminlte/"}
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,25 +7,16 @@
 
 	<script src="{$template_url}plugins/jQuery/jQuery-2.1.4.min.js"></script>
 	<script src="{$template_url}plugins/bootstrap-combogrid/bootstrap-combogrid.js"></script>
-	<script src="{$.php.base_url()}assets/genesys/js/bootstrap.helper.js"></script>
+	<script src="{$.php.base_url()}assets/js/bootstrap.helper.js"></script>
 </head>
 <body>
 <script>
 var form = $('<form />', { class: 'form-horizontal', autocomplete: 'off', width:"50%" });
-{* 
-var fg = $('<div />', { class:"form-group" });
-var lbl = $('<label />', { class:"control-label col-sm-3", for:'idname' }).html('Label');
-var col = $('<div />', { class:"col-sm-9"});
-var input = $('<input />', { class: 'form-control',type: 'text',id: 'idname',name: 'idname',placeholder: 'Fill this box'});
-col.append(input);
-form.append( fg.append(lbl).append(col) );
- *}
-form.append(BSHelper.Combobox({ label:"Country", idname:"country_id", url:"{$.php.base_url('systems/countrylist')}", disabled: false }));
-form.append(BSHelper.Combobox({ label:"Province", idname:"province_id", url:"{$.php.base_url('systems/provincelist?id=-1')}" }));
-form.append(BSHelper.Combobox({ label:"City", idname:"city_id", url:"{$.php.base_url('systems/citylist')}", value: -1 }));
-form.append(BSHelper.Combobox({ label:"District", idname:"district_id", url:"{$.php.base_url('systems/districtlist')}", value: -1 }));
-form.append(BSHelper.Combobox({ label:"Village", idname:"village_id", url:"{$.php.base_url('systems/villagelist')}", value: -1 }));
-
+form.append(BSHelper.Combobox({ label:"Country", idname:"country_id", url:"{$.php.base_url('systems/c_1country')}", disabled: false }));
+form.append(BSHelper.Combobox({ label:"Province", idname:"province_id", url:"{$.php.base_url('systems/c_2province')}" }));
+form.append(BSHelper.Combobox({ label:"City", idname:"city_id", url:"{$.php.base_url('systems/c_3city')}", value: -1 }));
+form.append(BSHelper.Combobox({ label:"District", idname:"district_id", url:"{$.php.base_url('systems/c_4district')}", value: -1 }));
+form.append(BSHelper.Combobox({ label:"Village", idname:"village_id", url:"{$.php.base_url('systems/c_5village')}", value: -1 }));
 form.append('<div class="col-sm-3"></div><input type="button" id="btn-disable" class="btnx col-sm-9" value="Disable">');
 form.append('<div class="col-sm-3"></div><input type="button" id="btn-enable" class="btnx col-sm-9" value="Enable">');
 form.append('<div class="col-sm-3"></div><input type="button" id="btn-init" class="btnx col-sm-9" value="Init">');
@@ -35,64 +26,68 @@ form.append('<div class="col-sm-3"></div><input type="button" id="btn-getValue" 
 form.append('<div class="col-sm-3"></div><input type="button" id="btn-setValue" class="btnx col-sm-9" value="setValue Village (1101010012:Labuhan Bakti)">');
 form.append('<div class="col-sm-3"></div><input type="button" id="btn-setValue2" class="btnx col-sm-9" value="setValue Village (null/-1)">');
 form.append('<div class="col-sm-3"></div><input type="button" id="btn-version" class="btnx col-sm-9" value="Version">');
-
 $('body').append( form );
-{*  *}
-form.find("#country_id").combogrid({ 
+
+$("#country_id").combogrid({ 
 	source: function(term, response){
-		$.getJSON("{$.php.base_url('systems/countrylist')}", term, function(data){ response(data.data); });
+		$.getJSON($("#country_id").data('url'), term, function(data){ response(data.data); });
 	},
 	onSelect: function(rowData){
-		form.find("#province_id")
+		console.log(rowData);
+		$("#province_id")
 			.combogrid('queryParams', { "country_id":rowData.id })
 			.combogrid('setValue', '');
 	}
 });
 
-form.find("#province_id").combogrid({ 
+$("#province_id").combogrid({ 
 	source: function(term, response){
-		$.getJSON("{$.php.base_url('systems/provincelist')}", term, function(data){	response(data.data); });
+		$.getJSON($("#province_id").data('url'), term, function(data){	response(data.data); });
 	},
 	onSelect: function(rowData){
-		form.find("#city_id")
+		console.log(rowData);
+		$("#city_id")
 			.combogrid('queryParams', { "province_id":rowData.id })
 			.combogrid('setValue', '');
 	}
 });
 
-form.find("#city_id").combogrid({ 
+$("#city_id").combogrid({ 
 	source: function(term, response){
-		$.getJSON("{$.php.base_url('systems/citylist')}", term, function(data){ response(data.data); });
+		$.getJSON($("#city_id").data('url'), term, function(data){ response(data.data); });
 	},
 	onSelect: function(rowData){
-		form.find("#district_id")
+		console.log(rowData);
+		$("#district_id")
 			.combogrid('queryParams', { "city_id":rowData.id })
 			.combogrid('setValue', '');
 	}
 });
 
 
-form.find("#district_id").combogrid({ 
+$("#district_id").combogrid({ 
 	source: function(term, response){
-		$.getJSON("{$.php.base_url('systems/districtlist')}", term, function(data){ response(data.data); });
+		$.getJSON($("#district_id").data('url'), term, function(data){ response(data.data); });
 	},
 	onSelect: function(rowData){
-		form.find("#village_id")
+		console.log(rowData);
+		$("#village_id")
 			.combogrid('queryParams', { "district_id":rowData.id })
 			.combogrid('setValue', '');
 	}
 });
 
-form.find("#village_id").combogrid({ 
+$("#village_id").combogrid({ 
 	source: function(term, response){
-		$.getJSON("{$.php.base_url('systems/villagelist')}", term, function(data){ response(data.data); });
+		$.getJSON($("#village_id").data('url'), term, function(data){ response(data.data); });
 	},
 	onSelect: function(rowData){
+		console.log(rowData);
 		{* console.log('Country: '+form.find("#country_id").combogrid('getValue').name);
 		console.log('Province: '+form.find("#province_id").combogrid('getValue').name);
 		console.log('City: '+form.find("#city_id").combogrid('getValue').name);
 		console.log('District: '+form.find("#district_id").combogrid('getValue').name); *}
-		console.log('Village: '+rowData.name);
+		{* console.log('Village: '+rowData.name); *}
 	}
 });
 
