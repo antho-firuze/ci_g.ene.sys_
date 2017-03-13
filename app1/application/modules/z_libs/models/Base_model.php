@@ -96,22 +96,60 @@ class Base_Model extends CI_Model
 		return TRUE;
 	}
 
+	/* 
+	* Example : http://localhost/ci/app1/sales/e_swg_class?list=1&filter=&order=&limit=&offset= 
+	*
+	* 
+	* @return object
+	* @author antho.firuze@gmail.com
+	*/
 	function mget_rec($params = NULL)
 	{
 		$this->db->select($params['select']);
 		$this->db->from($params['table']);
-		if ( array_key_exists('join', $params)) DBX::join($this, $params['join']);
-		if ( array_key_exists('where', $params)) $this->db->where($params['where']);
-		if ( array_key_exists('like', $params)) $this->db->where($params['like']);
-		if ( array_key_exists('sort', $params)) $this->db->order_by($params['sort'], $params['order']);
-		if ( array_key_exists('ob', $params)) 	$this->db->order_by($params['ob']);
+		if ( key_exists('join', $params)) DBX::join($this, $params['join']);
+		if ( key_exists('where', $params)) $this->db->where($params['where']);
+		if ( key_exists('like', $params)) $this->db->where($params['like']);
+		if ( key_exists('sort', $params)) $this->db->order_by($params['sort'], $params['order']);
+		if ( key_exists('ob', $params)) 	$this->db->order_by($params['ob']);
+		
+		/* &filter=field1=value1,field2=value2... */
+		if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
+			$array = explode(",", $this->params['filter']);
+			if (!empty($array)) {
+				foreach ($array as $value) {
+					list($k, $v) = explode("=", $value);
+					$this->db->where($k, empty($v)?0:$v);
+				}
+			}
+		}
+		
+		/* &ob=field1,field2,field3... */
+		/* &ob=field1 desc,field2 desc,field3... */
+		if (key_exists('ob', $this->params) && !empty($this->params['ob'])){
+			$array = explode(",", $this->params['ob']);
+			if (!empty($array)) {
+				foreach ($array as $value) {
+					$this->db->order_by($value);
+				}
+			}
+		}
+		
+		/* &limit=1&offset=0 */
+		if (key_exists('limit', $this->params) && !empty($this->params['limit'])){
+			$offset = 0;
+			if (key_exists('offset', $this->params) && !empty($this->params['offset'])){
+				$offset = $this->params['offset'];
+			}
+			$this->db->limit($this->params['limit'], $offset);
+		}
 		
 		// LIMITATION FOR JQUERY DATATABLES COMPONENT
-		if ( array_key_exists('start', $params) && array_key_exists('length', $params) )
+		if ( key_exists('start', $params) && key_exists('length', $params) )
 			$this->db->limit($params['length'], $params['start']);
 		
 		// LIMITATION FOR JQUERY JEASYUI COMPONENT
-		if ( array_key_exists('page', $params) && array_key_exists('rows', $params))
+		if ( key_exists('page', $params) && key_exists('rows', $params))
 		{
 			$params['page'] = empty($params['page']) ? 1 : $params['page'];
 			$offset = ($params['page']-1)*$params['rows'];
@@ -123,8 +161,19 @@ class Base_Model extends CI_Model
 			$this->set_error($this->db->error()['message']);
 			return FALSE;
 		} 
-
-		return $query->result();
+		$result = $query->result();
+		
+		if (key_exists('list', $params) && ($params['list'])) {
+			
+			return $result;
+			
+		} else {
+			
+			$response['total'] = $this->mget_rec_count($params);
+			$response['rows']  = $result;
+			return $response;
+		}
+		
 	}
 	
 	function mget_rec_count($params = NULL)
@@ -134,14 +183,13 @@ class Base_Model extends CI_Model
 		if ( array_key_exists('join', $params)) DBX::join($this, $params['join']);
 		if ( array_key_exists('where', $params)) $this->db->where($params['where']);
 		if ( array_key_exists('like', $params)) $this->db->where($params['like']);
-		$query = $this->db->get();
-		$num_row = ($query->num_rows() > 0) ? $query->num_rows() : 0;
-		
-		$result = $this->mget_rec($params);
-		
-		$response['total'] = $num_row;
-		$response['rows']  = $result;
-		return $response;
+
+		if (! $query = $this->db->get() ){
+			// $this->db->error(); // Has keys 'code' and 'message'
+			$this->set_error($this->db->error()['message']);
+			return FALSE;
+		} 
+		return ($query->num_rows() > 0) ? $query->num_rows() : 0;
 	}
 	
 	/**
@@ -246,75 +294,6 @@ class Base_Model extends CI_Model
 		}
 	}
 
-	// NEW DESIGN FOR DATA REQUEST
-	function get_rec( $params=NULL ) {
-		if ( is_array($params) )
-		{
-			if ( array_key_exists('where', $params) ) $this->db->where($params['where']);
-			if ( array_key_exists('like_and', $params) ) 
-			{
-				$this->db->bracket('open','like');
-				$this->db->like($params['like_and']);
-				$this->db->bracket('close','like');
-			}
-			if ( array_key_exists('like', $params) ) 
-			{
-				$this->db->bracket('open','like');
-				$this->db->or_like($params['like']);
-				$this->db->bracket('close','like');
-			}
-			if ( array_key_exists('sort', $params) ) $this->db->order_by($params['sort'], $params['order']);
-			if ( array_key_exists('page', $params) && array_key_exists('rows', $params) )
-			{
-				$params['page'] = empty($params['page']) ? 1 : $params['page'];
-				$offset = ($params['page']-1)*$params['rows'];
-				$this->db->limit($params['rows'], $offset);
-			}
-		}
-		return $this->db->get()->result();
-	}
-	
-	function get_rec_count( $params=NULL ) {
-		if ( is_array($params) )
-		{
-			if ( array_key_exists('where', $params) ) $this->db->where($params['where']);
-			if ( array_key_exists('like_and', $params) ) 
-			{
-				$this->db->bracket('open','like');
-				$this->db->like($params['like_and']);
-				$this->db->bracket('close','like');
-			}
-			if ( array_key_exists('like', $params) ) 
-			{
-				$this->db->bracket('open','like');
-				$this->db->or_like($params['like']);
-				$this->db->bracket('close','like');
-			}
-		}
-		$result = $this->db->get();
-		return ($result->num_rows() > 0) ? $result->row()->rec_count : 0;
-	}
-	
-	function get_rec_rep( $params ) {
-		if ( is_array($params) )
-		{
-			if ( array_key_exists('where', $params) ) $this->db->where($params['where']);
-			if ( array_key_exists('like', $params) ) 
-			{
-				$this->db->bracket('open','like');
-				$this->db->or_like($params['like']);
-				$this->db->bracket('close','like');
-			}
-			if ( array_key_exists('sort', $params) ) $this->db->order_by($params['sort'], $params['order']);
-			if ( array_key_exists('page', $params) && array_key_exists('rows', $params) )
-			{
-				$offset = ($params['page']-1)*$params['rows'];
-				$this->db->limit($params['rows'], $offset);
-			}
-		}
-		return $this->db->get();
-	}
-	
 	function get_rec_tree( $params=NULL ) { 
 		if ( is_array($params) )
 		{
@@ -325,7 +304,7 @@ class Base_Model extends CI_Model
 				$this->db->where('parent_id', 0);
 				$this->db->where('deleted', 0);
 				$this->db->order_by('sort_no', 'asc');
-				$result = (array)$this->get_rec($params);
+				$result = (array)$this->mget_rec($params);
 
 				$results = array();
 				foreach ( $result as $r ) {
@@ -339,7 +318,7 @@ class Base_Model extends CI_Model
 				$this->db->where('parent_id', $params['id']);
 				$this->db->where('deleted', 0);
 				$this->db->order_by('sort_no', 'asc');
-				$result = $this->get_rec($params);
+				$result = $this->mget_rec($params);
 
 				$results = array();
 				foreach ( $result as $r ) {
@@ -360,13 +339,13 @@ class Base_Model extends CI_Model
 				$this->db->select('COUNT(*) AS rec_count');
 				$this->db->from($params['table']);
 				$this->db->where('parent_id', 0);
-				$num_row = $this->get_rec_count($params);
+				$num_row = $this->mget_rec_count($params);
 
 				// REC RESULT
 				$this->db->select('*');
 				$this->db->from($params['table']);
 				$this->db->where('parent_id', 0);
-				$result = $this->get_rec($params);
+				$result = $this->mget_rec($params);
 
 				$results = array();
 				foreach ( $result as $r ) {
@@ -384,7 +363,7 @@ class Base_Model extends CI_Model
 				$this->db->select('*');
 				$this->db->from($params['table']);
 				$this->db->where('parent_id', $params['id']);
-				$result = $this->get_rec($params);
+				$result = $this->mget_rec($params);
 
 				$results = array();
 				foreach ( $result as $r ) {

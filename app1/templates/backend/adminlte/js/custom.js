@@ -280,12 +280,12 @@ function lock_screen()
       e.preventDefault();
       change_skin($(this).data('skin'));
 	
-	  $.ajax({
-		  url: Config_url,
-		  method: "POST",
-		  dataType: 'json',
-		  data: '{"skin": "'+$(this).data('skin')+'"}'
-	  });
+			$.ajax({
+				url: Config_url,
+				method: "POST",
+				dataType: 'json',
+				data: '{"skin": "'+$(this).data('skin')+'"}'
+			});
     });
 
     //Add the change sidebar toggle

@@ -75,10 +75,7 @@ class System_Model extends CI_model
 		$params['join'][] 	= ['a_user as au4', 't1.supervisor_id = au4.id', 'left'];
 		$params['where']['t1.is_deleted'] 	= '0';
 		
-		if (key_exists('list', $params) && ($params['list'])) 
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 	function getUserConfig($params)
@@ -87,6 +84,7 @@ class System_Model extends CI_model
 		$params['table'] 	= "a_user_config t1";
 		$params['where']['t1.is_active'] 	= '1';
 		$params['where']['t1.is_deleted'] 	= '0';
+		$params['list'] = 1;
 		
 		return $this->base_model->mget_rec($params);
 	}
@@ -121,10 +119,7 @@ class System_Model extends CI_model
 		$params['table'] 	= "a_menu as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		
-		if (key_exists('list', $params) && ($params['list'])) 
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 	function get_a_role_menu($params)
@@ -139,10 +134,7 @@ class System_Model extends CI_model
 		$params['where']['am.is_parent']	= '0';
 		$params['order']	= "am.name";
 
-		if (key_exists('list', $params) && ($params['list']))
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 	function get_a_role($params)
@@ -153,10 +145,7 @@ class System_Model extends CI_model
 		$params['join'][] 	= ['a_user as au4', 't1.supervisor_id = au4.id', 'left'];
 		$params['where']['t1.is_deleted'] 	= '0';
 		
-		if (key_exists('list', $params) && ($params['list'])) 
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 	function getMenuByRoleId($role_id)
@@ -221,10 +210,7 @@ class System_Model extends CI_model
 		$params['table'] 	= "a_system as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		
-		if (key_exists('list', $params) && ($params['list']))
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 	function get_a_info($params)
@@ -233,10 +219,15 @@ class System_Model extends CI_model
 		$params['table'] 	= "a_info as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		
-		if (key_exists('list', $params) && ($params['list']))
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function get_c_currency($params)
+	{
+		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "c_currency as t1";
+		
+		return $this->base_model->mget_rec($params);
 	}
 	
 	function get_c_1country($params)
@@ -244,10 +235,7 @@ class System_Model extends CI_model
 		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "c_1country as t1";
 		
-		if (key_exists('list', $params) && ($params['list']))
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 	function get_c_2province($params)
@@ -255,10 +243,7 @@ class System_Model extends CI_model
 		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "c_2province as t1";
 		
-		if (key_exists('list', $params) && ($params['list']))
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 	function get_c_3city($params)
@@ -266,32 +251,23 @@ class System_Model extends CI_model
 		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "c_3city as t1";
 		
-		if (key_exists('list', $params) && ($params['list']))
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
-	function get_C_4district($params)
+	function get_c_4district($params)
 	{
 		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "c_4district as t1";
 		
-		if (key_exists('list', $params) && ($params['list']))
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
-	function get_C_5village($params)
+	function get_c_5village($params)
 	{
 		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "c_5village as t1";
 		
-		if (key_exists('list', $params) && ($params['list']))
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 }

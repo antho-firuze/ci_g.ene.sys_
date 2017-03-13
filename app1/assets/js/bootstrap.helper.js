@@ -225,38 +225,21 @@
 	
 	BSHelper.Combobox = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
+		var container = $('<div class="form-group"><label class="control-label '+o.lblsize+'" for="'+o.idname+'">'+o.label+'</label></div>');
 		
-		var fg = $('<div />', {class:"form-group"});
-		var lbl = $('<label />', {class:"control-label "+o.lblsize, for:o.idname}).html(o.label);
-		var col = $('<div />', {class:o.colsize});
-		var help = $('<p />', {class:"help-block"});
-		
-		var input = $('<input>', {
-			class: "form-control", 
-			id: o.idname, 
-			name: o.idname, 
-			type: 'text', 
-			placeholder: o.placeholder, 
-			value: o.value,
-			autocomplete: "off"
-		}); 
+		var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: o.placeholder, value: o.value,	autocomplete: "off"	}); 
 		if (o.required) input.attr('required','');
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
-		col.append(input);
-		if (o.help) help.html(o.help).appendTo(col);
+		container.append(input);
+		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
 		
 		if (o.isCombogrid){
 			var xhr;
 			input.combogrid({ 
 				source: function(term, response){
 					try { xhr.abort(); } catch(e){}
-					xhr = $.ajax({
-						url: o.url,
-						method: "GET",
-						dataType: "json",
-						data: term,
-						cache: false,
+					xhr = $.ajax({ url:o.url, method:"GET",	dataType:"json", data:term,	cache:false,
 						success: function(data){
 							response(data.data);
 						},
@@ -268,39 +251,56 @@
 				} 
 			});
 		}
+		container.find('.combogrid-container').addClass(o.colsize);
+		return container;
+	};
 	
-		return fg.append(lbl).append(col);
+	BSHelper.ComboboxForm = function(options){
+		var o = $.extend( {}, BSHelper.defaults, options );
+		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label></div>');
+		var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: o.placeholder, value: o.value,	autocomplete: "off"	}); 
+		if (o.required) input.attr('required','');
+		if (o.disabled) input.attr('disabled','');
+		if (o.readonly) input.attr('readonly','');
+		container.append(input);
+		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
+		
+		if (o.isCombogrid){
+			var xhr;
+			input.combogrid({ 
+				source: function(term, response){
+					try { xhr.abort(); } catch(e){}
+					xhr = $.ajax({ url:o.url, method:"GET",	dataType:"json", data:term,	cache:false,
+						success: function(data){
+							response(data.data);
+						},
+						error: function(data, textStatus, error){
+							var err = textStatus + ", " + error;
+							console.log( "Request Failed: " + err );
+						}
+					}); 
+				} 
+			});
+		}
+		return container;
 	};
 	
 	BSHelper.Combobox4 = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
-		
-		var fg = $('<div />', {class:"form-group"});
-		var lbl = $('<label />', {class:"control-label "+o.lblsize, for:o.idname}).html(o.label);
-		var col = $('<div />', {class:o.colsize});
-		var help = $('<p />', {class:"help-block"});
-		
-		var input = $('<input>', {
-			class: "form-control", 
-			id: o.idname, 
-			name: o.idname, 
-			type: 'text', 
-			placeholder: o.placeholder, 
-			value: o.value,
-			autocomplete: "off"
-		}); 
+		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label></div>');
+		var input = $('<input>', {class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: o.placeholder,value: o.value,autocomplete: "off"}); 
 		if (o.type=='hidden') return input;
 		if (o.required) input.attr('required','');
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
-		col.append(input);
-		if (o.help) help.html(o.help).appendTo(col);
+		container.append(input);
+		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(col);
 		
 		$.getJSON(o.url, {}, function(data){ 
 			input.ajaxComboBox(data.data.rows);
 		});
+		return container;
 		
-		return fg.append(lbl).append(col);
 	};
 	
 	BSHelper.Combobox5 = function(options){

@@ -93,6 +93,7 @@ class Systems extends Getmeb
 		$this->params['select'] = 't1.id, t1.client_id, t1.org_id, t1.role_id, t1.name, t1.description, t1.email, 
 			t1.photo_file, ac.name as client_name, ao.name as org_name, ar.name as role_name';
 		$this->params['where']['t1.id'] = $id;
+		$this->params['list'] = 1;
 		$user = (object) $this->system_model->getUserAuthentication($this->params)[0];
 		$dataUser = [
 			'user_id' 	=> $id,
@@ -380,15 +381,6 @@ class Systems extends Getmeb
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
-				$array = explode(",", $this->params['filter']);
-				if (!empty($array)) {
-					foreach ($array as $value) {
-						list($k, $v) = explode("=", $value);
-						$this->params['where'][$k] = empty($v)?0:$v;
-					}
-				}
-			}
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -447,15 +439,6 @@ class Systems extends Getmeb
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
-				$array = explode(",", $this->params['filter']);
-				if (!empty($array)) {
-					foreach ($array as $value) {
-						list($k, $v) = explode("=", $value);
-						$this->params['where'][$k] = empty($v)?0:$v;
-					}
-				}
-			}
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -508,15 +491,6 @@ class Systems extends Getmeb
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
-				$array = explode(",", $this->params['filter']);
-				if (!empty($array)) {
-					foreach ($array as $value) {
-						list($k, $v) = explode("=", $value);
-						$this->params['where'][$k] = empty($v)?0:$v;
-					}
-				}
-			}
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -578,15 +552,6 @@ class Systems extends Getmeb
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.description', $this->params['q']);
 
-			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
-				$array = explode(",", $this->params['filter']);
-				if (!empty($array)) {
-					foreach ($array as $value) {
-						list($k, $v) = explode("=", $value);
-						$this->params['where'][$k] = empty($v)?0:$v;
-					}
-				}
-			}
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -630,6 +595,58 @@ class Systems extends Getmeb
 		}
 	}
 	
+	function c_currency()
+	{
+		if ($this->r_method == 'GET') {
+			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (key_exists('q', $this->params) && !empty($this->params['q']))
+				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
+
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$data = json_decode($this->input->raw_input_stream);
+			$fields = ['name'];
+			$boolfields = [];
+			$nullfields = [];
+			foreach($fields as $f){
+				if (key_exists($f, $data)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
+					} 
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+					} else {
+						$datas[$f] = $data->{$f};
+					}
+				}
+			}
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
+			else
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
 	function c_1country()
 	{
 		if ($this->r_method == 'GET') {
@@ -639,15 +656,6 @@ class Systems extends Getmeb
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
-				$array = explode(",", $this->params['filter']);
-				if (!empty($array)) {
-					foreach ($array as $value) {
-						list($k, $v) = explode("=", $value);
-						$this->params['where'][$k] = empty($v)?0:$v;
-					}
-				}
-			}
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -703,15 +711,6 @@ class Systems extends Getmeb
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
-				$array = explode(",", $this->params['filter']);
-				if (!empty($array)) {
-					foreach ($array as $value) {
-						list($k, $v) = explode("=", $value);
-						$this->params['where'][$k] = empty($v)?0:$v;
-					}
-				}
-			}
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -767,15 +766,6 @@ class Systems extends Getmeb
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
-				$array = explode(",", $this->params['filter']);
-				if (!empty($array)) {
-					foreach ($array as $value) {
-						list($k, $v) = explode("=", $value);
-						$this->params['where'][$k] = empty($v)?0:$v;
-					}
-				}
-			}
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -831,15 +821,6 @@ class Systems extends Getmeb
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
-				$array = explode(",", $this->params['filter']);
-				if (!empty($array)) {
-					foreach ($array as $value) {
-						list($k, $v) = explode("=", $value);
-						$this->params['where'][$k] = empty($v)?0:$v;
-					}
-				}
-			}
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -895,15 +876,6 @@ class Systems extends Getmeb
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
-				$array = explode(",", $this->params['filter']);
-				if (!empty($array)) {
-					foreach ($array as $value) {
-						list($k, $v) = explode("=", $value);
-						$this->params['where'][$k] = empty($v)?0:$v;
-					}
-				}
-			}
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
