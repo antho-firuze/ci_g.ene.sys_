@@ -89,8 +89,8 @@
 	
 	BSHelper.FormInput = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
-		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label><div class="control-input"></div></div>');
-		var input = $('<input>', {class: "form-control "+o.colsize, id: o.idname, name: o.idname, type: o.type, placeholder: o.placeholder, value: o.value, autocomplete: "off"}); 
+		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label><div class="control-input input-group" style="width:100%;"></div></div>');
+		var input = $('<input>', {class: "form-control", id: o.idname, name: o.idname, type: o.type, placeholder: o.placeholder, value: o.value, autocomplete: "off"}); 
 		if (o.type=='hidden') return input;
 		if (o.required) input.attr('required','');
 		if (o.disabled) input.attr('disabled','');

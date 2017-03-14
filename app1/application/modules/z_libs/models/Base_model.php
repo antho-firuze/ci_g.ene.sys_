@@ -184,6 +184,17 @@ class Base_Model extends CI_Model
 		if ( array_key_exists('where', $params)) $this->db->where($params['where']);
 		if ( array_key_exists('like', $params)) $this->db->where($params['like']);
 
+		/* &filter=field1=value1,field2=value2... */
+		if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
+			$array = explode(",", $this->params['filter']);
+			if (!empty($array)) {
+				foreach ($array as $value) {
+					list($k, $v) = explode("=", $value);
+					$this->db->where($k, empty($v)?0:$v);
+				}
+			}
+		}
+		
 		if (! $query = $this->db->get() ){
 			// $this->db->error(); // Has keys 'code' and 'message'
 			$this->set_error($this->db->error()['message']);

@@ -210,3 +210,15 @@ function setSelectList(name, id, clazz, optionList) {
     return select;
 }
 
+/* Using for bootstrap */
+function subRow(subCol){
+	var subRow = $('<div class="row"></div>');
+	return subRow.append(subCol);
+}
+
+/* Using for bootstrap */
+function subCol(siz, el){
+	var subCol = $('<div class="col-md-'+ siz +'"></div>');
+	return subCol.append(el);
+}
+

@@ -36,16 +36,17 @@
 		this.init();
 		
 		function template(){
-			return ''+
-				'<div class="combogrid-container">'+
-					'<div class="input-group">'+
-						'<input type="hidden" />'+
-						'<div class="input-group-btn">'+
-							'<span class="btn btn-default dropdown-toggle" data-dropdown="dropdown">'+
-							'<span class="caret" /></span>'+
+			if (o.style == 'bs3')
+				return ''+
+					'<div class="combogrid-container">'+
+						'<div class="input-group">'+
+							'<input type="hidden" />'+
+							'<div class="input-group-btn">'+
+								'<span class="btn btn-default dropdown-toggle" data-dropdown="dropdown">'+
+								'<span class="caret" /></span>'+
+							'</div>'+
 						'</div>'+
-					'</div>'+
-				'</div>';
+					'</div>';
 		}
 		
 		function template_result(){
@@ -118,10 +119,17 @@
 			setTimeout(function(){ o.source(term, lookup) }, 100);
 		}
 	
+		/* format data = {total:999, rows:{field1:value1, field2:value2}} */
 		function lookup(data){
 			var list = '';
 			$menu.html('');
 			ttl_page = Math.ceil(data.total/o.rows);
+			
+			if (Object.keys(o.addition).length > 0){
+				var addata = o.addition;
+				list += '<li class="'+o.item_cls+'" data-'+o.idField+'="'+ addata[o.idField] +'" data-'+o.textField+'="'+ addata[o.textField] +'"><a>'+addata[o.textField]+'</a></li>';
+			}
+			
 			$.each(data.rows, function(k, v) {
 				rowData[v[o.idField]] = v;
 				list += '<li class="'+o.item_cls+'" data-'+o.idField+'="'+ v[o.idField] +'" data-'+o.textField+'="'+ v[o.textField] +'"><a>'+v[o.textField]+'</a></li>';
@@ -202,14 +210,17 @@
 					id = $menu.find('.active').data(o.idField),
 					text = $menu.find('.active').data(o.textField);
 			
-			if (id_old != id) {
+			if (id_old !== id) {
 				$element
 					.attr('value', id)
 					.attr('data-'+o.idField, id)
 					.attr('data-'+o.textField, text)
 					.val(text).trigger('change');
 				$target.val(id).trigger('change');
-				o.onSelect.call(this, rowData[id]);
+				if ((id === 0) && (Object.keys(o.addition).length > 0))
+					o.onSelect.call(this, o.addition);
+				else
+					o.onSelect.call(this, rowData[id]);
 			}
 			selected = true;
 			return hide();
@@ -343,7 +354,7 @@
 	Combogrid.prototype = {
 
 		version: function(){
-			return '1.1.2';
+			return '1.1.3';
 		},
 		
 		init: function(){
@@ -460,17 +471,7 @@
   };
 	
   $.fn.combogrid.defaults = {
-    source: function(term, lookup){
-			$.ajax({
-				url: '',
-				method: "GET",
-				dataType: "json",
-				data: term,
-				success: function(data){
-					response(data.data);
-				}
-			}); 
-		},
+    source: function(term, lookup){},
     style: 'bs3',
 		menu_type: 'normal', // iscroll (infinite scroll), normal
     page: 1,
@@ -479,6 +480,7 @@
     textField: 'name',
 		queryParams: {},
 		item_cls: '',
+		addition: {},
 		onSelect: function(rowData){}
   };
 	
