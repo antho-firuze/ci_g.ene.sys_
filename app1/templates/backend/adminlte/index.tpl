@@ -25,7 +25,7 @@
 {$.php.link_tag($.const.TEMPLATE_URL~'dist/css/skins/_all-skins.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/autoComplete/jquery.auto-complete.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'css/custom.css')}
-{$.php.link_tag($.const.TEMPLATE_URL~'plugins/pace/pace.min.css')}
+{$.php.link_tag($.const.TEMPLATE_URL~'plugins/pace/pace-center-circle.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/iCheck/flat/blue.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/iCheck/flat/orange.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-dialog/css/bootstrap-dialog.min.css')}
@@ -81,6 +81,10 @@
 <script src="{$.const.TEMPLATE_URL}plugins/lobibox/js/notifications.min.js"></script>
 {* <script src="{$.const.TEMPLATE_URL}plugins/ajax-combobox/jquery.ajax-combobox.js"></script> *}
 <script>
+	paceOptions = {
+		elements: false,
+		restartOnRequestAfter: false
+	};
 	Lobibox.notify.DEFAULTS = $.extend({}, Lobibox.notify.DEFAULTS, { 
 		soundPath:"{$.const.TEMPLATE_URL}plugins/lobibox/sounds/",  
 		showClass:'rollIn',

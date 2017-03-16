@@ -4,22 +4,22 @@
 
   function Combogrid( elem, options ) {
 		var o = options,
-		$element     = $(elem),
-		$container   = $(template()),
-		$target      = $container.find('input[type=hidden]'),
-		$button      = $container.find('.dropdown-toggle'),
-		$menu  		   = $(template_result()).appendTo('body'),
-		
-		disabled     = false,
-		shown        = false,
-		focused      = false,
-		selected     = false,
-		mousedover   = false,
-		suppressKeyPressRepeat = {},
-		loading			= false,
-		rowData			= {},
-		page				 	= o.page,
-		ttl_page		 	= 1;
+				$element     = $(elem),
+				$container   = $(template()),
+				$target      = $container.find('input[type=hidden]'),
+				$button      = $container.find('.dropdown-toggle'),
+				$menu  		   = $(template_result()).appendTo('body'),
+				
+				disabled     = false,
+				shown        = false,
+				focused      = false,
+				selected     = false,
+				mousedover   = false,
+				suppressKeyPressRepeat = {},
+				loading			= false,
+				rowData			= {},
+				page				 	= o.page,
+				ttl_page		 	= 1;
 		
 		this.o				= o;
 		this._o 			= function(new_o){ $.extend(o, new_o); };
@@ -80,8 +80,12 @@
 
 		function blur(){
 			focused = false;
-			var val = $element.val(), _old = $element.attr('value'), _new = $element.val();
+			var val = $element.val(), 
+					_old = $element.attr('value'), 
+					_new = $element.val();
 			
+			// console.log('selected = '+selected);
+			// console.log('val = '+val);
 			if ( (!selected && val == '') || (selected && val == '') ) {
 				$element
 					.attr('value', '')
@@ -90,6 +94,7 @@
 					.val('').trigger('change');
 				$target.val('').trigger('change');
 				selected = false;
+				this._selected = false;
 				
 				if (_old != _new) {	o.onSelect.call(this, {}); }
 			}
@@ -352,11 +357,11 @@
 	};
 	
 	Combogrid.prototype = {
-
+		constructor: Combogrid,
 		version: function(){
+			console.log('1.1.3');
 			return '1.1.3';
 		},
-		
 		init: function(){
 			// console.log('debug: init');
 			if (!this.$element.data('init-combogrid')){
@@ -373,7 +378,6 @@
 				this.setValue(val);
 			}
 		},
-
 		destroy: function(){
 			console.log('debug: destroy');
 			if (this.$element.data('init-combogrid')){
@@ -383,7 +387,6 @@
 				this._listen(false);
 			}
 		},
-
 		disable: function(state){
 			if (state){
 				this.$element.prop('disabled', true);
@@ -397,17 +400,22 @@
 				this._disabled(false);
 			}
 		},
-
 		queryParams: function(term){
 			// console.log('debug: queryParams');
 			this._o({ queryParams:term });
 		},
-
 		getValue: function(field){
 			// console.log('debug: getValue');
-			return (typeof field!=='undefined') ? this.$element.attr('data-'+field) : this.rowData()[this.$element.attr('value')];
+			var val;
+			field = (field === undefined) ? 'id' : field;
+			
+			/* For anticipate custom additional row */
+			if (this.rowData()[this.$element.attr('value')] === undefined)
+				return false;
+			
+			if (this.$element.attr('value'))
+				return ((val = this.rowData()[this.$element.attr('value')][field]) === undefined) ? false : val;
 		},
-
 		setValue: function(val){
 			// console.log('debug: setValue');
 			if (this.$element.data('init-combogrid')===false){ return; }
@@ -442,32 +450,39 @@
 				});
 			}, 100);
 		},
-
 	}
-	
-  $.fn.combogrid = function(options) {
-		if (typeof options == 'string') {
-			// console.log('debug: options-string');
-			var args = Array.prototype.slice.call(arguments, 1),
-					data = $.data(this[0], 'combogrid');
-			if (!data) {return this;}
-			// return data[options].apply(data, args);
-			data[options].apply(data, args);
-			return this;
+	/* 
+	({key1:val1, key2:val2 key3:{subkey1:subval1, subkey2:subval2}})
+	('function', {field1:val1})
+	('function', 'params')
+	('function')
+	*/
+  $.fn.combogrid = function(option) {
+		if (typeof option === 'string') {
+			var $this = $(this),
+					inst = $this.data('combogrid');
+			
+			if (!inst) { return this; }
+			if (option == "getValue") {
+				return inst[option].apply(inst, Array.prototype.slice.call(arguments, 1));
+			}	else {
+				inst[option].apply(inst, Array.prototype.slice.call(arguments, 1));
+				return this;
+			}
 		}
 		
-    return this.each(function() {
-			var data = $.data(this, 'combogrid');
-			if (!data){
-				// console.log('debug: data-undefined');
-				$.data(this, 'combogrid', (new Combogrid(this, $.extend({}, $.fn.combogrid.defaults, options))) );
+		return this.each(function() {
+			var $this = $(this),
+					inst = $this.data('combogrid'),
+					options = ((typeof option === 'object') ? option : {});
+			if (!inst) {
+				$this.data('combogrid', new Combogrid(this, $.extend({}, $.fn.combogrid.defaults, options)) );
 			} else {
-				if (typeof options == 'object') {
-					// console.log('debug: options-object');
-					$.data(this, 'combogrid', (new Combogrid(this, $.extend(data, options))) );
+				if (typeof option === 'object') {
+					$this.data('combogrid', new Combogrid(this, $.extend(inst, options)) );
 				} 
 			}
-    });
+		});
   };
 	
   $.fn.combogrid.defaults = {

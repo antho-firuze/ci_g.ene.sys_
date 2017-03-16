@@ -100,6 +100,14 @@
 		return container;
 	};
 	
+	BSHelper.FormButton = function(options){
+		var o = $.extend( {}, BSHelper.defaults, options );
+		var button = $('<button />', {class: "btn "+o.cls, id: o.idname, name: o.idname, type: o.type }); 
+		button.html(o.label);
+		if (o.disabled) input.attr('disabled','');
+		return button;
+	};
+	
 	BSHelper.TextArea = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
 		var container = $('<div class="form-group"><label class="control-label '+o.lblsize+'" for="'+o.idname+'">'+o.label+'</label><div class="control-input '+o.colsize+'"></div></div>');
@@ -200,14 +208,14 @@
 		container.append(input);
 		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
 		
-		if (o.isCombogrid){
+		/* if (o.isCombogrid){
 			input.combogrid({ 
 				source: function(term, response){
 					$.getJSON( o.url, term, function(data){ response(data.data); });
 				}
 			});
-		}
-		/* if (o.isCombogrid){
+		} */
+		if (o.isCombogrid){
 			var xhr;
 			input.combogrid({ 
 				source: function(term, response){
@@ -223,7 +231,7 @@
 					}); 
 				} 
 			});
-		} */
+		}
 		container.find('.combogrid-container').addClass(o.colsize);
 		return container;
 	};

@@ -16,14 +16,6 @@ function lock_screen()
 	$(document).idleTimer("destroy");
 }
 
-(function ($) {
-
-  "use strict";
-  
-  $(document).ajaxStart(function() { Pace.restart(); });
-
-})(jQuery);
-
 /**
  * AdminLTE Right Menu
  * ------------------
