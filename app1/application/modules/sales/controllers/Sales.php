@@ -332,6 +332,8 @@ class Sales extends Getmeb
 	function swg_price_calc()
 	{
 		
+		$result['data'] = $this->params;
+		$this->xresponse(TRUE, $result);
 	}
 	
 	function swg_ir_or_calc()

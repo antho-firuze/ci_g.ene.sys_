@@ -30,6 +30,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+<script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
 	var formContent = $('<form "autocomplete"="off"><div class="row"><div class="col-left col-md-6"></div><div class="col-right col-md-6"></div></div></form>');
 	var col_l = formContent.find('div.col-left');
@@ -47,11 +48,11 @@
 	a.push( subCol(3, BSHelper.FormInput({ type:"text", label:"D4", idname:"d4", required: true, placeholder:"0", readonly: true  })) );
 	col_l.append(subRow(a));
 	col_l.append(BSHelper.FormInput({ type:"text", label:"Quantity", idname:"qty", required: true, placeholder:"numeric", value:1 }));
-	col_r.append(BSHelper.FormCombobox({ label:"Material IR", idname:"ir_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=pricelist_id=0,pricelist_version_id=0", required: true, isCombogrid: true, placeholder:"typed or choose" }));
+	col_r.append(BSHelper.FormCombobox({ label:"Material IR", idname:"ir_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=pricelist_id=0,pricelist_version_id=0", required: false, isCombogrid: true, placeholder:"typed or choose" }));
 	col_r.append(BSHelper.FormInput({ type:"hidden", idname:"ir_price" }));
-	col_r.append(BSHelper.FormCombobox({ label:"Material OR", idname:"or_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=pricelist_id=0,pricelist_version_id=0", required: true, isCombogrid: true, placeholder:"typed or choose" }));
+	col_r.append(BSHelper.FormCombobox({ label:"Material OR", idname:"or_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=pricelist_id=0,pricelist_version_id=0", required: false, isCombogrid: true, placeholder:"typed or choose" }));
 	col_r.append(BSHelper.FormInput({ type:"hidden", idname:"or_price" }));
-	col_r.append(BSHelper.FormCombobox({ label:"Material HOOP", idname:"hoop_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=pricelist_id=0,pricelist_version_id=0", required: true, isCombogrid: true, placeholder:"typed or choose" }));
+	col_r.append(BSHelper.FormCombobox({ label:"Material HOOP", idname:"hoop_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=pricelist_id=0,pricelist_version_id=0", required: false, isCombogrid: true, placeholder:"typed or choose" }));
 	col_r.append(BSHelper.FormInput({ type:"hidden", idname:"hoop_price" }));
 	col_r.append(BSHelper.FormCombobox({ label:"Material FILLER", idname:"filler_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=pricelist_id=0,pricelist_version_id=0", required: true, isCombogrid: true, placeholder:"typed or choose" }));
 	col_r.append(BSHelper.FormInput({ type:"hidden", idname:"filler_price" }));
@@ -59,8 +60,8 @@
 	col_r.append(BSHelper.FormInput({ type:"hidden", idname:"swg_margin" }));
 	a = [];
 	a.push( BSHelper.FormButton({ type:"submit", label:"Submit", cls:"btn-primary" }) );
-	a.push( '&nbsp;' );
-	a.push( BSHelper.FormButton({ type:"button", label:"Testing", cls:"btn-primary", idname:"btn_testing" }) );
+	{* a.push( '&nbsp;' ); *}
+	{* a.push( BSHelper.FormButton({ type:"button", label:"Testing", cls:"btn-primary", idname:"btn_testing" }) ); *}
 	formContent.append( a );
 	$('div.box-body').append(formContent);
 	
@@ -150,6 +151,7 @@
 	});
 	$("#ir_item_id").combogrid({ 
 		textField: 'code_name',
+		{* addition: { "id":0, "code_name":"N/A" }, *}
 		source: function(term, response){
 			$.getJSON($("#ir_item_id").data('url'), term, function(data){ response(data.data); });
 		},
@@ -159,6 +161,7 @@
 	});
 	$("#or_item_id").combogrid({ 
 		textField: 'code_name',
+		{* addition: { "id":0, "code_name":"N/A" }, *}
 		source: function(term, response){
 			$.getJSON($("#or_item_id").data('url'), term, function(data){ response(data.data); });
 		},
@@ -168,6 +171,7 @@
 	});
 	$("#hoop_item_id").combogrid({ 
 		textField: 'code_name',
+		{* addition: { "id":0, "code_name":"N/A" }, *}
 		source: function(term, response){
 			$.getJSON($("#hoop_item_id").data('url'), term, function(data){ response(data.data); });
 		},
@@ -199,8 +203,45 @@
 		{* console.log($("#swg_size_id").combogrid('getValue', 'id')); *}
 	});
 	
+	formContent.on('submit', function(e){
+		e.stopPropagation;
+		console.log(formContent.serialize());
+		
+		$.ajax({ url: '{$url_module}', method: "GET", async: true, dataType: 'json',
+			data: formContent.serializeJSON(),
+			success: function(data) {
+				{* console.log(data.data); *}
+				var curr = 'IDR';
+				var qty = $('#qty').val();
+				var sell_price = 1250;
+				var sell_price_total = sell_price * qty;
+				var $content = subRow(), a = [];
+				a.push( "<center><h2>Selling Price ("+curr+"): </h2></center>" );
+				a.push( "<center><h2><span>"+accounting.formatMoney(sell_price, '', 2, ".", ",")+"/PCS</span></h2></center>" );
+				a.push( "<br>" );
+				if (qty > 1){
+					a.push( "<center><h2><span>"+accounting.formatMoney(sell_price_total, '', 2, ".", ",")+" @"+qty+" PCS</span></h2></center>" );
+					a.push( "<br>" );
+				}
+				$content.append( subCol(12, a ) );
+				BootstrapDialog.show({ type:BootstrapDialog.TYPE_PRIMARY, title:'Result !', message:$content });
+			},
+			error: function(data) {
+				if (data.status==500){
+					var message = data.statusText;
+				} else {
+					var error = JSON.parse(data.responseText);
+					var message = error.message;
+				}
+				BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+			}
+		});
+		
+		return false;
+	});
+	
 	{* SET DEFAULT VALUE *}
-	$("#pricelist_id").combogrid('setValue', 1);
+	{* $("#pricelist_id").combogrid('setValue', 1); *}
 			{* $.ajax({ url: '',method: "GET",dataType: 'json', *}
 				{* data: '{"skin": "'+$(this).data('skin')+'"}' *}
 			{* }); *}

@@ -30,7 +30,7 @@
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/iCheck/flat/orange.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-dialog/css/bootstrap-dialog.min.css')}
 {* {$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-combobox/css/bootstrap-combobox.css')} *}
-{$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-combogrid/bootstrap-combogrid.css')}
+{$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-combogrid/bootstrap-combogrid-grey.css')}
 {* {$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-select/css/bootstrap-select.css')} *}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/animate/animate.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/lobibox/css/lobibox.min.css')}
@@ -44,10 +44,12 @@
 	{var $logout_link = $.php.base_url() ~ $.const.LOGOUT_LNK}
 	{var $profile_link = $.php.base_url() ~ $.const.PROFILE_LNK}
 	{var $sidebar = $.session.sidebar !: ''}
-	var base_url = '{$.php.base_url()}';
-	var Unlock_url = '{$.php.base_url() ~ $.const.UNLOCK_LNK}';
-	var Config_url = '{$.php.base_url() ~ $.const.CONFIG_LNK}';
-	var InfoLst_url = '{$.php.base_url() ~ $.const.INFOLST_LNK}';
+	{* var base_url = '{$.php.base_url()}'; *}
+	var x_page_lnk = '{$.php.base_url() ~ $.const.PAGE_LNK}';
+	var x_srcmenu_lnk = '{$.php.base_url() ~ $.const.SRCMENU_LNK}';
+	var x_unlock_lnk = '{$.php.base_url() ~ $.const.UNLOCK_LNK}';
+	var x_config_lnk = '{$.php.base_url() ~ $.const.CONFIG_LNK}';
+	var a_info_lnk = '{$.php.base_url() ~ $.const.INFOLST_LNK}';
 	var username = '{$.session.name}';
 	var $skin = 'skin{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
 	var $sidebar = 'sidebar{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
@@ -75,7 +77,7 @@
 {* <script src="{$.const.TEMPLATE_URL}plugins/datatables/extensions/FixedColumns/js/dataTables.fixedColumns.min.js"></script> *}
 <script src="{$.const.TEMPLATE_URL}plugins/slimScroll/jquery.slimscroll.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/fastclick/fastclick.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/autoComplete/jquery.auto-complete.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/autoComplete/jquery.auto-complete.js"></script>
 <script src="{$.const.TEMPLATE_URL}dist/js/app.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/validation/jquery.validate.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/lobibox/js/notifications.min.js"></script>

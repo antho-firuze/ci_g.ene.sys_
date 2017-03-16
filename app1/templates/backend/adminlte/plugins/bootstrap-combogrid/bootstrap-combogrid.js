@@ -139,8 +139,13 @@
 				rowData[v[o.idField]] = v;
 				list += '<li class="'+o.item_cls+'" data-'+o.idField+'="'+ v[o.idField] +'" data-'+o.textField+'="'+ v[o.textField] +'"><a>'+v[o.textField]+'</a></li>';
 			});
-			$menu.append(list);
-			$menu.find('li').first().addClass('active');
+			if (Object.keys(data.rows).length > 0) {
+				$menu.append(list);
+				$menu.find('li').first().addClass('active');
+			} else {
+				$menu.append('<span style="color:#999;">'+o.emptyMessage+'</span>');
+				// $menu.append(o.emptyMessage);
+			}
 			show();
 			$element.focus();
 		}
@@ -411,7 +416,7 @@
 			
 			/* For anticipate custom additional row */
 			if (this.rowData()[this.$element.attr('value')] === undefined)
-				return false;
+				return;
 			
 			if (this.$element.attr('value'))
 				return ((val = this.rowData()[this.$element.attr('value')][field]) === undefined) ? false : val;
@@ -489,6 +494,9 @@
     source: function(term, lookup){},
     style: 'bs3',
 		menu_type: 'normal', // iscroll (infinite scroll), normal
+		emptyMessage: '<center><b>No results were found</b></center>',
+		colorBack: '#dd4b39',
+		colorText: '#000000',
     page: 1,
     rows: 50,
     idField: 'id',

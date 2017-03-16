@@ -305,7 +305,9 @@ class Systems extends Getmeb
 		if (key_exists('q', $this->params)) 
 			if (!empty($this->params['q']))
 				$this->params['like']	= DBX::like_or('am.name', $this->params['q']);
-		$result['data'] = $this->system_model->getA_Role_Menu($this->params);
+			
+		$this->params['list']	= 1;
+		$result['data'] = $this->system_model->get_a_role_menu($this->params);
 		$this->xresponse(TRUE, $result);
 	}
 	

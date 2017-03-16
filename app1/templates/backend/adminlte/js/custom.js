@@ -273,7 +273,7 @@ function lock_screen()
       change_skin($(this).data('skin'));
 	
 			$.ajax({
-				url: Config_url,
+				url: x_config_lnk,
 				method: "POST",
 				dataType: 'json',
 				data: '{"skin": "'+$(this).data('skin')+'"}'
@@ -288,7 +288,7 @@ function lock_screen()
 				store($sidebar, 'sidebar-collapse');
 			
 			$.ajax({
-				url: Config_url,
+				url: x_config_lnk,
 				method: "POST",
 				dataType: 'json',
 				data: '{ "sidebar": "' + get($sidebar) +'" }'
@@ -301,7 +301,7 @@ function lock_screen()
 			init_screen_timeout();
 			
 			$.ajax({
-				url: Config_url,
+				url: x_config_lnk,
 				method: "POST",
 				dataType: 'json',
 				data: '{"screen_timeout": "'+$("#timeout_list").val()+'"}'
@@ -361,7 +361,7 @@ function lock_screen()
 		
 		if (! form_lck.valid()) return false;
 		
-		$.ajax({ url: Unlock_url, method: "GET", async: true, dataType: 'json',
+		$.ajax({ url: x_unlock_lnk, method: "GET", async: true, dataType: 'json',
 			headers: {
 				"X-AUTH": "Basic " + btoa(form_lck.find("input[name='name']").val() + ":" + form_lck.find("input[name='password']").val())
 			},
@@ -392,21 +392,23 @@ function lock_screen()
 	$('#searching-menu').autoComplete({
 		minChars: 1,
 		delay: 0,
-		// cache: false,
+		cache: false,
 		source: function(term, response){
 			try { xhr.abort(); } catch(e){}
-			xhr = $.getJSON(SrcMenu_url, { q: term }, function(data){ response(data.data); });
-			// $.getJSON(SrcMenu_url, { q: term }, function(data){ response(data.data); });
+			xhr = $.getJSON(x_srcmenu_lnk, { q: term }, function(data){ console.log(data.data); response(data.data); });
 		},
 		renderItem: function (item, search){
 			search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 			var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
+			var url_lnk = 
+			console.log(item);
 			/* return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion" data-href="' + item[1] + '" data-val="' + item[0] + '"><i class="fa fa-circle-o"></i> '+ item[0].replace(re, "<b>$1</b>") + '</div>'; */
-			return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion" data-href="' + item['url'] + '" data-val="' + item['name'] + '"><i class="fa fa-circle-o"></i> '+ item['name'].replace(re, "<b>$1</b>") + '</div>';
+			return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion" data-id="' + item['id'] + '" data-val="' + item['name'] + '"><i class="fa fa-circle-o"></i> '+ item['name'].replace(re, "<b>$1</b>") + '</div>';
 		},
 		onSelect: function(e, term, item){
 			// window.location.replace(base_url+item.data('href'));
-			window.location.href = base_url+item.data('href');
+			// window.location.href = base_url+item.data('id');
+			window.location.href = x_page_lnk+'?pageid='+item.data('id');
 		} 
 	});
   

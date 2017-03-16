@@ -211,14 +211,16 @@ function setSelectList(name, id, clazz, optionList) {
 }
 
 /* Using for bootstrap */
-function subRow(subCol){
-	var subRow = $('<div class="row"></div>');
-	return subRow.append(subCol);
+function subRow(el){
+	if(typeof(el)==='undefined') el = '';
+	var container = $('<div class="row"></div>');
+	return container.append(el);
 }
 
 /* Using for bootstrap */
 function subCol(siz, el){
-	var subCol = $('<div class="col-md-'+ siz +'"></div>');
-	return subCol.append(el);
+	if(typeof(el)==='undefined') el = '';
+	var container = $('<div class="col-md-'+ siz +'"></div>');
+	return container.append(el);
 }
 
