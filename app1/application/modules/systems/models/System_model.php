@@ -131,7 +131,6 @@ class System_Model extends CI_model
 	{
 		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_menu as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec($params);
 	}
@@ -232,7 +231,6 @@ class System_Model extends CI_model
 	{
 		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_system as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec($params);
 	}

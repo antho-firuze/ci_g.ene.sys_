@@ -224,3 +224,10 @@ function subCol(siz, el){
 	return container.append(el);
 }
 
+function isempty_obj(obj){
+	return (Object.keys(obj).length > 0) ? false : true;
+}
+
+function isempty_arr(arr){
+	return (arr.length > 0) ? false : true;
+}

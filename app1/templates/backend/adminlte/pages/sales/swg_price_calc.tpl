@@ -32,11 +32,11 @@
   <!-- /.content-wrapper -->
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
+	var a=[];
 	var formContent = $('<form "autocomplete"="off"><div class="row"><div class="col-left col-md-6"></div><div class="col-right col-md-6"></div></div></form>');
 	var col_l = formContent.find('div.col-left');
 	var col_r = formContent.find('div.col-right');
 	col_l.append(BSHelper.FormCombobox({ label:"Price List", idname:"pricelist_version", url:"{$.php.base_url('sales/m_pricelist_version')}?filter=t1.is_active=1,is_sopricelist=1&ob=validfrom desc", required: true, isCombogrid: true, placeholder:"typed or choose" }));
-	var a=[];
 	a.push( subCol(4, BSHelper.FormCombobox({ label:"Size", idname:"swg_size_id", url:"{$.php.base_url('sales/e_swg_size')}?ob=id", required: true, isCombogrid: true, placeholder:"typed or choose" })) );
 	a.push( subCol(4, BSHelper.FormCombobox({ label:"Class", idname:"swg_class_id", url:"{$.php.base_url('sales/e_swg_class')}", required: true, isCombogrid: true, placeholder:"typed or choose" })) );
 	a.push( subCol(4, BSHelper.FormCombobox({ label:"Series", idname:"swg_series_id", url:"{$.php.base_url('sales/e_swg_series')}", required: true, isCombogrid: true, placeholder:"typed or choose" })) );

@@ -1421,7 +1421,71 @@ if ( ! function_exists('set_upload_folder'))
 	}
 }
 
-// DEBUGGING 
+/* Begin::URL Refererrer */
+/**
+ *
+ * Function for get full url with parameter string
+ *
+ */
+if ( ! function_exists('current_full_url'))
+{
+	function current_full_url()
+	{
+		$CI =& get_instance();
+		$url = $CI->config->site_url($CI->uri->uri_string());
+    return $_SERVER['QUERY_STRING'] ? $url.'?'.$_SERVER['QUERY_STRING'] : $url;
+	}
+}
+
+/**
+ * setURL_Index
+ *
+ * Function for set the session for page when redirect after save
+ *
+ * @param	string	$index    Session name
+ */
+if ( ! function_exists('setURL_Index'))
+{
+	function setURL_Index($index = '')
+	{
+		if(!$index){
+				$key = 'referred_index';
+		}else{
+				$key = 'referred_'.$index;
+		}
+		$_SESSION[$key] = current_full_url();
+	}
+}
+
+/**
+ * getURL_Index
+ *
+ * Function for get page from session
+ *
+ * @param	string	$index    session name
+ * @return	string
+ */
+if ( ! function_exists('getURL_Index'))
+{
+	function getURL_Index($index = '')
+	{
+		if(!$index){
+			$key = 'referred_index';
+		}else{
+			$key = 'referred_'.$index;
+		}
+		if(isset($_SESSION[$key])){
+			$referred_from = $_SESSION[$key];
+		}else{
+			$referred_from = current_full_url();
+		}
+		return $referred_from;
+	}
+}
+/* End::URL Refererrer */
+
+
+/* Begin::Debugging  */
 if ( ! function_exists('out'))
 {
 	function out($data='')
@@ -1438,4 +1502,25 @@ if ( ! function_exists('out'))
 		}
 	}
 }
+
+if ( ! function_exists('debug'))
+{
+	function debug($data='')
+	{
+		$ci =& get_instance();
+		$ci->load->helper('file');
+		write_file(APPPATH.'logs/debug.txt', $data);
+    /* 
+		if ( ! write_file(APPPATH.'logs/debug.txt', $data))
+    {
+			echo 'Unable to write the file';
+    }
+    else
+    {
+			echo 'File written!';
+    } 
+		*/
+	}
+}
+/* End::Debugging  */
 

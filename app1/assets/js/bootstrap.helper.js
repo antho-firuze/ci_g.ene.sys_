@@ -90,7 +90,8 @@
 	BSHelper.FormInput = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label><div class="control-input input-group" style="width:100%;"></div></div>');
-		var input = $('<input>', {class: "form-control", id: o.idname, name: o.idname, type: o.type, placeholder: o.placeholder, value: o.value, autocomplete: "off"}); 
+		var el = (o.type == 'textarea') ? 'textarea' : 'input';
+		var input = $('<'+el+' />', {class: "form-control", id: o.idname, name: o.idname, type: o.type, placeholder: o.placeholder, value: o.value, autocomplete: "off"}); 
 		if (o.type=='hidden') return input;
 		if (o.required) input.attr('required','');
 		if (o.disabled) input.attr('disabled','');
@@ -233,6 +234,22 @@
 			});
 		}
 		container.find('.combogrid-container').addClass(o.colsize);
+		return container;
+	};
+	
+	BSHelper.FormCheckbox = function(options){
+		var o = $.extend( {}, BSHelper.defaults, options );
+		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label><div class="control-input checkbox"></div></div>');
+		var input = $('<input>', {id:o.idname, name:o.idname, type:"checkbox"}); 
+		var input2 = $('<input>', {id:o.idname, name:o.idname, type:"hidden", value:0}); 
+		container.find('.control-input').append( input.append(input2) );
+		if (o.required) input.attr('required','');
+		if (o.disabled) input.attr('disabled','');
+		if (o.readonly) input.attr('readonly','');
+		if (parseInt(o.value)) input.prop("checked", true);
+		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
+		
+		input.iCheck({ checkboxClass: 'icheckbox_flat-orange', radioClass: 'iradio_flat-orange'	});
 		return container;
 	};
 	

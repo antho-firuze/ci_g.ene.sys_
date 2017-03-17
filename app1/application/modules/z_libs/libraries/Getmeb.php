@@ -36,6 +36,10 @@ class Getmeb extends CI_Controller
 		$this->sess = (object) $this->session->userdata();
 		$this->lang->load('systems/systems', (!empty($this->sess->language) ? $this->sess->language : 'english'));
 		
+		/* Set Reference URL */
+		// $this->session->set_userdata(['ref_url' => $_SERVER['REQUEST_URI']]);
+		// echo $_SERVER['REQUEST_URI'];
+		
 		$this->fixed_data = [
 			'client_id'		=> (!empty($this->sess->client_id) ? $this->sess->client_id : '0'),
 			'org_id'			=> (!empty($this->sess->org_id) ? $this->sess->org_id : '0')
@@ -67,6 +71,13 @@ class Getmeb extends CI_Controller
 		if (!$this->_check_path($data['path'].$data['url'])) {
 			$this->set_message('ERROR: Menu [path] is could not be found or file not exist !');
 			return FALSE;
+		}
+		
+		if (key_exists('edit', $this->params) && !empty($this->params['edit'])) {
+			if (!$this->_check_path($data['path'].$data['url'].'_edit')) {
+				$this->set_message('ERROR: Page or File ['.$data['path'].$data['url'].'_edit'.'] is could not be found or file not exist !');
+				return FALSE;
+			}
 		}
 		
 		/* CHECK CLASS/CONTROLLER */

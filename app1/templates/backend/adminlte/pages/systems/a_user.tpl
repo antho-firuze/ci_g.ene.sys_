@@ -128,49 +128,12 @@
 		
 		{* line for check permission *}
 		
-		form = createForm1();
-		form.xform('load', data);  
-		BootstrapDialog.show({ title: 'Update Record', type: BootstrapDialog.TYPE_PRIMARY, message: form,
-			buttons: [{
-				icon: 'glyphicon glyphicon-send',
-				cssClass: 'btn-primary',
-				label: '&nbsp;&nbsp;Save',
-				action: function(dialog) {
-					if (! form.valid()) return false;
-					
-					var button = this;
-					button.spin();
-					
-					$.ajax({ url: '{$url_module ~ "?id="}'+data.id, method: "PUT", async: true, dataType: 'json',
-						data: form.serializeJSON(),
-						success: function(data) {
-							dialog.close();
-							dataTable1.ajax.reload( null, false );
-							Lobibox.notify('info', { msg: data.message });
-						},
-						error: function(data) {
-							if (data.status==500){
-								var message = data.statusText;
-							} else {
-								var error = JSON.parse(data.responseText);
-								var message = error.message;
-							}
-							button.stopSpin();
-							dialog.enableButtons(true);
-							dialog.setClosable(true);
-							BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
-						}
-					});
-				}
-			}, {
-					label: 'Close',
-					action: function(dialog) { dialog.close(); }
-			}],
-			onshown: function(dialog) {
-				form.validate({ ignore:'', rules:{ password_confirm:{ equalTo: "#password_new" }} });
-				form.find('#name').focus();
-			}
-		});
+		{* // similar behavior as an HTTP redirect *}
+		{* window.location.replace(getURLOrigin()+window.location.search+'&edit=1&id='+data.id); *}
+
+		{* // similar behavior as clicking on a link *}
+		window.location.href = getURLOrigin()+window.location.search+'&edit=1&id='+data.id;
+
 	});
 	
 	tableData1.find('tbody').on( 'click', '[name="btn-delete"]', function () {
