@@ -180,9 +180,9 @@ class Base_Model extends CI_Model
 	{
 		$this->db->select($params['select']);
 		$this->db->from($params['table']);
-		if ( array_key_exists('join', $params)) DBX::join($this, $params['join']);
-		if ( array_key_exists('where', $params)) $this->db->where($params['where']);
-		if ( array_key_exists('like', $params)) $this->db->where($params['like']);
+		if ( key_exists('join', $params)) DBX::join($this, $params['join']);
+		if ( key_exists('where', $params)) $this->db->where($params['where']);
+		if ( key_exists('like', $params)) $this->db->where($params['like']);
 
 		/* &filter=field1=value1,field2=value2... */
 		if (key_exists('filter', $this->params) && !empty($this->params['filter'])){

@@ -18,7 +18,8 @@
 
       <!-- search form -->
       {* <form class="navbar-form navbar-left sidebar-form" role="search"> *}
-      <div class="navbar-form navbar-left sidebar-form">
+      <div class="navbar-form navbar-left search-menu-form">
+      {* <div class="navbar-form navbar-left sidebar-form"> *}
         <div class="input-group">
           <input type="text" id="searching-menu" name="q" class="form-control" autocomplete="off" placeholder="Searching Menu...">
               <span class="input-group-btn">

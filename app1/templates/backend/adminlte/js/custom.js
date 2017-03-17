@@ -400,14 +400,9 @@ function lock_screen()
 		renderItem: function (item, search){
 			search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 			var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
-			var url_lnk = 
-			console.log(item);
-			/* return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion" data-href="' + item[1] + '" data-val="' + item[0] + '"><i class="fa fa-circle-o"></i> '+ item[0].replace(re, "<b>$1</b>") + '</div>'; */
 			return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion" data-id="' + item['id'] + '" data-val="' + item['name'] + '"><i class="fa fa-circle-o"></i> '+ item['name'].replace(re, "<b>$1</b>") + '</div>';
 		},
 		onSelect: function(e, term, item){
-			// window.location.replace(base_url+item.data('href'));
-			// window.location.href = base_url+item.data('id');
 			window.location.href = x_page_lnk+'?pageid='+item.data('id');
 		} 
 	});
