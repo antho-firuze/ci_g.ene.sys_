@@ -219,7 +219,8 @@ function subRow(el){
 
 /* Using for bootstrap */
 function subCol(siz, el){
-	if(typeof(el)==='undefined') el = '';
+	if(typeof(siz)==='undefined') siz = 12;
+	if(typeof(el)==='undefined') el = '&nbsp;';
 	var container = $('<div class="col-md-'+ siz +'"></div>');
 	return container.append(el);
 }

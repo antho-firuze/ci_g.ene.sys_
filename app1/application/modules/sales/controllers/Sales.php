@@ -35,26 +35,25 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$data = json_decode($this->input->raw_input_stream);
-			$fields = ['is_active','code','name','description'];
+			$fields = $this->db->list_fields($this->c_method);
 			$boolfields = ['is_active'];
 			$nullfields = [];
 			foreach($fields as $f){
-				if (key_exists($f, $data)){
+				if (key_exists($f, $this->params)){
 					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
 					} 
 					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
 					} else {
-						$datas[$f] = $data->{$f};
+						$datas[$f] = $this->params->{$f};
 					}
 				}
 			}
 			if ($this->r_method == 'POST')
 				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -87,26 +86,25 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$data = json_decode($this->input->raw_input_stream);
-			$fields = ['is_active','code','name','description'];
+			$fields = $this->db->list_fields($this->c_method);
 			$boolfields = ['is_active'];
 			$nullfields = [];
 			foreach($fields as $f){
-				if (key_exists($f, $data)){
+				if (key_exists($f, $this->params)){
 					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
 					} 
 					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
 					} else {
-						$datas[$f] = $data->{$f};
+						$datas[$f] = $this->params->{$f};
 					}
 				}
 			}
 			if ($this->r_method == 'POST')
 				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -139,26 +137,25 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$data = json_decode($this->input->raw_input_stream);
-			$fields = ['is_active','code','name','description'];
+			$fields = $this->db->list_fields($this->c_method);
 			$boolfields = ['is_active'];
 			$nullfields = [];
 			foreach($fields as $f){
-				if (key_exists($f, $data)){
+				if (key_exists($f, $this->params)){
 					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
 					} 
 					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
 					} else {
-						$datas[$f] = $data->{$f};
+						$datas[$f] = $this->params->{$f};
 					}
 				}
 			}
 			if ($this->r_method == 'POST')
 				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -191,26 +188,25 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$data = json_decode($this->input->raw_input_stream);
-			$fields = ['is_active','code','name','description'];
+			$fields = $this->db->list_fields($this->c_method);
 			$boolfields = ['is_active'];
 			$nullfields = [];
 			foreach($fields as $f){
-				if (key_exists($f, $data)){
+				if (key_exists($f, $this->params)){
 					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
 					} 
 					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
 					} else {
-						$datas[$f] = $data->{$f};
+						$datas[$f] = $this->params->{$f};
 					}
 				}
 			}
 			if ($this->r_method == 'POST')
 				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -243,26 +239,25 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$data = json_decode($this->input->raw_input_stream);
-			$fields = ['is_active','code','name','description','validfrom'];
+			$fields = $this->db->list_fields($this->c_method);
 			$boolfields = ['is_active'];
 			$nullfields = ['description'];
 			foreach($fields as $f){
-				if (key_exists($f, $data)){
+				if (key_exists($f, $this->params)){
 					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
 					} 
 					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
 					} else {
-						$datas[$f] = $data->{$f};
+						$datas[$f] = $this->params->{$f};
 					}
 				}
 			}
 			if ($this->r_method == 'POST')
 				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -295,26 +290,25 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$data = json_decode($this->input->raw_input_stream);
-			$fields = ['is_active','code','name','description'];
+			$fields = $this->db->list_fields($this->c_method);
 			$boolfields = ['is_active'];
 			$nullfields = [];
 			foreach($fields as $f){
-				if (key_exists($f, $data)){
+				if (key_exists($f, $this->params)){
 					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
 					} 
 					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
 					} else {
-						$datas[$f] = $data->{$f};
+						$datas[$f] = $this->params->{$f};
 					}
 				}
 			}
 			if ($this->r_method == 'POST')
 				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -347,26 +341,25 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$data = json_decode($this->input->raw_input_stream);
-			$fields = ['is_active','code','name','description'];
+			$fields = $this->db->list_fields($this->c_method);
 			$boolfields = ['is_active'];
 			$nullfields = [];
 			foreach($fields as $f){
-				if (key_exists($f, $data)){
+				if (key_exists($f, $this->params)){
 					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
 					} 
 					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
 					} else {
-						$datas[$f] = $data->{$f};
+						$datas[$f] = $this->params->{$f};
 					}
 				}
 			}
 			if ($this->r_method == 'POST')
 				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -399,26 +392,25 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$data = json_decode($this->input->raw_input_stream);
-			$fields = ['value'];
+			$fields = $this->db->list_fields($this->c_method);
 			$boolfields = [];
 			$nullfields = [];
 			foreach($fields as $f){
-				if (key_exists($f, $data)){
+				if (key_exists($f, $this->params)){
 					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($data->{$f}) ? 0 : 1; 
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
 					} 
 					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($data->{$f}=='') ? NULL : $data->{$f}; 
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
 					} else {
-						$datas[$f] = $data->{$f};
+						$datas[$f] = $this->params->{$f};
 					}
 				}
 			}
 			if ($this->r_method == 'POST')
 				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>(int)$this->params['id']]);
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);

@@ -3,6 +3,8 @@
   "use strict";
 
   $.fn.xform = function(options) {
+		var i, field_type, field_name, field_id;
+		
 		if (typeof options == 'string') {
 			// console.log('debug: options-string');
 			var args = Array.prototype.slice.call(arguments, 1),
@@ -12,8 +14,11 @@
 				// console.log('debug: load');
 				for (i = 0; i < form.length; i++)
 				{
+					// console.log($(form[i]).hasClass('checkbox')?form[i]:'');
+					// field_class = form[i].class.toLowerCase();
 					field_type = form[i].type.toLowerCase();
 					field_name = form[i].name.toLowerCase();
+					field_id	 = form[i].id.toLowerCase();
 					$.each(args[0], function(k, v){
 						// console.log(k);
 						if (field_name == k) { 
@@ -26,11 +31,13 @@
 								form[i].value = v;
 								break;
 							case "hidden":
-								// form[i].value = v;
-								
-								if (jQuery().combogrid){
-									// console.log('debug: '+field_name+': '+v);
-									if (field_name){
+								if (field_id == field_name) {
+									// console.log(field_class);
+									if (! $(form[i]).hasClass('checkbox'))
+										form[i].value = v;
+								} else {
+									if (jQuery().combogrid){
+										// console.log('debug: '+field_name+': '+v);
 										$(form).find('#'+field_name).combogrid('setValue', v);
 									}
 								}
@@ -61,11 +68,11 @@
 			
 			if (options == 'reset'){
 				// console.log('debug: reset');
-				var i, field_type, field_name;
 				for (i = 0; i < form.length; i++)
 				{
 					field_type = form[i].type.toLowerCase();
 					field_name = form[i].name.toLowerCase();
+					field_id 	 = form[i].id.toLowerCase();
 					switch (field_type)
 					{
 					case "text":

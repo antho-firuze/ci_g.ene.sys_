@@ -327,6 +327,8 @@ function lock_screen()
 	init_screen_timeout();
 	
 	var lockscreen = $('.lockscreen');
+	var form_lck = $('form.lockscreen-credentials');
+	
 	$(document).on("idle.idleTimer", function(event, elem, obj){
 		lock_screen();
     });
@@ -344,22 +346,8 @@ function lock_screen()
 			window.location.replace($("#go-sign-out").attr('href'));
 	});
 	
-	/* 
-	* Validation for unlock screen 
-	*/
-  var form_lck = $('form.lockscreen-credentials');
-	form_lck.validate({
-	  rules: {
-	    password: {
-	      required: true
-	    }
-	  }
-	});
-	
 	form_lck.submit( function(e) {
 		e.preventDefault();
-		
-		if (! form_lck.valid()) return false;
 		
 		$.ajax({ url: x_unlock_lnk, method: "GET", async: true, dataType: 'json',
 			headers: {

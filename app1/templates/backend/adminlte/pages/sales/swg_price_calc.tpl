@@ -36,30 +36,30 @@
 	var formContent = $('<form "autocomplete"="off"><div class="row"><div class="col-left col-md-6"></div><div class="col-right col-md-6"></div></div></form>');
 	var col_l = formContent.find('div.col-left');
 	var col_r = formContent.find('div.col-right');
-	col_l.append(BSHelper.FormCombobox({ label:"Price List", idname:"pricelist_version", url:"{$.php.base_url('sales/m_pricelist_version')}?filter=t1.is_active=1,is_sopricelist=1&ob=validfrom desc", required: true, isCombogrid: true, placeholder:"typed or choose" }));
-	a.push( subCol(4, BSHelper.FormCombobox({ label:"Size", idname:"swg_size_id", url:"{$.php.base_url('sales/e_swg_size')}?ob=id", required: true, isCombogrid: true, placeholder:"typed or choose" })) );
-	a.push( subCol(4, BSHelper.FormCombobox({ label:"Class", idname:"swg_class_id", url:"{$.php.base_url('sales/e_swg_class')}", required: true, isCombogrid: true, placeholder:"typed or choose" })) );
-	a.push( subCol(4, BSHelper.FormCombobox({ label:"Series", idname:"swg_series_id", url:"{$.php.base_url('sales/e_swg_series')}", required: true, isCombogrid: true, placeholder:"typed or choose" })) );
+	col_l.append(BSHelper.Combogrid({ label:"Price List", idname:"pricelist_version", url:"{$.php.base_url('sales/m_pricelist_version')}?filter=t1.is_active=1,is_sopricelist=1&ob=validfrom desc", required: true, isLoad: false, placeholder:"typed or choose" }));
+	a.push( subCol(4, BSHelper.Combogrid({ label:"Size", idname:"swg_size_id", url:"{$.php.base_url('sales/e_swg_size')}?ob=id", required: true, isLoad: false, placeholder:"typed or choose" })) );
+	a.push( subCol(4, BSHelper.Combogrid({ label:"Class", idname:"swg_class_id", url:"{$.php.base_url('sales/e_swg_class')}", required: true, isLoad: false, placeholder:"typed or choose" })) );
+	a.push( subCol(4, BSHelper.Combogrid({ label:"Series", idname:"swg_series_id", url:"{$.php.base_url('sales/e_swg_series')}", required: true, isLoad: false, placeholder:"typed or choose" })) );
 	col_l.append(subRow(a));
 	a = [];
-	a.push( subCol(3, BSHelper.FormInput({ type:"text", label:"D1", idname:"d1", required: true, placeholder:"0", readonly: true })) );
-	a.push( subCol(3, BSHelper.FormInput({ type:"text", label:"D2", idname:"d2", required: true, placeholder:"0", readonly: true  })) );
-	a.push( subCol(3, BSHelper.FormInput({ type:"text", label:"D3", idname:"d3", required: true, placeholder:"0", readonly: true  })) );
-	a.push( subCol(3, BSHelper.FormInput({ type:"text", label:"D4", idname:"d4", required: true, placeholder:"0", readonly: true  })) );
+	a.push( subCol(3, BSHelper.Input({ type:"number", label:"D1", idname:"d1", required: true, placeholder:"0", readonly: true })) );
+	a.push( subCol(3, BSHelper.Input({ type:"number", label:"D2", idname:"d2", required: true, placeholder:"0", readonly: true  })) );
+	a.push( subCol(3, BSHelper.Input({ type:"number", label:"D3", idname:"d3", required: true, placeholder:"0", readonly: true  })) );
+	a.push( subCol(3, BSHelper.Input({ type:"number", label:"D4", idname:"d4", required: true, placeholder:"0", readonly: true  })) );
 	col_l.append(subRow(a));
-	col_l.append(BSHelper.FormInput({ type:"text", label:"Quantity", idname:"qty", required: true, placeholder:"numeric", value:1 }));
-	col_r.append(BSHelper.FormCombobox({ label:"Material IR", idname:"ir_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: false, isCombogrid: true, placeholder:"typed or choose" }));
-	col_r.append(BSHelper.FormInput({ type:"hidden", idname:"ir_price" }));
-	col_r.append(BSHelper.FormCombobox({ label:"Material OR", idname:"or_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: false, isCombogrid: true, placeholder:"typed or choose" }));
-	col_r.append(BSHelper.FormInput({ type:"hidden", idname:"or_price" }));
-	col_r.append(BSHelper.FormCombobox({ label:"Material HOOP", idname:"hoop_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: false, isCombogrid: true, placeholder:"typed or choose" }));
-	col_r.append(BSHelper.FormInput({ type:"hidden", idname:"hoop_price" }));
-	col_r.append(BSHelper.FormCombobox({ label:"Material FILLER", idname:"filler_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: true, isCombogrid: true, placeholder:"typed or choose" }));
-	col_r.append(BSHelper.FormInput({ type:"hidden", idname:"filler_price" }));
-	col_r.append(BSHelper.FormCombobox({ label:"Branch", idname:"branch_id", url:"{$.php.base_url('systems/a_user_org')}", required: true, isCombogrid: true, placeholder:"typed or choose" }));
-	col_r.append(BSHelper.FormInput({ type:"hidden", idname:"swg_margin" }));
+	col_l.append(BSHelper.Input({ type:"number", label:"Quantity", idname:"qty", required: true, placeholder:"numeric", value:1 }));
+	col_r.append(BSHelper.Combogrid({ label:"Material IR", idname:"ir_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: false, isLoad: false, placeholder:"typed or choose" }));
+	col_r.append(BSHelper.Input({ type:"hidden", idname:"ir_price" }));
+	col_r.append(BSHelper.Combogrid({ label:"Material OR", idname:"or_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: false, isLoad: false, placeholder:"typed or choose" }));
+	col_r.append(BSHelper.Input({ type:"hidden", idname:"or_price" }));
+	col_r.append(BSHelper.Combogrid({ label:"Material HOOP", idname:"hoop_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: false, isLoad: false, placeholder:"typed or choose" }));
+	col_r.append(BSHelper.Input({ type:"hidden", idname:"hoop_price" }));
+	col_r.append(BSHelper.Combogrid({ label:"Material FILLER", idname:"filler_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: true, isLoad: false, placeholder:"typed or choose" }));
+	col_r.append(BSHelper.Input({ type:"hidden", idname:"filler_price" }));
+	col_r.append(BSHelper.Combogrid({ label:"Branch", idname:"branch_id", url:"{$.php.base_url('systems/a_user_org')}", required: true, isLoad: false, placeholder:"typed or choose" }));
+	col_r.append(BSHelper.Input({ type:"hidden", idname:"swg_margin" }));
 	a = [];
-	a.push( BSHelper.FormButton({ type:"submit", label:"Submit", cls:"btn-primary" }) );
+	a.push( BSHelper.Button({ type:"submit", label:"Submit", cls:"btn-primary" }) );
 	{* a.push( '&nbsp;' ); *}
 	{* a.push( BSHelper.FormButton({ type:"button", label:"Testing", cls:"btn-primary", idname:"btn_testing" }) ); *}
 	formContent.append( a );
@@ -203,9 +203,10 @@
 		{* console.log($("#swg_size_id").combogrid('getValue', 'id')); *}
 	});
 	
-	formContent.on('submit', function(e){
-		e.stopPropagation;
-		console.log(formContent.serialize());
+	{* Form submit action *}
+	formContent.validator().on('submit', function (e) {
+		{* e.stopPropagation; *}
+		if (e.isDefaultPrevented()) { return false;	} 
 		
 		$.ajax({ url: '{$url_module}', method: "GET", async: true, dataType: 'json',
 			data: formContent.serializeJSON(),

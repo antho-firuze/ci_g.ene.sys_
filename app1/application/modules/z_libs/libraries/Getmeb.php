@@ -27,7 +27,10 @@ class Getmeb extends CI_Controller
 	function __construct() {
 		parent::__construct();
 		$this->r_method = $_SERVER['REQUEST_METHOD'];
-		$this->params = $this->input->get();
+		if (in_array($this->r_method, ['GET','DELETE']))
+			$this->params = $this->input->get();
+		if (in_array($this->r_method, ['POST','PUT']))
+			$this->params = json_decode($this->input->raw_input_stream);
 		define('ASSET_URL', base_url().'/assets/');
 		define('TEMPLATE_URL', base_url().TEMPLATE_FOLDER.'/backend/'.$this->theme.'/');
 		define('TEMPLATE_PATH', '/backend/'.$this->theme.'/');
@@ -132,7 +135,13 @@ class Getmeb extends CI_Controller
 			return false;
 		}
 		
-		$this->db->insert($table, $data);
+		if (!$return = $this->db->insert($table, $data)) {
+			$this->set_message($this->db->error()['message']);
+			return false;
+		}
+		return true;
+		
+		/* $this->db->insert($table, $data);
 		$return = $this->db->affected_rows() == 1;
 		if ($return)
 			// $this->set_message('update_data_successful');
@@ -140,7 +149,7 @@ class Getmeb extends CI_Controller
 		else
 			$this->set_message('error_saving');
 		
-		return true;
+		return true; */
 	}
 	
 	function updateRecord($table, $data, $cond)
@@ -152,7 +161,13 @@ class Getmeb extends CI_Controller
 			return false;
 		}
 		
-		$this->db->update($table, $data, $cond);
+		if (!$return = $this->db->update($table, $data, $cond)) {
+			$this->set_message($this->db->error()['message']);
+			return false;
+		}
+		return true;
+		
+		/* $this->db->update($table, $data, $cond);
 		$return = $this->db->affected_rows() == 1;
 		if ($return)
 			// $this->set_message('update_data_successful');
@@ -160,7 +175,7 @@ class Getmeb extends CI_Controller
 		else
 			$this->set_message('update_data_unsuccessful');
 		
-		return true;
+		return true; */
 	}
 	
 	function deleteRecords($table, $ids)

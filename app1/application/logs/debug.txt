@@ -1,1 +1,1 @@
-http://localhost/ci/app1/systems/x_page?pageid=20&edit=1&id=3
+http://localhost/ci/app1/systems/x_page?pageid=20

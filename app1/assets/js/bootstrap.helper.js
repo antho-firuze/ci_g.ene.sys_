@@ -74,149 +74,88 @@
 		return shelter;
 	};
 	
+	BSHelper.Label = function(options){
+		var o = $.extend( {}, BSHelper.defaults, options );
+		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
+		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
+
+		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
+		container.find('.control-input').append(o.elcustom);
+		return container;
+	};
+	
 	BSHelper.Input = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
-		var container = $('<div class="form-group"><label class="control-label '+o.lblsize+'" for="'+o.idname+'">'+o.label+'</label><div class="control-input '+o.colsize+'"></div></div>');
-		var input = $('<input>', {class: "form-control "+o.colsize, id: o.idname, name: o.idname, type: o.type, placeholder: o.placeholder, value: o.value, autocomplete: "off"}); 
-		if (o.type=='hidden') return input;
-		if (o.required) input.attr('required','');
-		if (o.disabled) input.attr('disabled','');
-		if (o.readonly) input.attr('readonly','');
-		container.find('.control-input').append(input);
-		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
-		return container;
-	};
-	
-	BSHelper.FormInput = function(options){
-		var o = $.extend( {}, BSHelper.defaults, options );
-		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label><div class="control-input input-group" style="width:100%;"></div></div>');
+		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
+		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
 		var el = (o.type == 'textarea') ? 'textarea' : 'input';
-		var input = $('<'+el+' />', {class: "form-control", id: o.idname, name: o.idname, type: o.type, placeholder: o.placeholder, value: o.value, autocomplete: "off"}); 
+		var input = $('<'+el+' />', {class: "form-control", id: o.idname, name: o.idname, type: o.type, placeholder: o.placeholder, value: o.value, autocomplete:"off"}); 
+		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
+
 		if (o.type=='hidden') return input;
-		if (o.required) input.attr('required','');
+		if (o.hidden) { input.attr('style','display:none;'); return input; }
+		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
+		if (!o.label) { container.find('label').remove(); container.removeClass('form-group'); }
+		if (o.required) input.attr('required',''); 
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
-		container.find('.control-input').append(input);
-		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
+		if (o.onfocus) input.attr('onfocus',o.onfocus);
+		if (o.minlength) input.attr('data-minlength',o.minlength);
+		if (o.idmatch) input.attr('data-match','#'+o.idmatch);
+		if (o.errormatch) input.attr('data-match-error',o.errormatch);
+		container.find('.control-input').append(input).append(help);
 		return container;
 	};
 	
-	BSHelper.FormButton = function(options){
+	BSHelper.Button = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
-		var button = $('<button />', {class: "btn "+o.cls, id: o.idname, name: o.idname, type: o.type }); 
-		button.html(o.label);
+		var button = $('<button />', {class: "btn", id: o.idname, name: o.idname, type: o.type }).html(o.label); 
+		button.addClass(o.cls?o.cls:'btn-primary');
+
 		if (o.disabled) input.attr('disabled','');
 		return button;
 	};
 	
-	BSHelper.TextArea = function(options){
-		var o = $.extend( {}, BSHelper.defaults, options );
-		var container = $('<div class="form-group"><label class="control-label '+o.lblsize+'" for="'+o.idname+'">'+o.label+'</label><div class="control-input '+o.colsize+'"></div></div>');
-		var input = $('<textarea />', {class: "form-control", id: o.idname, name: o.idname, placeholder: o.placeholder, rows: o.rows}).html(o.value); 
-		if (o.required) input.attr('required','');
-		if (o.disabled) input.attr('disabled','');
-		if (o.readonly) input.attr('readonly','');
-		container.find('.control-input').append(input);
-		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
-		return container;
-	};
-	
 	BSHelper.Checkbox = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
-		var container = $('<div class="form-group"><label class="control-label '+o.lblsize+'" for="'+o.idname+'">'+o.label+'</label><div class="control-input checkbox '+o.colsize+'"></div></div>');
+		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
+		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input checkbox"></div></div>');
 		var input = $('<input>', {id:o.idname, name:o.idname, type:"checkbox"}); 
-		var input2 = $('<input>', {id:o.idname, name:o.idname, type:"hidden", value:0}); 
-		container.find('.control-input').append( input.append(input2) );
+		var input2 = $('<input>', {id:o.idname, name:o.idname, type:"hidden", class:"checkbox", value:0}); 
+		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
+
+		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
 		if (o.required) input.attr('required','');
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
 		if (parseInt(o.value)) input.prop("checked", true);
-		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
 		
+		container.find('.control-input').append( input.append(input2) ).append(help);
 		input.iCheck({ checkboxClass: 'icheckbox_flat-orange', radioClass: 'iradio_flat-orange'	});
 		return container;
 	};
 	
-	BSHelper.Combobox3 = function(options){
+	BSHelper.Combogrid = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
-		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label></div>');
-		
-		var fg = $('<div />', {class:"form-group"});
-		var lbl = $('<label />', {class:"control-label "+o.lblsize, for:o.idname}).html(o.label);
-		var col = $('<div />', {class:o.colsize});
-		var help = $('<p />', {class:"help-block"});
-		
-		var select = $("<select />", { class:"form-control", id:o.idname, name:o.idname });
-		if (o.required) select.attr('required','');
-		if (o.disabled) select.attr('disabled','');
-		if (o.readonly) select.attr('readonly','');
-		container.append(select);
-		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
+		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
+		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
+		var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: o.placeholder, value: o.value,	autocomplete: "off", "data-url": o.url }); 
+		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
 
-		$.getJSON(o.url, {}, function(data){ 
-			//response(data.data); 
-			var i=1;
-			$.each(data.data.rows, function(k, v) {
-				if (i==1) select.append( $('<option />') );
-				select.append($('<option />', {value: k}).html(v['name']));
-				i++;
-			});
-			// select.selectpicker('render');
-			select.combobox({
-				appendId: '_cb',
-				menu: '<ul class="dropdown-menu dropdown-menu-right"></ul>'
-			});
-		});
-		return container;
-	};
-	
-	BSHelper.Combobox2 = function(options){
-		var o = $.extend( {}, BSHelper.defaults, options );
-		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label></div>');
-		var input_grp = $('<div />', {class:"input-group combobox-container"});
-		var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: o.placeholder, value: o.value,	autocomplete: "off"	}); 
-		var btn = $('<div />', {class:"input-group-btn"}).append($('<button type="button" class="btn btn-default dropdown-toggle" aria-label="Combobox autofill suggestions" data-toggle="dropdown"><span class="caret"></span></button>'));
-
+		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
 		if (o.required) input.attr('required','');
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
-		container.append( input_grp.append(input).append(btn) );
-		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
-
-		/* $.getJSON(o.url, {}, function(data){ 
-			input.ajaxComboBox(
-				data.data.rows,
-				{
-					lang: 'en',
-					db_table: 'nation',
-					button_img: template_url+'plugins/ajax-combobox/btn.png'
-					//shorten_src: template_url+'plugins/ajax-combobox/btn.png'
-				}
-			);
-		}); */
+		container.find('.control-input').append(input).append(help);
 		
-		return container;
-	};
-	
-	BSHelper.Combobox = function(options){
-		var o = $.extend( {}, BSHelper.defaults, options );
-		var container = $('<div class="form-group"><label class="control-label '+o.lblsize+'" for="'+o.idname+'">'+o.label+'</label></div>');
-		var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: o.placeholder, value: o.value,	autocomplete: "off"	}); 
-		input.attr('data-url',o.url);
-		if (o.required) input.attr('required','');
-		if (o.disabled) input.attr('disabled','');
-		if (o.readonly) input.attr('readonly','');
-		container.append(input);
-		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
-		
-		/* if (o.isCombogrid){
+		if (o.isLoad){
 			input.combogrid({ 
 				source: function(term, response){
 					$.getJSON( o.url, term, function(data){ response(data.data); });
 				}
 			});
-		} */
-		if (o.isCombogrid){
+		}
+		/* if (o.isCombogrid){
 			var xhr;
 			input.combogrid({ 
 				source: function(term, response){
@@ -232,110 +171,8 @@
 					}); 
 				} 
 			});
-		}
+		} */
 		container.find('.combogrid-container').addClass(o.colsize);
-		return container;
-	};
-	
-	BSHelper.FormCheckbox = function(options){
-		var o = $.extend( {}, BSHelper.defaults, options );
-		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label><div class="control-input checkbox"></div></div>');
-		var input = $('<input>', {id:o.idname, name:o.idname, type:"checkbox"}); 
-		var input2 = $('<input>', {id:o.idname, name:o.idname, type:"hidden", value:0}); 
-		container.find('.control-input').append( input.append(input2) );
-		if (o.required) input.attr('required','');
-		if (o.disabled) input.attr('disabled','');
-		if (o.readonly) input.attr('readonly','');
-		if (parseInt(o.value)) input.prop("checked", true);
-		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
-		
-		input.iCheck({ checkboxClass: 'icheckbox_flat-orange', radioClass: 'iradio_flat-orange'	});
-		return container;
-	};
-	
-	BSHelper.FormCombobox = function(options){
-		var o = $.extend( {}, BSHelper.defaults, options );
-		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label></div>');
-		var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: o.placeholder, value: o.value,	autocomplete: "off"	}); 
-		input.attr('data-url',o.url);
-		if (o.required) input.attr('required','');
-		if (o.disabled) input.attr('disabled','');
-		if (o.readonly) input.attr('readonly','');
-		container.append(input);
-		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(container);
-		
-		/* if (o.isCombogrid){
-			input.combogrid({ 
-				source: function(term, response){
-					$.getJSON( o.url, term, function(data){ response(data.data); });
-				}
-			});
-		} */
-		/* if (o.isCombogrid){
-			var xhr;
-			input.combogrid({ 
-				source: function(term, response){
-					try { xhr.abort(); } catch(e){}
-					xhr = $.ajax({ url:o.url, method:"GET",	dataType:"json", data:term,	cache:false,
-						success: function(data){
-							response(data.data);
-						},
-						error: function(data, textStatus, error){
-							var err = textStatus + ", " + error;
-							console.log( "Request Failed: " + err );
-						}
-					}); 
-				}
-			});
-		} */
-		return container;
-	};
-	
-	BSHelper.Combobox4 = function(options){
-		var o = $.extend( {}, BSHelper.defaults, options );
-		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label></div>');
-		var input = $('<input>', {class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: o.placeholder,value: o.value,autocomplete: "off"}); 
-		if (o.type=='hidden') return input;
-		if (o.required) input.attr('required','');
-		if (o.disabled) input.attr('disabled','');
-		if (o.readonly) input.attr('readonly','');
-		container.append(input);
-		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(col);
-		
-		$.getJSON(o.url, {}, function(data){ 
-			input.ajaxComboBox(data.data.rows);
-		});
-		return container;
-	};
-	
-	BSHelper.Combobox5 = function(options){
-		var o = $.extend( {}, BSHelper.defaults, options );
-		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+o.label+'</label></div>');
-		var input = $('<input>', {class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: o.placeholder,value: o.value,autocomplete: "off"}); 
-		if (o.type=='hidden') return input;
-		if (o.required) input.attr('required','');
-		if (o.disabled) input.attr('disabled','');
-		if (o.readonly) input.attr('readonly','');
-		container.append(input);
-		if (o.help) $('<p />', {class:"help-block"}).html(o.help).appendTo(col);
-		
-		var xhr;
-		input.autoComplete({
-			minChars: 1,
-			delay: 0,
-			cache: false,
-			source: function(term, response){
-				try { xhr.abort(); } catch(e){}
-				xhr = $.getJSON(o.url, { q: term }, function(data){ 
-				response(data.data); });
-			},
-			renderItem: function (item, search){
-				search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-				var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
-				// return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion" data-href="' + item['id'] + '" data-val="' + item['name'] + '"><i class="fa fa-circle-o"></i> '+ item['name'].replace(re, "<b>$1</b>") + '</div>';
-				return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion"><i class="fa fa-circle-o"></i> '+ item['name'].replace(re, "<b>$1</b>") + '</div>';
-			}
-		});
 		return container;
 	};
 	
@@ -469,6 +306,7 @@
 		required: false,
 		disabled: false,
 		readonly: false,
+		horz: false, 					// for horizontal-form
 		lblsize: "col-sm-3",	
 		colsize: "col-sm-9",
 		isCombogrid: false

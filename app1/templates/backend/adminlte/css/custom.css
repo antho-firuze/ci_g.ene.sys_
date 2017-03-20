@@ -2,6 +2,10 @@
 /*!
   Genesys, v1.0.0
 */
+/* .help-block { */
+	/* margin: 0 0 -5px; */
+	/* font-size: 13px; */
+/* } */
 @media (min-width: 992px) {
 	.content-header > .breadcrumb {
 		top: 55px !important;

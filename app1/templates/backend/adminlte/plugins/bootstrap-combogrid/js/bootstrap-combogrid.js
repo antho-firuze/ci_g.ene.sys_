@@ -364,7 +364,6 @@
 	Combogrid.prototype = {
 		constructor: Combogrid,
 		version: function(){
-			console.log('1.1.3');
 			return '1.1.3';
 		},
 		init: function(){
@@ -468,7 +467,7 @@
 					inst = $this.data('combogrid');
 			
 			if (!inst) { return this; }
-			if (option == "getValue") {
+			if ($.inArray(option, ["getValue", "version"]) !== -1) {
 				return inst[option].apply(inst, Array.prototype.slice.call(arguments, 1));
 			}	else {
 				inst[option].apply(inst, Array.prototype.slice.call(arguments, 1));

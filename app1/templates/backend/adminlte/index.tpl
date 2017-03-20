@@ -57,6 +57,7 @@
 <script src="{$.const.TEMPLATE_URL}bootstrap/js/bootstrap.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-dialog/js/bootstrap-dialog.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-combogrid/js/bootstrap-combogrid.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/iCheck/icheck.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/datatables/media/js/jquery.dataTables.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/datatables/media/js/dataTables.bootstrap4.min.js"></script>
@@ -65,7 +66,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/fastclick/fastclick.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/autoComplete/jquery.auto-complete.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}dist/js/app.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/validation/jquery.validate.min.js"></script>
+{* <script src="{$.const.TEMPLATE_URL}plugins/validation/jquery.validate.min.js"></script> *}
 <script src="{$.const.TEMPLATE_URL}plugins/lobibox/js/notifications.min.js"></script>
 <script>
 	paceOptions = {	elements: false, restartOnRequestAfter: false	};
