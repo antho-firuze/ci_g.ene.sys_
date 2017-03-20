@@ -39,10 +39,6 @@ class Getmeb extends CI_Controller
 		$this->sess = (object) $this->session->userdata();
 		$this->lang->load('systems/systems', (!empty($this->sess->language) ? $this->sess->language : 'english'));
 		
-		/* Set Reference URL */
-		// $this->session->set_userdata(['ref_url' => $_SERVER['REQUEST_URI']]);
-		// echo $_SERVER['REQUEST_URI'];
-		
 		$this->fixed_data = [
 			'client_id'		=> (!empty($this->sess->client_id) ? $this->sess->client_id : '0'),
 			'org_id'			=> (!empty($this->sess->org_id) ? $this->sess->org_id : '0')
@@ -104,7 +100,12 @@ class Getmeb extends CI_Controller
 	
 	function _check_is_login()
 	{
-		return (bool)$this->session->userdata('user_id') ? TRUE : FALSE;
+		if (!$this->session->userdata('user_id')) {
+			setURL_Index();
+			$this->x_login();
+			exit();
+		}
+		return TRUE;
 	}
 	
 	function set_message($message)

@@ -130,26 +130,17 @@
 		});
 		
 		{* console.log(form.valid()); return false; *}
-		
-		$.ajax({
-			url: form.attr("action"),
-			method: "GET",
-			async: true,
-			dataType: 'json',
-			headers: {
-				"X-AUTH": "Basic " + btoa(params.username + ":" + params.password)
-			},
-			beforeSend: function(xhr) {
-				form.find('[type="submit"]').attr("disabled", "disabled");
-			},
+		$.ajax({ url:form.attr("action"), method:"GET", async:true, dataType:'json',
+			headers: { "X-AUTH": "Basic " + btoa(params.username + ":" + params.password) },
+			beforeSend: function(xhr) { form.find('[type="submit"]').attr("disabled", "disabled"); },
 			complete: function(xhr, data) {
-				setTimeout(function(){
-					form.find('[type="submit"]').removeAttr("disabled");
-				},1000);
+				setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled");	},1000);
 			},
 			success: function(data) {
 				store('lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}', 0);
-				window.location.replace('{$.php.site_url('systems')}');
+				
+				var url = '{$.session.referred_index !: $.php.site_url('systems')}';
+				window.location.replace(url);
 				{* window.location.href = '{$.php.site_url('systems')}'; *}
 			},
 			error: function(data, status, errThrown) {
@@ -161,11 +152,8 @@
 					var error = JSON.parse(data.responseText);
 					var message = error.message;
 				}
-					
 				{* dhtmlx.alert({ title: "Notification", type:"alert-error", text: error.message }); *}
-				setTimeout(function(){
-					form.find('[type="submit"]').removeAttr("disabled");
-				},1000);
+				setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled"); },1000);
 				BootstrapDialog.alert({ type:'modal-danger', title:'Error ('+data.status+') :', message:message });
 			}
 		});

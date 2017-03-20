@@ -1,4 +1,4 @@
-{var $url_module = $.php.base_url('systems/a_user')}
+{var $url_module = $.php.base_url('systems/a_role')}
 
    <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -38,14 +38,15 @@
 	{* For design form interface *}
 	var req = function(edit){ if (edit==1) return false; else if (edit==2) return true; else return true; };
 	col.append(BSHelper.Input({ type:"hidden", idname:"id" }));
-	col.append(BSHelper.Input({ horz:false, type:"text", label:"User Name", idname:"name", required: true, placeholder:"string(60)", }));
-	a.push(subCol(6, BSHelper.Input({ type:"password", label:"", idname:"password", required: req(edit), placeholder:"Password", minlength:6, help:"Minimum of 6 characters" })));
-	a.push(subCol(6, BSHelper.Input({ type:"password", label:"", idname:"password_confirm", required: req(edit), placeholder:"Confirm", idmatch:"password", errormatch:"Whoops, these don't match" })));
-	col.append(BSHelper.Label({ horz:false, label:"Password", idname:"password", required: req(edit), elcustom:subRow(a) }));
-	col.append(BSHelper.Input({ horz:false, type:"email", label:"Email", idname:"email", required: true, placeholder:"string(255)" }));
+	col.append(BSHelper.Input({ horz:false, type:"text", label:"Name", idname:"name", required: true, placeholder:"string(60)", }));
 	col.append(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", placeholder:"string(2000)" }));
 	col.append(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
-	col.append(BSHelper.Checkbox({ horz:false, label:"Is Full BP Access", idname:"is_fullbpaccess" }));
+	col.append(BSHelper.Checkbox({ horz:false, label:"Can Export", idname:"is_canexport" }));
+	col.append(BSHelper.Checkbox({ horz:false, label:"Can Report", idname:"is_canreport" }));
+	col.append(BSHelper.Checkbox({ horz:false, label:"Can Approved Own Doc", idname:"is_canapproveowndoc" }));
+	col.append(BSHelper.Checkbox({ horz:false, label:"Access All Orgs", idname:"is_accessallorgs" }));
+	col.append(BSHelper.Checkbox({ horz:false, label:"Use User Org Access", idname:"is_useuserorgaccess" }));
+	col.append(BSHelper.Combogrid({ horz:false, label:"Currency", idname:"currency_id", url:"{$.php.base_url('systems/c_currency')}", isLoad:false, placeholder:"typed or choose" }));
 	col.append(BSHelper.Combogrid({ horz:false, label:"Supervisor", idname:"supervisor_id", url:"{$.php.base_url('systems/a_user')}", isLoad:false, placeholder:"typed or choose" }));
 	formContent.append(subRow(col));
 	formContent.append(subRow(subCol()));
@@ -67,6 +68,11 @@
 	$("#btn_cancel").click(function(){ window.history.back();	});
 	
 	{* Init data for combogrid *}
+	$("#currency_id").combogrid({ 
+		source: function(term, response){
+			$.getJSON($("#currency_id").data('url'), term, function(data){ response(data.data); });
+		}
+	});
 	$("#supervisor_id").combogrid({ 
 		source: function(term, response){
 			$.getJSON($("#supervisor_id").data('url'), term, function(data){ response(data.data); });

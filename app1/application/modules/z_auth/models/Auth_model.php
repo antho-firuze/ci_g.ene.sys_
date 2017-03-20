@@ -415,7 +415,7 @@ class Auth_model extends CI_Model
 			return $successfully_changed_password_in_db;
 		}
 
-		$this->set_error('password_change_unsuccessful');
+		$this->set_error('old_password_notmatches');
 		return FALSE;
 	}
 

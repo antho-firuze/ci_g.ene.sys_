@@ -1,4 +1,4 @@
-{var $url_module = $.php.base_url('systems/a_user')}
+{var $url_module = $.php.base_url('systems/a_menu')}
 
    <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -38,15 +38,16 @@
 	{* For design form interface *}
 	var req = function(edit){ if (edit==1) return false; else if (edit==2) return true; else return true; };
 	col.append(BSHelper.Input({ type:"hidden", idname:"id" }));
-	col.append(BSHelper.Input({ horz:false, type:"text", label:"User Name", idname:"name", required: true, placeholder:"string(60)", }));
-	a.push(subCol(6, BSHelper.Input({ type:"password", label:"", idname:"password", required: req(edit), placeholder:"Password", minlength:6, help:"Minimum of 6 characters" })));
-	a.push(subCol(6, BSHelper.Input({ type:"password", label:"", idname:"password_confirm", required: req(edit), placeholder:"Confirm", idmatch:"password", errormatch:"Whoops, these don't match" })));
-	col.append(BSHelper.Label({ horz:false, label:"Password", idname:"password", required: req(edit), elcustom:subRow(a) }));
-	col.append(BSHelper.Input({ horz:false, type:"email", label:"Email", idname:"email", required: true, placeholder:"string(255)" }));
+	col.append(BSHelper.Input({ horz:false, type:"text", label:"Name", idname:"name", required: true, placeholder:"string(60)", }));
 	col.append(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", placeholder:"string(2000)" }));
 	col.append(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
-	col.append(BSHelper.Checkbox({ horz:false, label:"Is Full BP Access", idname:"is_fullbpaccess" }));
-	col.append(BSHelper.Combogrid({ horz:false, label:"Supervisor", idname:"supervisor_id", url:"{$.php.base_url('systems/a_user')}", isLoad:false, placeholder:"typed or choose" }));
+	col.append(BSHelper.Checkbox({ horz:false, label:"Is Parent", idname:"is_parent", value:0 }));
+	col.append(BSHelper.Input({ horz:false, type:"text", label:"Icon", idname:"icon", placeholder:"string(60)" }));
+	col.append(BSHelper.Input({ horz:false, type:"text", label:"Table", idname:"url", placeholder:"string(60)" }));
+	col.append(BSHelper.Input({ horz:false, type:"text", label:"Path", idname:"path", placeholder:"string(100)" }));
+	col.append(BSHelper.Input({ horz:false, type:"text", label:"Class", idname:"class", placeholder:"string(60)" }));
+	col.append(BSHelper.Input({ horz:false, type:"text", label:"Method", idname:"method", placeholder:"string(60)" }));
+	col.append(BSHelper.Input({ horz:false, type:"text", label:"Window Title", idname:"window_title", placeholder:"string(100)" }));
 	formContent.append(subRow(col));
 	formContent.append(subRow(subCol()));
 	a = [];
@@ -61,17 +62,11 @@
 		if (!isempty_obj(result.data.rows)) 
 			formContent.xform('load', result.data.rows[0]);  
 	});
-	{* End: Populate data to form *}
 	
 	{* Default action for button cancel *}
 	$("#btn_cancel").click(function(){ window.history.back();	});
 	
 	{* Init data for combogrid *}
-	$("#supervisor_id").combogrid({ 
-		source: function(term, response){
-			$.getJSON($("#supervisor_id").data('url'), term, function(data){ response(data.data); });
-		}
-	});
 
 	{* Form submit action *}
 	formContent.validator().on('submit', function (e) {

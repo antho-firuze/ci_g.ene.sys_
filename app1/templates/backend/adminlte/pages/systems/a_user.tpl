@@ -52,41 +52,18 @@
 			}
 		},
 		"columns": [
-			{ "width": "20px", orderable: false, className: "dt-body-center", "title": "<center><input type='checkbox' class='head-check'></center>" },
-			{ "width": "90px", orderable: false, className: "dt-body-center" },
-			{ "width": "130px", orderable: false, "data": "name", 		 	 "title": "Name" },
-			{ "width": "250px", orderable: false, "data": "email", 		 	 "title": "Email" },
-			{ "width": "250px", orderable: false, "data": "description", "title": "Description" },
-			{ "width": "40px", orderable: false, className: "dt-body-center", "data": "is_active", "title": "Active" },
-			{ "data": "is_online" },
-			{ "width": "100px", orderable: false, className: "dt-body-center" },
-		],
-		"columnDefs": [
-			{	"targets": 0,	"defaultContent": '<input type="checkbox" class="line-check">' },
-			{	"targets": 1,	"defaultContent": aLBtn.join("") },
-			{	"targets": 2,	"render": function(data, type, row){ return data+' ('+((row[6]=='1') ? 'on' : 'off')+')'; } },
-			{	"targets": 5,	"render": function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{	"targets": 6, "visible": false },
-			{	"targets":-1, "defaultContent": aRBtn.join("&nbsp;-&nbsp;") }
+			{ width:"20px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render:function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
+			{ width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render: function(data, type, row){ return aLBtn.join(""); } },
+			{ width:"130px", orderable:false, data:"name", title:"Name", render:function(data, type, row){ return data+' ('+((row[6]=='1') ? 'on' : 'off')+')'; } },
+			{ width:"250px", orderable:false, data:"email", title:"Email" },
+			{ width:"250px", orderable:false, data:"description", title:"Description" },
+			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ data:"is_online", "visible":false },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-center", title:"Sub Menu", render:function(data, type, row){ return aRBtn.join("&nbsp;-&nbsp;"); } },
 		],
 		"order": []
 	})
 	.search($q ? $q : '');
-	
-	{* This line for changing toolbar button *}
-	$('#toolbar').append( setToolbarButton() ).css('margin-bottom','10px');
-	$('div.box').css('margin-bottom','10px');
-	$('div.dataTables_wrapper').find('div.row:first').insertBefore('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_filter');
-	$('div.dataTables_wrapper').find('div.row:last').insertAfter('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_paginate');
-
-	addProcessMenu('btn-process1', 'User Role');
-	addProcessMenu('btn-process2', 'User Organization');
-	addProcessMenu('btn-process3', 'User Substitute');
-
-	{* AVAILABLE BUTTON LIST ['btn-copy','btn-new','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-process'] *}
-	setDisableToolBtn(['btn-copy','btn-message','btn-print','btn-export','btn-import']);
-	setDisableMenuProcess(['btn-process2','btn-process3']);
-	setVisibleToolBtn(['btn-copy','btn-message','btn-print','btn-export','btn-import']);
 	
 	{* Don't change this code: Re-coding dataTables search method *}
 	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
@@ -97,36 +74,43 @@
 	});		
 	
 	DTHelper.initCheckList(tableData1, dataTable1);
+	
+	{* This line for changing toolbar button *}
+	$('#toolbar').append( setToolbarButton() ).css('margin-bottom','10px');
+	$('div.box').css('margin-bottom','10px');
+	$('div.dataTables_wrapper').find('div.row:first').insertBefore('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_filter');
+	$('div.dataTables_wrapper').find('div.row:last').insertAfter('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_paginate');
+
+	{* AVAILABLE BUTTON LIST ['btn-copy','btn-new','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-process'] *}
+	setDisableToolBtn(['btn-copy','btn-message','btn-print','btn-export','btn-import']);
+	setVisibleToolBtn(['btn-copy','btn-message','btn-print','btn-export','btn-import']);
+	
+	{* Additional Menu on Toolbar Process Button *}
+	addProcessMenu('btn-process1', 'Process #1');
+	addProcessMenu('btn-process2', 'Process #2');
+	setDisableMenuProcess(['btn-process2']);
+
 	{* =================================================================================== *}
 	
-	{* For class aRBtn *}
-	tableData1.find('tbody').on( 'click', '.aRBtn', function () {
-		var data = dataTable1.row( $(this).parents('tr') ).data();
-		
-		var pageid = $(this).data('pageid');
-		var url = "{$.php.base_url('systems/x_page?pageid=')}"+pageid+"&user_id="+data.id;
-		window.location.href = url;
-	});
-	
-	{* btn-copy in DataTable *}
+	{* For class aLBtn : btn-copy in DataTable *}
 	tableData1.find('tbody').on( 'click', '[name="btn-copy"]', function () {
 		var data = dataTable1.row( $(this).parents('tr') ).data();
 		
-		if (!confirm("Create copy this data ?")) {
+		if (!confirm("Copy this data ?")) {
 			return false;
 		}
 		
 		window.location.href = getURLOrigin()+window.location.search+"&edit=3&id="+data.id;
 	});
 	
-	{* btn-edit in DataTable *}
+	{* For class aLBtn : btn-edit in DataTable *}
 	tableData1.find('tbody').on( 'click', '[name="btn-edit"]', function () {
 		var data = dataTable1.row( $(this).parents('tr') ).data();
 		
 		window.location.href = getURLOrigin()+window.location.search+"&edit=1&id="+data.id;
 	});
 	
-	{* btn-delete in DataTable *}
+	{* For class aLBtn : btn-delete in DataTable *}
 	tableData1.find('tbody').on( 'click', '[name="btn-delete"]', function () {
 		var data = dataTable1.row( $(this).parents('tr') ).data();
 		
@@ -151,6 +135,15 @@
 		});
 	});
 	
+	{* For class aRBtn *}
+	tableData1.find('tbody').on( 'click', '.aRBtn', function () {
+		var data = dataTable1.row( $(this).parents('tr') ).data();
+		
+		var pageid = $(this).data('pageid');
+		var url = "{$.php.base_url('systems/x_page?pageid=')}"+pageid+"&user_id="+data.id;
+		window.location.href = url;
+	});
+	
 	{* btn-new in Toolbar *}
 	$('#btn-new').click(function(){
 		window.location.href = getURLOrigin()+window.location.search+"&edit=2";
@@ -158,7 +151,6 @@
 	
 	{* btn-refresh in Toolbar *}
 	$('#btn-refresh').click(function(){
-		{* console.log('Debug: Refresh'); *}
 		dataTable1.ajax.reload( null, false );
 	});
 	
@@ -251,26 +243,5 @@
 		console.log('Debug: '+$(this).attr('title'));
 		{* dataTable1.ajax.reload( null, false ); *}
 	});
-	
-	{* btn-process1 in Toolbar *}
-	$('#btn-process1').click(function(){
-		if ($(this).parent().hasClass('disabled')) return false;
-		console.log('Debug: '+$(this).html());
-		{* dataTable1.ajax.reload( null, false ); *}
-	});
-	
-	$('#btn-process2').click(function(){
-		if ($(this).parent().hasClass('disabled')) return false;
-		console.log('Debug: '+$(this).html());
-		{* dataTable1.ajax.reload( null, false ); *}
-	});
-	
-	$('#btn-process3').click(function(){
-		if ($(this).parent().hasClass('disabled')) return false;
-		console.log('Debug: '+$(this).html());
-		{* dataTable1.ajax.reload( null, false ); *}
-	});
-	
-	
 	
 </script>

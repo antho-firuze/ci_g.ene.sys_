@@ -80,14 +80,23 @@ class System_Model extends CI_model
 	
 	function get_a_user_org($params)
 	{
-		$params['select'] = "t1.id, t1.org_id, t2.code ||'_'|| t2.name as code_name, t2.swg_margin";
+		$params['select'] = "t1.id, t1.org_id, t2.code ||'_'|| t2.name as code_name, t2.swg_margin, t1.is_active";
 		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_user_org as t1";
 		$params['join'][] 	= ['a_org as t2', 't1.org_id = t2.id', 'left'];
 		$params['where']['t1.is_deleted'] 	= '0';
-		$params['where']['t1.is_active'] 	= '1';
-		$params['where']['t1.user_id'] 	= $this->sess->user_id;
 		// $params['where']['t2.orgtype_id'] 	= 1; // type 1=Central, 2=Branch, 3=Division
+		
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function get_a_user_role($params)
+	{
+		$params['select'] = "t1.id, t1.role_id, t2.code ||'_'|| t2.name as code_name, t1.is_active";
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_user_role as t1";
+		$params['join'][] 	= ['a_role as t2', 't1.role_id = t2.id', 'left'];
+		$params['where']['t1.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec($params);
 	}

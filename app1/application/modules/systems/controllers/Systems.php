@@ -8,7 +8,6 @@ class Systems extends Getmeb
 		parent::__construct();
 		
 		$this->load->model('systems/system_model');
-		setURL_Index();
 	}
 	
 	/**
@@ -48,8 +47,7 @@ class Systems extends Getmeb
 		/* THIS METHODS ARE NOT THROUGH CHECKING LOGIN */
 		if (!in_array($method, ['x_auth', 'x_login', 'x_logout']))
 		{
-			if (! $this->_check_is_login())
-				redirect('/');
+			$this->_check_is_login();
 		}
 		return call_user_func_array(array($this, $method), $params);
 	}
@@ -187,8 +185,37 @@ class Systems extends Getmeb
 	
 	function x_chgpwd()
 	{
-		$this->load->library('z_auth/auth');
+		if ($this->r_method == 'GET') {
+			$this->params['where']['t1.id'] = $this->sess->user_id;
+			
+			if (($result['data'] = $this->system_model->get_a_user($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if ($this->r_method == 'PUT') {
+			$this->load->library('z_auth/auth');
+			$http_auth 	= $this->input->server('HTTP_X_AUTH');
+			
+			if ($http_auth !== NULL)
+			{
+				if (strpos(strtolower($http_auth), 'basic') === 0)
+				{
+					list($username, $password) = explode(':', base64_decode(substr($http_auth, 6)));
+				}
+			}
+			if (! $this->auth->change_password($username, $password, $this->params->password_new))
+			{
+				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+			}
 
+			$this->xresponse(TRUE, ['message' => $this->auth->messages()]);
+		}
+		/* 
+		$this->load->library('z_auth/auth');
 		$http_auth 	= $this->input->server('HTTP_X_AUTH');
 		$username 	= $this->input->server('PHP_AUTH_USER');
 		
@@ -210,6 +237,7 @@ class Systems extends Getmeb
 		}
 
 		$this->xresponse(TRUE, ['message' => $this->auth->messages()]);
+		 */
 		/* $auth	= $this->input->server('HTTP_X_AUTH');
 		$data 	= json_decode($this->input->raw_input_stream);
 		
@@ -367,9 +395,6 @@ class Systems extends Getmeb
 				return;
 			}
 			
-			// getURL_Index();
-			debug($this->session->userdata('referred_index'));
-			
 			if (key_exists('edit', $this->params) && !empty($this->params['edit']))
 				$this->backend_view($menu['path'].$menu['url'].'_edit', $menu);
 			else
@@ -379,6 +404,7 @@ class Systems extends Getmeb
 		$this->backend_view('pages/404', ['message'=>'']);
 	}
 	
+	/* Don't make example from a_user & a_role */
 	function a_user()
 	{
 		if ($this->r_method == 'GET') {
@@ -473,7 +499,7 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
 			else
 				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
@@ -490,10 +516,65 @@ class Systems extends Getmeb
 		}
 	}
 	
-	function a_role()
+	function a_user_role()
 	{
 		if ($this->r_method == 'GET') {
 			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (key_exists('user_id', $this->params) && ($this->params['user_id'] != '')) 
+				$this->params['where']['t1.user_id'] = $this->params['user_id'];
+			
+			if (key_exists('q', $this->params) && !empty($this->params['q']))
+				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
+
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$fields = $this->db->list_fields($this->c_method);
+			$boolfields = ['is_active'];
+			$nullfields = [];
+			foreach($fields as $f){
+				if (key_exists($f, $this->params)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
+					} 
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
+					} else {
+						$datas[$f] = $this->params->{$f};
+					}
+				}
+			}
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+			else
+				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
+	/* Don't make example from a_role & a_user */
+	function a_role()
+	{
+		if ($this->r_method == 'GET') {
+			if (key_exists('id', $this->params) && ($this->params['id'] != '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
@@ -509,7 +590,7 @@ class Systems extends Getmeb
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active','is_canexport','is_canapproveowndoc','is_accessallorgs','is_useuserorgaccess'];
+			$boolfields = ['is_active','is_canexport','is_canreport','is_canapproveowndoc','is_accessallorgs','is_useuserorgaccess'];
 			$nullfields = ['currency_id','supervisor_id'];
 			foreach($fields as $f){
 				if (key_exists($f, $this->params)){
@@ -524,7 +605,7 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
 			else
 				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
@@ -578,9 +659,9 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
+				$result = $this->insertRecord($this->c_method, $datas);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id]);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -631,7 +712,7 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
 			else
 				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
@@ -682,7 +763,7 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
 			else
 				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
@@ -742,7 +823,7 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
 			else
 				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
@@ -793,7 +874,7 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
 			else
 				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
@@ -844,7 +925,7 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
 			else
 				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
@@ -900,7 +981,7 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
 			else
 				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
@@ -954,7 +1035,7 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
 			else
 				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
@@ -1008,7 +1089,7 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
 			else
 				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			
@@ -1062,7 +1143,7 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->update_log));
+				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
 			else
 				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
 			

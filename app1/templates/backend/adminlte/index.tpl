@@ -108,7 +108,6 @@
 <!-- ./wrapper -->
 {include $.const.TEMPLATE_PATH ~ "include/lockscreen.tpl"}
 <script src="{$.const.TEMPLATE_URL}js/custom.js"></script>
-<script src="{$.const.TEMPLATE_URL}js/xform.js"></script>
 <script>$(document.body).addClass(get($sidebar)).addClass(get($skin));</script>
 </body>
 </html>
