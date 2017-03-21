@@ -350,16 +350,10 @@ function lock_screen()
 		e.preventDefault();
 		
 		$.ajax({ url: x_unlock_lnk, method: "GET", async: true, dataType: 'json',
-			headers: {
-				"X-AUTH": "Basic " + btoa(form_lck.find("input[name='name']").val() + ":" + form_lck.find("input[name='password']").val())
-			},
-			beforeSend: function(xhr) {
-				form_lck.find('[type="submit"]').attr("disabled", "disabled");
-			},
+			headers: { "X-AUTH": "Basic " + btoa(form_lck.find("input[name='name']").val() + ":" + form_lck.find("input[name='password']").val())	},
+			beforeSend: function(xhr) {	form_lck.find('[type="submit"]').attr("disabled", "disabled"); },
 			complete: function(xhr, data) {
-				setTimeout(function(){
-					form_lck.find('[type="submit"]').removeAttr("disabled");
-				},1000);
+				setTimeout(function(){ form_lck.find('[type="submit"]').removeAttr("disabled");	},1000);
 			},
 			success: function(data) {
 				store($lockscreen, 0);
@@ -367,8 +361,14 @@ function lock_screen()
 				init_screen_timeout();
 			},
 			error: function(data) {
-				var error = JSON.parse(data.responseText);
-				dhtmlx.alert({ title: "Notification", type:"alert-error", text: error.message });
+				if (data.status==500){
+					var message = data.statusText;
+				} else {
+					var error = JSON.parse(data.responseText);
+					var message = error.message;
+				}
+				setTimeout(function(){ form_lck.find('[type="submit"]').removeAttr("disabled"); },1000);
+				$("div.lockscreen").find(".help-block").html("<b>"+message+"</b>");
 			}
 		});  
 	});

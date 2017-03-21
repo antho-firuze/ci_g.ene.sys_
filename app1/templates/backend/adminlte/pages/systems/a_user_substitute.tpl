@@ -1,4 +1,4 @@
-{var $url_module = $.php.base_url('systems/a_user_role')}
+{var $url_module = $.php.base_url('systems/a_user_substitute')}
 {var $url_module_main = $.php.base_url('systems/a_user')}
 
   <!-- Content Wrapper. Contains page content -->
@@ -64,7 +64,7 @@
 		"columns": [
 			{ width:"20px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render:function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
 			{ width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render: function(data, type, row){ return aLBtn.join(""); } },
-			{ width:"250px", orderable:false, data:"code_name", title:"Role" },
+			{ width:"250px", orderable:false, data:"code_name", title:"Substitute" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 		"order": []

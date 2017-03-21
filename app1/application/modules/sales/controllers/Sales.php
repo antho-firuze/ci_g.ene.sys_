@@ -77,9 +77,9 @@ class Sales extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -128,9 +128,9 @@ class Sales extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -179,9 +179,9 @@ class Sales extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -230,9 +230,9 @@ class Sales extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -281,9 +281,9 @@ class Sales extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -332,9 +332,9 @@ class Sales extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -383,9 +383,9 @@ class Sales extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -434,9 +434,9 @@ class Sales extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);

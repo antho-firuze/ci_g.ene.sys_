@@ -89,10 +89,41 @@
 		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
 		var el = (o.type == 'textarea') ? 'textarea' : 'input';
-		var input = $('<'+el+' />', {class: "form-control", id: o.idname, name: o.idname, type: o.type, placeholder: o.placeholder, value: o.value, autocomplete:"off"}); 
+		var input = $('<'+el+' />', {class: "form-control", id:o.idname, name:o.idname, placeholder:o.placeholder, value:o.value, autocomplete:"off"}); 
 		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
 
-		if (o.type=='hidden') return input;
+		/* type=textarea => el=textarea,type='' */
+		/* type=text,email,url,number,hidden => el=input,type=type */
+		/* type=date => el=input,type=text */
+		/* type=time => el=input,type=text */
+		/* type=datetime => el=input,type=text */
+		switch (o.type){
+			case 'hidden':
+				input.attr('type',o.type);
+				return input;
+				break;
+			case 'text':
+			case 'email':
+			case 'password':
+			case 'url':
+			case 'number':
+			case 'color':
+			case 'month':
+			case 'datetime-local':
+				input.attr('type',o.type);
+				break;
+			case 'date':
+				input.attr('type','text');
+				// if (o.min) input.attr('min',o.min);		// format yyyy-mm-dd
+				// if (o.max) input.attr('max',o.max);		// format yyyy-mm-dd
+				if (o.inputmask) input.attr('data-inputmask',o.inputmask);
+				input.attr('data-mask','');
+				break;
+			case 'time':
+			case 'datetime':
+			default:
+				break;
+		}
 		if (o.hidden) { input.attr('style','display:none;'); return input; }
 		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
 		if (!o.label) { container.find('label').remove(); container.removeClass('form-group'); }
@@ -212,58 +243,32 @@
 		return $('<dt />').html(o.title).add($('<dd />').html(o.value));
 	};
 	
-	BSHelper.TableConfirm = function(options){
-		var o = $.extend( {}, BSHelper.Table.defaults, options );
-		
-		var table = $('<table />', { class: 'table' }),
-				thead = $('<thead />'),
-				tbody = $('<tbody />'),
-				tr = $('<tr />'),
-				l = 1,
-				c = 1;
-				
-		if (o.data.length > o.maxrows){
-			var _confirm_text = o.confirm_text.replace(/({rows_count})/gi, o.data.length);
-			return $('<p />').html(_confirm_text);
-		}
-		
-		// TABLE HEADER
-		if (o.showtitle){
-			$.each(o.columns, function(j){
-				if (c==1){ if (o.rowno){ tr.append( $('<th />').html('#') ); } }
-				tr.append( $('<th />').html(o.columns[j]['title']) );
-				c++;
-			});
-			tr.appendTo(thead);
-		}
-		
-		// TABLE DETAIL
-		$.each(o.data, function(i){
-			var tr = $('<tr />'),
-					c  = 1;
-			$.each(o.columns, function(j){
-				var col = o.columns[j]['data'];
-				if (c==1){ if (o.rowno){ tr.append( $('<th />').html(i+1) ); } }
-				tr.append( $('<td />').html(o.data[i][col]) );
-				c++;
-			});
-			tr.appendTo(tbody);
-		});
-		return table.append(thead).append(tbody);
-	};
-	
 	BSHelper.Table = function(options){
 		var o = $.extend( {}, BSHelper.Table.defaults, options );
 		
-		var table = $('<table />', { class: 'table' }),
-				thead = $('<thead />'),
-				tbody = $('<tbody />'),
-				tr = $('<tr />'),
+		var container = $('<div>'+o.title+'<br><table class="table"><thead></thead><tbody></tbody></table></div>'),
+				table = container.find('table'),
+				thead = container.find('thead'),
+				tbody = container.find('tbody'),
 				l = 1,
-				c = 1;
-				
+				c = 1,
+				confirm_text = o.confirm_text.replace(/({rows_count})/gi, o.data.length);
+		
+		if (o.isConfirm){
+			if (o.data.length > o.maxrows){
+				table.remove();
+				return container.append($('<p />').html(confirm_text));
+			}
+		}
+		
+		if (Object.keys(o.columns).length == 0) {
+			table.remove();
+			return container.append($('<p />').html(confirm_text));
+		}
+					
 		// TABLE HEADER
-		if (o.showtitle){
+		if (o.showheader){
+			var tr = $('<tr />');
 			$.each(o.columns, function(j){
 				if (c==1){ if (o.rowno){ tr.append( $('<th />').html('#') ); } }
 				tr.append( $('<th />').html(o.columns[j]['title']) );
@@ -284,7 +289,7 @@
 			});
 			tr.appendTo(tbody);
 		});
-		return table.append(thead).append(tbody);
+		return container;
 	};
 	
 	BSHelper.Table.defaults = { 
@@ -292,6 +297,7 @@
 		rowno: false,
 		showtitle: true,
 		maxrows: 3,
+		title: '<h4>Are you sure want to delete ?</h4>',
 		confirm_text: '<strong>{rows_count}</strong> rows selected.',
 	};
 	

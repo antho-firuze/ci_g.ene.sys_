@@ -37,9 +37,9 @@
 	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=31>Role</a></span>');
 	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=32>Org</a></span>');
 	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=33>Subs</a></span>');
-	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="width:100%; table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
+	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
 	dataTable1 = tableData1.DataTable({
-		"pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true,
+		"pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, 
 		"ajax": {
 			"url": '{$url_module}'+window.location.search+'&ob=id desc',
 			"data": function(d){ return $.extend({}, d, { "q": $q });	},
@@ -59,10 +59,10 @@
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"is_parent", title:"Parent", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"100px", orderable:false, data:"icon", title:"Icon" },
-			{ width:"100px", orderable:false, data:"url", title:"Table" },
-			{ width:"120px", orderable:false, data:"path", title:"Path" },
+			{ width:"110px", orderable:false, data:"url", title:"Table" },
+			{ width:"125px", orderable:false, data:"path", title:"Path" },
 			{ width:"100px", orderable:false, data:"class", title:"Class" },
-			{ width:"100px", orderable:false, data:"method", title:"Method" },
+			{ width:"110px", orderable:false, data:"method", title:"Method" },
 		],
 		"order": []
 	})
@@ -157,40 +157,30 @@
 	{* btn-delete in Toolbar *}
 	$('#btn-delete').click(function(){
 		var data = dataTable1.rows('.selected').data();
-		var ids = [];
 		
 		if (data.count() < 1)
 			return false;
 
-		var confirm = $('<div />');
-		confirm.append( $('<p />').html('Are you sure want to delete this record ?') );
-		confirm.append( 
-			BSHelper.TableConfirm({
-				data: data,	rowno: true, showtitle: false, maxrows: 3, 
+		var tblConfirm = BSHelper.Table({
+				data: data,	rowno: true, showheader: true, maxrows: 3, isConfirm: true,
 				columns:[
 					{ data:"name"					,title:"Name" },
-					{ data:"email"				,title:"Email" },
 					{ data:"description"	,title:"Description" },
-				]
-			})
-		);
-		
+				],
+			});
+			
+		var ids = [];
 		$.each(data, function(i){	ids[i] = data[i]['id'];	});
-		
-		{* console.log(ids.join()); return; *}
-		BootstrapDialog.show({ title: 'Delete Record/s', type: BootstrapDialog.TYPE_DANGER, message: confirm,
+		BootstrapDialog.show({ title: 'Delete Record/s', type: BootstrapDialog.TYPE_DANGER, message: tblConfirm,
 			buttons: [{
 				icon: 'glyphicon glyphicon-send',
 				cssClass: 'btn-danger',
 				label: '&nbsp;&nbsp;Delete',
 				action: function(dialog) {
-					if (! form.valid()) return false;
-					
 					var button = this;
 					button.spin();
 					
 					$.ajax({ url: '{$url_module ~ "?id="}'+ids.join(), method: "DELETE", async: true, dataType: 'json',
-						data: form.serializeJSON(),
 						success: function(data) {
 							dialog.close();
 							dataTable1.ajax.reload( null, false );

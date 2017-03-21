@@ -1,4 +1,5 @@
-{var $url_module = $.php.base_url('systems/a_menu')}
+{var $url_module = $.php.base_url('systems/a_user_org')}
+{var $url_module_main = $.php.base_url('systems/a_user')}
 
    <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -33,22 +34,24 @@
 	
 	{* Set status to Page Title *}
 	var desc = function(edit){ if (edit==1) return "(Edit)"; else if (edit==2) return "(New)"; else return "(Copy)"; };
+	var user_id = getURLParameter("user_id");
+	$.getJSON('{$url_module_main}', { "id": (user_id==null)?-1:user_id }, function(result){ 
+		if (!isempty_obj(result.data.rows)) {
+			var code_name = ": "+result.data.rows[0].code_name;
+			$('.content-header').find('h1').find('small').before(code_name);
+		}
+	});
 	$('.content-header').find('h1').find('small').html(desc(edit));
 	
 	{* For design form interface *}
 	var req = function(edit){ if (edit==1) return false; else if (edit==2) return true; else return true; };
+	{* adding master key id *}
+	col.append(BSHelper.Input({ type:"hidden", idname:"user_id", value:user_id }));
+	
+	{* standard fields table *}
 	col.append(BSHelper.Input({ type:"hidden", idname:"id" }));
-	col.append(BSHelper.Input({ horz:false, type:"text", label:"Name", idname:"name", required: true, placeholder:"string(60)", }));
-	col.append(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", placeholder:"string(2000)" }));
+	col.append(BSHelper.Combogrid({ horz:false, label:"Org", idname:"org_id", url:"{$.php.base_url('systems/a_org')}", isLoad:false, placeholder:"typed or choose" }));
 	col.append(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
-	col.append(BSHelper.Checkbox({ horz:false, label:"Is Parent", idname:"is_parent", value:0 }));
-	col.append(BSHelper.Combogrid({ horz:false, label:"Parent Menu", idname:"parent_id", url:"{$.php.base_url('systems/a_menu')}?filter=is_parent=1", isLoad:false, placeholder:"typed or choose" }));
-	col.append(BSHelper.Input({ horz:false, type:"text", label:"Icon", idname:"icon", placeholder:"string(60)" }));
-	col.append(BSHelper.Input({ horz:false, type:"text", label:"Table", idname:"url", placeholder:"string(60)" }));
-	col.append(BSHelper.Input({ horz:false, type:"text", label:"Path", idname:"path", placeholder:"string(100)" }));
-	col.append(BSHelper.Input({ horz:false, type:"text", label:"Class", idname:"class", placeholder:"string(60)" }));
-	col.append(BSHelper.Input({ horz:false, type:"text", label:"Method", idname:"method", placeholder:"string(60)" }));
-	col.append(BSHelper.Input({ horz:false, type:"text", label:"Window Title", idname:"window_title", placeholder:"string(100)" }));
 	formContent.append(subRow(col));
 	formContent.append(subRow(subCol()));
 	a = [];
@@ -68,9 +71,9 @@
 	$("#btn_cancel").click(function(){ window.history.back();	});
 	
 	{* Init data for combogrid *}
-	$("#parent_id").combogrid({ 
+	$("#org_id").combogrid({ 
 		source: function(term, response){
-			$.getJSON($("#parent_id").data('url'), term, function(data){ response(data.data); });
+			$.getJSON($("#org_id").data('url'), term, function(data){ response(data.data); });
 		}
 	});
 

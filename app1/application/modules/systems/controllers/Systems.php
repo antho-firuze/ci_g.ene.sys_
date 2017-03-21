@@ -108,10 +108,7 @@ class Systems extends Getmeb
 			'photo_file' 	=> urlencode($user->photo_file),
 		];
 		
-		$userConfig = (object) $this->system_model->getUserConfig([
-			'select' => 'attribute, value', 
-			'where' => ['user_id' => $id]
-		]);
+		$userConfig = $this->base_model->getValue('attribute, value', 'a_user_config', 'user_id', $id);
 		
 		$dataConfig = [];
 		foreach($userConfig as $k => $v)
@@ -499,9 +496,9 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, array_merge($datas, ['client_id' => DEFAULT_CLIENT_ID]), FALSE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);				
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -553,9 +550,69 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
+	function a_user_substitute()
+	{
+		if ($this->r_method == 'GET') {
+			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (key_exists('user_id', $this->params) && ($this->params['user_id'] != '')) 
+				$this->params['where']['t1.user_id'] = $this->params['user_id'];
+			
+			if (key_exists('q', $this->params) && !empty($this->params['q']))
+				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
+
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$fields = $this->db->list_fields($this->c_method);
+			$boolfields = ['is_active'];
+			$nullfields = [];
+			$datefields = [];
+			$timefields = [];
+			$datetimefields = ['valid_from','valid_to'];
+			foreach($fields as $f){
+				if (key_exists($f, $this->params)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
+					} elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
+					} elseif (in_array($f, $datetimefields)){
+						$dt = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
+						
+						$datas[$f] = $dt; 
+					} else {
+						$datas[$f] = $this->params->{$f};
+					}
+				}
+			}
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
+			else
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -605,9 +662,9 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -659,9 +716,9 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas);
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -712,9 +769,9 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -763,9 +820,9 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -823,9 +880,9 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -874,9 +931,9 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -925,9 +982,9 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -981,9 +1038,9 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -1035,9 +1092,9 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -1089,9 +1146,9 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -1143,9 +1200,9 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, $this->create_log));
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 			else
-				$result = $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id'=>$this->params->id]);
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);

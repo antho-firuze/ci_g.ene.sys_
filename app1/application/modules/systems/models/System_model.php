@@ -60,7 +60,7 @@ class System_Model extends CI_model
 	{
 		$params['select'] = "t1.id,t1.client_id,t1.org_id,t1.role_id,t1.is_active,t1.is_deleted,
 			t1.created_by,t1.updated_by,t1.deleted_by,t1.created_at,t1.updated_at,t1.deleted_at,
-			t1.name,t1.description,t1.email,t1.last_login,t1.is_online,t1.supervisor_id,
+			t1.code,t1.name,coalesce(t1.code, '')||' '||t1.name as code_name,t1.description,t1.email,t1.last_login,t1.is_online,t1.supervisor_id,
 			t1.bpartner_id,t1.is_fullbpaccess,t1.is_expired,t1.security_question,t1.security_answer,
 			t1.ip_address,t1.photo_file,ao.name as org_name, ar.name as role_name, au4.name as supervisor_name,
 			au1.name as _created_by, au2.name as _updated_by, au3.name as _deleted_by";
@@ -80,7 +80,7 @@ class System_Model extends CI_model
 	
 	function get_a_user_org($params)
 	{
-		$params['select'] = "t1.id, t1.org_id, t2.code ||'_'|| t2.name as code_name, t2.swg_margin, t1.is_active";
+		$params['select'] = "t1.id, t1.org_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t2.swg_margin, t1.is_active";
 		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_user_org as t1";
 		$params['join'][] 	= ['a_org as t2', 't1.org_id = t2.id', 'left'];
@@ -92,7 +92,7 @@ class System_Model extends CI_model
 	
 	function get_a_user_role($params)
 	{
-		$params['select'] = "t1.id, t1.role_id, t2.code ||'_'|| t2.name as code_name, t1.is_active";
+		$params['select'] = "t1.id, t1.org_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active";
 		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_user_role as t1";
 		$params['join'][] 	= ['a_role as t2', 't1.role_id = t2.id', 'left'];
@@ -101,7 +101,18 @@ class System_Model extends CI_model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function getUserConfig($params)
+	function get_a_user_substitute($params)
+	{
+		$params['select'] = "t1.id, t1.substitute_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active";
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_user_substitute as t1";
+		$params['join'][] 	= ['a_user as t2', 't1.user_id = t2.id', 'left'];
+		$params['where']['t1.is_deleted'] 	= '0';
+		
+		return $this->base_model->mget_rec($params);
+	}
+	
+	/* function getUserConfig($params)
 	{
 		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_user_config t1";
@@ -110,7 +121,7 @@ class System_Model extends CI_model
 		$params['list'] = 1;
 		
 		return $this->base_model->mget_rec($params);
-	}
+	} */
 	
 	function getUserRole($params)
 	{

@@ -1,1 +1,0 @@
-http://localhost/ci/app1/systems/x_page?pageid=20

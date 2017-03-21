@@ -14,7 +14,8 @@ class Getmeb extends CI_Controller
 	public $params;
 	/* FOR STORE SESSION DATA */
 	public $sess;
-	
+	/* FOR STORE SYSTEM SETTING */
+	public $sysconfig;
 	/* FOR ADDITIONAL CRUD FIXED DATA */
 	public $fixed_data = array();
 	public $create_log = array();
@@ -40,8 +41,8 @@ class Getmeb extends CI_Controller
 		$this->lang->load('systems/systems', (!empty($this->sess->language) ? $this->sess->language : 'english'));
 		
 		$this->fixed_data = [
-			'client_id'		=> (!empty($this->sess->client_id) ? $this->sess->client_id : '0'),
-			'org_id'			=> (!empty($this->sess->org_id) ? $this->sess->org_id : '0')
+			'client_id'		=> DEFAULT_CLIENT_ID,
+			'org_id'			=> DEFAULT_ORG_ID
 		];
 		$this->create_log = [
 			'created_by'	=> (!empty($this->sess->user_id) ? $this->sess->user_id : '0'),
@@ -127,35 +128,29 @@ class Getmeb extends CI_Controller
 		return $_output;
 	}
 
-	function insertRecord($table, $data)
+	function insertRecord($table, $data, $fixed_data = FALSE, $create_log = FALSE)
 	{
 		$data = is_object($data) ? (array) $data : $data;
-		
-		if (!key_exists('id', $cond) && empty($cond['id'])) {
-			$this->set_message('error_saving');
-			return false;
-		}
-		
+		$data = $fixed_data ? array_merge($data, $this->fixed_data) : $data;
+		$data = $create_log ? array_merge($data, $this->create_log) : $data;
+
+		if (key_exists('id', $data)) 
+			unset($data['id']);
+
+		// debug(var_dump($data));
 		if (!$return = $this->db->insert($table, $data)) {
+			// echo $this->db->last_query();
+			// return;
 			$this->set_message($this->db->error()['message']);
 			return false;
 		}
 		return true;
-		
-		/* $this->db->insert($table, $data);
-		$return = $this->db->affected_rows() == 1;
-		if ($return)
-			// $this->set_message('update_data_successful');
-			$this->set_message('success_saving');
-		else
-			$this->set_message('error_saving');
-		
-		return true; */
 	}
 	
-	function updateRecord($table, $data, $cond)
+	function updateRecord($table, $data, $cond, $update_log = FALSE)
 	{
 		$data = is_object($data) ? (array) $data : $data;
+		$data = $update_log ? array_merge($data, $this->update_log) : $data;
 		
 		if (!key_exists('id', $cond) && empty($cond['id'])) {
 			$this->set_message('update_data_unsuccessful');
