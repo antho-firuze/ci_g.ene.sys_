@@ -1186,6 +1186,7 @@ class Systems extends Getmeb
 	
 	function z_test()
 	{
+		echo base64_encode(1);
 		// $this->session->userdata();
 		
 		// $userConfig = (object) $this->system_model->getUserConfig([

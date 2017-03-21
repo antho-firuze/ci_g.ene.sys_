@@ -1,19 +1,27 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-require APPPATH . '/modules/z_libs/libraries/Getmeb.php';
+// require APPPATH . '/modules/z_libs/libraries/Getmeb.php';
 
-class Test extends Getmeb {
-// class Test extends CI_Controller {
+// class Test extends Getmeb {
+class Test extends CI_Controller {
 
 	public $mdl_grp		= 'testing';
 
 	function __construct() {
 		parent::__construct();
-		date_default_timezone_set('Asia/Jakarta');
 		
 		// if(check_auth_restapi() !== TRUE) 
 			// return;
 		// check_auth_restapi();
+	}
+	
+	function short()
+	{
+		// echo base64_encode(1000);
+		$this->load->helper('string');
+		echo random_string('alnum', 5);
+		// echo random_string('md5', 5);
+		// echo random_string('sha1', 5);
 	}
 	
 	function getSystem()
