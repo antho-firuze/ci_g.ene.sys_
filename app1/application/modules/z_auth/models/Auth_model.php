@@ -588,7 +588,7 @@ class Auth_model extends CI_Model
 	public function increase_login_attempts($identity, $user_id = NULL) {
 		if ($this->config->item('track_login_attempts', 'auth')) {
 			$ip_address = $this->_prepare_ip($this->input->ip_address());
-			return $this->db->insert($this->tables['login_attempts'], array('ip_address' => $ip_address, 'login' => $identity, 'time' => time(), 'user_id' => $user_id));
+			return $this->db->insert($this->tables['login_attempts'], array('ip_address' => $ip_address, 'login' => $identity, 'time' => time(), 'user_id' => $user_id, 'created_at' => date('Y-m-d H:i:s')));
 		}
 		return FALSE;
 	}

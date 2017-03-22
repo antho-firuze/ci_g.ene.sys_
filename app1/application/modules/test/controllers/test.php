@@ -15,6 +15,23 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
+	function datetime()
+	{
+		$date = '22/03/2017';
+		$date_format = 'dd/mm/yyyy';
+		if (! in_array($date_format, ['dd/mm/yyyy', 'mm/dd/yyyy', 'dd-mm-yyyy', 'mm-dd-yyyy']))
+			return FALSE;
+		
+		if (strpos($this_format, '/') !== false) {
+			
+		} else {
+			
+		}
+
+		echo date("Y-m-d", strtotime('22/03/2017'));
+		echo var_dump(strptime('22/03/2017', 'dd/mm/yyyy'));
+	}
+	
 	function short()
 	{
 		// echo base64_encode(1000);
