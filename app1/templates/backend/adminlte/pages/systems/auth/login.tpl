@@ -1,3 +1,4 @@
+{var $url_module = $.php.base_url()~$.const.AUTH_LNK}
 {* 
 	Template Name: AdminLTE 
 	Modified By: Firuze
@@ -33,7 +34,6 @@
 <script src="{$.const.TEMPLATE_URL}plugins/pace/pace.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/iCheck/icheck.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-dialog/js/bootstrap-dialog.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/validation/jquery.validate.min.js"></script>
 
 </head>
 <body class="hold-transition login-page">
@@ -46,21 +46,21 @@
   <div class="login-box-body">
     <p class="login-box-msg">Sign in to start your session</p>
 
-    <form action="{$.php.base_url()~$.const.AUTH_LNK}">
+    <form action="{$url_module}">
       <div class="form-group has-feedback">
         <span class="glyphicon glyphicon-user form-control-feedback"></span>
-        <input type="text" class="form-control" placeholder="User Name" name="username">
+        <input type="text" class="form-control" placeholder="User Name" name="username" required>
       </div>
       <div class="form-group has-feedback">
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-        <input type="password" class="form-control" placeholder="Password" name="password">
+        <input type="password" class="form-control" placeholder="Password" name="password" required>
       </div>
       <div class="row">
         <div class="col-xs-8">
           <div class="checkbox icheck">
             <label>
-              <input type="checkbox" value="true" name="remember"> Remember Me
-              <input type="hidden" value="false" name="remember">
+              <input type="checkbox" name="remember"> Remember Me
+              {* <input type="hidden" name="remember" value=0 > *}
             </label>
           </div>
         </div>
@@ -86,10 +86,10 @@
 		</div>
 	{/if}
     <!-- /.social-auth-links -->
-	{*
+	
     <a href="#">I forgot my password</a><br>
-    <a href="register.html" class="text-center">Register a new membership</a>
-	*}
+    {* <a href="register.html" class="text-center">Register a new membership</a> *}
+	
   </div>
   <!-- /.login-box-body -->
 </div>
@@ -99,60 +99,35 @@
 </div>
 
 <script>
+	var form = $("form");
 	$(document).ajaxStart(function() { Pace.restart(); });
-	
-	$('input').iCheck({
-	  checkboxClass: 'icheckbox_square-blue', 
-	  radioClass: 'iradio_square-blue',
-	  increaseArea: '20%' 
-	});
-	
-	var form = $('form');
-	form.validate({
-		rules: {
-			username: {
-				required: true
-			},
-			password: {
-				required: true
-			}
-		}
-	});
+	$("[name='remember']")
+		.iCheck({ checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue', increaseArea: '20%' })
+		.iCheck('check');
 	
 	form.submit( function(e) {
 		e.preventDefault();
+		var rememberme = $("[name='remember']").prop('checked');
 		
-		if (! form.valid())	return false;
-			
-		var params = {};
-		$.each(form.serializeArray(), function (index, value) {
-			params[value.name] = params[value.name] ? params[value.name] || value.value : value.value;
-		});
-		
-		{* console.log(form.valid()); return false; *}
 		$.ajax({ url:form.attr("action"), method:"GET", async:true, dataType:'json',
-			headers: { "X-AUTH": "Basic " + btoa(params.username + ":" + params.password) },
+			headers: { "X-AUTH": "Basic " + btoa($("[name='username']").val() + ":" + $("[name='password']").val()) },
+			data: { "rememberme":rememberme },
 			beforeSend: function(xhr) { form.find('[type="submit"]').attr("disabled", "disabled"); },
-			complete: function(xhr, data) {
-				setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled");	},1000);
-			},
+			complete: function(xhr, data) {	setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled");	},1000); },
 			success: function(data) {
-				store('lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}', 0);
-				
-				var url = '{$.session.referred_index !: $.php.site_url('systems')}';
-				window.location.replace(url);
-				{* window.location.href = '{$.php.site_url('systems')}'; *}
+				if (data.status) {
+					store('lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}', 0);
+					var url = '{$.session.referred_index !: $.php.site_url('systems')}';
+					window.location.replace(url);
+				}
 			},
 			error: function(data, status, errThrown) {
 				if (data.status==500){
-					{* Error from network *}
 					var message = data.statusText;
 				} else {
-					{* Error from server *}
 					var error = JSON.parse(data.responseText);
 					var message = error.message;
 				}
-				{* dhtmlx.alert({ title: "Notification", type:"alert-error", text: error.message }); *}
 				setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled"); },1000);
 				BootstrapDialog.alert({ type:'modal-danger', title:'Error ('+data.status+') :', message:message });
 			}

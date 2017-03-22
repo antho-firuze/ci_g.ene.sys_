@@ -174,21 +174,28 @@ class Getmeb extends CI_Controller
 		return true; */
 	}
 	
-	function deleteRecords($table, $ids)
+	function deleteRecords($table, $ids, $real = FALSE)
 	{
 		$ids = array_filter(array_map('trim',explode(',',$ids)));
 		$return = 0;
 		foreach($ids as $v)
 		{
-			if ($this->db->update($table, $this->delete_log, ['id'=>$v]))
-			{
-				$return += 1;
+			if ($real) {
+				if ($this->db->delete($table, ['user_id'=>$v]))
+				{
+					$return += 1;
+				}
+			} else {
+				if ($this->db->update($table, $this->delete_log, ['id'=>$v]))
+				{
+					$return += 1;
+				}
 			}
 		}
 		if ($return)
 			$this->set_message('success_delete');
 		else
-			$this->set_message('delete_data_unsuccessful');
+			$this->set_message($this->db->error()['message']); 
 			
 		return $return;
 	}
