@@ -122,7 +122,7 @@ class Getmeb extends CI_Controller
 		$data['ip_address'] = $_SERVER['REMOTE_ADDR'];
 		if (!in_array($data['ip_address'], ['::1','127.0.0.1'])) {
 			$this->load->library('z_libs/IPAPI');
-			$query = IPAPI::query();
+			$query = IPAPI::query($data['ip_address']);
 			$data['country'] = $query->country;
 			$data['country_code'] = $query->countryCode;
 			$data['region'] = $query->region;
