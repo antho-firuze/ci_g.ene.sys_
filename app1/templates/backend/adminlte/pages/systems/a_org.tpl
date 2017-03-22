@@ -1,4 +1,4 @@
-{var $url_module = $.php.base_url('systems/a_role')}
+{var $url_module = $.php.base_url('systems/a_org')}
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -36,7 +36,7 @@
 	var aRBtn = [];
 	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=36>Menu</a></span>');
 	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=37>Process</a></span>');
-	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="width:100%; table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
+	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
 	dataTable1 = tableData1.DataTable({
 		"pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, 
 		"ajax": {
@@ -53,15 +53,11 @@
 		"columns": [
 			{ width:"20px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render: function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
 			{ width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render: function(data, type, row){ return aLBtn.join(""); } },
-			{ width:"130px", data:"name", 		 	 title:"Name" },
-			{ width:"250px", data:"description", title:"Description", orderable: false },
+			{ width:"200px", orderable: false, data:"code_name", 	 title:"Name" },
+			{ width:"250px", orderable: false, data:"description", title:"Description" },
+			{ width:"250px", orderable: false, data:"orgtype_name", title:"Type" },
+			{ width:"250px", orderable: false, data:"parent_name", title:"Parent" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canexport", title:"Can Export", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canreport", title:"Can Report", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canapproveowndoc", title:"Can Approve", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_accessallorgs", title:"Access All Org", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_useuserorgaccess", title:"Use User Org Access", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-center", title:"Sub Menu", render:function(data, type, row){ return aRBtn.join("&nbsp;-&nbsp;"); } },
 		],
 		"order": []
 	})
@@ -207,30 +203,6 @@
 				{**}
 			}
 		});
-	});
-	
-	{* btn-message in Toolbar *}
-	$('#btn-message').click(function(){
-		console.log('Debug: '+$(this).attr('title'));
-		{* dataTable1.ajax.reload( null, false ); *}
-	});
-	
-	{* btn-print in Toolbar *}
-	$('#btn-print').click(function(){
-		console.log('Debug: '+$(this).attr('title'));
-		{* dataTable1.ajax.reload( null, false ); *}
-	});
-	
-	{* btn-export in Toolbar *}
-	$('#btn-export').click(function(){
-		console.log('Debug: '+$(this).attr('title'));
-		{* dataTable1.ajax.reload( null, false ); *}
-	});
-	
-	{* btn-import in Toolbar *}
-	$('#btn-import').click(function(){
-		console.log('Debug: '+$(this).attr('title'));
-		{* dataTable1.ajax.reload( null, false ); *}
 	});
 	
 </script>

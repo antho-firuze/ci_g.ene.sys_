@@ -46,14 +46,14 @@
 	col.append(BSHelper.Checkbox({ horz:false, label:"Can Approved Own Doc", idname:"is_canapproveowndoc" }));
 	col.append(BSHelper.Checkbox({ horz:false, label:"Access All Orgs", idname:"is_accessallorgs" }));
 	col.append(BSHelper.Checkbox({ horz:false, label:"Use User Org Access", idname:"is_useuserorgaccess" }));
-	col.append(BSHelper.Combogrid({ horz:false, label:"Currency", idname:"currency_id", url:"{$.php.base_url('systems/c_currency')}", isLoad:false, placeholder:"typed or choose" }));
-	col.append(BSHelper.Combogrid({ horz:false, label:"Supervisor", idname:"supervisor_id", url:"{$.php.base_url('systems/a_user')}", isLoad:false, placeholder:"typed or choose" }));
+	col.append(BSHelper.Combogrid({ horz:false, label:"Currency", idname:"currency_id", url:"{$.php.base_url('systems/c_currency')}", isLoad:true, placeholder:"typed or choose" }));
+	col.append(BSHelper.Combogrid({ horz:false, label:"Supervisor", idname:"supervisor_id", url:"{$.php.base_url('systems/a_user')}", isLoad:true, placeholder:"typed or choose" }));
 	formContent.append(subRow(col));
 	formContent.append(subRow(subCol()));
 	a = [];
 	a.push( BSHelper.Button({ type:"submit", label:"Submit", idname:"submit_btn" }) );
 	a.push( '&nbsp;&nbsp;&nbsp;' );
-	a.push( BSHelper.Button({ type:"button", label:"Cancel", cls:"btn-danger", idname:"btn_cancel" }) );
+	a.push( BSHelper.Button({ type:"button", label:"Cancel", cls:"btn-danger", idname:"btn_cancel", onclick:"window.history.back();" }) );
 	formContent.append( a );
 	$('div.box-body').append(formContent);
 
@@ -62,22 +62,8 @@
 		if (!isempty_obj(result.data.rows)) 
 			formContent.xform('load', result.data.rows[0]);  
 	});
-	{* End: Populate data to form *}
-	
-	{* Default action for button cancel *}
-	$("#btn_cancel").click(function(){ window.history.back();	});
 	
 	{* Init data for combogrid *}
-	$("#currency_id").combogrid({ 
-		source: function(term, response){
-			$.getJSON($("#currency_id").data('url'), term, function(data){ response(data.data); });
-		}
-	});
-	$("#supervisor_id").combogrid({ 
-		source: function(term, response){
-			$.getJSON($("#supervisor_id").data('url'), term, function(data){ response(data.data); });
-		}
-	});
 
 	{* Form submit action *}
 	formContent.validator().on('submit', function (e) {

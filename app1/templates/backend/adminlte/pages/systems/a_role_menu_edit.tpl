@@ -1,7 +1,7 @@
-{var $url_module = $.php.base_url('systems/a_user_substitute')}
-{var $url_module_main = $.php.base_url('systems/a_user')}
+{var $url_module = $.php.base_url('systems/a_role_menu')}
+{var $url_module_main = $.php.base_url('systems/a_role')}
 
-	<!-- Content Wrapper. Contains page content -->
+   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
@@ -25,9 +25,6 @@
   </div>
   <!-- /.content-wrapper -->
 <script src="{$.const.TEMPLATE_URL}plugins/form-autofill/js/form-autofill.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/input-mask/jquery.inputmask.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/input-mask/jquery.inputmask.date.extensions.js"></script>
-{* <script src="{$.const.TEMPLATE_URL}plugins/input-mask/jquery.inputmask.extensions.js"></script> *}
 <script>
 	var a = [];
 	var col = subCol(12,"");
@@ -37,8 +34,8 @@
 	
 	{* Set status to Page Title *}
 	var desc = function(edit){ if (edit==1) return "(Edit)"; else if (edit==2) return "(New)"; else return "(Copy)"; };
-	var user_id = getURLParameter("user_id");
-	$.getJSON('{$url_module_main}', { "id": (user_id==null)?-1:user_id }, function(result){ 
+	var role_id = getURLParameter("role_id");
+	$.getJSON('{$url_module_main}', { "id": (role_id==null)?-1:role_id }, function(result){ 
 		if (!isempty_obj(result.data.rows)) {
 			var code_name = ": "+result.data.rows[0].code_name;
 			$('.content-header').find('h1').find('small').before(code_name);
@@ -49,15 +46,12 @@
 	{* For design form interface *}
 	var req = function(edit){ if (edit==1) return false; else if (edit==2) return true; else return true; };
 	{* adding master key id *}
-	col.append(BSHelper.Input({ type:"hidden", idname:"user_id", value:user_id }));
+	col.append(BSHelper.Input({ type:"hidden", idname:"role_id", value:role_id }));
 	
 	{* standard fields table *}
 	col.append(BSHelper.Input({ type:"hidden", idname:"id" }));
-	col.append(BSHelper.Combogrid({ horz:false, label:"User Substitute", idname:"substitute_id", url:"{$.php.base_url('systems/a_user')}", isLoad:true, placeholder:"typed or choose" }));
-	col.append(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", placeholder:"string(2000)" }));
+	col.append(BSHelper.Combogrid({ horz:false, label:"Menu", idname:"menu_id", url:"{$.php.base_url('systems/a_menu')}", isLoad:true, placeholder:"typed or choose" }));
 	col.append(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
-	col.append(BSHelper.Input({ type:"date", label:"Valid From", idname:"valid_from", inputmask:"'alias':'dd/mm/yyyy'" }));
-	col.append(BSHelper.Input({ type:"date", label:"Valid To", idname:"valid_to", inputmask:"'alias':'dd/mm/yyyy'" }));
 	formContent.append(subRow(col));
 	formContent.append(subRow(subCol()));
 	a = [];
@@ -74,9 +68,6 @@
 	});
 	
 	{* Init data for combogrid *}
-	
-	{* Init plugin for jquery inputmask *}
-	$("[data-mask]").inputmask();
 
 	{* Form submit action *}
 	formContent.validator().on('submit', function (e) {

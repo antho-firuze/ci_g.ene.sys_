@@ -89,7 +89,7 @@
 		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
 		var el = (o.type == 'textarea') ? 'textarea' : 'input';
-		var input = $('<'+el+' />', {class: "form-control", id:o.idname, name:o.idname, placeholder:o.placeholder, value:o.value, autocomplete:"off"}); 
+		var input = $('<'+el+' />', {class: "form-control", id:o.idname, name:o.idname, value:o.value, autocomplete:"off"}); 
 		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
 
 		/* type=textarea => el=textarea,type='' */
@@ -103,21 +103,30 @@
 				return input;
 				break;
 			case 'text':
+				input.attr('placeholder',(o.placeholder) ? o.placeholder : 'string(60)');
+				input.attr('type',o.type);
+				break;
+			case 'number':
+				input.attr('placeholder',(o.placeholder) ? o.placeholder : 'number');
+				input.attr('type',o.type);
+				break;
 			case 'email':
 			case 'password':
 			case 'url':
-			case 'number':
 			case 'color':
 			case 'month':
-			case 'datetime-local':
+			case 'datetime-local': 
 				input.attr('type',o.type);
 				break;
 			case 'date':
 				input.attr('type','text');
-				// if (o.min) input.attr('min',o.min);		// format yyyy-mm-dd
-				// if (o.max) input.attr('max',o.max);		// format yyyy-mm-dd
+				if (o.min) input.attr('min',o.min);		// format yyyy-mm-dd
+				if (o.max) input.attr('max',o.max);		// format yyyy-mm-dd
 				if (o.inputmask) input.attr('data-inputmask',o.inputmask);
 				input.attr('data-mask','');
+				break;
+			case 'textarea':
+				input.attr('placeholder',(o.placeholder) ? o.placeholder : 'string(2000)');
 				break;
 			case 'time':
 			case 'datetime':
@@ -143,7 +152,8 @@
 		var button = $('<button />', {class: "btn", id: o.idname, name: o.idname, type: o.type }).html(o.label); 
 		button.addClass(o.cls?o.cls:'btn-primary');
 
-		if (o.disabled) input.attr('disabled','');
+		if (o.disabled) button.attr('disabled','');
+		if (o.onclick) button.attr('onclick',o.onclick);
 		return button;
 	};
 	
@@ -203,7 +213,6 @@
 				} 
 			});
 		} */
-		container.find('.combogrid-container').addClass(o.colsize);
 		return container;
 	};
 	

@@ -50,14 +50,14 @@
 	
 	{* standard fields table *}
 	col.append(BSHelper.Input({ type:"hidden", idname:"id" }));
-	col.append(BSHelper.Combogrid({ horz:false, label:"Role", idname:"role_id", url:"{$.php.base_url('systems/a_role')}", isLoad:false, placeholder:"typed or choose" }));
+	col.append(BSHelper.Combogrid({ horz:false, label:"Role", idname:"role_id", url:"{$.php.base_url('systems/a_role')}", isLoad:true, placeholder:"typed or choose" }));
 	col.append(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	formContent.append(subRow(col));
 	formContent.append(subRow(subCol()));
 	a = [];
 	a.push( BSHelper.Button({ type:"submit", label:"Submit", idname:"submit_btn" }) );
 	a.push( '&nbsp;&nbsp;&nbsp;' );
-	a.push( BSHelper.Button({ type:"button", label:"Cancel", cls:"btn-danger", idname:"btn_cancel" }) );
+	a.push( BSHelper.Button({ type:"button", label:"Cancel", cls:"btn-danger", idname:"btn_cancel", onclick:"window.history.back();" }) );
 	formContent.append( a );
 	$('div.box-body').append(formContent);
 
@@ -67,15 +67,7 @@
 			formContent.xform('load', result.data.rows[0]);  
 	});
 	
-	{* Default action for button cancel *}
-	$("#btn_cancel").click(function(){ window.history.back();	});
-	
 	{* Init data for combogrid *}
-	$("#role_id").combogrid({ 
-		source: function(term, response){
-			$.getJSON($("#role_id").data('url'), term, function(data){ response(data.data); });
-		}
-	});
 
 	{* Form submit action *}
 	formContent.validator().on('submit', function (e) {

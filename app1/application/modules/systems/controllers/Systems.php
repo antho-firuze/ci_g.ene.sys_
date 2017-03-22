@@ -88,9 +88,7 @@ class Systems extends Getmeb
 		}
 
 		// User Data
-		// $user = $this->db->get_where('a_user', ['id'=>$id])->row();
-		$this->params['select'] = 't1.id, t1.client_id, t1.org_id, t1.role_id, t1.name, t1.description, t1.email, 
-			t1.photo_file, ac.name as client_name, ao.name as org_name, ar.name as role_name';
+		$this->params['select'] = 't1.id, t1.client_id, t1.org_id, t1.role_id, t1.name, t1.description, t1.email, t1.photo_file, ac.name as client_name, ao.name as org_name, ar.name as role_name';
 		$this->params['where']['t1.id'] = $id;
 		$this->params['list'] = 1;
 		$user = (object) $this->system_model->getUserAuthentication($this->params)[0];
@@ -107,6 +105,8 @@ class Systems extends Getmeb
 			'role_name'		=> $user->role_name,
 			'photo_file' 	=> urlencode($user->photo_file),
 		];
+		$user = $this->base_model->getValue('id, id as user_id, client_id, org_id, role_id, code, name, description, email, photo_file, supervisor_id, bpartner_id, is_fullbpaccess', 'a_user', 'id', $id);
+		$client = $this->base_model->getValue('id, code, name, description, email, photo_file', 'a_user', 'id', $user->client_id);
 		
 		$userConfig = $this->base_model->getValue('attribute, value', 'a_user_config', 'user_id', $id);
 		
@@ -332,6 +332,10 @@ class Systems extends Getmeb
 			if (!empty($this->params['q']))
 				$this->params['like']	= DBX::like_or('am.name', $this->params['q']);
 			
+		$this->params['where']['am.is_active']	= '1';
+		$this->params['where']['arm.is_active']	= '1';
+		$this->params['where']['am.is_parent']	= '0';
+		$this->params['order']	= "am.name";
 		$this->params['list']	= 1;
 		$result['data'] = $this->system_model->get_a_role_menu($this->params);
 		$this->xresponse(TRUE, $result);
@@ -465,6 +469,9 @@ class Systems extends Getmeb
 			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
+			if (key_exists('user_id', $this->params) && ($this->params['user_id'] != '')) 
+				$this->params['where']['t1.user_id'] = $this->params['user_id'];
+
 			if (key_exists('zone', $this->params) && ($this->params['zone']))
 				$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
 			
@@ -679,6 +686,114 @@ class Systems extends Getmeb
 		}
 	}
 	
+	function a_role_menu()
+	{
+		if ($this->r_method == 'GET') {
+			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (key_exists('role_id', $this->params) && ($this->params['role_id'] != '')) 
+				$this->params['where']['t1.role_id'] = $this->params['role_id'];
+			
+			if (key_exists('q', $this->params) && !empty($this->params['q']))
+				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
+
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$fields = $this->db->list_fields($this->c_method);
+			$boolfields = ['is_active'];
+			$nullfields = [];
+			foreach($fields as $f){
+				if (key_exists($f, $this->params)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
+					} 
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
+					} else {
+						$datas[$f] = $this->params->{$f};
+					}
+				}
+			}
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
+			else
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
+	function a_role_process()
+	{
+		if ($this->r_method == 'GET') {
+			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (key_exists('role_id', $this->params) && ($this->params['role_id'] != '')) 
+				$this->params['where']['t1.role_id'] = $this->params['role_id'];
+			
+			if (key_exists('q', $this->params) && !empty($this->params['q']))
+				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
+
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$fields = $this->db->list_fields($this->c_method);
+			$boolfields = ['is_active'];
+			$nullfields = [];
+			foreach($fields as $f){
+				if (key_exists($f, $this->params)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
+					} 
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
+					} else {
+						$datas[$f] = $this->params->{$f};
+					}
+				}
+			}
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
+			else
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
 	function a_system()
 	{
 		if ($this->r_method == 'GET') {
@@ -703,6 +818,57 @@ class Systems extends Getmeb
 			$fields = $this->db->list_fields($this->c_method);
 			$boolfields = [];
 			$nullfields = ['description'];
+			foreach($fields as $f){
+				if (key_exists($f, $this->params)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
+					} 
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
+					} else {
+						$datas[$f] = $this->params->{$f};
+					}
+				}
+			}
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
+			else
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
+	function a_client()
+	{
+		if ($this->r_method == 'GET') {
+			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (key_exists('q', $this->params) && !empty($this->params['q']))
+				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
+
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$fields = $this->db->list_fields($this->c_method);
+			$boolfields = ['is_active','is_securesmtp'];
+			$nullfields = ['description','smtp_host','smtp_port'];
 			foreach($fields as $f){
 				if (key_exists($f, $this->params)){
 					if (in_array($f, $boolfields)){
@@ -787,6 +953,57 @@ class Systems extends Getmeb
 	}
 	
 	function a_org()
+	{
+		if ($this->r_method == 'GET') {
+			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (key_exists('q', $this->params) && !empty($this->params['q']))
+				$this->params['like'] = DBX::like_or('t1.code, t1.name, t1.description', $this->params['q']);
+
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$fields = $this->db->list_fields($this->c_method);
+			$boolfields = ['is_active','is_parent'];
+			$nullfields = ['supervisor_id','phone','phone2','fax','email','website','address_map'];
+			foreach($fields as $f){
+				if (key_exists($f, $this->params)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
+					} 
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
+					} else {
+						$datas[$f] = $this->params->{$f};
+					}
+				}
+			}
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
+			else
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
+	function a_orgtype()
 	{
 		if ($this->r_method == 'GET') {
 			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
