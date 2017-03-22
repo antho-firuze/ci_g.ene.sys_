@@ -20,7 +20,8 @@ define('DB_PASS', '');
 define('DB_NAME', ''); 
 
 /* Base URL */ 
-define('BASE_URL', 'http://'.$_SERVER['HTTP_HOST'].'/'.(($_SERVER['HTTP_HOST']=='localhost')?'ci/app1/':'')); 
+$local = in_array($_SERVER['HTTP_HOST'], ['localhost', '192.168.1.7', '192.168.0.59']) ? 'ci/app1/' : '';
+define('BASE_URL', 'http://'.$_SERVER['HTTP_HOST'].'/'.$local); 
 
 /* Email Domain */ 
 define('EMAIL_DOMAIN', 'localhost'); 
@@ -62,6 +63,7 @@ define('DEFAULT_CLIENT_ID', $client_id);
 define('DEFAULT_ORG_ID', $org_id);
 
 /* BACKEND CONSTANT VARIABLES */
+define('PAGE_LNK', 'systems/x_page');
 define('AUTH_LNK', 'systems/x_auth');
 define('LOGIN_LNK', 'systems/x_login');
 define('LOGOUT_LNK', 'systems/x_logout');

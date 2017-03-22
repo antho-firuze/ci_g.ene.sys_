@@ -415,7 +415,7 @@ class Auth_model extends CI_Model
 			return $successfully_changed_password_in_db;
 		}
 
-		$this->set_error('password_change_unsuccessful');
+		$this->set_error('old_password_notmatches');
 		return FALSE;
 	}
 
@@ -434,22 +434,23 @@ class Auth_model extends CI_Model
 			$this->set_error('account_creation_duplicate_identity');
 			return FALSE;
 		}
-		elseif ( !$this->config->item('default_role', 'auth') && empty($roles) )
+		
+		/* elseif ( !$this->config->item('default_role', 'auth') && empty($roles) )
 		{
 			$this->set_error('account_creation_missing_default_role');
 			return FALSE;
-		}
+		} */
 
 		// check if the default set in config exists in database
-		$query = $this->db->get_where($this->tables['roles'],array('name' => $this->config->item('default_role', 'auth')),1)->row();
+		/* $query = $this->db->get_where($this->tables['roles'],array('name' => $this->config->item('default_role', 'auth')),1)->row();
 		if( !isset($query->id) && empty($roles) )
 		{
 			$this->set_error('account_creation_invalid_default_role');
 			return FALSE;
-		}
+		} */
 
 		// capture default role details
-		$default_role = $query;
+		// $default_role = $query;
 
 		// IP Address
 		$ip_address = $this->_prepare_ip($this->input->ip_address());
@@ -462,7 +463,7 @@ class Auth_model extends CI_Model
 		    'password'   => $password,
 		    'email'      => $email,
 		    'ip_address' => $ip_address,
-			'role_id'	 => isset($default_role->id) ? $default_role->id : 0,
+				// 'role_id'	 	 => isset($default_role->id) ? $default_role->id : 0,
 		    'is_active'     => ($manual_activation === false ? 1 : 0)
 		);
 
@@ -485,12 +486,12 @@ class Auth_model extends CI_Model
 		$id = $this->db->insert_id();
 
 		// add in roles array if it doesn't exits and stop adding into default role if default role ids are set
-		if( isset($default_role->id) && empty($roles) )
+		/* if( isset($default_role->id) && empty($roles) )
 		{
 			$roles = $default_role->id;
 		} 
 
-		$this->add_to_role($roles, $id);
+		$this->add_to_role($roles, $id); */
 
 		return (isset($id)) ? $id : FALSE;
 	}

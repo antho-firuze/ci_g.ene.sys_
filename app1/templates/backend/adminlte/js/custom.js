@@ -16,14 +16,6 @@ function lock_screen()
 	$(document).idleTimer("destroy");
 }
 
-(function ($) {
-
-  "use strict";
-  
-  $(document).ajaxStart(function() { Pace.restart(); });
-
-})(jQuery);
-
 /**
  * AdminLTE Right Menu
  * ------------------
@@ -280,12 +272,12 @@ function lock_screen()
       e.preventDefault();
       change_skin($(this).data('skin'));
 	
-	  $.ajax({
-		  url: Config_url,
-		  method: "POST",
-		  dataType: 'json',
-		  data: '{"skin": "'+$(this).data('skin')+'"}'
-	  });
+			$.ajax({
+				url: x_config_lnk,
+				method: "POST",
+				dataType: 'json',
+				data: '{"skin": "'+$(this).data('skin')+'"}'
+			});
     });
 
     //Add the change sidebar toggle
@@ -296,7 +288,7 @@ function lock_screen()
 				store($sidebar, 'sidebar-collapse');
 			
 			$.ajax({
-				url: Config_url,
+				url: x_config_lnk,
 				method: "POST",
 				dataType: 'json',
 				data: '{ "sidebar": "' + get($sidebar) +'" }'
@@ -309,7 +301,7 @@ function lock_screen()
 			init_screen_timeout();
 			
 			$.ajax({
-				url: Config_url,
+				url: x_config_lnk,
 				method: "POST",
 				dataType: 'json',
 				data: '{"screen_timeout": "'+$("#timeout_list").val()+'"}'
@@ -335,6 +327,8 @@ function lock_screen()
 	init_screen_timeout();
 	
 	var lockscreen = $('.lockscreen');
+	var form_lck = $('form.lockscreen-credentials');
+	
 	$(document).on("idle.idleTimer", function(event, elem, obj){
 		lock_screen();
     });
@@ -352,34 +346,14 @@ function lock_screen()
 			window.location.replace($("#go-sign-out").attr('href'));
 	});
 	
-	/* 
-	* Validation for unlock screen 
-	*/
-  var form_lck = $('form.lockscreen-credentials');
-	form_lck.validate({
-	  rules: {
-	    password: {
-	      required: true
-	    }
-	  }
-	});
-	
 	form_lck.submit( function(e) {
 		e.preventDefault();
 		
-		if (! form_lck.valid()) return false;
-		
-		$.ajax({ url: Unlock_url, method: "GET", async: true, dataType: 'json',
-			headers: {
-				"X-AUTH": "Basic " + btoa(form_lck.find("input[name='name']").val() + ":" + form_lck.find("input[name='password']").val())
-			},
-			beforeSend: function(xhr) {
-				form_lck.find('[type="submit"]').attr("disabled", "disabled");
-			},
+		$.ajax({ url: x_unlock_lnk, method: "GET", async: true, dataType: 'json',
+			headers: { "X-AUTH": "Basic " + btoa(form_lck.find("input[name='name']").val() + ":" + form_lck.find("input[name='password']").val())	},
+			beforeSend: function(xhr) {	form_lck.find('[type="submit"]').attr("disabled", "disabled"); },
 			complete: function(xhr, data) {
-				setTimeout(function(){
-					form_lck.find('[type="submit"]').removeAttr("disabled");
-				},1000);
+				setTimeout(function(){ form_lck.find('[type="submit"]').removeAttr("disabled");	},1000);
 			},
 			success: function(data) {
 				store($lockscreen, 0);
@@ -387,8 +361,14 @@ function lock_screen()
 				init_screen_timeout();
 			},
 			error: function(data) {
-				var error = JSON.parse(data.responseText);
-				dhtmlx.alert({ title: "Notification", type:"alert-error", text: error.message });
+				if (data.status==500){
+					var message = data.statusText;
+				} else {
+					var error = JSON.parse(data.responseText);
+					var message = error.message;
+				}
+				setTimeout(function(){ form_lck.find('[type="submit"]').removeAttr("disabled"); },1000);
+				$("div.lockscreen").find(".help-block").html("<b>"+message+"</b>");
 			}
 		});  
 	});
@@ -400,21 +380,18 @@ function lock_screen()
 	$('#searching-menu').autoComplete({
 		minChars: 1,
 		delay: 0,
-		// cache: false,
+		cache: false,
 		source: function(term, response){
 			try { xhr.abort(); } catch(e){}
-			xhr = $.getJSON(SrcMenu_url, { q: term }, function(data){ response(data.data); });
-			// $.getJSON(SrcMenu_url, { q: term }, function(data){ response(data.data); });
+			xhr = $.getJSON(x_srcmenu_lnk, { q: term }, function(data){ console.log(data.data); response(data.data); });
 		},
 		renderItem: function (item, search){
 			search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 			var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
-			/* return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion" data-href="' + item[1] + '" data-val="' + item[0] + '"><i class="fa fa-circle-o"></i> '+ item[0].replace(re, "<b>$1</b>") + '</div>'; */
-			return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion" data-href="' + item['url'] + '" data-val="' + item['name'] + '"><i class="fa fa-circle-o"></i> '+ item['name'].replace(re, "<b>$1</b>") + '</div>';
+			return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion" data-id="' + item['id'] + '" data-val="' + item['name'] + '"><i class="fa fa-circle-o"></i> '+ item['name'].replace(re, "<b>$1</b>") + '</div>';
 		},
 		onSelect: function(e, term, item){
-			// window.location.replace(base_url+item.data('href'));
-			window.location.href = base_url+item.data('href');
+			window.location.href = x_page_lnk+'?pageid='+item.data('id');
 		} 
 	});
   

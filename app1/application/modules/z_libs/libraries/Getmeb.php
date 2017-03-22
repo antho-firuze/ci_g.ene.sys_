@@ -14,7 +14,8 @@ class Getmeb extends CI_Controller
 	public $params;
 	/* FOR STORE SESSION DATA */
 	public $sess;
-	
+	/* FOR STORE SYSTEM SETTING */
+	public $sysconfig;
 	/* FOR ADDITIONAL CRUD FIXED DATA */
 	public $fixed_data = array();
 	public $create_log = array();
@@ -26,7 +27,11 @@ class Getmeb extends CI_Controller
 	
 	function __construct() {
 		parent::__construct();
-		$this->params = $this->input->get();
+		$this->r_method = $_SERVER['REQUEST_METHOD'];
+		if (in_array($this->r_method, ['GET','DELETE']))
+			$this->params = $this->input->get();
+		if (in_array($this->r_method, ['POST','PUT']))
+			$this->params = json_decode($this->input->raw_input_stream);
 		define('ASSET_URL', base_url().'/assets/');
 		define('TEMPLATE_URL', base_url().TEMPLATE_FOLDER.'/backend/'.$this->theme.'/');
 		define('TEMPLATE_PATH', '/backend/'.$this->theme.'/');
@@ -36,8 +41,8 @@ class Getmeb extends CI_Controller
 		$this->lang->load('systems/systems', (!empty($this->sess->language) ? $this->sess->language : 'english'));
 		
 		$this->fixed_data = [
-			'client_id'		=> (!empty($this->sess->client_id) ? $this->sess->client_id : '0'),
-			'org_id'			=> (!empty($this->sess->org_id) ? $this->sess->org_id : '0')
+			'client_id'		=> DEFAULT_CLIENT_ID,
+			'org_id'			=> DEFAULT_ORG_ID
 		];
 		$this->create_log = [
 			'created_by'	=> (!empty($this->sess->user_id) ? $this->sess->user_id : '0'),
@@ -68,6 +73,13 @@ class Getmeb extends CI_Controller
 			return FALSE;
 		}
 		
+		if (key_exists('edit', $this->params) && !empty($this->params['edit'])) {
+			if (!$this->_check_path($data['path'].$data['url'].'_edit')) {
+				$this->set_message('ERROR: Page or File ['.$data['path'].$data['url'].'_edit'.'] is could not be found or file not exist !');
+				return FALSE;
+			}
+		}
+		
 		/* CHECK CLASS/CONTROLLER */
 		if (!$this->_check_class($data['class'])) {
 			$this->set_message('ERROR: Menu [class] is could not be found or file not exist !');
@@ -89,7 +101,12 @@ class Getmeb extends CI_Controller
 	
 	function _check_is_login()
 	{
-		return (bool)$this->session->userdata('user_id') ? TRUE : FALSE;
+		if (!$this->session->userdata('user_id')) {
+			setURL_Index();
+			$this->x_login();
+			exit();
+		}
+		return TRUE;
 	}
 	
 	function set_message($message)
@@ -111,36 +128,42 @@ class Getmeb extends CI_Controller
 		return $_output;
 	}
 
-	function insertRecord($table, $data)
+	function insertRecord($table, $data, $fixed_data = FALSE, $create_log = FALSE)
 	{
 		$data = is_object($data) ? (array) $data : $data;
-		
-		if (!key_exists('id', $cond) && empty($cond['id'])) {
-			$this->set_message('error_saving');
+		$data = $fixed_data ? array_merge($data, $this->fixed_data) : $data;
+		$data = $create_log ? array_merge($data, $this->create_log) : $data;
+
+		if (key_exists('id', $data)) 
+			unset($data['id']);
+
+		// debug(var_dump($data));
+		if (!$return = $this->db->insert($table, $data)) {
+			// echo $this->db->last_query();
+			// return;
+			$this->set_message($this->db->error()['message']);
 			return false;
 		}
-		
-		$this->db->insert($table, $data);
-		$return = $this->db->affected_rows() == 1;
-		if ($return)
-			// $this->set_message('update_data_successful');
-			$this->set_message('success_saving');
-		else
-			$this->set_message('error_saving');
-		
 		return true;
 	}
 	
-	function updateRecord($table, $data, $cond)
+	function updateRecord($table, $data, $cond, $update_log = FALSE)
 	{
 		$data = is_object($data) ? (array) $data : $data;
+		$data = $update_log ? array_merge($data, $this->update_log) : $data;
 		
 		if (!key_exists('id', $cond) && empty($cond['id'])) {
 			$this->set_message('update_data_unsuccessful');
 			return false;
 		}
 		
-		$this->db->update($table, $data, $cond);
+		if (!$return = $this->db->update($table, $data, $cond)) {
+			$this->set_message($this->db->error()['message']);
+			return false;
+		}
+		return true;
+		
+		/* $this->db->update($table, $data, $cond);
 		$return = $this->db->affected_rows() == 1;
 		if ($return)
 			// $this->set_message('update_data_successful');
@@ -148,7 +171,7 @@ class Getmeb extends CI_Controller
 		else
 			$this->set_message('update_data_unsuccessful');
 		
-		return true;
+		return true; */
 	}
 	
 	function deleteRecords($table, $ids)
@@ -284,11 +307,12 @@ class Getmeb extends CI_Controller
 	{
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
 		
+		$default['content'] 	= TEMPLATE_PATH.$content.'.tpl';
+		
 		$select = 'head_title, page_title, logo_text_mn, logo_text_lg, date_format, time_format, datetime_format, user_photo_path';
 		$system = ($result = $this->base_model->getValueArray($select, 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID])) ? $result : [];
 		$pageid = (key_exists('pageid', $this->params) && !empty($this->params['pageid'])) ? $this->params['pageid'] : 0;
 		$default['menus'] 		= $this->getMenuStructure($pageid);
-		$default['content'] 	= TEMPLATE_PATH.$content.'.tpl';
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);
 		$this->fenomx->view(TEMPLATE_PATH.'index', array_merge($default, $system, $data));

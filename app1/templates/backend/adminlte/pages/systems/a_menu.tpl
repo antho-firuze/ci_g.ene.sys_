@@ -5,37 +5,20 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        {$title}
-        <small>{$short_desc}</small>
+        {$window_title}
+        <small>{$description}</small>
       </h1>
-			<!--
-      <ol class="breadcrumb">
-        <li><a href="{$home_link}"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li><a href="#">System Management</a></li>
-        <li class="active">User</li>
-      </ol>
-			-->
     </section>
 
     <!-- Main content -->
     <section class="content">
       <div class="row">
-        <div class="col-xs-12">
-          <div class="box">
-            {* <div class="box-header"> *}
-              {* <h3 class="box-title">Users</h3> *}
-            {* </div> *}
-            <!-- /.box-header -->
-            <div class="box-body">
-            </div>
-            <!-- /.box-body -->
-          </div>
-          <!-- /.box -->
-
-        </div>
+        <div id="toolbar" class="col-lg-12"></div>
         <!-- /.col -->
       </div>
       <!-- /.row -->
+			<div class="box box-body table-responsive no-padding"></div>
+          <!-- /.box -->
     </section>
     <!-- /.content -->
   </div>
@@ -46,13 +29,19 @@
 	var $param = {}, $id, $q;
 	
 	{* Section 2: For building Datatables *}
-	var setCustomLeftButton = ''+
-		'<button type="button" class="btn btn-xs btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />';
-	var tableData1 = $('<table class="table table-bordered table-hover" />').appendTo( $('.box-body') ),
+	var aLBtn = [];
+	aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs btn-info glyphicon glyphicon-duplicate" title="Copy" name="btn-copy" />');
+	aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />');
+	aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs btn-danger glyphicon glyphicon-trash" title="Delete" name="btn-delete" />');
+	var aRBtn = [];
+	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=31>Role</a></span>');
+	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=32>Org</a></span>');
+	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=33>Subs</a></span>');
+	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
 	dataTable1 = tableData1.DataTable({
-		"pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true,
+		"pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, 
 		"ajax": {
-			"url": '{$url_module}'+window.location.search,
+			"url": '{$url_module}'+window.location.search+'&ob=id desc',
 			"data": function(d){ return $.extend({}, d, { "q": $q });	},
 			"dataFilter": function(data){
 				var json = jQuery.parseJSON( data );
@@ -63,29 +52,21 @@
 			}
 		},
 		"columns": [
-			{ "width": "3%", orderable: false, className: "dt-body-center", "title": "<input type='checkbox' class='head-check'>" },
-			{ "width": "7%", orderable: false, className: "dt-body-center" },
-			{ "data": "name", 		 	 "title": "Name" },
-			{ "data": "description", "title": "Description", orderable: false },
+			{ width:"20px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render:function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
+			{ width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render: function(data, type, row){ return aLBtn.join(""); } },
+			{ width:"200px", orderable:false, data:"name", title:"Name" },
+			{ width:"250px", orderable:false, data:"description", title:"Description" },
+			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"is_parent", title:"Parent", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"100px", orderable:false, data:"icon", title:"Icon" },
+			{ width:"110px", orderable:false, data:"url", title:"Table" },
+			{ width:"125px", orderable:false, data:"path", title:"Path" },
+			{ width:"100px", orderable:false, data:"class", title:"Class" },
+			{ width:"110px", orderable:false, data:"method", title:"Method" },
 		],
-		"columnDefs": [
-			{	"targets": 0,	"defaultContent": '<input type="checkbox" class="line-check">' },
-			{	"targets": 1,	"defaultContent": setCustomLeftButton	}
-		],
-		"order": [[ 2, 'asc' ]]
+		"order": []
 	})
 	.search($q ? $q : '');
-	
-	{* This line for changing toolbar button *}
-	var toolbar_row = $('<div class="row"><div class="col-md-12"></div></div>');
-	var toolbar_col = toolbar_row.find('.col-md-12').append(
-		setToolbarButton([
-			'btn-copy', 	 'btn-new', 	'btn-refresh', 'btn-delete', 
-			'btn-message', 'btn-print', 'btn-export',  'btn-import', 
-			'btn-process', 'btn-process-doc-act', 'btn-process-a-pros'
-		])
-	);
-	$('div.dataTables_wrapper').find('div.row:first').before(toolbar_row);
 	
 	{* Don't change this code: Re-coding dataTables search method *}
 	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
@@ -97,196 +78,109 @@
 	
 	DTHelper.initCheckList(tableData1, dataTable1);
 	
-	{* From this line, the code can be change *}
-	{* ====================================== *}
-	var form = $('<form />', { class: 'form-horizontal', autocomplete: 'off' });
-	function createForm1(){
-		form.html('');
-		form.append(BSHelper.Input({ type:"text", label:"Name", idname:"name", readonly:false, required: true, placeholder:"string(60)" }));
-		form.append(BSHelper.TextArea({ label:"Description", idname:"description", placeholder:"string(2000)" }));
-		form.append(BSHelper.TextArea({ label:"Icon", idname:"icon", placeholder:"string(2000)" }));
-		form.append(BSHelper.TextArea({ label:"Table", idname:"url", placeholder:"string(2000)" }));
-		form.append(BSHelper.TextArea({ label:"Path", idname:"path", placeholder:"string(2000)" }));
-		form.append(BSHelper.Checkbox({ label:"Is Active", idname:"is_active" }));
-		form.append(BSHelper.Checkbox({ label:"Is Parent", idname:"is_parent" }));
-		form.append(BSHelper.Combobox({ label:"Parent", idname:"parent_id", url:"{$.php.base_url('systems/a_menu')}", required: false, isCombogrid: true, placeholder:"typed or choose" }));
-		return form;
-	}
+	{* This line for changing toolbar button *}
+	$('#toolbar').append( setToolbarButton() ).css('margin-bottom','10px');
+	$('div.box').css('margin-bottom','10px');
+	$('div.dataTables_wrapper').find('div.row:first').insertBefore('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_filter');
+	$('div.dataTables_wrapper').find('div.row:last').insertAfter('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_paginate');
+
+	{* AVAILABLE BUTTON LIST ['btn-copy','btn-new','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-process'] *}
+	setDisableToolBtn(['btn-copy','btn-message','btn-print','btn-export','btn-import']);
+	setVisibleToolBtn(['btn-copy','btn-message','btn-print','btn-export','btn-import']);
 	
-	{* btn-edit in DataTable on click *}
+	{* Additional Menu on Toolbar Process Button *}
+	
+	{* ====================================== *}
+	
+	{* For class aLBtn : btn-copy in DataTable *}
+	tableData1.find('tbody').on( 'click', '[name="btn-copy"]', function () {
+		var data = dataTable1.row( $(this).parents('tr') ).data();
+		
+		if (!confirm("Copy this data ?")) {
+			return false;
+		}
+		
+		window.location.href = getURLOrigin()+window.location.search+"&edit=3&id="+data.id;
+	});
+	
+	{* For class aLBtn : btn-edit in DataTable *}
 	tableData1.find('tbody').on( 'click', '[name="btn-edit"]', function () {
 		var data = dataTable1.row( $(this).parents('tr') ).data();
 		
-		{* line for check permission *}
+		window.location.href = getURLOrigin()+window.location.search+"&edit=1&id="+data.id;
+	});
+	
+	{* For class aLBtn : btn-delete in DataTable *}
+	tableData1.find('tbody').on( 'click', '[name="btn-delete"]', function () {
+		var data = dataTable1.row( $(this).parents('tr') ).data();
 		
-		form = createForm1();
-		form.xform('load', data);  
-		BootstrapDialog.show({ title: 'Update Record', message: form,
-			buttons: [{
-				icon: 'glyphicon glyphicon-send',
-				cssClass: 'btn-primary',
-				label: '&nbsp;&nbsp;Save',
-				action: function(dialog) {
-					if (! form.valid()) return false;
-					
-					var button = this;
-					button.spin();
-					
-					$.ajax({ url: '{$url_module ~ "?id="}'+data.id, method: "PUT", async: true, dataType: 'json',
-						data: form.serializeJSON(),
-						success: function(data) {
-							dialog.close();
-							dataTable1.ajax.reload( null, false );
-							Lobibox.notify('info', { msg: data.message });
-						},
-						error: function(data) {
-							if (data.status==500){
-								var message = data.statusText;
-							} else {
-								var error = JSON.parse(data.responseText);
-								var message = error.message;
-							}
-							button.stopSpin();
-							dialog.enableButtons(true);
-							dialog.setClosable(true);
-							BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
-						}
-					});
+		if (!confirm("Are you sure want to delete this record ?")) {
+			return false;
+		}
+		
+		$.ajax({ url: '{$url_module ~ "?id="}'+data.id, method: "DELETE", async: true, dataType: 'json',
+			success: function(data) {
+				dataTable1.ajax.reload( null, false );
+				Lobibox.notify('info', { msg: data.message });
+			},
+			error: function(data) {
+				if (data.status==500){
+					var message = data.statusText;
+				} else {
+					var error = JSON.parse(data.responseText);
+					var message = error.message;
 				}
-			}, {
-					label: 'Close',
-					action: function(dialog) { dialog.close(); }
-			}],
-			onshown: function(dialog) {
-				form.validate({ ignore:'' });
-				form.find('#name').focus();
+				BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
 			}
 		});
 	});
 	
-	{* btn-role in DataTable on click *}
-	tableData1.find('tbody').on( 'click', '[name="btn-role"]', function(){
+	{* For class aRBtn *}
+	tableData1.find('tbody').on( 'click', '.aRBtn', function () {
 		var data = dataTable1.row( $(this).parents('tr') ).data();
-		console.log($(this).attr('title'));
-    });
-	
-	{* btn-org in DataTable on click *}
-	tableData1.find('tbody').on( 'click', '[name="btn-org"]', function () {
-		var data = dataTable1.row( $(this).parents('tr') ).data();
-		console.log($(this).attr('title'));
-    });
-	
-	{* btn-subs in DataTable on click *}
-	tableData1.find('tbody').on( 'click', '[name="btn-subs"]', function () {
-		var data = dataTable1.row( $(this).parents('tr') ).data();
-		console.log($(this).attr('title'));
-    });
-	
-	{* btn-copy in Toolbar on click *}
-	$('#btn-copy').click(function(){
-		console.log('Debug: Copy');
 		
-		{* line for check permission *}
+		var pageid = $(this).data('pageid');
+		var url = "{$.php.base_url('systems/x_page?pageid=')}"+pageid+"&user_id="+data.id;
+		window.location.href = url;
 	});
 	
-	{* btn-new in Toolbar on click *}
+	{* btn-new in Toolbar *}
 	$('#btn-new').click(function(){
-		console.log('Debug: New');
-		
-		{* line for check permission *}
-		
-		form = createForm1();
-		BootstrapDialog.show({ title: 'Insert Record', message: form,
-			buttons: [{
-				icon: 'glyphicon glyphicon-send',
-				cssClass: 'btn-primary',
-				label: '&nbsp;&nbsp;Save',
-				action: function(dialog) {
-					if (! form.valid()) return false;
-					
-					var button = this;
-					button.spin();
-					
-					$.ajax({ url: '{$url_module}', method: "POST", async: true, dataType: 'json',
-						data: form.serializeJSON(),
-						success: function(data) {
-							dialog.close();
-							dataTable1.ajax.reload( null, false );
-							Lobibox.notify('info', { msg: data.message });
-						},
-						error: function(data) {
-							if (data.status==500){
-								var message = data.statusText;
-							} else {
-								var error = JSON.parse(data.responseText);
-								var message = error.message;
-							}
-							button.stopSpin();
-							dialog.enableButtons(true);
-							dialog.setClosable(true);
-							BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
-						}
-					});
-				}
-			}, {
-					label: 'Close',
-					action: function(dialog) { dialog.close(); }
-			}],
-			onshown: function(dialog) {
-				form.validate({ ignore:'' });
-				
-				form.find('#name').focus();
-			} 
-		});
+		window.location.href = getURLOrigin()+window.location.search+"&edit=2";
 	});
 	
-	{* btn-refresh in Toolbar on click *}
+	{* btn-refresh in Toolbar *}
 	$('#btn-refresh').click(function(){
-		console.log('Debug: Refresh');
 		dataTable1.ajax.reload( null, false );
 	});
 	
-	{* btn-delete in Toolbar on click *}
+	{* btn-delete in Toolbar *}
 	$('#btn-delete').click(function(){
-		console.log('Debug: Delete');
-		
-		{* line for check permission *}
-		
 		var data = dataTable1.rows('.selected').data();
-		var ids = [];
 		
 		if (data.count() < 1)
 			return false;
 
-		var confirm = $('<div />');
-		confirm.append( $('<p />').html('Are you sure want to delete this record ?') );
-		confirm.append( 
-			BSHelper.TableConfirm({
-				data: data,	rowno: true, showtitle: false, maxrows: 3, 
+		var tblConfirm = BSHelper.Table({
+				data: data,	rowno: true, showheader: true, maxrows: 3, isConfirm: true,
 				columns:[
 					{ data:"name"					,title:"Name" },
-					{ data:"email"				,title:"Email" },
 					{ data:"description"	,title:"Description" },
-				]
-			})
-		);
-		
+				],
+			});
+			
+		var ids = [];
 		$.each(data, function(i){	ids[i] = data[i]['id'];	});
-		
-		{* console.log(ids.join()); return; *}
-		BootstrapDialog.show({ title: 'Delete Record/s', type: BootstrapDialog.TYPE_DANGER, message: confirm,
+		BootstrapDialog.show({ title: 'Delete Record/s', type: BootstrapDialog.TYPE_DANGER, message: tblConfirm,
 			buttons: [{
 				icon: 'glyphicon glyphicon-send',
 				cssClass: 'btn-danger',
 				label: '&nbsp;&nbsp;Delete',
 				action: function(dialog) {
-					if (! form.valid()) return false;
-					
 					var button = this;
 					button.spin();
 					
 					$.ajax({ url: '{$url_module ~ "?id="}'+ids.join(), method: "DELETE", async: true, dataType: 'json',
-						data: form.serializeJSON(),
 						success: function(data) {
 							dialog.close();
 							dataTable1.ajax.reload( null, false );
@@ -316,36 +210,28 @@
 		});
 	});
 	
-	{* btn-message in Toolbar on click *}
+	{* btn-message in Toolbar *}
 	$('#btn-message').click(function(){
-		console.log('Debug: Chat/Message/Attach');
+		console.log('Debug: '+$(this).attr('title'));
 		{* dataTable1.ajax.reload( null, false ); *}
 	});
 	
-	{* btn-print in Toolbar on click *}
+	{* btn-print in Toolbar *}
 	$('#btn-print').click(function(){
-		console.log('Debug: Print');
+		console.log('Debug: '+$(this).attr('title'));
 		{* dataTable1.ajax.reload( null, false ); *}
 	});
 	
-	{* btn-export in Toolbar on click *}
+	{* btn-export in Toolbar *}
 	$('#btn-export').click(function(){
-		console.log('Debug: Export');
+		console.log('Debug: '+$(this).attr('title'));
 		{* dataTable1.ajax.reload( null, false ); *}
 	});
 	
-	{* btn-import in Toolbar on click *}
+	{* btn-import in Toolbar *}
 	$('#btn-import').click(function(){
-		console.log('Debug: Import');
+		console.log('Debug: '+$(this).attr('title'));
 		{* dataTable1.ajax.reload( null, false ); *}
 	});
-	
-	{* btn-process-doc-act in Toolbar on click *}
-	$('#btn-process-doc-act').click(function(){
-		console.log('Debug: Document Action');
-		{* dataTable1.ajax.reload( null, false ); *}
-	});
-	
-	
 	
 </script>

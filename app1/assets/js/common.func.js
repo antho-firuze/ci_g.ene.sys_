@@ -210,3 +210,25 @@ function setSelectList(name, id, clazz, optionList) {
     return select;
 }
 
+/* Using for bootstrap */
+function subRow(el){
+	if(typeof(el)==='undefined') el = '';
+	var container = $('<div class="row"></div>');
+	return container.append(el);
+}
+
+/* Using for bootstrap */
+function subCol(siz, el){
+	if(typeof(siz)==='undefined') siz = 12;
+	if(typeof(el)==='undefined') el = '&nbsp;';
+	var container = $('<div class="col-md-'+ siz +'"></div>');
+	return container.append(el);
+}
+
+function isempty_obj(obj){
+	return (Object.keys(obj).length > 0) ? false : true;
+}
+
+function isempty_arr(arr){
+	return (arr.length > 0) ? false : true;
+}

@@ -23,8 +23,8 @@ function setToolbarButton(){
 	var btnGroup3 = container.find('.btnGroup3'); 
 	var btnGroup4 = container.find('.btnGroup4'); 
 	
-	btnGroup1.append($('<button type="button" class="btn btn-success glyphicon glyphicon-duplicate" title="Copy" id="btn-copy" />'));
 	btnGroup1.append($('<button type="button" class="btn btn-success glyphicon glyphicon-plus" title="New" id="btn-new" />'));
+	btnGroup1.append($('<button type="button" class="btn btn-success glyphicon glyphicon-duplicate" title="Copy" id="btn-copy" />'));
 	btnGroup1.append($('<button type="button" class="btn btn-success glyphicon glyphicon-refresh" title="Refresh" id="btn-refresh" />'));
 	btnGroup1.append($('<button type="button" class="btn btn-danger glyphicon glyphicon-trash" title="Delete" id="btn-delete" />'));
 	btnGroup2.append($('<button type="button" class="btn btn-info glyphicon glyphicon-comment" title="Chat/Message/Attach" id="btn-message" />'));
@@ -56,6 +56,14 @@ function setDisableMenuProcess(btn)
 	if(typeof(btn)==='undefined') btn = [];
 	$.each(btn, function(k,v){
 		$('#'+v).parent().addClass('disabled');
+  });
+}
+
+function setVisibleToolBtn(btn)
+{
+	if(typeof(btn)==='undefined') btn = [];
+	$.each(btn, function(k,v){
+		$('#'+v).css( "display", "none" );
   });
 }
 /* function setToolbarButton(btn){

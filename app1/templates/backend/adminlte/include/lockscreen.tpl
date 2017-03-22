@@ -19,7 +19,7 @@
     <form class="lockscreen-credentials">
       <div class="input-group">
         <input type="hidden" class="form-control" name="name" value="{$.session.name}">
-        <input type="password" class="form-control" placeholder="password" name="password">
+        <input type="password" class="form-control" placeholder="password" name="password" required>
 
         <div class="input-group-btn">
           <button type="submit" class="btn"><i class="fa fa-arrow-right text-muted"></i></button>

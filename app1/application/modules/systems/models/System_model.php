@@ -46,7 +46,7 @@ class System_Model extends CI_model
 	
 	function getUserAuthentication($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_user as t1";
 		$params['join'][] 	= ['a_client as ac', 't1.client_id = ac.id', 'left'];
 		$params['join'][] 	= ['a_org as ao', 't1.org_id = ao.id', 'left'];
@@ -56,15 +56,15 @@ class System_Model extends CI_model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function getA_User($params)
+	function get_a_user($params)
 	{
-		$select = "t1.id,t1.client_id,t1.org_id,t1.role_id,t1.is_active,t1.is_deleted,
+		$params['select'] = "t1.id,t1.client_id,t1.org_id,t1.role_id,t1.is_active,t1.is_deleted,
 			t1.created_by,t1.updated_by,t1.deleted_by,t1.created_at,t1.updated_at,t1.deleted_at,
-			t1.name,t1.description,t1.email,t1.last_login,t1.is_online,t1.supervisor_id,
+			t1.code,t1.name,coalesce(t1.code, '')||' '||t1.name as code_name,t1.description,t1.email,t1.last_login,t1.is_online,t1.supervisor_id,
 			t1.bpartner_id,t1.is_fullbpaccess,t1.is_expired,t1.security_question,t1.security_answer,
 			t1.ip_address,t1.photo_file,ao.name as org_name, ar.name as role_name, au4.name as supervisor_name,
 			au1.name as _created_by, au2.name as _updated_by, au3.name as _deleted_by";
-		$params['select']	= array_key_exists('select', $params) ? $params['select'] : $select;
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_user as t1";
 		$params['join'][] 	= ['a_client as ac', 't1.client_id = ac.id', 'left'];
 		$params['join'][] 	= ['a_org as ao', 't1.org_id = ao.id', 'left'];
@@ -74,26 +74,46 @@ class System_Model extends CI_model
 		$params['join'][] 	= ['a_user as au3', 't1.deleted_by = au3.id', 'left'];
 		$params['join'][] 	= ['a_user as au4', 't1.supervisor_id = au4.id', 'left'];
 		$params['where']['t1.is_deleted'] 	= '0';
-		
-		if (key_exists('list', $params) && ($params['list'])) 
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
-	function getUserConfig($params)
+	function get_a_user_org($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
-		$params['table'] 	= "a_user_config t1";
-		$params['where']['t1.is_active'] 	= '1';
+		$params['select'] = "t1.id, t1.org_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t2.swg_margin, t1.is_active";
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_user_org as t1";
+		$params['join'][] 	= ['a_org as t2', 't1.org_id = t2.id', 'left'];
 		$params['where']['t1.is_deleted'] 	= '0';
+		$params['where']['t2.is_deleted'] 	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function get_a_user_role($params)
+	{
+		$params['select'] = "t1.id, t1.org_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active";
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_user_role as t1";
+		$params['join'][] 	= ['a_role as t2', 't1.role_id = t2.id', 'left'];
+		$params['where']['t1.is_deleted'] 	= '0';
+		$params['where']['t2.is_deleted'] 	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function get_a_user_substitute($params)
+	{
+		$params['select'] = "t1.id, t1.substitute_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active";
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_user_substitute as t1";
+		$params['join'][] 	= ['a_user as t2', 't1.user_id = t2.id', 'left'];
+		$params['where']['t1.is_deleted'] 	= '0';
+		$params['where']['t2.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function getUserRole($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "t1.*, t2.name as role_name" : $params['select'];
+		$params['select']	= !key_exists('select', $params) ? "t1.*, t2.name as role_name" : $params['select'];
 		$params['table'] 	= "a_user_role t1";
 		$params['join'][] 	= ['a_role as t2', 't1.role_id = t2.id', 'left'];
 		$params['where']['t1.is_active'] 	= '1';
@@ -104,7 +124,7 @@ class System_Model extends CI_model
 	
 	function getUserWCount($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_user as t1";
 		$params['join'][] 	= ['a_user_config as auc', 't1.id = auc.user_id', 'left'];
 		$params['join'][] 	= ['a_client as ac', 't1.client_id = ac.id', 'left'];
@@ -115,48 +135,64 @@ class System_Model extends CI_model
 		return $this->base_model->mget_rec_count($params);
 	}
 	
-	function getA_Menu($params)
+	function get_a_menu($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_menu as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		
-		if (key_exists('list', $params) && ($params['list'])) 
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
-	function getA_Role_Menu($params)
+	function get_a_role_menu($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "am.*" : $params['select'];
-		$params['table'] 	= "a_role_menu arm";
-		$params['join'][] 	= ['a_menu am', 'am.id = arm.menu_id', 'left'];
-		$params['where']['am.is_active']	= '1';
-		$params['where']['am.is_deleted']	= '0';
-		$params['where']['arm.is_active']	= '1';
-		$params['where']['arm.is_deleted']	= '0';
-		$params['where']['am.is_parent']	= '0';
-		$params['order']	= "am.name";
-
-		if (key_exists('list', $params) && ($params['list']))
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		$params['select'] = "t1.id, t1.menu_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t2.is_parent, (select name from a_menu where id = t2.parent_id limit 1) as parent_name";
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_role_menu t1";
+		$params['join'][] = ['a_menu t2', 't1.menu_id = t2.id', 'left'];
+		$params['where']['t1.is_deleted']	= '0';
+		$params['where']['t2.is_deleted']	= '0';
+		return $this->base_model->mget_rec($params);
 	}
 	
-	function getA_Role($params)
+	function get_a_role_process($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['select'] = "t1.id, t1.process_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active";
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_role_process t1";
+		$params['join'][] = ['a_process t2', 't1.process_id = t2.id', 'left'];
+		$params['where']['t1.is_deleted']	= '0';
+		$params['where']['t2.is_deleted']	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function get_a_org($params)
+	{
+		$params['select'] = "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, coalesce(t2.code,'') ||'_'|| t2.name as orgtype_name, t1.is_active, (select name from a_org where id = t1.parent_id limit 1) as parent_name";
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_org as t1";
+		$params['join'][] 	= ['a_orgtype as t2', 't1.orgtype_id = t2.id', 'left'];
+		$params['where']['t1.is_deleted'] 	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function get_a_orgtype($params)
+	{
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_orgtype as t1";
+		$params['where']['t1.is_deleted'] 	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function get_a_role($params)
+	{
+		$params['select']	= !key_exists('select', $params) ? "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name" : $params['select'];
 		$params['table'] 	= "a_role as t1";
 		$params['join'][] 	= ['c_currency as cc', 't1.currency_id = cc.id', 'left'];
 		$params['join'][] 	= ['a_user as au4', 't1.supervisor_id = au4.id', 'left'];
 		$params['where']['t1.is_deleted'] 	= '0';
 		
-		if (key_exists('list', $params) && ($params['list'])) 
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 	function getMenuByRoleId($role_id)
@@ -211,87 +247,77 @@ class System_Model extends CI_model
 		$params['where']['t2.is_active'] = '1';
 		$params['where']['t2.is_deleted'] = '0';
 		$params['order']	= "t2.type, t2.lineno";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function get_a_system($params)
+	{
+		$params['select']	= !key_exists('select', $params) ? "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name" : $params['select'];
+		$params['table'] 	= "a_system as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function get_a_client($params)
+	{
+		$params['select']	= !key_exists('select', $params) ? "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name" : $params['select'];
+		$params['table'] 	= "a_client as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function get_a_info($params)
+	{
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_info as t1";
+		$params['where']['t1.is_deleted'] 	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function get_c_currency($params)
+	{
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "c_currency as t1";
 		
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function getA_System($params)
+	function get_c_1country($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
-		$params['table'] 	= "a_system as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
-		
-		if (key_exists('list', $params) && ($params['list']))
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
-	}
-	
-	function getA_Info($params)
-	{
-		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
-		$params['table'] 	= "a_info as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
-		
-		if (key_exists('list', $params) && ($params['list']))
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
-	}
-	
-	function getC_1Country($params)
-	{
-		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "c_1country as t1";
 		
-		if (key_exists('list', $params) && ($params['list']))
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
-	function getC_2Province($params)
+	function get_c_2province($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "c_2province as t1";
 		
-		if (key_exists('list', $params) && ($params['list']))
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
-	function getC_3City($params)
+	function get_c_3city($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "c_3city as t1";
 		
-		if (key_exists('list', $params) && ($params['list']))
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
-	function getC_4District($params)
+	function get_c_4district($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "c_4district as t1";
 		
-		if (key_exists('list', $params) && ($params['list']))
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
-	function getC_5Village($params)
+	function get_c_5village($params)
 	{
-		$params['select']	= !array_key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "c_5village as t1";
 		
-		if (key_exists('list', $params) && ($params['list']))
-			return $this->base_model->mget_rec($params);
-		else
-			return $this->base_model->mget_rec_count($params);
+		return $this->base_model->mget_rec($params);
 	}
 	
 }

@@ -4,22 +4,22 @@
 
   function Combogrid( elem, options ) {
 		var o = options,
-		$element     = $(elem),
-		$container   = $(template()),
-		$target      = $container.find('input[type=hidden]'),
-		$button      = $container.find('.dropdown-toggle'),
-		$menu  		   = $(template_result()).appendTo('body'),
-		
-		disabled     = false,
-		shown        = false,
-		focused      = false,
-		selected     = false,
-		mousedover   = false,
-		suppressKeyPressRepeat = {},
-		loading			= false,
-		rowData			= {},
-		page				 	= o.page,
-		ttl_page		 	= 1;
+				$element     = $(elem),
+				$container   = $(template()),
+				$target      = $container.find('input[type=hidden]'),
+				$button      = $container.find('.dropdown-toggle'),
+				$menu  		   = $(template_result()).appendTo('body'),
+				
+				disabled     = false,
+				shown        = false,
+				focused      = false,
+				selected     = false,
+				mousedover   = false,
+				suppressKeyPressRepeat = {},
+				loading			= false,
+				rowData			= {},
+				page				 	= o.page,
+				ttl_page		 	= 1;
 		
 		this.o				= o;
 		this._o 			= function(new_o){ $.extend(o, new_o); };
@@ -36,16 +36,17 @@
 		this.init();
 		
 		function template(){
-			return ''+
-				'<div class="combogrid-container">'+
-					'<div class="input-group">'+
-						'<input type="hidden" />'+
-						'<div class="input-group-btn">'+
-							'<span class="btn btn-default dropdown-toggle" data-dropdown="dropdown">'+
-							'<span class="caret" /></span>'+
+			if (o.style == 'bs3')
+				return ''+
+					'<div class="combogrid-container">'+
+						'<div class="input-group">'+
+							'<input type="hidden" />'+
+							'<div class="input-group-btn">'+
+								'<span class="btn btn-default dropdown-toggle" data-dropdown="dropdown">'+
+								'<span class="caret" /></span>'+
+							'</div>'+
 						'</div>'+
-					'</div>'+
-				'</div>';
+					'</div>';
 		}
 		
 		function template_result(){
@@ -79,8 +80,12 @@
 
 		function blur(){
 			focused = false;
-			var val = $element.val(), _old = $element.attr('value'), _new = $element.val();
+			var val = $element.val(), 
+					_old = $element.attr('value'), 
+					_new = $element.val();
 			
+			// console.log('selected = '+selected);
+			// console.log('val = '+val);
 			if ( (!selected && val == '') || (selected && val == '') ) {
 				$element
 					.attr('value', '')
@@ -89,6 +94,7 @@
 					.val('').trigger('change');
 				$target.val('').trigger('change');
 				selected = false;
+				this._selected = false;
 				
 				if (_old != _new) {	o.onSelect.call(this, {}); }
 			}
@@ -118,16 +124,28 @@
 			setTimeout(function(){ o.source(term, lookup) }, 100);
 		}
 	
+		/* format data = {total:999, rows:{field1:value1, field2:value2}} */
 		function lookup(data){
 			var list = '';
 			$menu.html('');
 			ttl_page = Math.ceil(data.total/o.rows);
+			
+			if (Object.keys(o.addition).length > 0){
+				var addata = o.addition;
+				list += '<li class="'+o.item_cls+'" data-'+o.idField+'="'+ addata[o.idField] +'" data-'+o.textField+'="'+ addata[o.textField] +'"><a>'+addata[o.textField]+'</a></li>';
+			}
+			
 			$.each(data.rows, function(k, v) {
 				rowData[v[o.idField]] = v;
 				list += '<li class="'+o.item_cls+'" data-'+o.idField+'="'+ v[o.idField] +'" data-'+o.textField+'="'+ v[o.textField] +'"><a>'+v[o.textField]+'</a></li>';
 			});
-			$menu.append(list);
-			$menu.find('li').first().addClass('active');
+			if (Object.keys(data.rows).length > 0) {
+				$menu.append(list);
+				$menu.find('li').first().addClass('active');
+			} else {
+				$menu.append('<span style="color:#999;">'+o.emptyMessage+'</span>');
+				// $menu.append(o.emptyMessage);
+			}
 			show();
 			$element.focus();
 		}
@@ -202,14 +220,17 @@
 					id = $menu.find('.active').data(o.idField),
 					text = $menu.find('.active').data(o.textField);
 			
-			if (id_old != id) {
+			if (id_old !== id) {
 				$element
 					.attr('value', id)
 					.attr('data-'+o.idField, id)
 					.attr('data-'+o.textField, text)
 					.val(text).trigger('change');
 				$target.val(id).trigger('change');
-				o.onSelect.call(this, rowData[id]);
+				if ((id === 0) && (Object.keys(o.addition).length > 0))
+					o.onSelect.call(this, o.addition);
+				else
+					o.onSelect.call(this, rowData[id]);
 			}
 			selected = true;
 			return hide();
@@ -341,11 +362,10 @@
 	};
 	
 	Combogrid.prototype = {
-
+		constructor: Combogrid,
 		version: function(){
-			return '1.1.2';
+			return '1.1.3';
 		},
-		
 		init: function(){
 			// console.log('debug: init');
 			if (!this.$element.data('init-combogrid')){
@@ -362,7 +382,6 @@
 				this.setValue(val);
 			}
 		},
-
 		destroy: function(){
 			console.log('debug: destroy');
 			if (this.$element.data('init-combogrid')){
@@ -372,7 +391,6 @@
 				this._listen(false);
 			}
 		},
-
 		disable: function(state){
 			if (state){
 				this.$element.prop('disabled', true);
@@ -386,17 +404,22 @@
 				this._disabled(false);
 			}
 		},
-
 		queryParams: function(term){
 			// console.log('debug: queryParams');
 			this._o({ queryParams:term });
 		},
-
 		getValue: function(field){
 			// console.log('debug: getValue');
-			return (typeof field!=='undefined') ? this.$element.attr('data-'+field) : this.rowData()[this.$element.attr('value')];
+			var val;
+			field = (field === undefined) ? 'id' : field;
+			
+			/* For anticipate custom additional row */
+			if (this.rowData()[this.$element.attr('value')] === undefined)
+				return;
+			
+			if (this.$element.attr('value'))
+				return ((val = this.rowData()[this.$element.attr('value')][field]) === undefined) ? false : val;
 		},
-
 		setValue: function(val){
 			// console.log('debug: setValue');
 			if (this.$element.data('init-combogrid')===false){ return; }
@@ -431,54 +454,55 @@
 				});
 			}, 100);
 		},
-
 	}
-	
-  $.fn.combogrid = function(options) {
-		if (typeof options == 'string') {
-			// console.log('debug: options-string');
-			var args = Array.prototype.slice.call(arguments, 1),
-					data = $.data(this[0], 'combogrid');
-			if (!data) {return this;}
-			// return data[options].apply(data, args);
-			data[options].apply(data, args);
-			return this;
+	/* 
+	({key1:val1, key2:val2 key3:{subkey1:subval1, subkey2:subval2}})
+	('function', {field1:val1})
+	('function', 'params')
+	('function')
+	*/
+  $.fn.combogrid = function(option) {
+		if (typeof option === 'string') {
+			var $this = $(this),
+					inst = $this.data('combogrid');
+			
+			if (!inst) { return this; }
+			if ($.inArray(option, ["getValue", "version"]) !== -1) {
+				return inst[option].apply(inst, Array.prototype.slice.call(arguments, 1));
+			}	else {
+				inst[option].apply(inst, Array.prototype.slice.call(arguments, 1));
+				return this;
+			}
 		}
 		
-    return this.each(function() {
-			var data = $.data(this, 'combogrid');
-			if (!data){
-				// console.log('debug: data-undefined');
-				$.data(this, 'combogrid', (new Combogrid(this, $.extend({}, $.fn.combogrid.defaults, options))) );
+		return this.each(function() {
+			var $this = $(this),
+					inst = $this.data('combogrid'),
+					options = ((typeof option === 'object') ? option : {});
+			if (!inst) {
+				$this.data('combogrid', new Combogrid(this, $.extend({}, $.fn.combogrid.defaults, options)) );
 			} else {
-				if (typeof options == 'object') {
-					// console.log('debug: options-object');
-					$.data(this, 'combogrid', (new Combogrid(this, $.extend(data, options))) );
+				if (typeof option === 'object') {
+					$this.data('combogrid', new Combogrid(this, $.extend(inst, options)) );
 				} 
 			}
-    });
+		});
   };
 	
   $.fn.combogrid.defaults = {
-    source: function(term, lookup){
-			$.ajax({
-				url: '',
-				method: "GET",
-				dataType: "json",
-				data: term,
-				success: function(data){
-					response(data.data);
-				}
-			}); 
-		},
+    source: function(term, lookup){},
     style: 'bs3',
 		menu_type: 'normal', // iscroll (infinite scroll), normal
+		emptyMessage: '<center><b>No results were found</b></center>',
+		colorBack: '#dd4b39',
+		colorText: '#000000',
     page: 1,
     rows: 50,
     idField: 'id',
     textField: 'name',
 		queryParams: {},
 		item_cls: '',
+		addition: {},
 		onSelect: function(rowData){}
   };
 	
