@@ -1,4 +1,5 @@
 {var $url_module = $.php.base_url('systems/a_user')}
+{var $url_loginattempt = $.php.base_url('systems/a_loginattempt')}
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -86,7 +87,7 @@
 	setVisibleToolBtn(['btn-copy','btn-message','btn-print','btn-export','btn-import']);
 	
 	{* Additional Menu on Toolbar Process Button *}
-	addProcessMenu('btn-process1', 'Process #1');
+	addProcessMenu('btn-process1', 'Reset Login Attempt');
 	addProcessMenu('btn-process2', 'Process #2');
 	setDisableMenuProcess(['btn-process2']);
 
@@ -99,7 +100,6 @@
 		if (!confirm("Copy this data ?")) {
 			return false;
 		}
-		
 		window.location.href = getURLOrigin()+window.location.search+"&edit=3&id="+data.id;
 	});
 	
@@ -161,6 +161,9 @@
 		if (data.count() < 1)
 			return false;
 
+		var ids = [];
+		$.each(data, function(i){	ids[i] = data[i]['id'];	});
+		
 		var tblConfirm = BSHelper.Table({
 				data: data,	rowno: true, showheader: true, maxrows: 3, isConfirm: true,
 				columns:[
@@ -168,9 +171,6 @@
 					{ data:"description"	,title:"Description" },
 				],
 			});
-			
-		var ids = [];
-		$.each(data, function(i){	ids[i] = data[i]['id'];	});
 		BootstrapDialog.show({ title: 'Delete Record/s', type: BootstrapDialog.TYPE_DANGER, message: tblConfirm,
 			buttons: [{
 				icon: 'glyphicon glyphicon-send',
@@ -232,6 +232,54 @@
 	$('#btn-import').click(function(){
 		console.log('Debug: '+$(this).attr('title'));
 		{* dataTable1.ajax.reload( null, false ); *}
+	});
+	
+	{* btn-process1 in Toolbar *}
+	$('#btn-process1').click(function(){
+		var data = dataTable1.rows('.selected').data();
+		
+		if (data.count() < 1)	return false;
+		var ids = [];
+		$.each(data, function(i){	ids[i] = data[i]['id'];	});
+
+		var tblConfirm = BSHelper.Table({ data: data,	rowno: true, showheader: true, maxrows: 3, isConfirm: true, title: "<h4>Are you sure want to process this selected user/s ?</h4>" });
+		BootstrapDialog.show({ title: 'Reset Login Attempt', type: BootstrapDialog.TYPE_DANGER, message: tblConfirm,
+			buttons: [{
+				icon: 'glyphicon glyphicon-send',
+				cssClass: 'btn-danger',
+				label: '&nbsp;&nbsp;Delete',
+				action: function(dialog) {
+					var button = this;
+					button.spin();
+					
+					$.ajax({ url: '{$url_loginattempt ~ "?id="}'+ids.join(), method: "DELETE", async: true, dataType: 'json',
+						success: function(data) {
+							dialog.close();
+							dataTable1.ajax.reload( null, false );
+							Lobibox.notify('info', { msg: data.message });
+						},
+						error: function(data) {
+							if (data.status==500){
+								var message = data.statusText;
+							} else {
+								var error = JSON.parse(data.responseText);
+								var message = error.message;
+							}
+							button.stopSpin();
+							dialog.enableButtons(true);
+							dialog.setClosable(true);
+							BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+						}
+					});
+				}
+			}, {
+					label: 'Close',
+					action: function(dialog) { dialog.close(); }
+			}],
+			onshown: function(dialog) {
+				{**}
+			}
+		});
 	});
 	
 </script>

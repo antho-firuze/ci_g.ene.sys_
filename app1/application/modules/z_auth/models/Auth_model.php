@@ -556,7 +556,11 @@ class Auth_model extends CI_Model
 		// Hash something anyway, just to take up time
 		$this->hash_password($password);
 
-		$this->increase_login_attempts($identity);
+		/* get user_id if exists */
+		$query = $this->db->get_where($this->tables['users'], [$this->identity_column => $identity], 1);
+		$user_id = ($query->num_rows() === 1) ? $query->row()->id : NULL;
+		// $user_id = isset($user_id = $this->db->get_where($this->tables['users'], [$this->identity_column => $identity], 1)->row()->id) ? $user_id : NULL;
+		$this->increase_login_attempts($identity, $user_id);
 
 		$this->set_error('login_unsuccessful');
 
@@ -582,10 +586,11 @@ class Auth_model extends CI_Model
 	 *
 	 * @param string $identity
 	 **/
-	public function increase_login_attempts($identity) {
+	public function increase_login_attempts($identity, $user_id = NULL) {
+		
 		if ($this->config->item('track_login_attempts', 'auth')) {
 			$ip_address = $this->_prepare_ip($this->input->ip_address());
-			return $this->db->insert($this->tables['login_attempts'], array('ip_address' => $ip_address, 'login' => $identity, 'time' => time()));
+			return $this->db->insert($this->tables['login_attempts'], array('ip_address' => $ip_address, 'login' => $identity, 'time' => time(), 'user_id' => $user_id));
 		}
 		return FALSE;
 	}

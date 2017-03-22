@@ -66,9 +66,13 @@ class Systems extends Getmeb
 	{
 		$this->load->library('z_auth/auth');
 
-		$remember 	= $this->input->server('HTTP_REMEMBER');
 		$http_auth 	= $this->input->server('HTTP_X_AUTH');
 		$username 	= $this->input->server('PHP_AUTH_USER');
+		
+		// echo var_dump($this->input->server());
+		// echo var_dump($this->input->valid_ip());
+		echo var_dump($_SERVER);
+		return;
 		
 		$password = NULL;
 		if ($username !== NULL)
@@ -82,56 +86,38 @@ class Systems extends Getmeb
 						list($username, $password) = explode(':', base64_decode(substr($http_auth, 6)));
 				}
 		}
-		if (! $id = $this->auth->login($username, $password))
+		if (! $user_id = $this->auth->login($username, $password))
 		{
 			$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 		}
 
-		// User Data
-		$this->params['select'] = 't1.id, t1.client_id, t1.org_id, t1.role_id, t1.name, t1.description, t1.email, t1.photo_file, ac.name as client_name, ao.name as org_name, ar.name as role_name';
-		$this->params['where']['t1.id'] = $id;
-		$this->params['list'] = 1;
-		$user = (object) $this->system_model->getUserAuthentication($this->params)[0];
-		$dataUser = [
-			'user_id' 	=> $id,
-			'client_id'	=> $user->client_id,
-			'org_id'	=> $user->org_id,
-			'role_id'	=> $user->role_id,
-			'name'			=> $user->name,
-			'description'	=> $user->description,
-			'email'			=> $user->email,
-			'client_name'	=> $user->client_name,
-			'org_name'		=> $user->org_name,
-			'role_name'		=> $user->role_name,
-			'photo_file' 	=> urlencode($user->photo_file),
-		];
-		$user = $this->base_model->getValue('id, id as user_id, client_id, org_id, role_id, code, name, description, email, photo_file, supervisor_id, bpartner_id, is_fullbpaccess', 'a_user', 'id', $id);
-		$client = $this->base_model->getValue('id, code, name, description, email, photo_file', 'a_user', 'id', $user->client_id);
-		
-		$userConfig = $this->base_model->getValue('attribute, value', 'a_user_config', 'user_id', $id);
-		
-		$dataConfig = [];
-		foreach($userConfig as $k => $v)
-			$dataConfig[$v->attribute] = $v->value;
-		
-		$data = array_merge($dataUser, $dataConfig);
+		$user = $this->base_model->getValueArray('id as user_id, client_id, org_id, role_id, name as user_name, email as user_email, photo_file, supervisor_id as user_supervisor_id, bpartner_id, is_fullbpaccess', 'a_user', 'id', $user_id);
+		$client = $this->base_model->getValueArray('name as client_name, smtp_host, smtp_port, is_securesmtp', 'a_client', 'id', $user['client_id']);
+		$org = $this->base_model->getValueArray('name as org_name, supervisor_id as org_supervisor_id, address_map as org_address_map, phone as org_phone, fax as org_fax, email as org_email, website as org_website, swg_margin', 'a_org', 'id', $user['org_id']);
+		$role = $this->base_model->getValueArray('name as role_name, supervisor_id as role_supervisor_id, amt_approval, is_canexport, is_canreport, is_canapproveowndoc, is_accessallorgs, is_useuserorgaccess', 'a_role', 'id', $user['role_id']);
+		$system = $this->base_model->getValueArray('api_token, head_title, page_title, logo_text_mn, logo_text_lg, date_format, time_format, datetime_format, user_photo_path', 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID]);
+		$user_config = $this->base_model->getValue('attribute, value', 'a_user_config', 'user_id', $user_id);
+		foreach($user_config as $k => $v) {
+			$userconfig[$v->attribute] = $v->value;
+		}
+		$user 			= ($user===FALSE) ? [] : $user;
+		$client 		= ($client===FALSE) ? [] : $client;
+		$org 				= ($org===FALSE) ? [] : $org;
+		$system 		= ($system===FALSE) ? [] : $system;
+		$userconfig = ($userconfig===FALSE) ? [] : $userconfig;
+		$data = array_merge($user, $client, $org, $system, $userconfig);
 		$this->session->set_userdata($data);
 		
-		/* if ($remember)
+		if (isset($this->params['rememberme']) && $this->params['rememberme'])
 		{
 			$expire = (60*60*24*365*2);
 			$salt = salt();
-			set_cookie([
-				'name'   => 'remember_user',
-				'value'  => $data['user_id'],
-				'expire' => $expire
-			]);
-			set_cookie([
-				'name'   => 'remember_token',
-				'value'  => $salt,
-				'expire' => $expire
-			]);
-		} */
+			set_cookie(['name' => 'remember_user', 'value' => $data['user_name'], 'expire' => $expire]);
+			set_cookie(['name' => 'remember_token', 'value' => $salt, 'expire' => $expire]);
+		} else {
+			set_cookie("remember_user", isset($_COOKIE["remember_user"]) ? '' : '');
+			set_cookie("remember_token", isset($_COOKIE["remember_token"]) ? '' : '');
+		}
 
 		$this->xresponse(TRUE);
 	}
@@ -262,10 +248,10 @@ class Systems extends Getmeb
 	
 	function x_logout()
 	{
-		$this->session->unset_userdata( array('user_id') );
+		// $this->session->unset_userdata( array('user_id') );
 
 		// delete the remember me cookies if they exist
-		if (get_cookie($this->config->item('sess_cookie_name')))
+		/* if (get_cookie($this->config->item('sess_cookie_name')))
 		{
 			delete_cookie($this->config->item('sess_cookie_name'));
 		}
@@ -276,7 +262,7 @@ class Systems extends Getmeb
 		if (get_cookie('remember_token'))
 		{
 			delete_cookie('remember_token');
-		}
+		} */
 
 		// Destroy the session
 		$this->session->sess_destroy();
@@ -1114,6 +1100,15 @@ class Systems extends Getmeb
 		}
 	}
 	
+	function a_loginattempt()
+	{
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id'], TRUE))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
 	function c_currency()
 	{
 		if ($this->r_method == 'GET') {
