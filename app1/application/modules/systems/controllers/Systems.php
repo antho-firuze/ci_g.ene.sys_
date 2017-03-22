@@ -69,11 +69,6 @@ class Systems extends Getmeb
 		$http_auth 	= $this->input->server('HTTP_X_AUTH');
 		$username 	= $this->input->server('PHP_AUTH_USER');
 		
-		// echo var_dump($this->input->server());
-		// echo var_dump($this->input->valid_ip());
-		echo var_dump($_SERVER);
-		return;
-		
 		$password = NULL;
 		if ($username !== NULL)
 		{
@@ -86,6 +81,14 @@ class Systems extends Getmeb
 						list($username, $password) = explode(':', base64_decode(substr($http_auth, 6)));
 				}
 		}
+		/* Trapping user_agent & ip address */
+		/* get user_id if exists */
+		$query = $this->db->get_where('a_user', ['name' => $username], 1);
+		$user_id = ($query->num_rows() === 1) ? $query->row()->id : NULL;
+		/* saving user_agent & ip address */
+		$this->_save_useragent_ip($username, $user_id);
+		
+		/* Start to login */
 		if (! $user_id = $this->auth->login($username, $password))
 		{
 			$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
