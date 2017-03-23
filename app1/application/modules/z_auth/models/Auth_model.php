@@ -324,6 +324,83 @@ class Auth_model extends CI_Model
 	}
 
 	/**
+	 * Insert a forgotten password key.
+	 *
+	 * @return bool
+	 * @author Mathew
+	 * @updated Ryan
+	 * @updated Firuze @2017
+	 **/
+	public function forgotten_password($identity)
+	{
+		if (empty($identity))
+		{
+			return FALSE;
+		}
+
+		/* check if email is exists */
+		$query = $this->db->get_where($this->tables['users'], ['email' => $identity], 1);
+		if ($query->num_rows() < 1){
+			$this->set_message('forgot_password_notmatches');
+			return FALSE;
+		}
+		$username = $query->row()->name;
+		
+		$key = $this->hash_code(microtime().$identity);
+
+		$this->forgotten_password_code = $key;
+
+		$update = array(
+		    'forgotten_password_code' => $key,
+		    'forgotten_password_time' => time()
+		);
+
+		$this->db->update($this->tables['users'], $update, array($this->identity_column => $username));
+
+		$return = $this->db->affected_rows() == 1;
+
+		return $return;
+	}
+
+	public function forgotten_password_complete($code, $salt=FALSE)
+	{
+		if (empty($code))
+		{
+			return FALSE;
+		}
+
+		$query = $this->db->get_where($this->tables['users'], ['forgotten_password_code' => $code], 1);
+		if ($query->num_rows() < 1){
+			$this->set_message('forgot_password_invalid');
+			return FALSE;
+		}
+		$user = $query->row();
+		
+		if ($expiration = $this->config->item('forgot_password_expiration', 'auth') > 0) {
+			//Make sure it isn't expired
+			if (time() - $user->forgotten_password_time > $expiration) {
+				//it has expired
+				$this->set_error('forgot_password_expired');
+				return FALSE;
+			}
+		}
+
+			$password = $this->salt();
+
+			$data = array(
+			    'password'                => $this->hash_password($password, $salt),
+			    'forgotten_password_code' => NULL,
+			    'active'                  => 1,
+			 );
+
+			$this->db->update($this->tables['users'], $data, array('forgotten_password_code' => $code));
+
+			return $password;
+
+		return FALSE;
+	}
+
+	/**
 	 * reset password
 	 *
 	 * @return bool

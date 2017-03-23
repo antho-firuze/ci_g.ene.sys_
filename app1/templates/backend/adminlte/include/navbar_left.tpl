@@ -4,10 +4,10 @@
       <!-- Sidebar user panel -->
       <div class="user-panel">
         <div class="pull-left image">
-          <img src="{$photo_url}" class="img-circle" alt="User Image">
+          <img src="{$.php.base_url()~$.session.user_photo_path~$.session.user_photo_file}" class="img-circle" alt="User Image">
         </div>
         <div class="pull-left info">
-          <p>{$.session.name}</p>
+          <p>{$.session.user_name}</p>
           <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
         </div>
       </div>
@@ -24,7 +24,7 @@
       <!-- /.search form -->
       <!-- sidebar menu: : style can be found in sidebar.less -->
       <ul class="sidebar-menu">
-        <li class="header">BACKEND SYSTEM | {$page_title}</li>
+        <li class="header">BACKEND SYSTEM | {$.session.page_title}</li>
 				{$menus}
       </ul>
     </section>

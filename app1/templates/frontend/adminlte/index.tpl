@@ -35,16 +35,10 @@
 <script src="{$.const.ASSET_URL}js/common.func.js"></script>
 <script>
 	{* DECLARE VARIABLE *}
-	{var $login_link = $.php.base_url()~$.const.LOGIN_LNK}
-	{* var base_url = '{$.php.base_url()}'; *}
-	{* var api_base_url = '{$.const.API_BASE_URL}'; *}
-	{* var InfoLst_url = '{$.php.base_url()~$.const.INFOLST_LNK}'; *}
-	{* var username = '{$.session.name}'; *}
 	var $skin = 'skin_f{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
 	var $sidebar = 'sidebar_f{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
 	
-	if (!get($skin))
-		store($skin, '{$skin_color}');
+	if (!get($skin)) store($skin, '{$skin_color}');
 </script>
 
 <script src="{$.const.TEMPLATE_URL}plugins/jQuery/jQuery-2.1.4.min.js"></script>

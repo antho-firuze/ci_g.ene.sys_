@@ -336,12 +336,12 @@ class Getmeb extends CI_Controller
 			$html.= '</ul></li>';
 		/* End Treeview Menu */
 		
-		$html.= '<br><li><a href="#" id="go-lock-screen"><i class="fa fa-circle-o text-yellow"></i> <span>' . $this->lang->line('nav_lckscr') . '</span></a></li>';
-		$html.= '<li><a href="'.base_url().LOGOUT_LNK.'"><i class="fa fa-sign-out text-red"></i> <span>' . $this->lang->line('nav_logout') . '</span></a></li>';
+		$html.= '<br><li><a href="#" id="go-lock-screen" onclick="lock_the_screen();"><i class="fa fa-circle-o text-yellow"></i> <span>' . $this->lang->line('nav_lckscr') . '</span></a></li>';
+		$html.= '<li><a href="'.LOGOUT_LNK.'" id="go-sign-out"><i class="fa fa-sign-out text-red"></i> <span>' . $this->lang->line('nav_logout') . '</span></a></li>';
 		return $html;
 	}
 	
-	function login_view($content, $data=[])
+	function single_view($content, $data=[])
 	{
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
 		$select = 'head_title, page_title, logo_text_mn, logo_text_lg';
@@ -358,12 +358,13 @@ class Getmeb extends CI_Controller
 		$default['content'] 	= TEMPLATE_PATH.$content.'.tpl';
 		
 		$select = 'head_title, page_title, logo_text_mn, logo_text_lg, date_format, time_format, datetime_format, user_photo_path';
-		$system = ($result = $this->base_model->getValueArray($select, 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID])) ? $result : [];
+		// $system = ($result = $this->base_model->getValueArray($select, 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID])) ? $result : [];
 		$pageid = (key_exists('pageid', $this->params) && !empty($this->params['pageid'])) ? $this->params['pageid'] : 0;
 		$default['menus'] 		= $this->getMenuStructure($pageid);
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);
-		$this->fenomx->view(TEMPLATE_PATH.'index', array_merge($default, $system, $data));
+		// $this->fenomx->view(TEMPLATE_PATH.'index', array_merge($default, $system, $data));
+		$this->fenomx->view(TEMPLATE_PATH.'index', array_merge($default, $data));
 	}
 	
 }

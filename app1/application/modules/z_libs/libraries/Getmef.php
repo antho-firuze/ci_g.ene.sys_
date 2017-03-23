@@ -127,7 +127,7 @@ class Getmef extends CI_Controller
 			$html.= '</ul></li>';
 		/* End Treeview Menu */
 		
-		$html.= '<br><li><a href="'.base_url().LOGIN_LNK.'"><i class="fa fa-sign-in text-red"></i> <span>Login</span></a></li>';
+		$html.= '<br><li><a href="'.LOGIN_LNK.'"><i class="fa fa-sign-in text-red"></i> <span>Login</span></a></li>';
 		return $html;
 	}
 	

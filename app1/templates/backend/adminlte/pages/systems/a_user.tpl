@@ -38,7 +38,7 @@
 	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=31>Role</a></span>');
 	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=32>Org</a></span>');
 	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=33>Subs</a></span>');
-	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
+	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="width:100%; table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
 	dataTable1 = tableData1.DataTable({
 		"pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, 
 		"ajax": {

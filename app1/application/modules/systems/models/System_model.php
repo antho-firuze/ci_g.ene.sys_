@@ -18,6 +18,27 @@ class System_Model extends CI_model
 		return call_user_func_array( array($this, $method), $arguments);
 	} */
 	
+	function _store_config($user_id)
+	{
+		$user = $this->base_model->getValueArray('id as user_id, client_id, org_id, role_id, name as user_name, email as user_email, description as user_description, photo_file as user_photo_file, supervisor_id as user_supervisor_id, bpartner_id, is_fullbpaccess', 'a_user', 'id', $user_id);
+		$client = $this->base_model->getValueArray('name as client_name, smtp_host, smtp_port, is_securesmtp', 'a_client', 'id', $user['client_id']);
+		$org = $this->base_model->getValueArray('name as org_name, supervisor_id as org_supervisor_id, address_map as org_address_map, phone as org_phone, fax as org_fax, email as org_email, website as org_website, swg_margin', 'a_org', 'id', $user['org_id']);
+		$role = $this->base_model->getValueArray('name as role_name, supervisor_id as role_supervisor_id, amt_approval, is_canexport, is_canreport, is_canapproveowndoc, is_accessallorgs, is_useuserorgaccess', 'a_role', 'id', $user['role_id']);
+		$system = $this->base_model->getValueArray('api_token, head_title, page_title, logo_text_mn, logo_text_lg, date_format, time_format, datetime_format, user_photo_path', 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID]);
+		$user_config = $this->base_model->getValue('attribute, value', 'a_user_config', 'user_id', $user_id);
+		foreach($user_config as $k => $v) {
+			$userconfig[$v->attribute] = $v->value;
+		}
+		$user 			= ($user===FALSE) ? [] : $user;
+		$client 		= ($client===FALSE) ? [] : $client;
+		$org 				= ($org===FALSE) ? [] : $org;
+		$role 			= ($role===FALSE) ? [] : $role;
+		$system 		= ($system===FALSE) ? [] : $system;
+		$userconfig = ($userconfig===FALSE) ? [] : $userconfig;
+		$data = array_merge($user, $client, $org, $role, $system, $userconfig);
+		$this->session->set_userdata($data);
+	}
+	
 	function createUserRecent($data)
 	{
 		/* $qry = $this->db
@@ -101,7 +122,7 @@ class System_Model extends CI_model
 	
 	function get_a_user_substitute($params)
 	{
-		$params['select'] = "t1.id, t1.substitute_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t1.valid_from, t1.valid_to, t1.description";
+		$params['select'] = "t1.id, t1.substitute_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, to_char(t1.valid_from, '".$this->sess->date_format."') as valid_from, to_char(t1.valid_to, '".$this->sess->date_format."') as valid_to, t1.description";
 		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_user_substitute as t1";
 		$params['join'][] 	= ['a_user as t2', 't1.user_id = t2.id', 'left'];

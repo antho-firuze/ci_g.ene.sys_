@@ -45,7 +45,7 @@ class Systems extends Getmeb
 		$this->c_method = $method;
 		
 		/* THIS METHODS ARE NOT THROUGH CHECKING LOGIN */
-		if (!in_array($method, ['x_auth', 'x_login', 'x_logout']))
+		if (!in_array($method, ['x_auth', 'x_login', 'x_logout', 'x_reload', 'x_forgot']))
 		{
 			$this->_check_is_login();
 		}
@@ -66,6 +66,30 @@ class Systems extends Getmeb
 	{
 		$this->load->library('z_auth/auth');
 
+		/* This line for processing forgot password */
+		if (isset($this->params['forgot']) && $this->params['forgot']) {
+			//run the forgotten password method to email an activation code to the user
+			$forgotten = $this->auth->forgotten_password($this->params['email']);
+
+			if ($forgotten)
+			{
+				/* Trying to sending email */
+				$user = $this->base_model->getValueArray('*', 'a_user', 'email', $this->params['email']);
+				$subject = FORGOT_LNK."/".$user->forgotten_password_code;
+				if($sending = send_mail($user->email, 'Your Reset Password Link', $subject) !== TRUE) {
+					$this->xresponse(FALSE, ['message' => $sending], 401);
+				}
+				/* success */
+				$this->xresponse(TRUE, ['message' => 'The link for reset your password has been sent to your email.']);
+			}
+			else
+			{
+				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+			}
+			
+		}
+		
+		/* This line for authentication login page */
 		$http_auth 	= $this->input->server('HTTP_X_AUTH');
 		$username 	= $this->input->server('PHP_AUTH_USER');
 		
@@ -94,28 +118,14 @@ class Systems extends Getmeb
 			$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 		}
 
-		$user = $this->base_model->getValueArray('id as user_id, client_id, org_id, role_id, name as user_name, email as user_email, photo_file, supervisor_id as user_supervisor_id, bpartner_id, is_fullbpaccess', 'a_user', 'id', $user_id);
-		$client = $this->base_model->getValueArray('name as client_name, smtp_host, smtp_port, is_securesmtp', 'a_client', 'id', $user['client_id']);
-		$org = $this->base_model->getValueArray('name as org_name, supervisor_id as org_supervisor_id, address_map as org_address_map, phone as org_phone, fax as org_fax, email as org_email, website as org_website, swg_margin', 'a_org', 'id', $user['org_id']);
-		$role = $this->base_model->getValueArray('name as role_name, supervisor_id as role_supervisor_id, amt_approval, is_canexport, is_canreport, is_canapproveowndoc, is_accessallorgs, is_useuserorgaccess', 'a_role', 'id', $user['role_id']);
-		$system = $this->base_model->getValueArray('api_token, head_title, page_title, logo_text_mn, logo_text_lg, date_format, time_format, datetime_format, user_photo_path', 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID]);
-		$user_config = $this->base_model->getValue('attribute, value', 'a_user_config', 'user_id', $user_id);
-		foreach($user_config as $k => $v) {
-			$userconfig[$v->attribute] = $v->value;
-		}
-		$user 			= ($user===FALSE) ? [] : $user;
-		$client 		= ($client===FALSE) ? [] : $client;
-		$org 				= ($org===FALSE) ? [] : $org;
-		$system 		= ($system===FALSE) ? [] : $system;
-		$userconfig = ($userconfig===FALSE) ? [] : $userconfig;
-		$data = array_merge($user, $client, $org, $system, $userconfig);
-		$this->session->set_userdata($data);
+		/* Store configuration to session */
+		$this->system_model->_store_config($user_id);
 		
 		if (isset($this->params['rememberme']) && $this->params['rememberme'])
 		{
 			$expire = (60*60*24*365*2);
 			$salt = salt();
-			set_cookie(['name' => 'remember_user', 'value' => $data['user_name'], 'expire' => $expire]);
+			set_cookie(['name' => 'remember_user', 'value' => $username, 'expire' => $expire]);
 			set_cookie(['name' => 'remember_token', 'value' => $salt, 'expire' => $expire]);
 		} else {
 			set_cookie("remember_user", isset($_COOKIE["remember_user"]) ? '' : '');
@@ -125,32 +135,38 @@ class Systems extends Getmeb
 		$this->xresponse(TRUE);
 	}
 	
+	/* Re-Store configuration to session */
+	function x_reload()
+	{
+		if ($this->sess->user_id) {
+			$this->system_model->_store_config($this->sess->user_id);
+		
+			$this->xresponse(TRUE);
+		}
+		redirect(LOGIN_LNK);
+	}
+	
 	function x_unlock()
 	{
 		$this->load->library('z_auth/auth');
 
 		$http_auth 	= $this->input->server('HTTP_X_AUTH');
-		$username 	= $this->input->server('PHP_AUTH_USER');
 		
-		$password = NULL;
-		if ($username !== NULL)
+		if ($http_auth !== NULL)
 		{
-				$password = $this->input->server('PHP_AUTH_PW');
-		}
-		elseif ($http_auth !== NULL)
-		{
-				if (strpos(strtolower($http_auth), 'basic') === 0)
-				{
-						list($username, $password) = explode(':', base64_decode(substr($http_auth, 6)));
-				}
-		}
-		if (! $id = $this->auth->login($username, $password))
-		{
-			$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+			if (strpos(strtolower($http_auth), 'basic') === 0)
+			{
+					list($username, $password) = explode(':', base64_decode(substr($http_auth, 6)));
+			}
+			if (! $this->auth->login($username, $password))
+			{
+				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+			}
+			$this->xresponse(TRUE);
+		} else {
+			$this->xresponse(FALSE, ['message' => $this->lang->line('login_unsuccessful')], 401);
 		}
 
-		$this->xresponse(TRUE);
-		
 		/* $auth 	  = $this->input->server('HTTP_X_AUTH');
 		$headers = [
 			'TOKEN'	 	=> $this->session->userdata('token'),
@@ -246,62 +262,27 @@ class Systems extends Getmeb
 	
 	function x_login()
 	{
-		$this->login_view('pages/systems/auth/login');
+		$this->single_view('pages/systems/auth/login');
 	}
 	
 	function x_logout()
 	{
-		// $this->session->unset_userdata( array('user_id') );
-
-		// delete the remember me cookies if they exist
-		/* if (get_cookie($this->config->item('sess_cookie_name')))
-		{
-			delete_cookie($this->config->item('sess_cookie_name'));
-		}
-		if (get_cookie('remember_user'))
-		{
-			delete_cookie('remember_user');
-		}
-		if (get_cookie('remember_token'))
-		{
-			delete_cookie('remember_token');
-		} */
-
 		// Destroy the session
 		$this->session->sess_destroy();
 
-		//Recreate the session
-		/* if (substr(CI_VERSION, 0, 1) == '2')
-		{
-			$this->session->sess_create();
+		redirect(LOGIN_LNK);
+	}
+	
+	function x_forgot($forgotten_code = NULL)
+	{
+		if ($forgotten_code) {
+			$user = $this->base_model->getValue('*', 'a_user', 'forgotten_password_code', $forgotten_code);
+			
 		}
-		else
-		{
-			$this->session->sess_regenerate(TRUE);
-		} */
-
-		// redirect('login');
-		redirect('/');
+		$this->single_view('pages/systems/auth/forgot');
 	}
 	
 	// REQUIRED LOGIN
-	/* function x_menulist()
-	{
-		// $this->getAPI('system', 'menulist', $params, FALSE);
-		$result['data'] = [];
-		$this->params['select'] = "am.name, am.url, am.icon";
-		// if (key_exists('q', $this->params)) 
-		if (! empty($this->params['q'])) 
-		{
-			$this->params['like'] = empty($this->params['sf']) 
-				? DBX::like_or('am.name', $this->params['q'])
-				: DBX::like_or($this->params['sf'], $this->params['q']);
-			
-		}
-		$result['data'] = $this->system_model->getMenu($this->params);
-		$this->xresponse(true, $result);
-	} */
-	
 	/* function x_setUserRecent()
 	{
 		$params = (count($params = $this->input->get()) < 1) ? '' : '?'.http_build_query($this->params);
@@ -1452,31 +1433,6 @@ class Systems extends Getmeb
 	function z_smarty_test()
 	{
 		$this->smarty->testInstall();
-	}
-	
-	function z_test()
-	{
-		echo base64_encode(1);
-		// $this->session->userdata();
-		
-		// $userConfig = (object) $this->system_model->getUserConfig([
-			// 'select' => 'attribute, value', 
-			// 'where' => ['user_id' => 11]
-		// ]);
-		
-		// echo $this->session->userdata('language');
-		
-		// $this->lang->load('systems/genesys', 'indonesia');
-		// $this->lang->load('systems/genesys', 'english');
-		// echo $this->lang->line('testing');
-		echo $this->c_method;
-		// return out($this->getFrontendMenu(11));
-		
-		// $arr = ['assets/plugins/raphael/raphael-min.js'];
-		// $arr_s = serialize($arr);
-		// $arr_u = unserialize($arr_s);
-		// echo $arr_s."\n";
-		// return out($arr_u);
 	}
 	
 }

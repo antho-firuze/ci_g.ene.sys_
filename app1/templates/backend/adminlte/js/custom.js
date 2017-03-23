@@ -1,26 +1,7 @@
 /**
- * General Function
- *
- */
-
-function init_screen_timeout()
-{
-	$(document).idleTimer("destroy");
-	$(document).idleTimer(parseInt(get($screen_timeout)));
-}
-
-function lock_screen()
-{
-	store($lockscreen, 1);
-	$('.lockscreen').slideDown('fast');
-	$(document).idleTimer("destroy");
-}
-
-/**
  * AdminLTE Right Menu
  * ------------------
  * 
- * Skin & Screen Timeout
  */
 (function ($) {
 
@@ -272,10 +253,7 @@ function lock_screen()
       e.preventDefault();
       change_skin($(this).data('skin'));
 	
-			$.ajax({
-				url: x_config_lnk,
-				method: "POST",
-				dataType: 'json',
+			$.ajax({ url: x_config_lnk,	method: "POST",	dataType: 'json',
 				data: '{"skin": "'+$(this).data('skin')+'"}'
 			});
     });
@@ -287,10 +265,7 @@ function lock_screen()
 			else
 				store($sidebar, 'sidebar-collapse');
 			
-			$.ajax({
-				url: x_config_lnk,
-				method: "POST",
-				dataType: 'json',
+			$.ajax({ url: x_config_lnk,	method: "POST",	dataType: 'json',
 				data: '{ "sidebar": "' + get($sidebar) +'" }'
 			});
 		});
@@ -300,184 +275,11 @@ function lock_screen()
 			store($screen_timeout, $("#timeout_list").val());
 			init_screen_timeout();
 			
-			$.ajax({
-				url: x_config_lnk,
-				method: "POST",
-				dataType: 'json',
+			$.ajax({ url: x_config_lnk,	method: "POST",	dataType: 'json',
 				data: '{"screen_timeout": "'+$("#timeout_list").val()+'"}'
 			});
 		});
 	
 		$("#timeout_list").val(get($screen_timeout));
   }
-})(jQuery);
-
-
-/** 
- * Initialize Custom
- *
- */
-(function ($) {
-
-	"use strict";
-  
-	/* 
-   	* Initialization for screen timeout
-   	*/
-	init_screen_timeout();
-	
-	var lockscreen = $('.lockscreen');
-	var form_lck = $('form.lockscreen-credentials');
-	
-	$(document).on("idle.idleTimer", function(event, elem, obj){
-		lock_screen();
-    });
-	
-	(get($lockscreen)==1) ? lockscreen.slideDown() : lockscreen.slideUp();
-	
-	$("#go-lock-screen").click(function(e){
-		e.preventDefault();
-		lock_screen();
-	});
-	
-	$("#go-sign-out").click(function(e){
-		e.preventDefault();
-		if (confirm("Are you sure ?"))
-			window.location.replace($("#go-sign-out").attr('href'));
-	});
-	
-	form_lck.submit( function(e) {
-		e.preventDefault();
-		
-		$.ajax({ url: x_unlock_lnk, method: "GET", async: true, dataType: 'json',
-			headers: { "X-AUTH": "Basic " + btoa(form_lck.find("input[name='name']").val() + ":" + form_lck.find("input[name='password']").val())	},
-			beforeSend: function(xhr) {	form_lck.find('[type="submit"]').attr("disabled", "disabled"); },
-			complete: function(xhr, data) {
-				setTimeout(function(){ form_lck.find('[type="submit"]').removeAttr("disabled");	},1000);
-			},
-			success: function(data) {
-				store($lockscreen, 0);
-				lockscreen.slideUp('fast');
-				init_screen_timeout();
-			},
-			error: function(data) {
-				if (data.status==500){
-					var message = data.statusText;
-				} else {
-					var error = JSON.parse(data.responseText);
-					var message = error.message;
-				}
-				setTimeout(function(){ form_lck.find('[type="submit"]').removeAttr("disabled"); },1000);
-				$("div.lockscreen").find(".help-block").html("<b>"+message+"</b>");
-			}
-		});  
-	});
-	
-	/* 
-	* FOR SEARCHING MENU 
-	*/
-	var xhr;
-	$('#searching-menu').autoComplete({
-		minChars: 1,
-		delay: 0,
-		cache: false,
-		source: function(term, response){
-			try { xhr.abort(); } catch(e){}
-			xhr = $.getJSON(x_srcmenu_lnk, { q: term }, function(data){ console.log(data.data); response(data.data); });
-		},
-		renderItem: function (item, search){
-			search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-			var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
-			return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion" data-id="' + item['id'] + '" data-val="' + item['name'] + '"><i class="fa fa-circle-o"></i> '+ item['name'].replace(re, "<b>$1</b>") + '</div>';
-		},
-		onSelect: function(e, term, item){
-			window.location.href = x_page_lnk+'?pageid='+item.data('id');
-		} 
-	});
-  
-	/* 
-	* Change Password Process 
-	*/
-	$('#go-change-pwd').on('click', function(e){
-		e.preventDefault();
-
-		var content = $('<div />');
-		var form = $('<form />', {class: 'form-horizontal'});
-		form.append(setForm_Input('text', 'User Name', 'username', username, '', '', false, true, false));
-		form.append(setForm_Input('password', 'Password (Old)', 'password'));
-		form.append(setForm_Input('password', 'Password (New)', 'password_new'));
-		form.append(setForm_Input('password', 'Password (Confirm)', 'password_confirm'));
-		content.append(form);
-		
-		BootstrapDialog.show({ cssClass: 'modal-primary',
-			title: 'Change Password',
-			message: content,
-			buttons: [{
-				icon: 'glyphicon glyphicon-send',
-				cssClass: 'btn-primary',
-                label: '&nbsp;&nbsp;Save',
-                action: function(dialog) {
-					
-					if (! form.valid()) return false;
-					
-					var button = this;
-					button.spin();
-					
-					// dialog.setClosable(false);
-					// dialog.enableButtons(false);
-					
-					$.ajax({ url: ChgPwd_url, method: "POST", async: true, dataType: 'json',
-						data: '{"password_new": "'+form.find("input[name='password_new']").val()+'"}',
-						headers: {
-							"X-AUTH": "Basic " + btoa(form.find("input[name='name']").val() + ":" + form.find("input[name='password']").val())
-						},
-						success: function(data) {
-							BootstrapDialog.alert({ type:'modal-info', title:'Notification', message:data.message, callback: function(){
-									dialog.close();
-								}
-							});
-						},
-						error: function(data) {
-							if (data.status==500){
-								var message = data.statusText;
-							} else {
-								var error = JSON.parse(data.responseText);
-								var message = error.message;
-							}
-							
-							button.stopSpin();
-							dialog.enableButtons(true);
-							dialog.setClosable(true);
-							
-							BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
-						}
-					});
-                }
-            }, {
-                label: 'Close',
-                action: function(dialog) { dialog.close(); }
-            }],
-			onshown: function(dialog) {
-				form.validate({
-					rules: {
-						password: {
-							required: true
-						},
-						password_new: {
-							required: true,
-							minlength: 3
-						},
-						password_confirm: {
-							required: true,
-							minlength: 3,
-							equalTo: "#password_new"
-						},
-					}
-				});
-				$('#password').focus();
-				// dialog.getModalDialog().css("top", Math.max(0, ($(window).height() - dialog.getModalContent().height()) / 2));
-			}
-		});
-	});
-	
 })(jQuery);

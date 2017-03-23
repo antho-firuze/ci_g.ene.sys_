@@ -1,6 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 include 'datetime_helper.php';
+include 'email_helper.php';
 
 if ( ! function_exists('UUIDv4'))
 {
@@ -529,28 +530,6 @@ if ( ! function_exists('time_passed'))
 	}
 }
 
-// MAIL
-if ( ! function_exists('send_mail'))
-{
-	function send_mail( $email=NULL, $subject=NULL, $message=NULL ) {
-		$ci = get_instance();
-		
-		$ci->load->library('email');
-
-		$ci->email->clear();
-		
-		$ci->email->set_newline("\r\n");
-		$ci->email->from('genesys0681@gmail.com', 'G.ENE.SYS');
-		$ci->email->to($email); 
-		// $ci->email->bcc('hertanto@fajarbenua.co.id');
-
-		$ci->email->subject($subject);
-		$ci->email->message($message);	
-
-		return $ci->email->send();
-	}
-}
-	
 // OTHERS
 if ( ! function_exists('set_statistics'))
 {

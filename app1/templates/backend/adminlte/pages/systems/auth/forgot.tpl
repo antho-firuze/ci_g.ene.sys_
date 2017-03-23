@@ -43,29 +43,21 @@
   </div>
   <!-- /.login-logo -->
   <div class="login-box-body">
-    <p class="login-box-msg">Sign in to start your session</p>
+    <p class="login-box-msg">Please input user name & email address</p>
 
     <form>
+      {* <div class="form-group has-feedback"> *}
+        {* <span class="glyphicon glyphicon-user form-control-feedback"></span> *}
+        {* <input type="text" class="form-control" placeholder="User Name" name="username" required> *}
+      {* </div> *}
       <div class="form-group has-feedback">
-        <span class="glyphicon glyphicon-user form-control-feedback"></span>
-        <input type="text" class="form-control" placeholder="User Name" name="username" required>
-      </div>
-      <div class="form-group has-feedback">
-        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-        <input type="password" class="form-control" placeholder="Password" name="password" required>
+        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+        <input type="text" class="form-control" placeholder="Email" name="email" required>
       </div>
       <div class="row">
-        <div class="col-xs-8">
-          <div class="checkbox icheck">
-            <label>
-              <input type="checkbox" name="remember"> Remember Me
-              {* <input type="hidden" name="remember" value=0 > *}
-            </label>
-          </div>
-        </div>
         <!-- /.col -->
-        <div class="col-xs-4">
-          <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
+        <div class="col-xs-12">
+          <button type="submit" class="btn btn-primary btn-block btn-flat">Send</button>
         </div>
         <!-- /.col -->
       </div>
@@ -86,7 +78,7 @@
 	{/if}
     <!-- /.social-auth-links -->
 	
-    Click <a href="{$.const.FORGOT_LNK}">here</a> if you forgot your password, or back to <a href="{$.const.HOME_LNK}">frontend</a>.<br>
+    {* Click <a href="#">here</a> if you forgot your password, or back to <a href="{$.const.HOME_LNK}">frontend</a>.<br> *}
     {* <a href="register.html" class="text-center">Register a new membership</a> *}
 	
   </div>
@@ -100,24 +92,18 @@
 <script>
 	var form = $("form");
 	$(document).ajaxStart(function() { Pace.restart(); });
-	$("[name='remember']")
-		.iCheck({ checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue', increaseArea: '20%' })
-		.iCheck('check');
 	
 	form.submit( function(e) {
 		e.preventDefault();
-		var rememberme = $("[name='remember']").prop('checked');
 		
-		$.ajax({ url:"{$.const.AUTH_LNK}", method:"GET", async:true, dataType:'json',
-			headers: { "X-AUTH": "Basic " + btoa($("[name='username']").val() + ":" + $("[name='password']").val()) },
-			data: { "rememberme":rememberme },
+		$.ajax({ url:"{$.const.AUTH_LNK}?forgot=1", method:"GET", async:true, dataType:'json',
+			data: { "email":$("[name='email']").val() },
 			beforeSend: function(xhr) { form.find('[type="submit"]').attr("disabled", "disabled"); },
 			complete: function(xhr, data) {	setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled");	},1000); },
 			success: function(data) {
 				if (data.status) {
-					store('lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}', 0);
-					var url = '{$.session.referred_index !: $.php.site_url('systems')}';
-					window.location.replace(url);
+					BootstrapDialog.alert({ type:'modal-info', title:'Information', message:"We already send the link for reset your password !" });
+					window.location.replace("{$.const.LOGIN_LNK}");
 				}
 			},
 			error: function(data, status, errThrown) {

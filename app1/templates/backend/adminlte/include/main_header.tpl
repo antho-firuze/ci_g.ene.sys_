@@ -2,9 +2,9 @@
     <!-- Logo -->
     <a href="{$.const.HOME_LINK}" class="logo">
       <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><b>{$logo_text_mn}</b></span>
+      <span class="logo-mini"><b>{$.session.logo_text_mn}</b></span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><b>{$logo_text_lg}</b></span>
+      <span class="logo-lg"><b>{$.session.logo_text_lg}</b></span>
     </a>
     <!-- Header Navbar: style can be found in header.less -->
     <nav class="navbar navbar-static-top" role="navigation">
@@ -124,17 +124,17 @@
           <!-- User Account: style can be found in dropdown.less -->
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <img src="{$photo_url}" class="user-image" alt="User Image">
-              <span class="hidden-xs">{$.session.name}</span>
+              <img src="{$.php.base_url()~$.session.user_photo_path~$.session.user_photo_file}" class="user-image" alt="User Image">
+              <span class="hidden-xs">{$.session.user_name}</span>
             </a>
             <ul class="dropdown-menu">
               <!-- User image -->
               <li class="user-header">
-                <img src="{$photo_url}" class="img-circle" alt="User Image">
+                <img src="{$.php.base_url()~$.session.user_photo_path~$.session.user_photo_file}" class="img-circle" alt="User Image">
 
                 <p>
-                  {$.session.name} - {$.session.email}
-                  <small>{$.session.description}</small>
+                  {$.session.user_name} - {$.session.user_email}
+                  <small>{$.session.user_description}</small>
                 </p>
               </li>
               <!-- Menu Body -->
@@ -167,12 +167,17 @@
               </li>
               <!-- Menu Footer-->
               <li class="user-footer">
-                <div class="pull-left">
-                  <a href="{$profile_link}" class="btn btn-default btn-flat">Profile</a>
-                </div>
-                <div class="pull-right">
-                  <a href="{$logout_link}" class="btn btn-default btn-flat">Sign out</a>
-                </div>
+								<div class="row" style="margin-right:0px;">
+									<div class="col-md-4">
+										<a href="{$.const.PROFILE_LNK}" class="btn btn-default btn-flat">Profile</a>
+									</div>
+									<div class="col-md-4">
+										<a href="{$.const.RELOAD_LNK}" class="btn btn-default btn-flat" id="reload_session">Reload</a>
+									</div>
+									<div class="col-md-4">
+										<a href="{$.const.LOGOUT_LNK}" class="btn btn-default btn-flat">Sign out</a>
+									</div>
+								</div>
               </li>
             </ul>
           </li>
@@ -184,3 +189,11 @@
       </div>
     </nav>
   </header>
+<script>
+	$("#reload_session").click(function(e){
+		e.preventDefault();
+		var last_url = window.location.href;
+		$.getJSON($(this).attr("href"), '', function(data){ 
+		window.location.replace(last_url); });
+	});
+</script>

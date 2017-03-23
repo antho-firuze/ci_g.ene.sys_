@@ -2,23 +2,23 @@
 <!-- Automatic element centering -->
 <div class="lockscreen-wrapper">
   <div class="lockscreen-logo">
-    <a href="#">{$page_title}</a>
+    <a href="#">{$.session.page_title}</a>
   </div>
   <!-- User name -->
-  <div class="lockscreen-name">{$.session.name}</div>
+  <div class="lockscreen-name">{$.session.user_name}</div>
 
   <!-- START LOCK SCREEN ITEM -->
   <div class="lockscreen-item">
     <!-- lockscreen image -->
     <div class="lockscreen-image">
-      <img src="{$photo_url}" alt="User Image">
+      <img src="{$.php.base_url()~$.session.user_photo_path~$.session.user_photo_file}" alt="User Image">
     </div>
     <!-- /.lockscreen-image -->
 
     <!-- lockscreen credentials (contains the form) -->
     <form class="lockscreen-credentials">
       <div class="input-group">
-        <input type="hidden" class="form-control" name="name" value="{$.session.name}">
+        <input type="hidden" class="form-control" name="name" value="{$.session.user_name}">
         <input type="password" class="form-control" placeholder="password" name="password" required>
 
         <div class="input-group-btn">
@@ -43,3 +43,53 @@
 </div>
 <!-- /.center -->
 </div>
+<script>
+	{* init for lockscreen *}
+	var lockscreen = $('.lockscreen');
+	var form_lck = $('form.lockscreen-credentials');
+
+	(get($lockscreen)==1) ? lockscreen.slideDown('fast') : lockscreen.slideUp('fast');
+
+	function lock_the_screen(){
+		store($lockscreen, 1);
+		lockscreen.slideDown('fast');
+		$(document).idleTimer("destroy");
+	}
+
+	function unlock_the_screen(){
+		store($lockscreen, 0);
+		lockscreen.slideUp('fast');
+		init_screen_timeout();
+	}
+	
+	function init_screen_timeout(){
+		$(document).idleTimer("destroy");
+		$(document).idleTimer(parseInt(get($screen_timeout)));
+	}
+	
+	init_screen_timeout();
+	$(document).on("idle.idleTimer", function(event, elem, obj){ lock_the_screen(); });
+	
+	form_lck.submit( function(e) {
+		e.preventDefault();
+		
+		$.ajax({ url: "{$.const.UNLOCK_LNK}", method: "GET", async: true, dataType: 'json',
+			headers: { "X-AUTH": "Basic " + btoa(form_lck.find("input[name='name']").val() + ":" + form_lck.find("input[name='password']").val())	},
+			beforeSend: function(xhr) {	form_lck.find('[type="submit"]').attr("disabled", "disabled"); },
+			complete: function(xhr, data) {
+				setTimeout(function(){ form_lck.find('[type="submit"]').removeAttr("disabled");	},1000);
+			},
+			success: function(data) { unlock_the_screen(); },
+			error: function(data) {
+				if (data.status==500){
+					var message = data.statusText;
+				} else {
+					var error = JSON.parse(data.responseText);
+					var message = error.message;
+				}
+				setTimeout(function(){ form_lck.find('[type="submit"]').removeAttr("disabled"); },1000);
+				$("div.lockscreen").find(".help-block").html("<b>"+message+"</b>");
+			}
+		});  
+	});
+</script>

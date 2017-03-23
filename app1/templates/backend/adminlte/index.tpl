@@ -11,7 +11,7 @@
 <meta http-equiv="Content-type" content="text/html; charset=utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>{$head_title}</title>
+<title>{$.session.head_title}</title>
 {$.php.link_tag('favicon.ico', 'shortcut icon', 'image/ico')}
 {$.php.link_tag($.const.TEMPLATE_URL~'bootstrap/css/bootstrap.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'font-awesome/css/font-awesome.min.css')}
@@ -32,16 +32,8 @@
 <script src="{$.const.ASSET_URL}js/common.func.js"></script>
 <script>
 	{* DECLARE VARIABLE *}
-	{var $photo_url = $.php.base_url() ~ $user_photo_path ~ $.php.urldecode($.session.photo_file)}
-	{var $logout_link = $.php.base_url() ~ $.const.LOGOUT_LNK}
-	{var $profile_link = $.php.base_url() ~ $.const.PROFILE_LNK}
 	{var $sidebar = $.session.sidebar !: ''}
-	var x_page_lnk = '{$.php.base_url() ~ $.const.PAGE_LNK}';
-	var x_srcmenu_lnk = '{$.php.base_url() ~ $.const.SRCMENU_LNK}';
-	var x_unlock_lnk = '{$.php.base_url() ~ $.const.UNLOCK_LNK}';
-	var x_config_lnk = '{$.php.base_url() ~ $.const.CONFIG_LNK}';
-	var a_info_lnk = '{$.php.base_url() ~ $.const.INFOLST_LNK}';
-	var username = '{$.session.name}';
+	var x_config_lnk = '{$.const.CONFIG_LNK}';
 	var $skin = 'skin{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
 	var $sidebar = 'sidebar{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
 	var $screen_timeout = 'screen_timeout{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
@@ -108,6 +100,36 @@
 <!-- ./wrapper -->
 {include $.const.TEMPLATE_PATH ~ "include/lockscreen.tpl"}
 <script src="{$.const.TEMPLATE_URL}js/custom.js"></script>
-<script>$(document.body).addClass(get($sidebar)).addClass(get($skin));</script>
+<script>
+	{* init for skin & sidebar *}
+	$(document.body).addClass(get($sidebar)).addClass(get($skin));
+	
+	{* sign-out *}
+	$("#go-sign-out").click(function(e){
+		e.preventDefault();
+		if (confirm("Are you sure ?")) {
+			{* window.location.replace($(this).attr('href')); *}
+			window.location.href = $(this).attr('href');
+		}
+	});
+	
+	{* searching-menu *}
+	var xhr;
+	$("#searching-menu").autoComplete({	minChars: 1, delay: 0, cache: false,
+		source: function(term, response){
+			try { xhr.abort(); } catch(e){}
+			xhr = $.getJSON("{$.const.SRCMENU_LNK}", { q: term }, function(data){ response(data.data); });
+		},
+		renderItem: function (item, search){
+			search = search.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+			var re = new RegExp("(" + search.split(' ').join('|') + ")", "gi");
+			return '<div style="height:35px; width:300px; padding-top:7px;" class="autocomplete-suggestion" data-id="' + item['id'] + '" data-val="' + item['name'] + '"><i class="fa fa-circle-o"></i> '+ item['name'].replace(re, "<b>$1</b>") + '</div>';
+		},
+		onSelect: function(e, term, item){
+			window.location.href = "{$.const.PAGE_LNK}?pageid="+item.data('id');
+		} 
+	});
+  
+</script>
 </body>
 </html>

@@ -63,15 +63,18 @@ define('DEFAULT_CLIENT_ID', $client_id);
 define('DEFAULT_ORG_ID', $org_id);
 
 /* BACKEND CONSTANT VARIABLES */
-define('PAGE_LNK', 'systems/x_page');
-define('AUTH_LNK', 'systems/x_auth');
-define('LOGIN_LNK', 'systems/x_login');
-define('LOGOUT_LNK', 'systems/x_logout');
-define('UNLOCK_LNK', 'systems/x_unlock');
-define('CONFIG_LNK', 'systems/x_config');
-define('SRCMENU_LNK', 'systems/x_srcmenu');
-define('PROFILE_LNK', 'systems/x_profile');
-define('INFOLST_LNK', 'frontend/infolist');
+define('PAGE_LNK', BASE_URL.'systems/x_page');
+define('AUTH_LNK', BASE_URL.'systems/x_auth');
+define('LOGIN_LNK', BASE_URL.'systems/x_login');
+define('LOGOUT_LNK', BASE_URL.'systems/x_logout');
+define('UNLOCK_LNK', BASE_URL.'systems/x_unlock');
+define('CONFIG_LNK', BASE_URL.'systems/x_config');
+define('SRCMENU_LNK', BASE_URL.'systems/x_srcmenu');
+define('PROFILE_LNK', BASE_URL.'systems/x_profile');
+define('RELOAD_LNK', BASE_URL.'systems/x_reload');
+define('FORGOT_LNK', BASE_URL.'systems/x_forgot');
+define('HOME_LNK', BASE_URL.'frontend');
+define('INFOLST_LNK', BASE_URL.'frontend/infolist');
 
 // OTHER
 define('URL_SEPARATOR', '/');

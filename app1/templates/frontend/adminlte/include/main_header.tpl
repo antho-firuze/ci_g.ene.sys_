@@ -120,7 +120,7 @@
           {/if}
           <!-- Sign In/Login: style can be found in dropdown.less -->
           <li>
-            <a target="_blank" href="{$login_link}">
+            <a target="_blank" href="{$.const.LOGIN_LNK}">
 				<i class="fa fa-lock"></i>
 				<span class="hidden-xs"> &nbsp;&nbsp;&nbsp; Login</span>
 			</a>

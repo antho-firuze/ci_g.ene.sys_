@@ -195,6 +195,10 @@ function getURLOrigin() {
 	return location.protocol+'//'+location.host+location.pathname;
 }
 
+function getURLFull(){
+	return window.location.href;
+}
+
 function setSelectList(name, id, clazz, optionList) {
 	if(typeof(id)==='undefined') id = name;
     var select = $("<select />", {

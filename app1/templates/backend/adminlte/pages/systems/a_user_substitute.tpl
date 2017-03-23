@@ -47,7 +47,7 @@
 	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=31>Role</a></span>');
 	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=32>Org</a></span>');
 	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=33>Subs</a></span>');
-	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
+	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="width:100%; table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
 	dataTable1 = tableData1.DataTable({
 		"pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, 
 		"ajax": {
@@ -64,8 +64,11 @@
 		"columns": [
 			{ width:"20px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render:function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
 			{ width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render: function(data, type, row){ return aLBtn.join(""); } },
-			{ width:"250px", orderable:false, data:"code_name", title:"Substitute" },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"100px", orderable:false, data:"code_name", title:"Substitute" },
+			{ width:"200px", orderable:false, data:"description", title:"Description" },
+			{ width:"40px", orderable:false, data:"is_active", title:"Active", className:"dt-head-center dt-body-center", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"50px", orderable:false, data:"valid_from", title:"Valid From", className:"dt-head-center dt-body-center" },
+			{ width:"50px", orderable:false, data:"valid_to", title:"Valid To", className:"dt-head-center dt-body-center" },
 		],
 		"order": []
 	})
