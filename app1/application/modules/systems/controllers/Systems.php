@@ -597,9 +597,7 @@ class Systems extends Getmeb
 					} elseif (in_array($f, $nullfields)){
 						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
 					} elseif (in_array($f, $datetimefields)){
-						$dt = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-						
-						$datas[$f] = $dt; 
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : datetime_db_format($this->params->{$f}, $this->sess->date_format); 
 					} else {
 						$datas[$f] = $this->params->{$f};
 					}
