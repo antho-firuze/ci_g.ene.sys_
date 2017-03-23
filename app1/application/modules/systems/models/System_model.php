@@ -101,7 +101,7 @@ class System_Model extends CI_model
 	
 	function get_a_user_substitute($params)
 	{
-		$params['select'] = "t1.id, t1.substitute_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active";
+		$params['select'] = "t1.id, t1.substitute_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t1.valid_from, t1.valid_to, t1.description";
 		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_user_substitute as t1";
 		$params['join'][] 	= ['a_user as t2', 't1.user_id = t2.id', 'left'];

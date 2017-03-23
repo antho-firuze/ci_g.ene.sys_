@@ -17,19 +17,40 @@ class Test extends CI_Controller {
 	
 	function datetime()
 	{
-		$date = '22/03/2017';
-		$date_format = 'dd/mm/yyyy';
-		if (! in_array($date_format, ['dd/mm/yyyy', 'mm/dd/yyyy', 'dd-mm-yyyy', 'mm-dd-yyyy']))
+		// $datetime = '03/23/2017';
+		// $this_format = 'mm/dd/yyyy';
+		$is_datetime = TRUE;
+		// $datetime = '22/03/2017';
+		// $this_format = 'dd/mm/yyyy';
+		$datetime = '22/03/2017 06:17';
+		$this_format = 'dd/mm/yyyy hh:mm';
+		if (! in_array($this_format, ['dd/mm/yyyy', 'mm/dd/yyyy', 'dd-mm-yyyy', 'mm-dd-yyyy', 'dd/mm/yyyy hh:mm', 'mm/dd/yyyy hh:mm', 'dd-mm-yyyy hh:mm', 'mm-dd-yyyy hh:mm']))
 			return FALSE;
 		
-		if (strpos($this_format, '/') !== false) {
-			
-		} else {
-			
-		}
+		/* seperate between date & time */
+		$dt = [];
+		$dt_format = [];
+		$dt = explode(' ', $datetime);
+		$dt_format = explode(' ', $this_format);
 
-		echo date("Y-m-d", strtotime('22/03/2017'));
-		echo var_dump(strptime('22/03/2017', 'dd/mm/yyyy'));
+		$date = (count($dt) > 1) ? $dt[0] : $dt[0];
+		$time = (count($dt) > 1) ? $dt[1].':00' : FALSE;
+		$date_format = (count($dt_format) > 1) ? $dt_format[0] : $dt_format[0];
+		$time_format = (count($dt_format) > 1) ? $dt_format[1] : FALSE;
+		
+		/* time */
+		$time_result = ($time !== FALSE) ? $time : '00:00:00';
+		
+		/* date */
+		if (strpos($date_format, '/') !== false) {
+			list($f[0], $f[1], $f[2]) = explode('/', $date_format);
+			list($d[0], $d[1], $d[2]) = explode('/', $date);
+		} else {
+			list($f[0], $f[1], $f[2]) = explode('-', $date_format);
+			list($d[0], $d[1], $d[2]) = explode('-', $date);
+		}
+		$date_result = implode('-',[$d[array_search("yyyy",$f)], $d[array_search("mm",$f)], $d[array_search("dd",$f)]]);
+		echo $is_datetime ? implode(' ', [$date_result, $time_result]) : $date_result;
 	}
 	
 	function short()

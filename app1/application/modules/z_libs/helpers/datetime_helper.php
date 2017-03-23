@@ -24,32 +24,48 @@ if ( ! function_exists('date_last'))
 	}
 }
 
-/* output_format : 'Y-m-d' */
-if ( ! function_exists('date_db_format'))
-{
-	function date_db_format($date=NULL, $this_format='dd/mm/yyyy')
-	{
-		if ( empty($date) )
-			return FALSE;
-		
-	if (strpos($this_format, '/') !== false) {
-
-		
-		list($tmp[2], $tmp[1], $tmp[0]) = explode('/', $date);
-		return implode('-', $tmp);
-	}
-}
-
-/* output_format : 'Y-m-d h:i:s' */
+/* 
+*	datetime 		: '22/03/2017' or '22/03/2017 07:07'
+*	this_format	: 'dd/mm/yyyy', 'mm/dd/yyyy', 'dd-mm-yyyy', 'mm-dd-yyyy', 'dd/mm/yyyy hh:mm', 'mm/dd/yyyy hh:mm', 'dd-mm-yyyy hh:mm', 'mm-dd-yyyy hh:mm'
+*	is_datetime	: TRUE/FALSE (With Time/Without Time)
+*	
+*	output_format : 'Y-m-d h:i:s' or 'Y-m-d'
+*	
+*/
 if ( ! function_exists('datetime_db_format'))
 {
-	function datetime_db_format($date=NULL)
+	function datetime_db_format($datetime, $this_format, $is_datetime = TRUE)
 	{
-		if ( empty($date) )
+		if (empty($datetime))
 			return FALSE;
 		
-		list($tmp[2], $tmp[1], $tmp[0]) = explode('/', $date);
-		return implode('-', $tmp);
+		if (! in_array($this_format, ['dd/mm/yyyy', 'mm/dd/yyyy', 'dd-mm-yyyy', 'mm-dd-yyyy', 'dd/mm/yyyy hh:mm', 'mm/dd/yyyy hh:mm', 'dd-mm-yyyy hh:mm', 'mm-dd-yyyy hh:mm']))
+			return FALSE;
+		
+		/* seperate between date & time */
+		$dt = [];
+		$dt_format = [];
+		$dt = explode(' ', $datetime);
+		$dt_format = explode(' ', $this_format);
+
+		$date = (count($dt) > 1) ? $dt[0] : $dt[0];
+		$time = (count($dt) > 1) ? $dt[1].':00' : FALSE;
+		$date_format = (count($dt_format) > 1) ? $dt_format[0] : $dt_format[0];
+		$time_format = (count($dt_format) > 1) ? $dt_format[1] : FALSE;
+		
+		/* time */
+		$time_result = ($time !== FALSE) ? $time : '00:00:00';
+		
+		/* date */
+		if (strpos($date_format, '/') !== false) {
+			list($f[0], $f[1], $f[2]) = explode('/', $date_format);
+			list($d[0], $d[1], $d[2]) = explode('/', $date);
+		} else {
+			list($f[0], $f[1], $f[2]) = explode('-', $date_format);
+			list($d[0], $d[1], $d[2]) = explode('-', $date);
+		}
+		$date_result = implode('-',[$d[array_search("yyyy",$f)], $d[array_search("mm",$f)], $d[array_search("dd",$f)]]);
+		return $is_datetime ? implode(' ', [$date_result, $time_result]) : $date_result;
 	}
 }
 
