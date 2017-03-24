@@ -33,6 +33,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/pace/pace.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/iCheck/icheck.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-dialog/js/bootstrap-dialog.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 
 </head>
 <body class="hold-transition login-page">
@@ -48,15 +49,17 @@
     <form>
       <div class="form-group has-feedback">
         <span class="glyphicon glyphicon-user form-control-feedback"></span>
-        <input type="hidden" class="form-control" placeholder="User Name" name="username" value="{$user_name}" required>
+        <input type="hidden" class="form-control" placeholder="User Name" name="username" value="{$name}" required>
       </div>
       <div class="form-group has-feedback">
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-        <input type="password" class="form-control" placeholder="New Password" name="password" required>
+        <input type="password" class="form-control" placeholder="New Password" id="password" name="password" data-minlength="6" required>
+				<small class="form-text text-muted help-block with-errors">Minimum of 6 characters</small>
       </div>
       <div class="form-group has-feedback">
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-        <input type="password" class="form-control" placeholder="Confirm" name="password_confirm" required>
+        <input type="password" class="form-control" placeholder="Confirm" name="password_confirm" data-match="#password" data-match-error="Whoops, these don't match" required>
+				<small class="form-text text-muted help-block with-errors"></small>
       </div>
       <div class="row">
         <div class="col-xs-8">
@@ -105,17 +108,19 @@
 	var form = $("form");
 	$(document).ajaxStart(function() { Pace.restart(); });
 	
-	form.submit( function(e) {
-		e.preventDefault();
+	form.validator().on('submit', function(e) {
+		if (e.isDefaultPrevented()) { return false;	} 
 		
-		$.ajax({ url:"{$.const.AUTH_LNK}", method:"GET", async:true, dataType:'json',
+		$.ajax({ url:"{$.const.AUTH_LNK}?reset=1", method:"GET", async:true, dataType:'json',
 			headers: { "X-AUTH": "Basic " + btoa($("[name='username']").val() + ":" + $("[name='password']").val()) },
 			beforeSend: function(xhr) { form.find('[type="submit"]').attr("disabled", "disabled"); },
 			complete: function(xhr, data) {	setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled");	},1000); },
 			success: function(data) {
 				if (data.status) {
 					store('lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}', 0);
-					window.location.replace("{$.const.APPS_LNK}");
+					BootstrapDialog.alert(data.message, function(){
+						window.location.replace("{$.const.APPS_LNK}");
+					});
 				}
 			},
 			error: function(data, status, errThrown) {
@@ -129,6 +134,8 @@
 				BootstrapDialog.alert({ type:'modal-danger', title:'Error ('+data.status+') :', message:message });
 			}
 		});
+		
+		return false;
 	}); 
 	
 </script>

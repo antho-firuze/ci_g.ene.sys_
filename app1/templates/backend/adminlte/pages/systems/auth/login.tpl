@@ -108,7 +108,7 @@
 		e.preventDefault();
 		var rememberme = $("[name='remember']").prop('checked');
 		
-		$.ajax({ url:"{$.const.AUTH_LNK}", method:"GET", async:true, dataType:'json',
+		$.ajax({ url:"{$.const.AUTH_LNK}?login=1", method:"GET", async:true, dataType:'json',
 			headers: { "X-AUTH": "Basic " + btoa($("[name='username']").val() + ":" + $("[name='password']").val()) },
 			data: { "rememberme":rememberme },
 			beforeSend: function(xhr) { form.find('[type="submit"]').attr("disabled", "disabled"); },

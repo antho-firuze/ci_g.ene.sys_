@@ -143,6 +143,7 @@ class Getmef extends CI_Controller
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);
 		$this->fenomx->view(TEMPLATE_PATH.'index', array_merge($default, $config, $data));
+		exit;
 	}
 	
 	// VIEW FOR PRODUCT INFO (QRCODE)
@@ -153,6 +154,7 @@ class Getmef extends CI_Controller
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);
 		$this->fenomx->view(TEMPLATE_PATH.'index', array_merge($default, $data));
+		exit;
 	}
 	
 }

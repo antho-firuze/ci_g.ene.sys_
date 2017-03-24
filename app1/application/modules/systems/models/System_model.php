@@ -18,6 +18,60 @@ class System_Model extends CI_model
 		return call_user_func_array( array($this, $method), $arguments);
 	} */
 	
+	function _save_useragent($account, $status = 'Login Success')
+	{
+		/* Check is account as user_name */
+		$query = $this->db->get_where('a_user', ['name' => $account], 1);
+		if ($query->num_rows() < 1) {
+			/* Check is account as email */
+			$query = $this->db->get_where('a_user', ['email' => $account], 1);
+			$user_id = ($query->num_rows() === 1) ? $query->row()->id : NULL;
+		} else {
+			$user_id = ($query->num_rows() === 1) ? $query->row()->id : NULL;
+		}
+		/* saving user_agent & ip address */
+		$data['account'] = $account;
+		$data['client_id'] = DEFAULT_CLIENT_ID;
+		$data['org_id'] = DEFAULT_ORG_ID;
+		$data['user_id'] = $user_id;
+		$data['created_at'] = date('Y-m-d H:i:s');
+		$data['status'] = $status;
+
+		$data['ip_address'] = $_SERVER['REMOTE_ADDR'];
+		if (!in_array($data['ip_address'], ['::1','127.0.0.1'])) {
+			$this->load->library('z_libs/IPAPI');
+			$query = IPAPI::query($data['ip_address']);
+			$data['country'] = $query->country;
+			$data['country_code'] = $query->countryCode;
+			$data['region'] = $query->region;
+			$data['region_name'] = $query->regionName;
+			$data['city'] = $query->city;
+			$data['zip'] = $query->zip;
+			$data['lat'] = $query->lat;
+			$data['lon'] = $query->lon;
+			$data['timezone'] = $query->timezone;
+			$data['isp'] = $query->isp;
+			$data['org'] = $query->org;
+			$data['as_number'] = $query->as;
+		}
+		$this->load->library('user_agent');
+		$data['platform'] = $this->agent->platform();
+		$data['is_mobile'] = $this->agent->is_mobile();
+		$data['mobile'] = $this->agent->mobile();
+		$data['is_robot'] = $this->agent->is_robot();
+		$data['robot'] = $this->agent->robot();
+		$data['is_browser'] = $this->agent->is_browser();
+		$data['browser'] = $this->agent->browser();
+		$data['browser_ver'] = $this->agent->version();
+		$data['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
+		
+		if (!$this->db->insert('a_loginlogs', $data)){
+			$this->session->set_flashdata('message', $this->db->error()['message']);
+			return FALSE;
+		}
+		return TRUE;
+	}
+	
 	function _store_config($user_id)
 	{
 		$user = $this->base_model->getValueArray('id as user_id, client_id, org_id, role_id, name as user_name, email as user_email, description as user_description, photo_file as user_photo_file, supervisor_id as user_supervisor_id, bpartner_id, is_fullbpaccess', 'a_user', 'id', $user_id);
@@ -79,21 +133,12 @@ class System_Model extends CI_model
 	
 	function get_a_user($params)
 	{
-		$params['select'] = "t1.id,t1.client_id,t1.org_id,t1.role_id,t1.is_active,t1.is_deleted,
-			t1.created_by,t1.updated_by,t1.deleted_by,t1.created_at,t1.updated_at,t1.deleted_at,
-			t1.code,t1.name,coalesce(t1.code, '')||' '||t1.name as code_name,t1.description,t1.email,t1.last_login,t1.is_online,t1.supervisor_id,
-			t1.bpartner_id,t1.is_fullbpaccess,t1.is_expired,t1.security_question,t1.security_answer,
-			t1.ip_address,t1.photo_file,ao.name as org_name, ar.name as role_name, au4.name as supervisor_name,
-			au1.name as _created_by, au2.name as _updated_by, au3.name as _deleted_by";
+		$params['select'] = "t1.id, t1.client_id, t1.org_id, t1.role_id, t1.is_active, t1.code, t1.name, coalesce(t1.code, '')||' '||t1.name as code_name, t1.description, t1.email, t1.last_login, t1.is_online, t1.supervisor_id,	t1.bpartner_id, t1.is_fullbpaccess, t1.is_expired, t1.ip_address, t1.photo_file, ao.name as org_name, ar.name as role_name";
 		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_user as t1";
 		$params['join'][] 	= ['a_client as ac', 't1.client_id = ac.id', 'left'];
 		$params['join'][] 	= ['a_org as ao', 't1.org_id = ao.id', 'left'];
 		$params['join'][] 	= ['a_role as ar', 't1.role_id = ar.id', 'left'];
-		$params['join'][] 	= ['a_user as au1', 't1.created_by = au1.id', 'left'];
-		$params['join'][] 	= ['a_user as au2', 't1.updated_by = au2.id', 'left'];
-		$params['join'][] 	= ['a_user as au3', 't1.deleted_by = au3.id', 'left'];
-		$params['join'][] 	= ['a_user as au4', 't1.supervisor_id = au4.id', 'left'];
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}

@@ -70,79 +70,137 @@ class Systems extends Getmeb
 		if (isset($this->params['forgot']) && $this->params['forgot']) {
 			//run the forgotten password method to email an activation code to the user
 			if (($user = $this->auth->forgotten_password($this->params['email'])) === FALSE){
+				/* Trapping user_agent, ip address & status */
+				$this->system_model->_save_useragent($this->params['email'], 'Email Not Registered/Intruder Detected');
+				
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
 			
+			/* Trapping user_agent, ip address & status */
+			$this->system_model->_save_useragent($this->params['email'], 'Forgot Password Success');
+		
 			/* Trying to sending email */
-			$message = FORGOT_LNK."/".$user->forgotten_password_code;
-			if($sending = send_mail($user->email, 'Your Reset Password Link', $message) !== TRUE) {
-				$this->xresponse(FALSE, ['message' => $sending], 401);
+			$message = AUTH_LNK."?code=".$user->forgotten_password_code;
+			if(! send_mail($user->email, 'Your Reset Password Link', $message)) {
+				$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')], 401);
 			}
 			
 			/* success */
 			$this->xresponse(TRUE, ['message' => 'The link for reset your password has been sent to your email.']);
 		}
 		
-		/* This line for processing reset password */
-		if (isset($this->params['reset']) && $this->params['reset']) {
-			if (!$this->session->userdata('forgot'))
-				$this->x_login();
-			
-			/* Reset Password*/
-			if (($user = $this->auth->reset_password($username, $password)) === FALSE ) {
+		/* This line for validating forgot code */
+		if (isset($this->params['code']) && $this->params['code']) {
+			/* Checking forgotten code */
+			if (($user = $this->auth->forgotten_password_complete($this->params['code'])) === FALSE ) {
+				// modules::run('frontend/controllers/not_exist');
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
 			
-			$this->session->unset_userdata('forgot');
+			/* Marking the session for resetting password  */
+			$this->session->set_userdata(['allow-reset' => true]);
 			
-			$this->single_view('pages/systems/auth/reset', $user);
-			return;
-			
+			/* Goto reset page */
+			$this->single_view('pages/systems/auth/reset', is_array($user) ? $user : (array)$user);
 		}
-		/* This line for authentication login page */
-		$http_auth 	= $this->input->server('HTTP_X_AUTH');
-		$username 	= $this->input->server('PHP_AUTH_USER');
 		
-		$password = NULL;
-		if ($username !== NULL)
-		{
-				$password = $this->input->server('PHP_AUTH_PW');
-		}
-		elseif ($http_auth !== NULL)
-		{
+		/* This line for processing reset password */
+		if (isset($this->params['reset']) && $this->params['reset']) {
+			if (!$this->session->userdata('allow-reset'))
+				$this->x_login();
+			
+			$http_auth = $this->input->server('HTTP_X_AUTH');
+			if ($http_auth !== NULL)
+			{
 				if (strpos(strtolower($http_auth), 'basic') === 0)
 				{
-						list($username, $password) = explode(':', base64_decode(substr($http_auth, 6)));
+					list($username, $password) = explode(':', base64_decode(substr($http_auth, 6)));
 				}
-		}
-		/* Trapping user_agent & ip address */
-		/* get user_id if exists */
-		$query = $this->db->get_where('a_user', ['name' => $username], 1);
-		$user_id = ($query->num_rows() === 1) ? $query->row()->id : NULL;
-		/* saving user_agent & ip address */
-		$this->_save_useragent_ip($username, $user_id);
+			}
+			
+			/* Reset Password*/
+			if (($user_id = $this->auth->reset_password($username, $password)) === FALSE ) {
+				/* Trapping user_agent, ip address & status */
+				$this->system_model->_save_useragent($username, 'Reset Password Failed');
+				
+				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+			}
+			
+			/* Unset session allow-reset */
+			$this->session->unset_userdata('allow-reset');
+
+			/* Trapping user_agent, ip address & status */
+			$this->system_model->_save_useragent($username, 'Reset Password Success');
 		
-		/* Start to login */
-		if (! $user_id = $this->auth->login($username, $password))
-		{
-			$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+			/* Store configuration to session */
+			$this->system_model->_store_config($user_id);
+			
+			$this->xresponse(TRUE, ['message' => $this->auth->messages()]);
+		}
+		
+		/* This line for authentication login page */
+		if (isset($this->params['login']) && $this->params['login']) {
+			$http_auth 	= $this->input->server('HTTP_X_AUTH');
+			if ($http_auth !== NULL)
+			{
+				if (strpos(strtolower($http_auth), 'basic') === 0)
+				{
+					list($username, $password) = explode(':', base64_decode(substr($http_auth, 6)));
+				}
+			}
+			
+			/* Try to login */
+			if (! $user_id = $this->auth->login($username, $password)) {
+				/* Trapping user_agent, ip address & status */
+				$this->system_model->_save_useragent($username, 'Login Failed/Intruder Detected');
+				
+				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+			}
+
+			/* Trapping user_agent, ip address & status */
+			$this->system_model->_save_useragent($username, 'Login Success');
+			
+			/* Store configuration to session */
+			$this->system_model->_store_config($user_id);
+			
+			if (isset($this->params['rememberme']) && $this->params['rememberme'])
+			{
+				$expire = (60*60*24*365*2);
+				$salt = salt();
+				set_cookie(['name' => 'remember_user', 'value' => $username, 'expire' => $expire]);
+				set_cookie(['name' => 'remember_token', 'value' => $salt, 'expire' => $expire]);
+			} else {
+				set_cookie("remember_user", isset($_COOKIE["remember_user"]) ? '' : '');
+				set_cookie("remember_token", isset($_COOKIE["remember_token"]) ? '' : '');
+			}
+
+			$this->xresponse(TRUE);
 		}
 
-		/* Store configuration to session */
-		$this->system_model->_store_config($user_id);
-		
-		if (isset($this->params['rememberme']) && $this->params['rememberme'])
-		{
-			$expire = (60*60*24*365*2);
-			$salt = salt();
-			set_cookie(['name' => 'remember_user', 'value' => $username, 'expire' => $expire]);
-			set_cookie(['name' => 'remember_token', 'value' => $salt, 'expire' => $expire]);
-		} else {
-			set_cookie("remember_user", isset($_COOKIE["remember_user"]) ? '' : '');
-			set_cookie("remember_token", isset($_COOKIE["remember_token"]) ? '' : '');
+		/* This line for unlock the screen */
+		if (isset($this->params['unlock']) && $this->params['unlock']) {
+			$this->_check_is_login();
+			
+			$http_auth 	= $this->input->server('HTTP_X_AUTH');
+			if ($http_auth !== NULL)
+			{
+				if (strpos(strtolower($http_auth), 'basic') === 0)
+				{
+					list($username, $password) = explode(':', base64_decode(substr($http_auth, 6)));
+				}
+			}
+			
+			/* Try to unlock/login */
+			if (! $this->auth->login($username, $password))
+			{
+				/* Trapping user_agent, ip address & status */
+				$this->system_model->_save_useragent($username, 'Unlock Failed/Intruder Detected');
+				
+				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+			}
+			
+			$this->xresponse(TRUE);
 		}
-
-		$this->xresponse(TRUE);
 	}
 	
 	/* Re-Store configuration to session */
@@ -154,45 +212,6 @@ class Systems extends Getmeb
 			$this->xresponse(TRUE);
 		}
 		redirect(LOGIN_LNK);
-	}
-	
-	function x_unlock()
-	{
-		$this->load->library('z_auth/auth');
-
-		$http_auth 	= $this->input->server('HTTP_X_AUTH');
-		
-		if ($http_auth !== NULL)
-		{
-			if (strpos(strtolower($http_auth), 'basic') === 0)
-			{
-					list($username, $password) = explode(':', base64_decode(substr($http_auth, 6)));
-			}
-			if (! $this->auth->login($username, $password))
-			{
-				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
-			}
-			$this->xresponse(TRUE);
-		} else {
-			$this->xresponse(FALSE, ['message' => $this->lang->line('login_unsuccessful')], 401);
-		}
-
-		/* $auth 	  = $this->input->server('HTTP_X_AUTH');
-		$headers = [
-			'TOKEN'	 	=> $this->session->userdata('token'),
-			'X-AUTH' 	=> $auth,
-		];
-		$request = Requests::get(API_URL.'system/unlockscreen', $headers);
-		$result = json_decode($request->body);
-		
-		if (! $result->status)
-			$this->xresponse(FALSE, ['message' => $result->message], $request->status_code);
-
-		// UPDATE TOKEN
-		if (! empty($result->token))
-			$this->session->set_userdata('token', $result->token);
-		
-		$this->xresponse(TRUE); */
 	}
 	
 	function x_chgpwd()
@@ -283,24 +302,6 @@ class Systems extends Getmeb
 		redirect(LOGIN_LNK);
 	}
 	
-	function x_forgot($forgotten_code = NULL)
-	{
-		if ($forgotten_code) {
-			$this->load->library('z_auth/auth');
-			
-			/* Checking forgotten code */
-			if (($user = $this->auth->forgotten_password_complete($forgotten_code)) === FALSE ) {
-				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
-			}
-			
-			$this->session->set_userdata(['forgot' => true]);
-			
-			$this->single_view('pages/systems/auth/reset', $user);
-			return;
-		}
-		$this->single_view('pages/systems/auth/forgot');
-	}
-	
 	// REQUIRED LOGIN
 	/* function x_setUserRecent()
 	{
@@ -382,16 +383,19 @@ class Systems extends Getmeb
 			$menu = $this->base_model->getValueArray('*', 'a_menu', ['client_id','id'], [DEFAULT_CLIENT_ID, $this->params['pageid']]);
 			if (! $this->_check_menu($menu)) {
 				$this->backend_view('pages/404', ['message'=>'<b>'.$this->messages().'</b>']);
-				return;
 			}
 			
 			if (key_exists('edit', $this->params) && !empty($this->params['edit']))
 				$this->backend_view($menu['path'].$menu['url'].'_edit', $menu);
 			else
 				$this->backend_view($menu['path'].$menu['url'], $menu);
-			return;
 		}
 		$this->backend_view('pages/404', ['message'=>'']);
+	}
+	
+	function x_forgot()
+	{
+		$this->single_view('pages/systems/auth/forgot');
 	}
 	
 	/* Don't make example from a_user & a_role */

@@ -35,7 +35,7 @@ $config = [
 	'maximum_login_attempts' 	=> 7,
 	'track_login_ip_address'	=> FALSE,
 	'lockout_time'				=> 600,
-	'forgot_password_expiration' => 0,
+	'forgot_password_expiration' => 60*60,
 	
 	'message_start_delimiter'	=> '<p>',
 	'message_end_delimiter'		=> '</p>',

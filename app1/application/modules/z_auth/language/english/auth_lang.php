@@ -29,7 +29,7 @@ $lang['password_change_unsuccessful']        = 'Unable to Change Password';
 $lang['forgot_password_successful']          = 'Password Reset Email Sent';
 $lang['forgot_password_unsuccessful']        = 'Unable to Reset Password';
 $lang['old_password_notmatches']        		 = 'Old Password Not Matches';
-$lang['forgot_password_notmatches']        	 = 'Invalid Email Address / Not Registered';
+$lang['forgot_password_notmatches']        	 = 'Email Not Registered';
 $lang['forgot_password_invalid']        	 	 = 'Invalid Code';
 $lang['forgot_password_expired']        	 	 = 'Expired Code';
 

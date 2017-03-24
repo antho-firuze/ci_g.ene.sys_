@@ -34,7 +34,7 @@
     Enter your password to retrieve your session
   </div>
   <div class="text-center">
-    <a href="{$logout_link}">Or sign in as a different user</a>
+    <a href="{$.const.LOGOUT_LNK}">Or sign in as a different user</a>
   </div>
   <div class="lockscreen-footer text-center">
     Genesys @2016 - Copyright to it's <a href="http://almsaeedstudio.com">Owner</a>.</b><br>
@@ -73,7 +73,7 @@
 	form_lck.submit( function(e) {
 		e.preventDefault();
 		
-		$.ajax({ url: "{$.const.UNLOCK_LNK}", method: "GET", async: true, dataType: 'json',
+		$.ajax({ url: "{$.const.AUTH_LNK}?unlock=1", method: "GET", async: true, dataType: 'json',
 			headers: { "X-AUTH": "Basic " + btoa(form_lck.find("input[name='name']").val() + ":" + form_lck.find("input[name='password']").val())	},
 			beforeSend: function(xhr) {	form_lck.find('[type="submit"]').attr("disabled", "disabled"); },
 			complete: function(xhr, data) {

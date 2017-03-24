@@ -84,8 +84,8 @@ class Auth_model extends CI_Model
 
 		$this->messages    = array();
 		$this->errors      = array();
-		$this->message_start_delimiter = $this->config->item('message_start_delimiter', 'ion_auth');
-		$this->message_end_delimiter   = $this->config->item('message_end_delimiter', 'ion_auth');
+		$this->message_start_delimiter = $this->config->item('message_start_delimiter', 'auth');
+		$this->message_end_delimiter   = $this->config->item('message_end_delimiter', 'auth');
 		$this->error_start_delimiter   = $this->config->item('error_start_delimiter', 'auth');
 		$this->error_end_delimiter     = $this->config->item('error_end_delimiter', 'auth');
 	}
@@ -132,6 +132,17 @@ class Auth_model extends CI_Model
 		}
 	}
 
+	/**
+	 * Generates a random salt value for forgotten passwords or any other keys. Uses SHA1.
+	 *
+	 * @return void
+	 * @author Mathew
+	 **/
+	public function hash_code($password)
+	{
+		return $this->hash_password($password, FALSE, TRUE);
+	}
+	
 	/**
 	 * Get number of attempts to login occured from given IP-address or identity
 	 * Based on code from Tank Auth, by Ilya Konyukhov (https://github.com/ilkon/Tank-Auth)
@@ -341,10 +352,10 @@ class Auth_model extends CI_Model
 		/* check if email is exists */
 		$query = $this->db->get_where($this->tables['users'], ['email' => $identity], 1);
 		if ($query->num_rows() < 1){
-			$this->set_message('forgot_password_notmatches');
+			$this->set_error('forgot_password_notmatches');
 			return FALSE;
 		}
-		$user = $query->row()->name;
+		$user = $query->row();
 		
 		$key = $this->hash_code(microtime().$identity);
 
@@ -357,6 +368,8 @@ class Auth_model extends CI_Model
 
 		$this->db->update($this->tables['users'], $update, array($this->identity_column => $user->{$this->identity_column}));
 
+		/* Update the code */
+		$user->forgotten_password_code = $key;
 		return $user;
 	}
 
@@ -366,15 +379,15 @@ class Auth_model extends CI_Model
 		{
 			return FALSE;
 		}
-
+		
 		$query = $this->db->get_where($this->tables['users'], ['forgotten_password_code' => $code], 1);
 		if ($query->num_rows() < 1){
-			$this->set_message('forgot_password_invalid');
+			$this->set_error('forgot_password_invalid');
 			return FALSE;
 		}
 		$user = $query->row();
 		
-		if ($expiration = $this->config->item('forgot_password_expiration', 'auth') > 0) {
+		if (($expiration = $this->config->item('forgot_password_expiration', 'auth')) > 0) {
 			//Make sure it isn't expired
 			if (time() - $user->forgotten_password_time > $expiration) {
 				//it has expired
@@ -414,7 +427,8 @@ class Auth_model extends CI_Model
 		// also clear the forgotten password code
 		$data = array(
 		    'password' => $new,
-		    'remember_token' => NULL
+		    'forgotten_password_code' => NULL,
+		    'forgotten_password_time' => NULL,
 		);
 
 		$this->db->update($this->tables['users'], $data, array($this->identity_column => $identity));
@@ -429,7 +443,7 @@ class Auth_model extends CI_Model
 			$this->set_error('password_change_unsuccessful');
 		}
 
-		return $return;
+		return $result->id;
 	}
 
 	/**

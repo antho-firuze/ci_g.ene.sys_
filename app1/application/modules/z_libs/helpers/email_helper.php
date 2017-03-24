@@ -7,18 +7,23 @@ if ( ! function_exists('send_mail'))
 		$ci = get_instance();
 		
 		$ci->load->library('email');
+		$config = [];
+		$config = $ci->base_model->getValueArray('protocol, smtp_host, smtp_port, smtp_user, smtp_pass, smtp_timeout, charset, mailtype, priority', 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID]);
+		$config['useragent'] = 'CodeIgniter';
+		$config['newline'] 	 = '\r\n';
+		$ci->email->initialize($config);
 
 		$ci->email->clear();
-		
-		$ci->email->set_newline("\r\n");
-		// $ci->email->from('hertanto@fajarbenua.co.id', 'SYSTEM');
-		$ci->email->from('antho.firuze@gmail.com', 'SYSTEM');
+		$ci->email->from($config['smtp_user'], '[SYSTEM APPS]');
 		$ci->email->to($email_to); 
 		// $ci->email->bcc('hertanto@fajarbenua.co.id');
-
 		$ci->email->subject($subject);
 		$ci->email->message($message);	
 
-		return ($ci->email->send()==TRUE) ? TRUE : $this->email->print_debugger();
+		if (! $ci->email->send()) {
+			$ci->session->set_flashdata('message', $ci->email->print_debugger());
+			return FALSE;
+		}
+		return TRUE;
 	}
 }

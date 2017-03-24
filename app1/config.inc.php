@@ -68,7 +68,6 @@ define('PAGE_LNK', BASE_URL.'systems/x_page');
 define('AUTH_LNK', BASE_URL.'systems/x_auth');
 define('LOGIN_LNK', BASE_URL.'systems/x_login');
 define('LOGOUT_LNK', BASE_URL.'systems/x_logout');
-define('UNLOCK_LNK', BASE_URL.'systems/x_unlock');
 define('CONFIG_LNK', BASE_URL.'systems/x_config');
 define('SRCMENU_LNK', BASE_URL.'systems/x_srcmenu');
 define('PROFILE_LNK', BASE_URL.'systems/x_profile');

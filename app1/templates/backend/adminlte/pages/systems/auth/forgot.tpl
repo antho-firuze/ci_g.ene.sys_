@@ -102,8 +102,9 @@
 			complete: function(xhr, data) {	setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled");	},1000); },
 			success: function(data) {
 				if (data.status) {
-					BootstrapDialog.alert({ type:'modal-info', title:'Information', message:"We already send the link for reset your password !" });
-					window.location.replace("{$.const.LOGIN_LNK}");
+					BootstrapDialog.alert(data.message, function(){
+						window.location.replace("{$.const.LOGIN_LNK}");
+					});
 				}
 			},
 			error: function(data, status, errThrown) {

@@ -111,45 +111,6 @@ class Getmeb extends CI_Controller
 		return TRUE;
 	}
 	
-	function _save_useragent_ip($account, $user_id = NULL)
-	{
-		$data['account'] = $account;
-		$data['client_id'] = DEFAULT_CLIENT_ID;
-		$data['org_id'] = DEFAULT_ORG_ID;
-		$data['user_id'] = $user_id;
-		$data['created_at'] = date('Y-m-d H:i:s');
-
-		$data['ip_address'] = $_SERVER['REMOTE_ADDR'];
-		if (!in_array($data['ip_address'], ['::1','127.0.0.1'])) {
-			$this->load->library('z_libs/IPAPI');
-			$query = IPAPI::query($data['ip_address']);
-			$data['country'] = $query->country;
-			$data['country_code'] = $query->countryCode;
-			$data['region'] = $query->region;
-			$data['region_name'] = $query->regionName;
-			$data['city'] = $query->city;
-			$data['zip'] = $query->zip;
-			$data['lat'] = $query->lat;
-			$data['lon'] = $query->lon;
-			$data['timezone'] = $query->timezone;
-			$data['isp'] = $query->isp;
-			$data['org'] = $query->org;
-			$data['as_number'] = $query->as;
-		}
-		$this->load->library('user_agent');
-		$data['platform'] = $this->agent->platform();
-		$data['is_mobile'] = $this->agent->is_mobile();
-		$data['mobile'] = $this->agent->mobile();
-		$data['is_robot'] = $this->agent->is_robot();
-		$data['robot'] = $this->agent->robot();
-		$data['is_browser'] = $this->agent->is_browser();
-		$data['browser'] = $this->agent->browser();
-		$data['browser_ver'] = $this->agent->version();
-		$data['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
-		
-		$this->db->insert('a_loginlogs', $data);
-	}
-	
 	function set_message($message)
 	{
 		$this->messages[] = $message;
@@ -349,6 +310,7 @@ class Getmeb extends CI_Controller
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);
 		$this->fenomx->view(TEMPLATE_PATH.$content, array_merge($default, $system, $data));
+		exit;
 	}
 	
 	function backend_view($content, $data=[])
@@ -365,6 +327,7 @@ class Getmeb extends CI_Controller
 		$default['start_time'] 	= microtime(true);
 		// $this->fenomx->view(TEMPLATE_PATH.'index', array_merge($default, $system, $data));
 		$this->fenomx->view(TEMPLATE_PATH.'index', array_merge($default, $data));
+		exit;
 	}
 	
 }

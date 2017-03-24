@@ -15,6 +15,13 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
+	function tim()
+	{
+		// echo time();
+		$this->load->config('z_auth/auth', TRUE);
+		echo $this->config->item('forgot_password_expiration', 'auth');
+	}
+	
 	function datetime()
 	{
 		// $datetime = '03/23/2017';
@@ -150,51 +157,6 @@ class Test extends CI_Controller {
 	}
 	
 	function index() {
-		// echo $this->_check_class(null) ? 'true' : 'false';
-		echo $this->_check_path('pages/systems/a_user') ? 'true' : 'false';
-		// echo class_exists('systems', FALSE)?'true':'false';
-		// echo CI::$APP->router->directory;
-
-		// $data['header'] = 'test header';
-		// $data['footer'] = 'test footer';
-		// $this->fenomx->view("index.tpl", $data);
-	
-	
-		// ADDING THIS LINE FOR TESTING !!!
-		// 
-		// UNIX TIME
-		// echo (new DateTime())->setTimestamp(1171502725)->format('Y-m-d H:i:s');
-		// echo $this->input->method();
-		// echo $this->config->item('svr_service');
-		// var_dump($_SESSION);
-		// echo $GLOBALS["userId"];
-		// echo "userId";
-		
-		// $x = get_api_sig();
-		// echo $x;
-		// echo "<br>";
-		// echo strlen($x);
-
-		// $data['title'] 	   = 'aaa';
-		// $data['page_link'] = 'marketing/m/mkt_report';
-		// $data['is_form']   = 0;
-		// $this->load->view('getme/m/02-content',$data);
-	}
-	
-	function path()
-	{
-		// define('ASSETS_PATH', FCPATH.'assets');
-		// echo FCPATH . 'var';
-		// echo FCPATH.'assets';
-		echo ASSETS_PATH;
-	}
-	
-	function arr()
-	{
-		$additional_data = [
-			'client_id'	=> '7777'
-		];
-		echo $additional_data['client_id'];
 	}
 	
 	function tis()
@@ -229,38 +191,6 @@ class Test extends CI_Controller {
 			$like[$v] = $q;
 		}
 		return out($like);
-	}
-	
-	function get_nih(){
-		// return out($this->input->get());
-		// $params = $this->input->post();
-		// return out($params);
-		return out((object)$this->input->get());
-		// return out($this->input->get()['name']);
-		// $params = (object)$this->input->get();
-		// return out($params->name);
-		// list($id, $name) = (object) $this->input->get();
-		// return out($name);
-		// return out($this->uri->segment(3));
-	}
-	
-	function lib(){
-		$this->load->library('z_auth/Auth');
-		// $this->load->model('z_auth/Auth_model');
-		// if (Auth::login('admin', '1234'))
-		if ($this->auth->login('admin.fbi', '1234'))
-			echo 'true';
-		else
-			echo 'false';
-		// $this->auth->logon();
-		// Auth::output(['message'=>'yesss bisa']);
-		// $this->auth->output(['message'=>'yesss bisa juga...']);
-		/* $this->load->model('z_auth/auth_model');
-		if ($this->auth_model->login('Admin', '1234')) {
-			echo 'true';
-		} else {
-			echo 'false';
-		} */
 	}
 	
 	function outpit(){
@@ -301,24 +231,9 @@ class Test extends CI_Controller {
 		// json_output($response['status'],$response);
 	}
 	
-	function open_db() {
-		$this->db->select('*')->from('users')->order_by('id', 'asc');
-		var_dump($this->db->get()->row());
-	}
-	
 	function get_issue_to_dept(){
 		$this->load->helper('ticketing/ticketing_function');
 		echo empty(get_issue_to_dept(9)) ? 'empty' : get_issue_to_dept(9);
-	}
-	
-	function get_user() {
-		// echo sesUser()->team_ids;
-		// echo sesCompany(0)->code;
-		// echo sesCompany(TRUE)->code;
-		// echo sesCompany();
-		echo sesCompany()->id;
-		// echo $this->session->userdata('company_id');
-		// echo sesCompany(0);
 	}
 	
 	function test_array() {
@@ -341,30 +256,6 @@ class Test extends CI_Controller {
 			if 
 			echo $ar.",";
 		} */
-	}
-	
-	function tes() {
-		return out(date('Y-m-d h:i:s'));
-		
-		$moment = new MomentPHP('1980-12-07 19:21:42');
-		// var_dump($moment->format('d/m/y'));
-		echo $moment->format('d/m/y');
-	
-		// $this->load->helper('ticketing/ticketing_function');
-		// echo get_ticket_config('max_file_size');
-		
-		// $this->load->model('ticketing/ticketing_model');
-		// var_dump($this->ticketing_model->getTicketAdmin_ByDept(9));
-		
-		// $this->load->library('ticketing/ticketing_lib');
-		// $this->ticketing_lib->automation();
-		
-		// echo strpos("300.00", '.');
-		// echo substr("300.00", 0, strpos("300.00", '.'))."\n";
-		// echo substr("300.00", -strpos("300.00", '.')+1)."\n";
-		// echo terbilang_eng("3000000.0001")."\n";
-		// echo ((int)"00"!==0) ? "TRUE" : "FALSE";
-		// echo empty((int)"0001") ? "TRUE" : "FALSE";
 	}
 	
 	function test_explode() {
