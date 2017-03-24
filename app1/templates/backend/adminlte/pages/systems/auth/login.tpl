@@ -116,7 +116,7 @@
 			success: function(data) {
 				if (data.status) {
 					store('lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}', 0);
-					var url = '{$.session.referred_index !: $.php.site_url('systems')}';
+					var url = "{$.session.referred_index !: $.const.APPS_LNK}";
 					window.location.replace(url);
 				}
 			},

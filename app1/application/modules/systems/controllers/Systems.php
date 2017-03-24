@@ -69,26 +69,36 @@ class Systems extends Getmeb
 		/* This line for processing forgot password */
 		if (isset($this->params['forgot']) && $this->params['forgot']) {
 			//run the forgotten password method to email an activation code to the user
-			$forgotten = $this->auth->forgotten_password($this->params['email']);
-
-			if ($forgotten)
-			{
-				/* Trying to sending email */
-				$user = $this->base_model->getValueArray('*', 'a_user', 'email', $this->params['email']);
-				$subject = FORGOT_LNK."/".$user->forgotten_password_code;
-				if($sending = send_mail($user->email, 'Your Reset Password Link', $subject) !== TRUE) {
-					$this->xresponse(FALSE, ['message' => $sending], 401);
-				}
-				/* success */
-				$this->xresponse(TRUE, ['message' => 'The link for reset your password has been sent to your email.']);
-			}
-			else
-			{
+			if (($user = $this->auth->forgotten_password($this->params['email'])) === FALSE){
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
 			
+			/* Trying to sending email */
+			$message = FORGOT_LNK."/".$user->forgotten_password_code;
+			if($sending = send_mail($user->email, 'Your Reset Password Link', $message) !== TRUE) {
+				$this->xresponse(FALSE, ['message' => $sending], 401);
+			}
+			
+			/* success */
+			$this->xresponse(TRUE, ['message' => 'The link for reset your password has been sent to your email.']);
 		}
 		
+		/* This line for processing reset password */
+		if (isset($this->params['reset']) && $this->params['reset']) {
+			if (!$this->session->userdata('forgot'))
+				$this->x_login();
+			
+			/* Reset Password*/
+			if (($user = $this->auth->reset_password($username, $password)) === FALSE ) {
+				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+			}
+			
+			$this->session->unset_userdata('forgot');
+			
+			$this->single_view('pages/systems/auth/reset', $user);
+			return;
+			
+		}
 		/* This line for authentication login page */
 		$http_auth 	= $this->input->server('HTTP_X_AUTH');
 		$username 	= $this->input->server('PHP_AUTH_USER');
@@ -276,8 +286,17 @@ class Systems extends Getmeb
 	function x_forgot($forgotten_code = NULL)
 	{
 		if ($forgotten_code) {
-			$user = $this->base_model->getValue('*', 'a_user', 'forgotten_password_code', $forgotten_code);
+			$this->load->library('z_auth/auth');
 			
+			/* Checking forgotten code */
+			if (($user = $this->auth->forgotten_password_complete($forgotten_code)) === FALSE ) {
+				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+			}
+			
+			$this->session->set_userdata(['forgot' => true]);
+			
+			$this->single_view('pages/systems/auth/reset', $user);
+			return;
 		}
 		$this->single_view('pages/systems/auth/forgot');
 	}

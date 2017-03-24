@@ -63,6 +63,7 @@ define('DEFAULT_CLIENT_ID', $client_id);
 define('DEFAULT_ORG_ID', $org_id);
 
 /* BACKEND CONSTANT VARIABLES */
+define('APPS_LNK', BASE_URL.'systems');
 define('PAGE_LNK', BASE_URL.'systems/x_page');
 define('AUTH_LNK', BASE_URL.'systems/x_auth');
 define('LOGIN_LNK', BASE_URL.'systems/x_login');

@@ -344,7 +344,7 @@ class Auth_model extends CI_Model
 			$this->set_message('forgot_password_notmatches');
 			return FALSE;
 		}
-		$username = $query->row()->name;
+		$user = $query->row()->name;
 		
 		$key = $this->hash_code(microtime().$identity);
 
@@ -355,11 +355,9 @@ class Auth_model extends CI_Model
 		    'forgotten_password_time' => time()
 		);
 
-		$this->db->update($this->tables['users'], $update, array($this->identity_column => $username));
+		$this->db->update($this->tables['users'], $update, array($this->identity_column => $user->{$this->identity_column}));
 
-		$return = $this->db->affected_rows() == 1;
-
-		return $return;
+		return $user;
 	}
 
 	public function forgotten_password_complete($code, $salt=FALSE)
@@ -385,19 +383,7 @@ class Auth_model extends CI_Model
 			}
 		}
 
-			$password = $this->salt();
-
-			$data = array(
-			    'password'                => $this->hash_password($password, $salt),
-			    'forgotten_password_code' => NULL,
-			    'active'                  => 1,
-			 );
-
-			$this->db->update($this->tables['users'], $data, array('forgotten_password_code' => $code));
-
-			return $password;
-
-		return FALSE;
+		return $user;
 	}
 
 	/**

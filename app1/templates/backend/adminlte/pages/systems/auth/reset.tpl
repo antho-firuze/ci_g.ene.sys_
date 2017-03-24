@@ -43,21 +43,33 @@
   </div>
   <!-- /.login-logo -->
   <div class="login-box-body">
-    <p class="login-box-msg">Forgot your Password ? <br>Please input your email address</p>
+    <p class="login-box-msg">Reset your password</p>
 
     <form>
-      {* <div class="form-group has-feedback"> *}
-        {* <span class="glyphicon glyphicon-user form-control-feedback"></span> *}
-        {* <input type="text" class="form-control" placeholder="User Name" name="username" required> *}
-      {* </div> *}
       <div class="form-group has-feedback">
-        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
-        <input type="text" class="form-control" placeholder="Email" name="email" required>
+        <span class="glyphicon glyphicon-user form-control-feedback"></span>
+        <input type="hidden" class="form-control" placeholder="User Name" name="username" value="{$user_name}" required>
+      </div>
+      <div class="form-group has-feedback">
+        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+        <input type="password" class="form-control" placeholder="New Password" name="password" required>
+      </div>
+      <div class="form-group has-feedback">
+        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+        <input type="password" class="form-control" placeholder="Confirm" name="password_confirm" required>
       </div>
       <div class="row">
+        <div class="col-xs-8">
+          <div class="checkbox icheck">
+            <label>
+              {* <input type="checkbox" name="remember"> Remember Me *}
+              {* <input type="hidden" name="remember" value=0 > *}
+            </label>
+          </div>
+        </div>
         <!-- /.col -->
-        <div class="col-xs-12">
-          <button type="submit" class="btn btn-primary btn-block btn-flat">Send</button>
+        <div class="col-xs-4">
+          <button type="submit" class="btn btn-primary btn-block btn-flat">Submit</button>
         </div>
         <!-- /.col -->
       </div>
@@ -78,7 +90,7 @@
 	{/if}
     <!-- /.social-auth-links -->
 	
-    {* Click <a href="#">here</a> if you forgot your password, or back to <a href="{$.const.HOME_LNK}">frontend</a>.<br> *}
+    {* Click <a href="{$.const.FORGOT_LNK}">here</a> if you forgot your password, or back to <a href="{$.const.HOME_LNK}">frontend</a>.<br> *}
     {* <a href="register.html" class="text-center">Register a new membership</a> *}
 	
   </div>
@@ -96,14 +108,14 @@
 	form.submit( function(e) {
 		e.preventDefault();
 		
-		$.ajax({ url:"{$.const.AUTH_LNK}?forgot=1", method:"GET", async:true, dataType:'json',
-			data: { "email":$("[name='email']").val() },
+		$.ajax({ url:"{$.const.AUTH_LNK}", method:"GET", async:true, dataType:'json',
+			headers: { "X-AUTH": "Basic " + btoa($("[name='username']").val() + ":" + $("[name='password']").val()) },
 			beforeSend: function(xhr) { form.find('[type="submit"]').attr("disabled", "disabled"); },
 			complete: function(xhr, data) {	setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled");	},1000); },
 			success: function(data) {
 				if (data.status) {
-					BootstrapDialog.alert({ type:'modal-info', title:'Information', message:"We already send the link for reset your password !" });
-					window.location.replace("{$.const.LOGIN_LNK}");
+					store('lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}', 0);
+					window.location.replace("{$.const.APPS_LNK}");
 				}
 			},
 			error: function(data, status, errThrown) {
