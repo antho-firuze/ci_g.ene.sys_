@@ -245,48 +245,6 @@ class Systems extends Getmeb
 
 			$this->xresponse(TRUE, ['message' => $this->auth->messages()]);
 		}
-		/* 
-		$this->load->library('z_auth/auth');
-		$http_auth 	= $this->input->server('HTTP_X_AUTH');
-		$username 	= $this->input->server('PHP_AUTH_USER');
-		
-		$password = NULL;
-		if ($username !== NULL)
-		{
-				$password = $this->input->server('PHP_AUTH_PW');
-		}
-		elseif ($http_auth !== NULL)
-		{
-				if (strpos(strtolower($http_auth), 'basic') === 0)
-				{
-						list($username, $password) = explode(':', base64_decode(substr($http_auth, 6)));
-				}
-		}
-		if (! $this->auth->change_password($username, $password, $data->password_new))
-		{
-			$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
-		}
-
-		$this->xresponse(TRUE, ['message' => $this->auth->messages()]);
-		 */
-		/* $auth	= $this->input->server('HTTP_X_AUTH');
-		$data 	= json_decode($this->input->raw_input_stream);
-		
-		$headers = [
-			'TOKEN'	 	=> $this->session->userdata('token'),
-			'X-AUTH' 	=> $auth,
-		];
-		$request = Requests::post(API_URL.'system/change_passwd', $headers, $data);
-		$result = json_decode($request->body);
-		
-		if (! $result->status)
-			$this->xresponse(FALSE, ['message' => $result->message], $request->status_code);
-
-		// UPDATE TOKEN
-		if (! empty($result->token))
-			$this->session->set_userdata('token', $result->token);
-		
-		$this->xresponse(TRUE, ['message' => $result->message], $request->status_code); */
 	}
 	
 	function x_login()
@@ -317,15 +275,13 @@ class Systems extends Getmeb
 	
 	function x_srcmenu()
 	{
-		$result['data'] = [];
-		if (key_exists('q', $this->params)) 
-			if (!empty($this->params['q']))
-				$this->params['like']	= DBX::like_or('am.name', $this->params['q']);
+		if (isset($this->params['q']) && $this->params['q']) 
+			$this->params['like']	= DBX::like_or('t2.name', $this->params['q']);
 			
-		$this->params['where']['am.is_active']	= '1';
-		$this->params['where']['arm.is_active']	= '1';
-		$this->params['where']['am.is_parent']	= '0';
-		$this->params['order']	= "am.name";
+		$this->params['where']['t2.is_active']	= '1';
+		$this->params['where']['t1.is_active']	= '1';
+		$this->params['where']['t2.is_parent']	= '0';
+		$this->params['order'] = "t2.name";
 		$this->params['list']	= 1;
 		$result['data'] = $this->system_model->get_a_role_menu($this->params);
 		$this->xresponse(TRUE, $result);
