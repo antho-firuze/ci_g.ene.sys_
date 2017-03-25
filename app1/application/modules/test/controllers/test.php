@@ -3,7 +3,8 @@
 // require APPPATH . '/modules/z_libs/libraries/Getmeb.php';
 
 // class Test extends Getmeb {
-class Test extends CI_Controller {
+// class Test extends CI_Controller {
+class Test extends MX_Controller {
 
 	public $mdl_grp		= 'testing';
 
@@ -157,6 +158,7 @@ class Test extends CI_Controller {
 	}
 	
 	function index() {
+		echo 'running test';
 	}
 	
 	function tis()

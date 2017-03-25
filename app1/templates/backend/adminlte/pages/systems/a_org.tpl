@@ -52,7 +52,7 @@
 		},
 		"columns": [
 			{ width:"20px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render: function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
-			{ width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render: function(data, type, row){ return aLBtn.join(""); } },
+			{ width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render:function(data, type, row){ return aLBtn.join(""); } },
 			{ width:"200px", orderable: false, data:"code_name", 	 title:"Name" },
 			{ width:"250px", orderable: false, data:"description", title:"Description" },
 			{ width:"250px", orderable: false, data:"orgtype_name", title:"Type" },

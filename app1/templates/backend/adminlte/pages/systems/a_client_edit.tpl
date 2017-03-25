@@ -42,9 +42,6 @@
 	col.append(BSHelper.Input({ horz:false, type:"text", label:"Name", idname:"name", required: true, }));
 	col.append(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 	col.append(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
-	col.append(BSHelper.Input({ horz:false, type:"text", label:"SMTP Host", idname:"smtp_host", required: false, }));
-	col.append(BSHelper.Input({ horz:false, type:"number", label:"SMTP Port", idname:"smtp_port", required: false, }));
-	col.append(BSHelper.Checkbox({ horz:false, label:"Secure SMTP", idname:"is_securesmtp" }));
 	formContent.append(subRow(col));
 	formContent.append(subRow(subCol()));
 	a = [];

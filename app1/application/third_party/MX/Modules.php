@@ -62,7 +62,7 @@ class Modules
 			$method = substr($module, $pos + 1);		
 			$module = substr($module, 0, $pos);
 		}
-
+	
 		if($class = self::load($module)) 
 		{	
 			if (method_exists($class, $method))	{

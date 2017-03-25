@@ -37,23 +37,42 @@
         });
     };
 	
+	BSHelper.Tabs = function(options){
+		var o = $.extend( {}, BSHelper.defaults, options );
+		var container = $('<div class="nav-tabs-custom"><ul class="nav nav-tabs"></ul><div class="tab-content"></div></div>');
+		var header = container.find('ul.nav-tabs');
+		var bodyt = container.find('.tab-content');
+
+		var n = 1;
+		$.each(o.lists, function(i) {
+			var active = (n==1)?'active':'';
+			var idname = o.lists[i]['idname'];
+			var title = o.lists[i]['title'];
+			var content = o.lists[i]['content'];
+			$('<li class="'+active+'"><a href="#'+idname+'" data-toggle="tab">'+title+'</a></li>').appendTo(header);
+			// $('<div class="'+active+' tab-pane" id="'+idname+'">'+content+'</div>').appendTo(bodyt);
+			$('<div class="'+active+' tab-pane" id="'+idname+'" />').html(content).appendTo(bodyt);
+			n++;
+		});
+		
+		return container;
+	};
+	
 	BSHelper.NavigationTabs = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
-		
-		var tab_shelter = $('<div class="nav-tabs-custom" />');
-		var tab_header = $('<ul class="nav nav-tabs" />');
-		var tab_content =  $('<div class="tab-content" />');
+		var container = $('<div class="nav-tabs-custom"><ul class="nav nav-tabs"></div><div class="tab-content"></div></div>');
+		var header = container.find('ul.nav-tabs');
+		var body = container.find('div.tab-content');
 
 		var i = 1;
 		$.each(o.tabList, function(k, v) {
-			$('<li class="'+ ((i==1)?'active ':'') +'" />').append($('<a href="#'+ k +'" data-toggle="tab" />').html(v)).appendTo(tab_header);
-			$('<div class="'+ ((i==1)?'active ':'') +'tab-pane" id="'+ k +'" />').appendTo(tab_content);
+			var active = (i==1)?'active':'';
+			$('<li class="'+active+'"><a href="'+k+'" data-toggle="tab">'+v+'</a></li>').appendTo(header);
+			$('<div class="'+active+' tab-pane" id="'+k+'" />').appendTo(body);
 			i++;
 		});
-		tab_shelter.append(tab_header);
-		tab_shelter.append(tab_content);
 		
-		return tab_shelter;
+		return container;
 	};
 	
 	BSHelper.Accordion = function(options){

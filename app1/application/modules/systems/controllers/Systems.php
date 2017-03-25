@@ -93,8 +93,8 @@ class Systems extends Getmeb
 		if (isset($this->params['code']) && $this->params['code']) {
 			/* Checking forgotten code */
 			if (($user = $this->auth->forgotten_password_complete($this->params['code'])) === FALSE ) {
-				// modules::run('frontend/controllers/not_exist');
-				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+				$this->session->set_flashdata('message', '<b>'.$this->auth->errors().'</b>');
+				redirect(BASE_URL.'frontend/not_found');
 			}
 			
 			/* Marking the session for resetting password  */

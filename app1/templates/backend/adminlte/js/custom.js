@@ -40,7 +40,7 @@
       .before(tab_button_options);
 
   //Create the new tab
-  var tab_pane = $("[class='tab-content']");
+  var tab_pane = $(".control-sidebar [class='tab-content']");
   var tab_pane_options = $("<div />", {
     "id": "control-sidebar-options-tab",
     "class": "tab-pane active"

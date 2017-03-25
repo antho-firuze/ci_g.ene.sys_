@@ -53,12 +53,9 @@
 		"columns": [
 			{ width:"20px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render: function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
 			{ width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render: function(data, type, row){ return aLBtn.join(""); } },
-			{ width:"130px", data:"code_name", 		 	 title:"Name" },
-			{ width:"250px", data:"description", title:"Description", orderable: false },
+			{ width:"130px", orderable:false, data:"code_name", title:"Name" },
+			{ width:"250px", orderable:false, data:"description", title:"Description" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"smtp_host", title:"SMTP Host" },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"smtp_port", title:"SMTP Port" },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_securesmtp", title:"Secure SMTP", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 		"order": []
 	})

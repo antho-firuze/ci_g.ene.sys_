@@ -2,7 +2,8 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /* THIS IS CLASS FOR BASE CONTROLLER (FRONTEND) */
-class Getmef extends CI_Controller
+// class Getmef extends CI_Controller
+class Getmef extends MX_Controller
 {
 	/* DEFAULT TEMPLATE */
 	public $theme 	= 'adminlte';
@@ -25,11 +26,6 @@ class Getmef extends CI_Controller
 		define('HOME_LINK', base_url());
 		
 		$this->load->model('z_libs/getmef_model');
-		$this->_init();
-	}
-	
-	function _init()
-	{
 	}
 	
 	function xresponse($status=TRUE, $response=array(), $statusHeader=200)

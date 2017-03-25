@@ -16,9 +16,10 @@ class Frontend extends Getmef
 		redirect(base_url().'page');
 	}
 	
-	function not_exist()
+	function not_found()
 	{
-		$this->frontend_view('pages/404', ['message'=>'## This page does not exists ! ##']);
+		$message = $this->session->flashdata('message') ? $this->session->flashdata('message') : '## This page does not exists ! ##';
+		$this->frontend_view('pages/404', ['message'=>$message]);
 	}
 	
 	function page()

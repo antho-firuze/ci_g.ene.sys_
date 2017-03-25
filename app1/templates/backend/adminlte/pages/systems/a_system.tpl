@@ -12,13 +12,6 @@
 
     <!-- Main content -->
     <section class="content">
-
-      <!-- Default box -->
-      <div class="box">
-				<div class="box-body"></div>
-      </div>
-      <!-- /.box -->
-
     </section>
     <!-- /.content -->
   </div>
@@ -26,27 +19,59 @@
 <script src="{$.const.TEMPLATE_URL}plugins/form-autofill/js/form-autofill.js"></script>
 <script>
 	var a=[];
-	var formContent = $('<form "autocomplete"="off"><div class="row"><div class="col-left col-md-6"></div><div class="col-right col-md-6"></div></div></form>');
-	var col_l = formContent.find('div.col-left');
-	var col_r = formContent.find('div.col-right');
+	var col = [];
+	var formContent = $('<form "autocomplete"="off" />');
+	var boxContent = $('<div class="box"><div class="box-header"></div><div class="box-body"></div><div class="box-footer"></div></div>');
+	var tabContent = BSHelper.Tabs({
+		lists: [
+			{	title:"General Setup", idname:"tab-gen", content:function(){
+				a.push(BSHelper.Input({ type:"hidden", idname:"id" }));
+				a.push(BSHelper.Input({ type:"text", label:"Code", idname:"code" }));
+				a.push(BSHelper.Input({ type:"text", label:"Name", idname:"name", required: true }));
+				a.push(BSHelper.Input({ type:"textarea", label:"Description", idname:"description" }));
+				col.push(subCol(6, a)); a=[];
+				a.push(BSHelper.Input({ type:"text", label:"Head Title", idname:"head_title", required: true }));
+				a.push(BSHelper.Input({ type:"text", label:"Page Title", idname:"page_title", required: true }));
+				a.push(BSHelper.Input({ type:"text", label:"Logo Text Mini", idname:"logo_text_mn", required: true, maxlength:3, placeholder:"string(3)" }));
+				a.push(BSHelper.Input({ type:"text", label:"Logo Text Large", idname:"logo_text_lg", required: true, placeholder:"string(20)" }));
+				col.push(subCol(6, a));
+				return subRow(col);
+			} },
+			{	title:"Date & Time Setup", idname:"tab-dat", content:function(){
+				a = []; col = [];
+				a.push(BSHelper.Input({ type:"text", label:"Date Format", idname:"date_format", required: true, placeholder:"d/m/Y" }));
+				a.push(BSHelper.Input({ type:"text", label:"Time Format", idname:"time_format", required: true, placeholder:"h:i:s" }));
+				a.push(BSHelper.Input({ type:"text", label:"DateTime Format", idname:"datetime_format", required: true, placeholder:"d/m/Y h:i:s" }));
+				a.push(BSHelper.Input({ type:"text", label:"User Photo Path", idname:"user_photo_path", required: true, placeholder:"string(200)" }));
+				col.push(subCol(6, a));
+				return subRow(col);
+			} },
+			{	title:"Email Setup", idname:"tab-eml", content:function(){
+				a = []; col = [];
+				a.push(BSHelper.Input({ type:"text", label:"SMTP Host", idname:"smtp_host", }));
+				a.push(BSHelper.Input({ type:"number", label:"SMTP Port", idname:"smtp_port", }));
+				a.push(BSHelper.Input({ type:"text", label:"SMTP User", idname:"smtp_user", }));
+				a.push(BSHelper.Input({ type:"Password", label:"SMTP Password", idname:"smtp_pass", }));
+				a.push(BSHelper.Input({ type:"number", label:"SMTP Timeout", idname:"smtp_timeout", }));
+				col.push(subCol(6, a)); a=[];
+				a.push(BSHelper.Input({ type:"text", label:"Charset", idname:"charset", }));
+				a.push(BSHelper.Input({ type:"text", label:"Mail Type", idname:"mailtype", }));
+				a.push(BSHelper.Input({ type:"number", label:"Priority", idname:"priority", }));
+				a.push(BSHelper.Input({ type:"text", label:"Protocol", idname:"protocol", }));
+				col.push(subCol(6, a));
+				return subRow(col);
+			} },
+		],
+	});
+	boxContent.find('.box-body').append(tabContent);
 	
-	col_l.append();
-	col_l.append(BSHelper.Input({ type:"hidden", idname:"id" }));
-	col_l.append(BSHelper.Input({ type:"text", label:"Name", idname:"name", required: true, placeholder:"string(60)" }));
-	col_l.append(BSHelper.Input({ type:"textarea", label:"Description", idname:"description", placeholder:"string(2000)" }));
-	col_l.append(BSHelper.Input({ type:"text", label:"Head Title", idname:"head_title", required: true, placeholder:"string(60)" }));
-	col_l.append(BSHelper.Input({ type:"text", label:"Page Title", idname:"page_title", required: true, placeholder:"string(60)" }));
-	col_l.append(BSHelper.Input({ type:"text", label:"Logo Text Mini", idname:"logo_text_mn", required: true, maxlength:3, placeholder:"string(3)" }));
-	col_l.append(BSHelper.Input({ type:"text", label:"Logo Text Large", idname:"logo_text_lg", required: true, placeholder:"string(20)" }));
-	
-	col_r.append(BSHelper.Input({ type:"text", label:"Date Format", idname:"date_format", required: true, placeholder:"d/m/Y" }));
-	col_r.append(BSHelper.Input({ type:"text", label:"Time Format", idname:"time_format", required: true, placeholder:"h:i:s" }));
-	col_r.append(BSHelper.Input({ type:"text", label:"DateTime Format", idname:"datetime_format", required: true, placeholder:"d/m/Y h:i:s" }));
-	col_r.append(BSHelper.Input({ type:"text", label:"User Photo Path", idname:"user_photo_path", required: true, placeholder:"string(200)" }));
+	{* Button *}
 	a = [];
 	a.push( BSHelper.Button({ type:"submit", label:"Save", cls:"btn-primary" }) );
-	formContent.append( a );
-	$('div.box-body').append(formContent);
+	boxContent.find('.box-footer').append(a);
+	
+	formContent.append(boxContent);
+	$(".content").append(formContent);
 	
 	{* Begin: Populate data to form *}
 	$.getJSON('{$url_module}', '', function(result){ 
