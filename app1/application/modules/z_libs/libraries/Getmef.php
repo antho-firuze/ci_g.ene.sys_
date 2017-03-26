@@ -6,6 +6,10 @@ class Getmef extends CI_Controller
 {
 	/* DEFAULT TEMPLATE */
 	public $theme 	= 'adminlte';
+	/* FOR REQUEST METHOD */
+	public $r_method;	
+	/* FOR CONTROLLER METHOD */
+	public $c_method;
 	/* FOR GETTING PARAMS FROM REQUEST URL */
 	public $params;
 	
@@ -13,12 +17,17 @@ class Getmef extends CI_Controller
 		header('Access-Control-Allow-Origin: *');
 		header("Access-Control-Allow-Headers: X-API-KEY, X-AUTH, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
 		header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-		$method = $_SERVER['REQUEST_METHOD'];
-		if($method == "OPTIONS") {
-			die();
-		}
+		// $method = $_SERVER['REQUEST_METHOD'];
+		// if($method == "OPTIONS") {
+			// die();
+		// }
 		
 		parent::__construct();
+		$this->r_method = $_SERVER['REQUEST_METHOD'];
+		if (in_array($this->r_method, ['GET','DELETE']))
+			$this->params = $this->input->get();
+		if (in_array($this->r_method, ['POST','PUT','OPTIONS']))
+			$this->params = json_decode($this->input->raw_input_stream);
 		define('ASSET_URL', base_url().'/assets/');
 		define('TEMPLATE_URL', base_url().TEMPLATE_FOLDER.'/frontend/'.$this->theme.'/');
 		define('TEMPLATE_PATH', '/frontend/'.$this->theme.'/');
@@ -141,7 +150,6 @@ class Getmef extends CI_Controller
 		exit;
 	}
 	
-	// VIEW FOR PRODUCT INFO (QRCODE)
 	function custom_view($content, $data=[])
 	{
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
