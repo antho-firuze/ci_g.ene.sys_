@@ -37,60 +37,65 @@
         });
     };
 	
+	/* 
+	*	BSHelper.Tabs({dataList:[ title:"", idname:"", content:"" ]}); 
+	*	BSHelper.Tabs({dataList:[ title:"", idname:"", content:function(){ return ""; } ]}); 
+	*					 
+	*/
 	BSHelper.Tabs = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
 		var container = $('<div class="nav-tabs-custom"><ul class="nav nav-tabs"></ul><div class="tab-content"></div></div>');
 		var header = container.find('ul.nav-tabs');
-		var bodyt = container.find('.tab-content');
+		var body = container.find('.tab-content');
 
 		var n = 1;
-		$.each(o.lists, function(i) {
+		$.each(o.dataList, function(i) {
 			var active = (n==1)?'active':'';
-			var idname = o.lists[i]['idname'];
-			var title = o.lists[i]['title'];
-			var content = o.lists[i]['content'];
+			var idname = o.dataList[i]['idname'];
+			var title = o.dataList[i]['title'];
+			var content = o.dataList[i]['content'];
 			$('<li class="'+active+'"><a href="#'+idname+'" data-toggle="tab">'+title+'</a></li>').appendTo(header);
-			// $('<div class="'+active+' tab-pane" id="'+idname+'">'+content+'</div>').appendTo(bodyt);
-			$('<div class="'+active+' tab-pane" id="'+idname+'" />').html(content).appendTo(bodyt);
+			$('<div class="'+active+' tab-pane" id="'+idname+'" />').html(content).appendTo(body);
 			n++;
 		});
 		
 		return container;
 	};
 	
-	BSHelper.NavigationTabs = function(options){
-		var o = $.extend( {}, BSHelper.defaults, options );
-		var container = $('<div class="nav-tabs-custom"><ul class="nav nav-tabs"></div><div class="tab-content"></div></div>');
-		var header = container.find('ul.nav-tabs');
-		var body = container.find('div.tab-content');
-
-		var i = 1;
-		$.each(o.tabList, function(k, v) {
-			var active = (i==1)?'active':'';
-			$('<li class="'+active+'"><a href="'+k+'" data-toggle="tab">'+v+'</a></li>').appendTo(header);
-			$('<div class="'+active+' tab-pane" id="'+k+'" />').appendTo(body);
-			i++;
-		});
-		
-		return container;
-	};
-	
+	/* 
+	*	BSHelper.Accordion({dataList:[ title:"", paneltype:"", content:"" ]}); 
+	*	BSHelper.Accordion({dataList:[ title:"", paneltype:"", content:function(){ return ""; } ]}); 
+	*	 
+	*	options: dataList 
+	*					 
+	*/
 	BSHelper.Accordion = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
 		
 		var id = 'accordion'+BSHelper.newGuid();
-		var shelter = $('<div class="panel-group" id="'+id+'" />');
+		var container = $('<div class="panel-group" id="'+id+'" />');
 
 		$.each(o.dataList, function(i){
 			var id2 = 'collapse'+BSHelper.newGuid();
-			var panel = $('<div class="panel panel-'+o.dataList[i]['paneltype']+'" />');
-			panel.append($('<div class="panel-heading"><h4 class="panel-title"><a style="display:table; table-layout:fixed; width:100%;" data-toggle="collapse" data-parent="#'+id+'" href="#'+id2+'"><div style="display:table-cell; width:90%; overflow:hidden; text-overflow:ellipsis">'+o.dataList[i]['title']+'</div><span class="pull-right glyphicon glyphicon-triangle-bottom"></span></a></h4></div>'));
+			var title = o.dataList[i]['title'];
+			var paneltype = o.dataList[i]['paneltype'];
+			var content = o.dataList[i]['content'];
+			var panel = $('<div class="panel panel-'+paneltype+'" />');
 			
-			panel.append($('<div id="'+id2+'" class="panel-collapse collapse"><div class="panel-body">'+o.dataList[i]['body']+'</div></div>'));
-			shelter.append(panel);
+			panel.append( $('<div class="panel-heading" />')
+				.append( $('<h4 class="panel-title" />')
+					.append( $('<a style="display:table; table-layout:fixed; width:100%;" data-toggle="collapse" data-parent="#'+id+'" href="#'+id2+'" />')
+						.append( $('<div style="display:table-cell; width:90%; overflow:hidden; text-overflow:ellipsis" />')
+							.html(title) )
+						.append( $('<span class="pull-right glyphicon glyphicon-triangle-bottom"></span>') ) ) ) );
+			panel.append( $('<div id="'+id2+'" class="panel-collapse collapse" />')
+				.append( $('<div class="panel-body" />')
+					.html(content) ) );
+					
+			container.append(panel)
 		});
 		
-		return shelter;
+		return container;
 	};
 	
 	BSHelper.Label = function(options){
@@ -198,8 +203,9 @@
 	BSHelper.Combogrid = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
 		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
+		var placeholder = o.placeholder ? o.placeholder : "typed or choose";
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
-		var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: o.placeholder, value: o.value,	autocomplete: "off", "data-url": o.url }); 
+		var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: placeholder, value: o.value,	autocomplete: "off", "data-url": o.url }); 
 		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
 
 		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }

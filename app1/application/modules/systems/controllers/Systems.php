@@ -335,16 +335,23 @@ class Systems extends Getmeb
 	*/
 	function x_page()
 	{
-		if (key_exists('pageid', $this->params) && !empty($this->params['pageid'])) {
+		if (isset($this->params['pageid']) && !empty($this->params['pageid'])) {
+			/* Checking standard page for existance */
 			$menu = $this->base_model->getValueArray('*', 'a_menu', ['client_id','id'], [DEFAULT_CLIENT_ID, $this->params['pageid']]);
 			if (! $this->_check_menu($menu)) {
 				$this->backend_view('pages/404', ['message'=>'<b>'.$this->messages().'</b>']);
 			}
 			
-			if (key_exists('edit', $this->params) && !empty($this->params['edit']))
+			/* Check for edit & new page */
+			if (isset($this->params['edit']) && !empty($this->params['edit']))
 				$this->backend_view($menu['path'].$menu['url'].'_edit', $menu);
 			else
-				$this->backend_view($menu['path'].$menu['url'], $menu);
+				/* Check for additional/custom page */
+				if (isset($this->params['x']) && !empty($this->params['x']))
+					$this->backend_view($menu['path'].$menu['url'].'_x'.$this->params['x'], $menu);
+				else
+					/* Standard page */
+					$this->backend_view($menu['path'].$menu['url'], $menu);
 		}
 		$this->backend_view('pages/404', ['message'=>'']);
 	}
@@ -585,10 +592,10 @@ class Systems extends Getmeb
 	function a_role()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && ($this->params['id'] != '')) 
+			if (isset($this->params['id']) && ($this->params['id'] != '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -636,13 +643,13 @@ class Systems extends Getmeb
 	function a_role_menu()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('role_id', $this->params) && ($this->params['role_id'] != '')) 
+			if (isset($this->params['role_id']) && ($this->params['role_id'] != '')) 
 				$this->params['where']['t1.role_id'] = $this->params['role_id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -684,6 +691,29 @@ class Systems extends Getmeb
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'OPTIONS') {
+			/* For copy menu from another role */
+			if (isset($this->params->x) && ($this->params->x=='copy')) {
+				$this->db->delete('a_role_menu', ['role_id'=>$this->params->role_id]);
+				$copy_role = $this->base_model->getValueArray($this->params->role_id.' as role_id, menu_id, is_active, is_readwrite','a_role_menu', 'role_id', $this->params->copy_role_id);
+				
+				if ($copy_role){
+					$error_out = [];
+					foreach($copy_role as $k=>$v){
+						if (! $this->db->insert('a_role_menu', $copy_role[$k])){
+							$copy_role['status'] = $this->db->error()['message'];
+							$error_out[] = $copy_role;
+						}
+					}
+					if (count($error_out) > 1)
+						$this->xresponse(TRUE, ['message' => $error_out]);
+					else
+						$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
+				}
+				
+				$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
+			}
 		}
 	}
 	

@@ -30,7 +30,7 @@ class Getmeb extends CI_Controller
 		$this->r_method = $_SERVER['REQUEST_METHOD'];
 		if (in_array($this->r_method, ['GET','DELETE']))
 			$this->params = $this->input->get();
-		if (in_array($this->r_method, ['POST','PUT']))
+		if (in_array($this->r_method, ['POST','PUT','OPTIONS']))
 			$this->params = json_decode($this->input->raw_input_stream);
 		define('ASSET_URL', base_url().'/assets/');
 		define('TEMPLATE_URL', base_url().TEMPLATE_FOLDER.'/backend/'.$this->theme.'/');

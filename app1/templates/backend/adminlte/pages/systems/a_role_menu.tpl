@@ -94,6 +94,7 @@
 	setVisibleToolBtn(['btn-copy','btn-message','btn-print','btn-export','btn-import']);
 	
 	{* Additional Menu on Toolbar Process Button *}
+	addProcessMenu('btn-process1', 'Copy Menu From Role...');
 
 	{* =================================================================================== *}
 	
@@ -212,6 +213,16 @@
 				{**}
 			}
 		});
+	});
+	
+	{* btn-process1 in Toolbar *}
+	$('#btn-process1').click(function(){
+	
+		if (!confirm("All Menu in this Role will be replaced, Are you sure ?")) {
+			return false;
+		}
+		
+		window.location.href = getURLOrigin()+window.location.search+"&x=copy";
 	});
 	
 </script>

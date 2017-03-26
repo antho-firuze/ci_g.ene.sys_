@@ -93,7 +93,7 @@ $db['default'] = array(
 	'save_queries' => TRUE
 );
 
-$db['sqlsvr12'] = array(
+/* $db['sqlsvr12'] = array(
 	'dsn'	=> '',
 	'hostname' => '115.85.74.130,8795',
 	'username' => 'sa',
@@ -113,4 +113,4 @@ $db['sqlsvr12'] = array(
 	'stricton' => FALSE,
 	'failover' => array(),
 	'save_queries' => TRUE
-);
+); */

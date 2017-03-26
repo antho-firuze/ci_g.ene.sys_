@@ -9,7 +9,6 @@
         <small>{$description}</small>
       </h1>
     </section>
-
     <!-- Main content -->
     <section class="content">
     </section>
@@ -23,7 +22,7 @@
 	var formContent = $('<form "autocomplete"="off" />');
 	var boxContent = $('<div class="box"><div class="box-header"></div><div class="box-body"></div><div class="box-footer"></div></div>');
 	var tabContent = BSHelper.Tabs({
-		lists: [
+		dataList: [
 			{	title:"General Setup", idname:"tab-gen", content:function(){
 				a.push(BSHelper.Input({ type:"hidden", idname:"id" }));
 				a.push(BSHelper.Input({ type:"text", label:"Code", idname:"code" }));

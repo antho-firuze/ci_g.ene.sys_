@@ -386,4 +386,5 @@ class System_Model extends CI_model
 		return $this->base_model->mget_rec($params);
 	}
 	
+	// function fun_
 }

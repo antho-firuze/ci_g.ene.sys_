@@ -2,8 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /* THIS IS CLASS FOR BASE CONTROLLER (FRONTEND) */
-// class Getmef extends CI_Controller
-class Getmef extends MX_Controller
+class Getmef extends CI_Controller
 {
 	/* DEFAULT TEMPLATE */
 	public $theme 	= 'adminlte';

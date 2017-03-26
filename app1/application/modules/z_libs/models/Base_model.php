@@ -118,8 +118,9 @@ class Base_Model extends CI_Model
 			$array = explode(",", $this->params['filter']);
 			if (!empty($array)) {
 				foreach ($array as $value) {
-					list($k, $v) = explode("=", $value);
-					$this->db->where($k, empty($v)?0:$v);
+					// list($k, $v) = explode("=", $value);
+					// $this->db->where($k, empty($v)?0:$v);
+					$this->db->where($value);
 				}
 			}
 		}
@@ -189,8 +190,9 @@ class Base_Model extends CI_Model
 			$array = explode(",", $this->params['filter']);
 			if (!empty($array)) {
 				foreach ($array as $value) {
-					list($k, $v) = explode("=", $value);
-					$this->db->where($k, empty($v)?0:$v);
+					// list($k, $v) = explode("=", $value);
+					// $this->db->where($k, empty($v)?0:$v);
+					$this->db->where($value);
 				}
 			}
 		}

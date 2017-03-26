@@ -23,6 +23,7 @@ class Iproduct_Model extends CI_Model
 		$params['table'] 	= "cs_files as t1";
 		$params['join'][] = ['certificate_files as t2', 't1.id_certificate_files = t2.id', 'left'];
 		$params['where']['t1.id_cs'] = $id;
+		$params['list'] = 1;
 		return $this->base_model->mget_rec($params);
 	}
 	

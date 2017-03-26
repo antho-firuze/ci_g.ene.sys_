@@ -14,7 +14,7 @@ class Iproduct extends Getmef
 	
 	function cs($id = NULL)
 	{
-		$this->db = $this->load->database('sqlsvr12', TRUE);
+		$this->db = $this->load->database(DB_DSN_SQLSVR, TRUE);
 		
 		$product = $this->base_model->getValueArray('*', 'completion_slip', 'no_slip', $id);
 		if ($product) {
@@ -27,7 +27,7 @@ class Iproduct extends Getmef
 	
 	function getCertificates()
 	{
-		$this->db = $this->load->database('sqlsvr12', TRUE);
+		$this->db = $this->load->database(DB_DSN_SQLSVR, TRUE);
 		
 		$result['data'] = [];
 		if (key_exists('id', $this->params) && !empty($this->params['id'])) 
