@@ -149,6 +149,10 @@ $lang['success_reorder']		= 'Data has been re-order successfully !';
 $lang['permission_failed_menu'] = 'You don\'t have permission to access this menu !';
 $lang['permission_failed_crud'] = 'You don\'t have permission to do this action !';
 
+/* Upload */
+$lang['err_generate_photo'] = 'Generate Photo Failed !';
+$lang['err_upload_photo'] = 'Upload Photo Failed !';
+
 $lang['error_approve'] 			= 'Data has been Approved !';
 $lang['error_forward'] 			= 'Error: Only status [PROCESS] can be Forward!';
 $lang['error_delete'] 			= 'Error: Deleting data !';

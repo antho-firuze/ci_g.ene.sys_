@@ -362,10 +362,82 @@ class Systems extends Getmeb
 		$this->single_view('pages/systems/auth/forgot');
 	}
 	
+	/* 
+	*	Using for upload anything: 
+	*		
+	*
+	*
+	*/
+	function x_upload()
+	{
+		/* get the params & files (special for upload file) */
+		$files = $_FILES;
+		$this->params = $this->input->get();
+		
+		if (isset($this->params['userphoto']) && !empty($this->params['userphoto'])) {
+			if (isset($this->params['id']) && $this->params['id']) {
+				if (isset($files['file']['name']) && $files['file']['name']) {
+					/* Load the library */
+					/* START::Process */
+					require_once APPPATH."/third_party/Plupload/PluploadHandler.php"; 
+					$ph = new PluploadHandler(array(
+						'target_dir' => APPPATH.'../var/tmp/',
+						'allow_extensions' => 'jpg,jpeg,png,gif,xls,xlsx,doc,docx,ppt,pptx,pdf,zip,rar'
+					));
+					$ph->sendNoCacheHeaders();
+					$ph->sendCORSHeaders();
+					/* And Do Upload */
+					/* Output array('name', 'path', 'size') */
+					if (!$result = $ph->handleUpload()) {
+						$this->xresponse(FALSE, ['message' => $ph->getErrorMessage()]);
+					}
+					/* END::Process */
+					
+					/* If Success */
+					/* Create random filename */
+					$this->load->helper('string');
+					$rndName = random_string('alnum', 10);
+					
+					/* Moving to desire location with rename */
+					$ext = strtolower(pathinfo($files['file']['name'], PATHINFO_EXTENSION));
+					rename($result["path"], $this->sess->user_photo_path.$rndName.'.'.$ext);
+				
+					/* delete old file photo */
+					if (isset($this->params['photo_file']) && $this->params['photo_file']) {
+						@unlink($this->sess->user_photo_path.$this->params['photo_file']);
+					}
+					/* update to table */
+					$this->updateRecord('a_user', ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params['id']]);
+					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => base_url().$this->sess->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
+				}
+			}
+			$this->xresponse(FALSE, ['message' => $this->lang->line('err_upload_photo')]);
+		}
+	}
+	
 	/* Don't make example from a_user & a_role */
 	function a_user()
 	{
 		if ($this->r_method == 'GET') {
+			if (isset($this->params['genphoto']) && $this->params['genphoto']) {
+				if (isset($this->params['name']) && $this->params['name'] && isset($this->params['id']) && $this->params['id']) {
+					/* create avatar image */
+					$data = ['word'=>$this->params['name'][0], 'img_path'=>$this->sess->user_photo_path, 'img_url'=> base_url().$this->sess->user_photo_path];
+					$data = create_avatar_img($data);
+					if ($data) {
+						/* delete old file photo */
+						if (isset($this->params['photo_file']) && $this->params['photo_file']) {
+							@unlink($this->sess->user_photo_path.$this->params['photo_file']);
+						}
+						/* update to table */
+						$this->updateRecord($this->c_method, ['photo_file'=>$data['filename']], ['id' => $this->params['id']]);
+						$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => $data['file_url'], 'photo_file' => $data['filename']]);
+					}
+				}
+				$this->xresponse(TRUE, ['message' => $this->lang->line('err_generate_photo')]);
+			}
+			
+			
 			if (key_exists('id', $this->params) && ($this->params['id'] != '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
@@ -390,6 +462,7 @@ class Systems extends Getmeb
 
 			/* create avatar image */
 			$data = ['word'=>$this->params->name[0], 'img_path'=>$this->sess->user_photo_path, 'img_url'=> base_url().$this->sess->user_photo_path];
+			$data = create_avatar_img($data);
 			if ($data) {
 				$this->updateRecord($this->c_method, ['photo_file'=>$data['filename']], ['id' => $id]);
 			}
@@ -1432,6 +1505,10 @@ class Systems extends Getmeb
 		}
 	}
 	
+	function f_user_generate_photo()
+	{
+		
+	}
 	
 	function z_smarty()
 	{

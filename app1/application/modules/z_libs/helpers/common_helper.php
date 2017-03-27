@@ -1351,9 +1351,11 @@ if ( ! function_exists('debug'))
 {
 	function debug($data='')
 	{
-		$ci =& get_instance();
-		$ci->load->helper('file');
-		write_file(APPPATH.'logs/debug.txt', $data);
+		// $ci =& get_instance();
+		// $ci->load->helper('file');
+		// write_file(APPPATH.'logs/debug.txt', $data);
+		
+		echo var_dump($data); exit;
     /* 
 		if ( ! write_file(APPPATH.'logs/debug.txt', $data))
     {

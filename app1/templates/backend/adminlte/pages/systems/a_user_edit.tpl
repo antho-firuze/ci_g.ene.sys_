@@ -1,4 +1,5 @@
 {var $url_module = $.php.base_url('systems/a_user')}
+{var $url_upload = $.php.base_url('systems/x_upload')}
 
    <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -17,6 +18,7 @@
   </div>
   <!-- /.content-wrapper -->
 <script src="{$.const.TEMPLATE_URL}plugins/form-autofill/js/form-autofill.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/plupload/js/plupload.full.min.js"></script>
 <script>
 	var a = [];	var col = [];	var row = [];
 	var id = getURLParameter("id");
@@ -32,8 +34,22 @@
 	{* For design form interface *}
 	var req = function(edit){ if (edit==1) return false; else if (edit==2) return true; else return true; };
 	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
-	col.push( $('<div style="text-align:center;width:100%;"><span class="glyphicon glyphicon-camera"></span><img class="profile-user-img img-responsive img-circle" style="width:200px" alt="User Picture"></div>'));
+	col.push(BSHelper.Input({ type:"hidden", idname:"photo_file" }));
+	col.push( $('<div style="text-align:center;width:100%;" />')
+						.append( $('<img class="profile-user-img img-responsive img-circle" style="width:150px; margin-bottom:13px;" alt="User Picture" />') )
+						{* .append( $('<input type="file" id="file_upload" style="display:none;" />') )  *}
+						.append( BSHelper.Button({ type:"button", label:"Upload Photo", idname:"btn_uploadphoto" }) ) 
+						.append( '&nbsp;&nbsp;&nbsp;' ) 
+						.append( BSHelper.Button({ type:"button", label:"Generate Image", idname:"btn_generatephoto", 
+							onclick:"$.getJSON('{$url_module}?genphoto=1&id='+$('#id').val()+'&name='+$('#name').val()+'&photo_file='+$('#photo_file').val(), '', function(data){	
+								if (data.status) { 
+									$('img.profile-user-img').attr('src', data.file_url);
+									$('#photo_file').val(data.photo_file);
+								}
+							});" }) ) 
+					);
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"User Name", idname:"name", required: true, placeholder:"string(60)", }));
+	a = [];
 	a.push(subCol(6, BSHelper.Input({ type:"password", label:"", idname:"password", required: req(edit), placeholder:"Password", minlength:6, help:"Minimum of 6 characters" })));
 	a.push(subCol(6, BSHelper.Input({ type:"password", label:"", idname:"password_confirm", required: req(edit), placeholder:"Confirm", idmatch:"password", errormatch:"Whoops, these don't match" })));
 	col.push(BSHelper.Label({ horz:false, label:"Password", idname:"password", required: req(edit), elcustom:subRow(a) }));
@@ -55,17 +71,46 @@
 	$(".content").append(formContent);
 
 	{* Begin: Populate data to form *}
+	$("img.profile-user-img").css("display", "none");
 	$.getJSON('{$url_module}', { "id": (id==null)?-1:id }, function(result){ 
 		if (!isempty_obj(result.data.rows)) {
 			var filename = result.data.rows[0]['photo_file'];
-			console.log("{$.const.BASE_URL~$.session.user_photo_path}"+filename);
-			$("img.profile-user-img").attr("src", "{$.const.BASE_URL~$.session.user_photo_path}"+filename);
+			if (filename) {
+				$("img.profile-user-img").css("display", "");
+				$("img.profile-user-img").attr("src", "{$.const.BASE_URL~$.session.user_photo_path}"+filename);
+			}
 			formContent.xform('load', result.data.rows[0]);  
 		}
 	});
 	
-	{* Init data for combogrid *}
+	{* Init data for custom element (combogrid, button etc.) *}
+	var uploader = new plupload.Uploader({ url:"{$url_upload}?userphoto=1&id="+id+"&photo_file="+$('#photo_file').val(), runtimes:"html5",
+		filters: { max_file_size: "2mb", mime_types: [{ title:"Image files", extensions:"jpg,gif,png" }] },
+		browse_button: "btn_uploadphoto", 
+		multi_selection: false,
+		init: {
+			FilesAdded: function(up, files) {
+				uploader.start();
+			},
+			FileUploaded: function(up, file, info) {
+				var response = $.parseJSON(info.response);
+				console.log(response.file_url);
+				if (response.status) { 
+					$('img.profile-user-img').attr('src', response.file_url);
+					$('#photo_file').val(response.photo_file);
+				}
+			},
+			Error: function(up, err) {
+				document.getElementById('console').appendChild(document.createTextNode("\nError #" + err.code + ": " + err.message));
+			}
+		}
+	});
+	uploader.bind('BeforeUpload', function(uploader, file) {
+		uploader.settings.url = "{$url_upload}?userphoto=1&id="+id+"&photo_file="+$('#photo_file').val();
+	});
+	uploader.init();
 
+	
 	{* Form submit action *}
 	formContent.validator().on('submit', function (e) {
 		{* e.stopPropagation; *}
