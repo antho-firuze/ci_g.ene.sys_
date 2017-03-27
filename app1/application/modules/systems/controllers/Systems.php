@@ -278,6 +278,7 @@ class Systems extends Getmeb
 		if (isset($this->params['q']) && $this->params['q']) 
 			$this->params['like']	= DBX::like_or('t2.name', $this->params['q']);
 			
+		$this->params['where']['t1.role_id']	= $this->sess->role_id;
 		$this->params['where']['t2.is_active']	= '1';
 		$this->params['where']['t1.is_active']	= '1';
 		$this->params['where']['t2.is_parent']	= '0';
@@ -327,7 +328,7 @@ class Systems extends Getmeb
 				
 		show_404(); */
 		
-		$this->backend_view('crud', 'pages/systems/profile');
+		$this->backend_view('pages/systems/profile');
 	}
 	
 	/*
@@ -387,9 +388,20 @@ class Systems extends Getmeb
 			if (! $id = $this->auth->register($this->params->name, $this->params->password, $this->params->email, array_merge($this->fixed_data, $this->create_log)))
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 
+			/* create avatar image */
+			$data = ['word'=>$this->params->name[0], 'img_path'=>$this->sess->user_photo_path, 'img_url'=> base_url().$this->sess->user_photo_path];
+			if ($data) {
+				$this->updateRecord($this->c_method, ['photo_file'=>$data['filename']], ['id' => $id]);
+			}
 			$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 		}
 		if ($this->r_method == 'PUT') {
+			/* Reset Password*/
+			if (isset($this->params->password) && ($this->params->password != '')) {
+				$this->load->library('z_auth/auth');
+				$this->auth->reset_password($this->params->name, $this->params->password);
+				unset($this->params->password);
+			}
 			$fields = $this->db->list_fields($this->c_method);
 			$boolfields = ['is_active','is_fullbpaccess'];
 			$nullfields = ['supervisor_id'];

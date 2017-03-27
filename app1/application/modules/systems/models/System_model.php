@@ -80,15 +80,18 @@ class System_Model extends CI_model
 		$role = $this->base_model->getValueArray('name as role_name, supervisor_id as role_supervisor_id, amt_approval, is_canexport, is_canreport, is_canapproveowndoc, is_accessallorgs, is_useuserorgaccess', 'a_role', 'id', $user['role_id']);
 		$system = $this->base_model->getValueArray('api_token, head_title, page_title, logo_text_mn, logo_text_lg, date_format, time_format, datetime_format, user_photo_path', 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID]);
 		$user_config = $this->base_model->getValue('attribute, value', 'a_user_config', 'user_id', $user_id);
-		foreach($user_config as $k => $v) {
-			$userconfig[$v->attribute] = $v->value;
+		if ($user_config) {
+			$userconfig = [];
+			foreach($user_config as $k => $v) {
+				$userconfig[$v->attribute] = $v->value;
+			}
 		}
 		$user 			= ($user===FALSE) ? [] : $user;
 		$client 		= ($client===FALSE) ? [] : $client;
 		$org 				= ($org===FALSE) ? [] : $org;
 		$role 			= ($role===FALSE) ? [] : $role;
 		$system 		= ($system===FALSE) ? [] : $system;
-		$userconfig = ($userconfig===FALSE) ? [] : $userconfig;
+		$userconfig = ($user_config===FALSE) ? [] : $userconfig;
 		$data = array_merge($user, $client, $org, $role, $system, $userconfig);
 		$this->session->set_userdata($data);
 	}
@@ -263,27 +266,30 @@ class System_Model extends CI_model
 	
 	function getMenuByRoleId($role_id)
 	{
-		$query = "select 
-		am1.id as menu_id1, am1.role_id as role_id1, am1.name as name1, am1.is_parent as is_parent1, am1.url as url1, am1.icon as icon1, am1.is_readwrite as is_readwrite1, 
-		am2.id as menu_id2, am2.role_id as role_id2, am2.name as name2, am2.is_parent as is_parent2, am2.url as url2, am2.icon as icon2, am2.is_readwrite as is_readwrite2, 
-		am3.id as menu_id3, am3.role_id as role_id3, am3.name as name3, am3.is_parent as is_parent3, am3.url as url3, am3.icon as icon3, am3.is_readwrite as is_readwrite3
-		from (
-			select am.*, arm.role_id, arm.is_readwrite from a_role_menu arm left join a_menu am on am.id = arm.menu_id 
-			where am.is_active = '1' and am.is_deleted = '0' and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
-		) am1
-		left join (
-			select am.*, arm.role_id, arm.is_readwrite from a_role_menu arm left join a_menu am on am.id = arm.menu_id 
-			where am.is_active = '1' and am.is_deleted = '0' and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
-		) am2 on am1.id = am2.parent_id 
-		left join (
-			select am.*, arm.role_id, arm.is_readwrite from a_role_menu arm left join a_menu am on am.id = arm.menu_id 
-			where am.is_active = '1' and am.is_deleted = '0' and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
-		) am3 on am2.id = am3.parent_id 
-		where am1.parent_id = '0'
-		order by am1.line_no, am2.line_no, am3.line_no";
-		
-		$row = $this->db->query($query);
-		return ($row->num_rows() > 0) ? $row->result() : FALSE;
+		if ($role_id) {
+			$query = "select 
+			am1.id as menu_id1, am1.role_id as role_id1, am1.name as name1, am1.is_parent as is_parent1, am1.url as url1, am1.icon as icon1, am1.is_readwrite as is_readwrite1, 
+			am2.id as menu_id2, am2.role_id as role_id2, am2.name as name2, am2.is_parent as is_parent2, am2.url as url2, am2.icon as icon2, am2.is_readwrite as is_readwrite2, 
+			am3.id as menu_id3, am3.role_id as role_id3, am3.name as name3, am3.is_parent as is_parent3, am3.url as url3, am3.icon as icon3, am3.is_readwrite as is_readwrite3
+			from (
+				select am.*, arm.role_id, arm.is_readwrite from a_role_menu arm left join a_menu am on am.id = arm.menu_id 
+				where am.is_active = '1' and am.is_deleted = '0' and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
+			) am1
+			left join (
+				select am.*, arm.role_id, arm.is_readwrite from a_role_menu arm left join a_menu am on am.id = arm.menu_id 
+				where am.is_active = '1' and am.is_deleted = '0' and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
+			) am2 on am1.id = am2.parent_id 
+			left join (
+				select am.*, arm.role_id, arm.is_readwrite from a_role_menu arm left join a_menu am on am.id = arm.menu_id 
+				where am.is_active = '1' and am.is_deleted = '0' and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
+			) am3 on am2.id = am3.parent_id 
+			where am1.parent_id = '0'
+			order by am1.line_no, am2.line_no, am3.line_no";
+			
+			$row = $this->db->query($query);
+			return ($row->num_rows() > 0) ? $row->result() : FALSE;
+		}
+		return FALSE;
 	}
 	
 	function getParentMenu($menu_id)

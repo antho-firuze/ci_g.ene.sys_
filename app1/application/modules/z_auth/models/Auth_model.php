@@ -616,7 +616,6 @@ class Auth_model extends CI_Model
 
 			if ($password === TRUE)
 			{
-
 				$this->update_last_login($user->id);
 
 				$this->clear_login_attempts($identity);
@@ -629,7 +628,7 @@ class Auth_model extends CI_Model
 				return $user->id;
 			}
 		}
-
+				echo 'password NOKE';
 		// Hash something anyway, just to take up time
 		$this->hash_password($password);
 

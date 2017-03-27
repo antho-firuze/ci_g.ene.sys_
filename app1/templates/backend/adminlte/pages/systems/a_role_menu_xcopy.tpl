@@ -18,8 +18,7 @@
   </div>
   <!-- /.content-wrapper -->
 <script>
-	var a = [];
-	var col = [];
+	var a = [];	var col = [];
 	var x = getURLParameter("x");
 	var role_id = getURLParameter("role_id");
 	var formContent = $('<form "autocomplete"="off"></form>');

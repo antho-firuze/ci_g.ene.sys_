@@ -3,8 +3,7 @@
 // require APPPATH . '/modules/z_libs/libraries/Getmeb.php';
 
 // class Test extends Getmeb {
-// class Test extends CI_Controller {
-class Test extends MX_Controller {
+class Test extends CI_Controller {
 
 	public $mdl_grp		= 'testing';
 
@@ -96,6 +95,7 @@ class Test extends MX_Controller {
 			'img_path'	=> 'upload/images/users/',
 			'img_url'	=> base_url().'upload/images/users/', 
 		];
+		// echo var_dump($set);
 		$img = create_avatar_img($set);
 		echo $img['image'];
 		return;

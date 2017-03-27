@@ -260,41 +260,43 @@ class Getmeb extends CI_Controller
 		$html = ''; $li1_closed = false; $li2_closed = false; $menu_id1 = 0; $menu_id2 = 0; $menu_id3 = 0; $parent_id = 0;
 		$rowParentMenu = ($result = $this->system_model->getParentMenu($cur_page)) ? $result[0] : (object)['lvl1_id'=>0, 'lvl2_id'=>0];
 		$rowMenus = $this->system_model->getMenuByRoleId($this->sess->role_id);
-		foreach ($rowMenus as $menu){
-			if (($menu_id1 != $menu->menu_id1) && $li1_closed){
+		if ($rowMenus) {
+			foreach ($rowMenus as $menu){
+				if (($menu_id1 != $menu->menu_id1) && $li1_closed){
+					$html.= '</ul></li>';
+					$li1_closed = false;
+				}
+				if (($menu_id2 != $menu->menu_id2) && $li2_closed){
+					$html.= '</ul></li>';
+					$li2_closed = false;
+				}
+				if (!empty($menu->menu_id2) || !empty($menu->menu_id3)){
+					if ($menu_id1 != $menu->menu_id1){
+						$parent_id = $rowParentMenu->lvl2_id ? $rowParentMenu->lvl2_id : $rowParentMenu->lvl1_id;
+						$html.= $this->li_parent($parent_id, $menu->menu_id1, 'systems/x_page?pageid='.$menu->menu_id1, $menu->name1, $menu->icon1);
+						$li1_closed = true;
+						$menu_id1 = $menu->menu_id1;
+					}
+					if (($menu_id2 != $menu->menu_id2) && !empty($menu->menu_id3)){
+						$parent_id = $rowParentMenu->lvl1_id;
+						$html.= $this->li_parent($parent_id, $menu->menu_id2, 'systems/x_page?pageid='.$menu->menu_id2, $menu->name2, $menu->icon2);
+						$li2_closed = true;
+						$menu_id2 = $menu->menu_id2;
+						
+					} elseif (($menu_id2 != $menu->menu_id2) && empty($menu->menu_id3)){
+						$html.= $this->li($cur_page, $menu->menu_id2, 'systems/x_page?pageid='.$menu->menu_id2, $menu->name2, $menu->icon2);
+						$menu_id2 = $menu->menu_id2;
+					}
+					if (!empty($menu->menu_id3)){
+						$html.= $this->li($cur_page, $menu->menu_id3, 'systems/x_page?pageid='.$menu->menu_id3, $menu->name3, $menu->icon3);
+					}
+				} elseif (!empty($menu->menu_id1)){
+					$html.= $this->li($cur_page, $menu->menu_id1, 'systems/x_page?pageid='.$menu->menu_id1, $menu->name1, $menu->icon1);
+				}
+			}
+			if ($li1_closed)
 				$html.= '</ul></li>';
-				$li1_closed = false;
-			}
-			if (($menu_id2 != $menu->menu_id2) && $li2_closed){
-				$html.= '</ul></li>';
-				$li2_closed = false;
-			}
-			if (!empty($menu->menu_id2) || !empty($menu->menu_id3)){
-				if ($menu_id1 != $menu->menu_id1){
-					$parent_id = $rowParentMenu->lvl2_id ? $rowParentMenu->lvl2_id : $rowParentMenu->lvl1_id;
-					$html.= $this->li_parent($parent_id, $menu->menu_id1, 'systems/x_page?pageid='.$menu->menu_id1, $menu->name1, $menu->icon1);
-					$li1_closed = true;
-					$menu_id1 = $menu->menu_id1;
-				}
-				if (($menu_id2 != $menu->menu_id2) && !empty($menu->menu_id3)){
-					$parent_id = $rowParentMenu->lvl1_id;
-					$html.= $this->li_parent($parent_id, $menu->menu_id2, 'systems/x_page?pageid='.$menu->menu_id2, $menu->name2, $menu->icon2);
-					$li2_closed = true;
-					$menu_id2 = $menu->menu_id2;
-					
-				} elseif (($menu_id2 != $menu->menu_id2) && empty($menu->menu_id3)){
-					$html.= $this->li($cur_page, $menu->menu_id2, 'systems/x_page?pageid='.$menu->menu_id2, $menu->name2, $menu->icon2);
-					$menu_id2 = $menu->menu_id2;
-				}
-				if (!empty($menu->menu_id3)){
-					$html.= $this->li($cur_page, $menu->menu_id3, 'systems/x_page?pageid='.$menu->menu_id3, $menu->name3, $menu->icon3);
-				}
-			} elseif (!empty($menu->menu_id1)){
-				$html.= $this->li($cur_page, $menu->menu_id1, 'systems/x_page?pageid='.$menu->menu_id1, $menu->name1, $menu->icon1);
-			}
 		}
-		if ($li1_closed)
-			$html.= '</ul></li>';
 		/* End Treeview Menu */
 		
 		$html.= '<br><li><a href="#" id="go-lock-screen" onclick="lock_the_screen();"><i class="fa fa-circle-o text-yellow"></i> <span>' . $this->lang->line('nav_lckscr') . '</span></a></li>';

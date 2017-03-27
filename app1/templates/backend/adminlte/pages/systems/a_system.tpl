@@ -17,8 +17,7 @@
   <!-- /.content-wrapper -->
 <script src="{$.const.TEMPLATE_URL}plugins/form-autofill/js/form-autofill.js"></script>
 <script>
-	var a=[];
-	var col = [];
+	var a=[];	var col = [];
 	var formContent = $('<form "autocomplete"="off" />');
 	var boxContent = $('<div class="box"><div class="box-header"></div><div class="box-body"></div><div class="box-footer"></div></div>');
 	var tabContent = BSHelper.Tabs({
