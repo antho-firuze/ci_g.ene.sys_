@@ -220,12 +220,10 @@
 		
 		if (o.isLoad){
 			input.combogrid({ 
+				url: o.url,
 				idField: o.idField ? o.idField : 'id',
 				textField: o.textField ? o.textField : 'name',
 				emptyMessage: o.emptyMessage ? o.emptyMessage : '<center><b>No results were found</b></center>',
-				source: function(term, response){
-					$.getJSON( o.url, term, function(data){ response(data.data); });
-				}
 			});
 		}
 		return container;

@@ -148,7 +148,7 @@ class Systems extends Getmeb
 					list($username, $password) = explode(':', base64_decode(substr($http_auth, 6)));
 				}
 			}
-			
+
 			/* Try to login */
 			if (! $user_id = $this->auth->login($username, $password)) {
 				/* Trapping user_agent, ip address & status */
@@ -349,6 +349,20 @@ class Systems extends Getmeb
 		}
 		
 		if ($this->r_method == 'PUT') {
+			if (count($this->input->get()) > 0) {
+				$this->params = $this->input->get();
+				
+				if (isset($this->params['user_role_id']) && ($this->params['user_role_id'] != '')) {
+					if (! $this->updateRecord('a_user', [ 'user_role_id' => $this->params['user_role_id']], ['id' => $this->sess->user_id]))
+						$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
+				}
+				if (isset($this->params['user_org_id']) && ($this->params['user_org_id'] != '')) {
+					if (! $this->updateRecord('a_user', [ 'user_org_id' => $this->params['user_org_id']], ['id' => $this->sess->user_id]))
+						$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
+				}
+				$this->xresponse(TRUE);
+			}
+			
 			/* Reset Password*/
 			if (isset($this->params->password) && ($this->params->password != '')) {
 				$this->load->library('z_auth/auth');

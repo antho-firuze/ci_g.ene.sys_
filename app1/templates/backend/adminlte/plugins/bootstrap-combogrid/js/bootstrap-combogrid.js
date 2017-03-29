@@ -1,7 +1,7 @@
 (function($) {
 
   "use strict";
-
+	
   function Combogrid( elem, options ) {
 		var o = options,
 				$element     = $(elem),
@@ -22,7 +22,7 @@
 				ttl_page		 	= 1;
 		
 		this.o				= o;
-		this._o 			= function(new_o){ $.extend(o, new_o); };
+		// this._o 			= function(new_o){ $.extend(o, new_o); };
 		this._selected = function(state){ selected = state; };
 		this._disabled = function(state){ disabled = state; };
 		this._listen 	= function(state){ listen(state) };
@@ -96,7 +96,10 @@
 				selected = false;
 				this._selected = false;
 				
-				if (_old != _new) {	o.onSelect.call(this, {}); }
+				if (_old != _new) {	
+					if (_new)	
+						o.onSelect.call(this, {}); 
+				}
 			}
 			if (!mousedover && shown) {setTimeout(function () { hide(); page = 1; }, 200);}
 		}
@@ -121,7 +124,12 @@
 			$.each(o.queryParams, function(k, v){
 				term[k] = v;
 			});
-			setTimeout(function(){ o.source(term, lookup) }, 100);
+			setTimeout(function(){ 
+				$.getJSON( o.url, term, function(result){ 
+					var data = result.data;
+					if (Object.keys(data).length > 0){ lookup(data) } 
+				});
+			}, 100);
 		}
 	
 		/* format data = {total:999, rows:{field1:value1, field2:value2}} */
@@ -215,7 +223,7 @@
 		}
 		
 		function select() {
-			// console.log('debug: select');
+			// console.log('debug: select up');
 			var id_old = $element.attr('value'),
 					id = $menu.find('.active').data(o.idField),
 					text = $menu.find('.active').data(o.textField);
@@ -227,7 +235,8 @@
 					.attr('data-'+o.textField, text)
 					.val(text).trigger('change');
 				$target.val(id).trigger('change');
-				if ((id === 0) && (Object.keys(o.addition).length > 0))
+				
+				if ((id === 0) && (Object.keys(o.addition).length > 0)) 
 					o.onSelect.call(this, o.addition);
 				else
 					o.onSelect.call(this, rowData[id]);
@@ -252,15 +261,15 @@
 						loading = true;
 						page++;
 						setTimeout(function(){ 
-							// console.log('debug: loading: false'); loading = false; 
-							
 							var val = $element.val(),
 									term = { q: val, page: page, rows: o.rows };
 							
 							$.each(o.queryParams, function(k, v){
 								term[k] = v;
 							});
-							o.source(term, function(data){
+							
+							$.getJSON( o.url, term, function(result){ 
+								var data = result.data;
 								var list = '';
 								ttl_page = Math.ceil(data.total/o.rows);
 								$.each(data.rows, function(k, v) {
@@ -274,7 +283,6 @@
 								loading = false;
 								$element.focus();
 							});
-							
 						}, 100);
 					}
 				} 
@@ -359,12 +367,13 @@
 				$button.off('click');
 			}
 		}
+		
 	};
 	
 	Combogrid.prototype = {
 		constructor: Combogrid,
 		version: function(){
-			return '1.1.3';
+			return '1.2.0';
 		},
 		init: function(){
 			// console.log('debug: init');
@@ -404,10 +413,6 @@
 				this._disabled(false);
 			}
 		},
-		queryParams: function(term){
-			// console.log('debug: queryParams');
-			this._o({ queryParams:term });
-		},
 		getValue: function(field){
 			// console.log('debug: getValue');
 			var val;
@@ -439,10 +444,11 @@
 			}
 			
 			setTimeout(function(){ 
-				o.source({id: val}, function(data){
-					if (typeof data.rows[0] !== 'undefined'){
-						var id = data.rows[0][o.idField],
-								text = data.rows[0][o.textField];
+				$.getJSON( o.url, {id: val}, function(data){ 
+					var row = data.data.rows[0];
+					if (typeof row !== 'undefined'){
+						var id = row[o.idField],
+								text = row[o.textField];
 						$element
 							.attr('value', id)
 							.attr('data-'+o.idField, id)
@@ -481,16 +487,19 @@
 					options = ((typeof option === 'object') ? option : {});
 			if (!inst) {
 				$this.data('combogrid', new Combogrid(this, $.extend({}, $.fn.combogrid.defaults, options)) );
+					// console.log($this.data('combogrid'));
 			} else {
 				if (typeof option === 'object') {
-					$this.data('combogrid', new Combogrid(this, $.extend(inst, options)) );
+					$this.data('combogrid', new Combogrid(this, $.extend(inst.o, options)) );
+					// console.log($this.data('combogrid'));
 				} 
 			}
 		});
   };
 	
   $.fn.combogrid.defaults = {
-    source: function(term, lookup){},
+    source: function(term, response){},
+		onSelect: function(rowData){},
     style: 'bs3',
 		menu_type: 'normal', // iscroll (infinite scroll), normal
 		emptyMessage: '<center><b>No results were found</b></center>',
@@ -503,7 +512,6 @@
 		queryParams: {},
 		item_cls: '',
 		addition: {},
-		onSelect: function(rowData){}
   };
 	
 }(jQuery));

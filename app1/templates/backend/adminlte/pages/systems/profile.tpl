@@ -126,6 +126,11 @@
 	});
 	uploader.init();
 
+	{* Event on Element *}
+	$("#user_role_id").combogrid({ onSelect: function(rowData){ $.ajax({ url:"{$url_module}?user_role_id="+rowData.id, method:"PUT" });	} });
+	$("#user_org_id").combogrid({ onSelect: function(rowData){ $.ajax({ url:"{$url_module}?user_org_id="+rowData.id, method:"PUT" });	} });
+	
+	
 	{* Form submit action *}
 	formContent.validator().on('submit', function (e) {
 		{* e.stopPropagation; *}
