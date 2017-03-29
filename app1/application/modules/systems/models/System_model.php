@@ -74,10 +74,12 @@ class System_Model extends CI_model
 	
 	function _store_config($user_id)
 	{
-		$user = $this->base_model->getValueArray('id as user_id, client_id, org_id, role_id, name as user_name, email as user_email, description as user_description, photo_file as user_photo_file, supervisor_id as user_supervisor_id, bpartner_id, is_fullbpaccess', 'a_user', 'id', $user_id);
+		$user = $this->base_model->getValueArray('id as user_id, client_id, user_org_id, user_role_id, name as user_name, email as user_email, description as user_description, photo_file as user_photo_file, supervisor_id as user_supervisor_id, bpartner_id, is_fullbpaccess', 'a_user', 'id', $user_id);
+		$user_org = $this->base_model->getValueArray('org_id', 'a_user_org', 'id', $user['user_org_id']);
+		$user_role = $this->base_model->getValueArray('role_id', 'a_user_role', ['id','is_active','is_deleted'], [$user['user_role_id'], '1', '0']);
 		$client = $this->base_model->getValueArray('name as client_name', 'a_client', 'id', $user['client_id']);
-		$org = $this->base_model->getValueArray('name as org_name, supervisor_id as org_supervisor_id, address_map as org_address_map, phone as org_phone, fax as org_fax, email as org_email, website as org_website, swg_margin', 'a_org', 'id', $user['org_id']);
-		$role = $this->base_model->getValueArray('name as role_name, supervisor_id as role_supervisor_id, amt_approval, is_canexport, is_canreport, is_canapproveowndoc, is_accessallorgs, is_useuserorgaccess', 'a_role', 'id', $user['role_id']);
+		$org = $this->base_model->getValueArray('name as org_name, supervisor_id as org_supervisor_id, address_map as org_address_map, phone as org_phone, fax as org_fax, email as org_email, website as org_website, swg_margin', 'a_org', 'id', $user_org['org_id']);
+		$role = $this->base_model->getValueArray('name as role_name, supervisor_id as role_supervisor_id, amt_approval, is_canexport, is_canreport, is_canapproveowndoc, is_accessallorgs, is_useuserorgaccess', 'a_role', 'id', $user_role['role_id']);
 		$system = $this->base_model->getValueArray('api_token, head_title, page_title, logo_text_mn, logo_text_lg, date_format, time_format, datetime_format, user_photo_path', 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID]);
 		$user_config = $this->base_model->getValue('attribute, value', 'a_user_config', 'user_id', $user_id);
 		if ($user_config) {
@@ -87,12 +89,14 @@ class System_Model extends CI_model
 			}
 		}
 		$user 			= ($user===FALSE) ? [] : $user;
+		$user_org 	= ($user_org===FALSE) ? ['org_id' => null] : $user_org;
+		$user_role 	= ($user_role===FALSE) ? ['role_id' => null] : $user_role;
 		$client 		= ($client===FALSE) ? [] : $client;
 		$org 				= ($org===FALSE) ? [] : $org;
 		$role 			= ($role===FALSE) ? [] : $role;
 		$system 		= ($system===FALSE) ? [] : $system;
 		$userconfig = ($user_config===FALSE) ? [] : $userconfig;
-		$data = array_merge($user, $client, $org, $role, $system, $userconfig);
+		$data = array_merge($user, $user_org, $user_role, $client, $org, $role, $system, $userconfig);
 		$this->session->set_userdata($data);
 	}
 	
@@ -136,12 +140,14 @@ class System_Model extends CI_model
 	
 	function get_a_user($params)
 	{
-		$params['select'] = "t1.id, t1.client_id, t1.org_id, t1.role_id, t1.is_active, t1.code, t1.name, coalesce(t1.code, '')||' '||t1.name as code_name, t1.description, t1.email, t1.last_login, t1.is_online, t1.supervisor_id,	t1.bpartner_id, t1.is_fullbpaccess, t1.is_expired, t1.ip_address, t1.photo_file, ao.name as org_name, ar.name as role_name";
+		$params['select'] = "t1.id, t1.client_id, t1.user_org_id, t1.user_role_id, t1.is_active, t1.code, t1.name, coalesce(t1.code, '')||' '||t1.name as code_name, t1.description, t1.email, t1.last_login, t1.is_online, t1.supervisor_id,	t1.bpartner_id, t1.is_fullbpaccess, t1.is_expired, t1.ip_address, t1.photo_file, t2.org_id, t3.role_id";
 		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_user as t1";
-		$params['join'][] 	= ['a_client as ac', 't1.client_id = ac.id', 'left'];
-		$params['join'][] 	= ['a_org as ao', 't1.org_id = ao.id', 'left'];
-		$params['join'][] 	= ['a_role as ar', 't1.role_id = ar.id', 'left'];
+		$params['join'][] 	= ['a_user_org as t2', 't1.user_org_id = t2.id', 'left'];
+		$params['join'][] 	= ['a_user_role as t3', 't1.user_role_id = t3.id', 'left'];
+		$params['join'][] 	= ['a_client as t4', 't1.client_id = t4.id', 'left'];
+		$params['join'][] 	= ['a_org as t5', 't2.org_id = t5.id', 'left'];
+		$params['join'][] 	= ['a_role as t6', 't3.role_id = t6.id', 'left'];
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -159,7 +165,7 @@ class System_Model extends CI_model
 	
 	function get_a_user_role($params)
 	{
-		$params['select'] = "t1.id, t1.org_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active";
+		$params['select'] = "t1.id, t1.role_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active";
 		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "a_user_role as t1";
 		$params['join'][] 	= ['a_role as t2', 't1.role_id = t2.id', 'left'];

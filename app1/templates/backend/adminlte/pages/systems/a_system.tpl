@@ -61,14 +61,16 @@
 			} },
 		],
 	});
-	boxContent.find('.box-body').append(tabContent);
+	{* boxContent.find('.box-body').append(tabContent); *}
+	formContent.append(tabContent);
 	
 	{* Button *}
 	a = [];
 	a.push( BSHelper.Button({ type:"submit", label:"Save", cls:"btn-primary" }) );
-	boxContent.find('.box-footer').append(a);
+	{* boxContent.find('.box-footer').append(a); *}
+	formContent.append(a);
 	
-	formContent.append(boxContent);
+	{* formContent.append(boxContent); *}
 	$(".content").append(formContent);
 	
 	{* Begin: Populate data to form *}

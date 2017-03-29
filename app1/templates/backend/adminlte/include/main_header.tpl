@@ -191,9 +191,7 @@
   </header>
 <script>
 	$("#reload_session").click(function(e){
-		e.preventDefault();
 		var last_url = window.location.href;
-		$.getJSON($(this).attr("href"), '', function(data){ 
-		window.location.replace(last_url); });
+		$.getJSON('{$.const.RELOAD_LNK}', '', function(data){ window.location.replace(last_url); });
 	});
 </script>

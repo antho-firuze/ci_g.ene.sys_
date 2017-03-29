@@ -317,16 +317,66 @@ class Systems extends Getmeb
 	
 	function x_profile($mode=NULL)
 	{
-		/* 
-		
-		$data = [];
-		if (key_exists('id', $this->params)) 
-			if (!empty($this->params['id'])) {
-				$data = (array) $this->system_model->getUserById($this->params['id']);
-				$this->xresponse(TRUE, $data);
+		if ($this->r_method == 'GET') {
+			if (isset($this->params['genphoto']) && $this->params['genphoto']) {
+				if (isset($this->params['name']) && $this->params['name'] && isset($this->params['id']) && $this->params['id']) {
+					/* create avatar image */
+					$data = ['word'=>$this->params['name'][0], 'img_path'=>$this->sess->user_photo_path, 'img_url'=> base_url().$this->sess->user_photo_path];
+					$data = create_avatar_img($data);
+					if ($data) {
+						/* delete old file photo */
+						if (isset($this->params['photo_file']) && $this->params['photo_file']) {
+							@unlink($this->sess->user_photo_path.$this->params['photo_file']);
+						}
+						/* update to table */
+						$this->updateRecord($this->c_method, ['photo_file'=>$data['filename']], ['id' => $this->params['id']]);
+						$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => $data['file_url'], 'photo_file' => $data['filename']]);
+					}
+				}
+				$this->xresponse(TRUE, ['message' => $this->lang->line('err_generate_photo')]);
 			}
-				
-		show_404(); */
+			
+			if (isset($this->params['view']) && $this->params['view']) {
+				$this->params['where']['t1.id'] = $this->sess->user_id;
+				if (($result['data'] = $this->system_model->get_a_user($this->params)) === FALSE){
+					$result['data'] = [];
+					$result['message'] = $this->base_model->errors();
+					$this->xresponse(FALSE, $result);
+				} else {
+					$this->xresponse(TRUE, $result);
+				}
+			}
+		}
+		
+		if ($this->r_method == 'PUT') {
+			/* Reset Password*/
+			if (isset($this->params->password) && ($this->params->password != '')) {
+				$this->load->library('z_auth/auth');
+				$this->auth->reset_password($this->params->name, $this->params->password);
+				unset($this->params->password);
+			}
+			$fields = $this->db->list_fields('a_user');
+			$boolfields = [];
+			$nullfields = [];
+			foreach($fields as $f){
+				if (key_exists($f, $this->params)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
+					} 
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
+					} else {
+						$datas[$f] = $this->params->{$f};
+					}
+				}
+			}
+			
+			unset($datas['id']);
+			if (! $this->updateRecord('a_user', array_merge($datas, $this->update_log), ['id' => $this->params->id]))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
 		
 		$this->backend_view('pages/systems/profile');
 	}
@@ -564,14 +614,17 @@ class Systems extends Getmeb
 	function a_user_role()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('user_id', $this->params) && ($this->params['user_id'] != '')) 
+			if (isset($this->params['user_id']) && ($this->params['user_id'] != '')) 
 				$this->params['where']['t1.user_id'] = $this->params['user_id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
+			if (isset($this->params['role_id']) && ($this->params['role_id'] != '')) 
+				$this->params['where']['t1.role_id'] = $this->params['role_id'];
+			
+			if (isset($this->params['q']) && !empty($this->params['q']))
+				$this->params['like'] = DBX::like_or('t2.code, t2.name', $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
@@ -762,7 +815,7 @@ class Systems extends Getmeb
 				}
 			}
 			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
+				$result = $this->insertRecord($this->c_method, $datas, FALSE, TRUE);
 			else
 				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
@@ -1023,6 +1076,7 @@ class Systems extends Getmeb
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.code, t1.name, t1.description', $this->params['q']);
 
+			$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();

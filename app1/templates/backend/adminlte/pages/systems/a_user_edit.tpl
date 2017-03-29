@@ -36,31 +36,33 @@
 	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
 	col.push(BSHelper.Input({ type:"hidden", idname:"photo_file" }));
 	col.push( $('<div style="text-align:center;width:100%;" />')
-						.append( $('<img class="profile-user-img img-responsive img-circle" style="width:150px; margin-bottom:13px;" alt="User Picture" />') )
-						{* .append( $('<input type="file" id="file_upload" style="display:none;" />') )  *}
-						.append( BSHelper.Button({ type:"button", label:"Upload Photo", idname:"btn_uploadphoto" }) ) 
-						.append( '&nbsp;&nbsp;&nbsp;' ) 
-						.append( BSHelper.Button({ type:"button", label:"Generate Image", idname:"btn_generatephoto", 
-							onclick:"$.getJSON('{$url_module}?genphoto=1&id='+$('#id').val()+'&name='+$('#name').val()+'&photo_file='+$('#photo_file').val(), '', function(data){	
-								if (data.status) { 
-									$('img.profile-user-img').attr('src', data.file_url);
-									$('#photo_file').val(data.photo_file);
-								}
-							});" }) ) 
-					);
+		.append( $('<img class="profile-user-img img-responsive img-circle" style="width:150px; margin-bottom:13px;" alt="User Picture" />') )
+		.append( BSHelper.Button({ type:"button", label:"Upload Photo", idname:"btn_uploadphoto" }) ) 
+		.append( '&nbsp;&nbsp;&nbsp;' ) 
+		.append( BSHelper.Button({ type:"button", label:"Generate Image", idname:"btn_generatephoto", 
+			onclick:"$.getJSON('{$url_module}?genphoto=1&id='+$('#id').val()+'&name='+$('#name').val()+'&photo_file='+$('#photo_file').val(), '', function(data){	
+				if (data.status) { 
+					$('img.profile-user-img').attr('src', data.file_url);
+					$('#photo_file').val(data.photo_file);
+				}
+			});" 
+		}) ) 
+	);
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"User Name", idname:"name", required: true, placeholder:"string(60)", }));
 	a = [];
 	a.push(subCol(6, BSHelper.Input({ type:"password", label:"", idname:"password", required: req(edit), placeholder:"Password", minlength:6, help:"Minimum of 6 characters" })));
 	a.push(subCol(6, BSHelper.Input({ type:"password", label:"", idname:"password_confirm", required: req(edit), placeholder:"Confirm", idmatch:"password", errormatch:"Whoops, these don't match" })));
 	col.push(BSHelper.Label({ horz:false, label:"Password", idname:"password", required: req(edit), elcustom:subRow(a) }));
+	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", placeholder:"string(2000)" }));
 	row.push(subCol(6, col));
 	
 	col = [];
 	col.push(BSHelper.Input({ horz:false, type:"email", label:"Email", idname:"email", required: true, placeholder:"string(255)" }));
-	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", placeholder:"string(2000)" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Full BP Access", idname:"is_fullbpaccess" }));
-	col.push(BSHelper.Combogrid({ horz:false, label:"Supervisor", idname:"supervisor_id", url:"{$.php.base_url('systems/a_user')}", isLoad:true, placeholder:"typed or choose" }));
+	col.push(BSHelper.Combogrid({ horz:false, label:"Role (Default)", idname:"user_role_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_role')}?filter=user_id="+id, isLoad:true }) );
+	col.push(BSHelper.Combogrid({ horz:false, label:"Organization (Default)", idname:"user_org_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_org')}?filter=user_id="+id, isLoad:true }) );
+	col.push(BSHelper.Combogrid({ horz:false, label:"Supervisor", idname:"supervisor_id", url:"{$.php.base_url('systems/a_user')}", isLoad:true }));
 	row.push(subCol(6, col));
 	boxContent.find(".box-body").append(subRow(row));
 	a = [];

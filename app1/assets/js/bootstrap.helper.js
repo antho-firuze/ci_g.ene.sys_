@@ -199,7 +199,11 @@
 		input.iCheck({ checkboxClass: 'icheckbox_flat-orange', radioClass: 'iradio_flat-orange'	});
 		return container;
 	};
-	
+
+	/* 
+	*		Sample: 
+	*		BSHelper.Combogrid({ horz:false, label:"Role", idname:"role_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_role')}", isLoad:true });
+	*/
 	BSHelper.Combogrid = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
 		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
@@ -216,28 +220,14 @@
 		
 		if (o.isLoad){
 			input.combogrid({ 
+				idField: o.idField ? o.idField : 'id',
+				textField: o.textField ? o.textField : 'name',
+				emptyMessage: o.emptyMessage ? o.emptyMessage : '<center><b>No results were found</b></center>',
 				source: function(term, response){
 					$.getJSON( o.url, term, function(data){ response(data.data); });
 				}
 			});
 		}
-		/* if (o.isCombogrid){
-			var xhr;
-			input.combogrid({ 
-				source: function(term, response){
-					try { xhr.abort(); } catch(e){}
-					xhr = $.ajax({ url:o.url, method:"GET",	dataType:"json", data:term,	cache:false,
-						success: function(data){
-							response(data.data);
-						},
-						error: function(data, textStatus, error){
-							var err = textStatus + ", " + error;
-							console.log( "Request Failed: " + err );
-						}
-					}); 
-				} 
-			});
-		} */
 		return container;
 	};
 	
