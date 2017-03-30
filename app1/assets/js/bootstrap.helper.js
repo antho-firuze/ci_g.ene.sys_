@@ -244,7 +244,7 @@
 		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
 		var placeholder = o.placeholder ? o.placeholder : "typed or choose";
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
-		var input = $('<select />', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: placeholder, value: o.value,	autocomplete: "off" }); 
+		var input = $('<input />', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: placeholder, value: o.value,	autocomplete: "off" }); 
 		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
 
 		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
@@ -253,14 +253,20 @@
 		if (o.readonly) input.attr('readonly','');
 		container.find('.control-input').append(input).append(help);
 		
-		$.each(o.list, function(i) {
+		/* $.each(o.list, function(i) {
 			var v = o.list[i]['value'];
 			var t = o.list[i]['title']
 			input.append( $('<option />', {value: v}).html(t) );
-		});
-		/* $.each(o.list, function(k, v) {
-			input.append( $('<option />', {value: k}).html(v) );
 		}); */
+		
+		input.shollu_cb({
+			idField: o.idField ? o.idField : 'value',
+			textField: o.textField ? o.textField : 'text',
+			emptyMessage: o.emptyMessage ? o.emptyMessage : '<center><b>No results were found</b></center>',
+			remote: o.remote ? true : false,
+			addition: o.addition,
+			rows: o.rows,
+		});
 		
 		return container;
 	};

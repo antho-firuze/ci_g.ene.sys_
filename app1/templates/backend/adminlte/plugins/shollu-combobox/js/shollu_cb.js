@@ -4,35 +4,62 @@
 	
   function Shollu_CB( elem, options ) {
 		var o = options,
-				$element     = $(elem),
-				$container   = $(template()),
-				$target      = $container.find('input[type=hidden]'),
-				$button      = $container.find('.dropdown-toggle'),
-				$menu  		   = $(template_result()).appendTo('body'),
-				
-				disabled     = false,
-				shown        = false,
-				focused      = false,
-				selected     = false,
-				mousedover   = false,
-				suppressKeyPressRepeat = {},
-				loading			= false,
-				rowData			= {},
-				page				 	= o.page,
-				ttl_page		 	= 1;
+			$element     = $(elem),
+			$container   = $(template()),
+			$target      = $container.find('input[type=hidden]'),
+			$button      = $container.find('.dropdown-toggle'),
+			$menu  		   = $(template_result()).appendTo('body'),
+			$disable    = false,
+			disablz    = false,
+			$shown        = false,
+			$focused      = false,
+			$selected     = false,
+			$mousedover   = false,
+			$suppressKeyPressRepeat = {},
+			$loading			 = false,
+			$rowData			 = {},
+			$tot_page		 = 0;
 		
 		this.o				= o;
-		this._selected = function(state){ selected = state; };
-		this._disabled = function(state){ disabled = state; };
-		this._listen 	= function(state){ listen(state) };
-		this.$element = $element;
-		this.$container = $container;
-		this.$target 	= $target;
-		this.$button 	= $button;
-		this.$menu		= $menu;
-		this.rowData	= function(){ return rowData; };
+		this.destroy 	= function(){ destroy(); };
+		this.version 	= function(){ return version(); };
+		this.getValue = function(field){ return getValue(field); };
+		this.setValue = function(val){ setValue(val); };
+		this.disabled = function(state){ disabled(state); };
 		
-		this.init();
+		init();
+		
+		function init(){
+			// console.log('debug: init');
+			if (!$element.data('init-shollu_cb')){
+				$element.data('init-shollu_cb', true);
+				$element.before($container);
+				$target.before($element);
+				$target.attr('name', $element.attr('name'));
+				$element.removeAttr('name')
+				
+				$disable = ($element.attr('disabled') === undefined) ? false : true;
+				disabled($disable); 
+				
+				// var val = $element.val();
+				// setValue(val);
+			}
+		}
+		
+		function destroy(){
+			// console.log('debug: destroy');
+			if ($element.data('init-shollu_cb')){
+				$element.data('init-shollu_cb', false);
+				$container.before($element);
+				$container.remove();
+				listen(false);
+			}
+		}
+		
+		function version(){
+			// console.log('debug: version');
+			return '1.0.0';
+		}
 		
 		function template(){
 			if (o.style == 'bs3')
@@ -51,7 +78,17 @@
 		function template_result(){
 			return '<ul class="typeahead-long dropdown-menu dropdown-menu-right"></ul>';
 		}
-			
+		
+		function disabled(state){
+			$element.prop('disabled', state);
+			$button.attr('disabled', state);
+			// console.log($button);
+			// if (state) $button.addClass('disabled'); else $button.removeClass('disabled');
+			// $button.attr('onclick', state?'return false;':'');
+			$disable = state;
+			listen(state?false:true);
+		}
+		
 		function show(){
 			var pos = $.extend({}, $element.position(), {	height: $element[0].offsetHeight });
 
@@ -60,7 +97,7 @@
 				.css({top: pos.top + pos.height, left: pos.left})
 				.show();
 			
-			shown = true;
+			$shown = true;
 		}
 		
 		function hide(){
@@ -71,38 +108,44 @@
 					// $element.off('blur');
 				}
 			});
-			shown = false;
+			$shown = false;
 			return;
 		}
 
+		/* function focusout(){
+			console.log('debug: focusout');
+			console.log($element.val());
+		} */
+		
 		function blur(){
-			focused = false;
-			var val = $element.val(), 
+			// console.log('debug: blur');
+			$focused = false;
+			select();
+			/* var val = $element.val(), 
 					_old = $element.attr('value'), 
 					_new = $element.val();
 			
-			if ( (!selected && val == '') || (selected && val == '') ) {
+			if ( (!$selected && val == '') || ($selected && val == '') ) {
 				$element
 					.attr('value', '')
 					.attr('data-'+o.idField, '')
 					.attr('data-'+o.textField, '')
 					.val('').trigger('change');
 				$target.val('').trigger('change');
-				selected = false;
-				this._selected = false;
+				$selected = false;
 				
 				if (_old != _new) {	
 					if (_new)	
 						o.onSelect.call(this, {}); 
 				}
-			}
-			if (!mousedover && shown) {setTimeout(function () { hide(); page = 1; }, 200);}
+			} */
+			if (!$mousedover && $shown) { setTimeout(function(){ hide(); o.page = 1; }, 200); }
 		}
 		
 		function toggle(){
-			// console.log('debug: toggle');
-			if (!disabled){
-				if (shown){
+			console.log('debug: toggle - '+$disable);
+			if (!$disable){
+				if ($shown){
 					hide();
 					$element.focus();
 				} else {
@@ -113,44 +156,185 @@
 		
 		function queries(){
 			// console.log('debug: queries');
-			var val = $element.val(),
-					term = { q: val, page: page, rows: o.rows };
-			
-			$.each(o.queryParams, function(k, v){
-				term[k] = v;
-			});
-			setTimeout(function(){ 
-				$.getJSON( o.url, term, function(result){ 
-					var data = result.data;
-					if (Object.keys(data).length > 0){ lookup(data) } 
-				});
-			}, 100);
+			if (o.remote){
+				var val = $element.val();
+				var params = {q:val, page:o.page, rows:o.rows};
+				
+				$.each(o.queryParams, function(k, v){	params[k] = v; });
+				setTimeout(function(){ 
+					$.getJSON( o.url, params, function(result){ 
+						var data = result.data;
+						if (Object.keys(data).length > 0){ lookup(data) } 
+					});
+				}, 100);
+			} else {
+				lookup(o.rows);
+			}
 		}
-	
-		/* format data = {total:999, rows:{field1:value1, field2:value2}} */
+		
+		/* 
+		* remote
+		*	data = {total:3, rows:[{value:1, text:"One"},{value:2, text:"Two"}{value:3, text:"Three"}]} 
+		*
+		*	local
+		* data = [{value:1, text:"One"},{value:2, text:"Two"}{value:3, text:"Three"}]
+		*/
 		function lookup(data){
-			var list = '';
-			$menu.html('');
-			ttl_page = Math.ceil(data.total/o.rows);
+			var list = [];
+			var rows = data;
+			
+			if (o.page == 1)
+				$menu.html('');
 			
 			if (Object.keys(o.addition).length > 0){
-				var addata = o.addition;
-				list += '<li class="'+o.item_cls+'" data-'+o.idField+'="'+ addata[o.idField] +'" data-'+o.textField+'="'+ addata[o.textField] +'"><a>'+addata[o.textField]+'</a></li>';
+				var v = o.addition[o.idField];
+				var t = o.addition[o.textField];
+				list.push($('<li class="'+o.item_cls+'" data-'+o.idField+'="'+v+'" data-'+o.textField+'="'+t+'"><a>'+t+'</a></li>'));
+				$rowData[v] = o.addition;
 			}
 			
-			$.each(data.rows, function(k, v) {
-				rowData[v[o.idField]] = v;
-				list += '<li class="'+o.item_cls+'" data-'+o.idField+'="'+ v[o.idField] +'" data-'+o.textField+'="'+ v[o.textField] +'"><a>'+v[o.textField]+'</a></li>';
-			});
-			if (Object.keys(data.rows).length > 0) {
+			
+			if (o.remote) {
+				rows = data.rows;
+				$tot_page = Math.ceil(data.total/o.rows);
+			} 
+			
+			if (Object.keys(rows).length > 0) {
+				$.each(rows, function(i) {
+					var v = rows[i][o.idField];
+					var t = rows[i][o.textField];
+					list.push( $('<li class="'+o.item_cls+'" data-'+o.idField+'="'+v+'" data-'+o.textField+'="'+t+'"><a>'+t+'</a></li>') );
+					$rowData[v] = rows[i]; /* 1:{value:1, text:"One"}, 2:{value:2, text:"Two"} */
+				});
 				$menu.append(list);
-				$menu.find('li').first().addClass('active');
+				// $menu.find('li').first().addClass('active');
 			} else {
 				$menu.append('<span style="color:#999;">'+o.emptyMessage+'</span>');
-				// $menu.append(o.emptyMessage);
 			}
+			
 			show();
 			$element.focus();
+		}
+		
+		function select(){
+			// console.log('debug: select up');
+			/* Searching by text */
+			/* var text_new = $element.val();
+			if (text_new){
+				$.each($rowData, function(i){
+					var id = $rowData[i][o.idField];
+					var text = $rowData[i][o.textField];
+					
+					console.log(text+'=='+text_new);
+					
+					if (text == text_new){
+						console.log('sameee');
+						$element
+							.attr('value', id)
+							.attr('data-'+o.idField, id)
+							.attr('data-'+o.textField, text)
+							.val(text);
+						$target.val(id);
+						o.onSelect.call(this, $rowData[i]);
+						return;
+					}
+				});
+				
+			} */
+			
+			/* Searching by id */
+			var id_old = $element.attr('value'),
+					id = $menu.find('.active').data(o.idField),
+					text = $menu.find('.active').data(o.textField);
+			
+			
+			if (id_old !== id) {
+				console.log('id_old:'+id_old+' id:'+id+' text:'+text);
+				// console.log($rowData[id]);
+				$element
+					.attr('value', id)
+					.attr('data-'+o.idField, id)
+					.attr('data-'+o.textField, text)
+					.val(text).trigger('change');
+					// .val(text);
+				$target.val(id).trigger('change');
+				// $target.val(id);
+				o.onSelect.call(this, $rowData[id]);
+			}
+			$selected = true;
+			return hide();
+		}
+
+		function getValue(field){
+			return 'test';
+		}
+		
+		function setValue(val){
+			if ($element.data('init-shollu_cb')===false){ return; }
+					
+			if (!val || val < 0) {
+				$element
+					.attr('value', '')
+					.attr('data-'+o.idField, '')
+					.attr('data-'+o.textField, '')
+					.val('').trigger('change');
+				$target.val('').trigger('change');
+				return;
+			}
+			
+			if (o.remote) {
+				setTimeout(function(){ 
+					$.getJSON( o.url, {id: val}, function(data){ 
+						var row = data.data.rows[0];
+						if (typeof row !== 'undefined'){
+							var id = row[o.idField],
+									text = row[o.textField];
+							$element
+								.attr('value', id)
+								.attr('data-'+o.idField, id)
+								.attr('data-'+o.textField, text)
+								.val(text).trigger('change');
+							$target.val(id).trigger('change');
+							$selected = true;
+						} 
+					});
+				}, 100);
+			} else {
+				
+			}
+		}
+		
+		function scroll(e){
+			// console.log('debug: scroll');
+			$element.focus();
+			e.stopPropagation();
+			e.preventDefault();
+
+			var ct = e.currentTarget;
+			var scrollPercent = (ct.scrollTop + $(ct).height())/ct.scrollHeight*100;
+			if ( scrollPercent > 90) {
+				if (!$loading){
+					if (o.page < $tot_page){
+						// console.log('debug: $loading: true');
+						$loading = true;
+						o.page++;
+						
+						if (o.remote) {
+							var val = $element.val();
+							var params = {q:val, page:o.page, rows:o.rows};
+						
+							$.each(o.queryParams, function(k, v){ params[k] = v; });
+							setTimeout(function(){ 
+								$.getJSON( o.url, params, function(result){ 
+									var data = result.data;
+									if (Object.keys(data).length > 0){ lookup(data) } 
+									$loading = false;
+								});
+							}, 100);
+						}
+					}
+				} 
+			}
 		}
 		
 		function fixMenuScroll(){
@@ -170,148 +354,74 @@
 		}
 		
 		function move(e){
-			if (!shown) {return;}
+			if (!$shown) {return;}
 
 			switch(e.keyCode) {
-				case 9: // tab
-				case 13: // enter
-				case 27: // escape
-					e.preventDefault();
-					break;
+			case 9: // tab
+			case 13: // enter
+			case 27: // escape
+				e.preventDefault();
+				break;
 
-				case 38: // up arrow
-					e.preventDefault();
-					prev();
-					fixMenuScroll();
-					break;
+			case 38: // up arrow
+				e.preventDefault();
+				prev();
+				fixMenuScroll();
+				break;
 
-				case 40: // down arrow
-					e.preventDefault();
-					next();
-					fixMenuScroll();
-					break;
+			case 40: // down arrow
+				e.preventDefault();
+				next();
+				fixMenuScroll();
+				break;
 			}
 
 			e.stopPropagation();
 		}
 		
 		function next() {
-			var active = $menu.find('.active').removeClass('active'), 
-					$next = active.next();
+			var active = $menu.find('.active').removeClass('active'), $next = active.next();
 
-			if (!$next.length) {
-				$next = $($menu.find('li')[0]);
-			}
-
+			if (!$next.length) { $next = $($menu.find('li')[0]); }
 			$next.addClass('active');
 		}
 		
 		function prev() {
-			var active = $menu.find('.active').removeClass('active'), 
-					$prev = active.prev();
+			var active = $menu.find('.active').removeClass('active'), $prev = active.prev();
 
-			if (!$prev.length) {
-				$prev = $menu.find('li').last();
-			}
-
+			if (!$prev.length) { $prev = $menu.find('li').last();	}
 			$prev.addClass('active');
 		}
 		
-		function select() {
-			// console.log('debug: select up');
-			var id_old = $element.attr('value'),
-					id = $menu.find('.active').data(o.idField),
-					text = $menu.find('.active').data(o.textField);
-			
-			if (id_old !== id) {
-				$element
-					.attr('value', id)
-					.attr('data-'+o.idField, id)
-					.attr('data-'+o.textField, text)
-					.val(text).trigger('change');
-				$target.val(id).trigger('change');
-				
-				if ((id === 0) && (Object.keys(o.addition).length > 0)) 
-					o.onSelect.call(this, o.addition);
-				else
-					o.onSelect.call(this, rowData[id]);
-			}
-			selected = true;
-			return hide();
-		}
-
-		function scroll(e){
-			// console.log('debug: scroll');
-			$element.focus();
-			e.stopPropagation();
-			e.preventDefault();
-
-			var scrollPercent = (e.currentTarget.scrollTop + $(e.currentTarget).height())/e.currentTarget.scrollHeight*100;
-			if ( scrollPercent > 90) {
-				var target = e.currentTarget, lastTop;
-				
-				if (!loading){
-					if (page < ttl_page){
-						// console.log('debug: loading: true');
-						loading = true;
-						page++;
-						setTimeout(function(){ 
-							var val = $element.val(),
-									term = { q: val, page: page, rows: o.rows };
-							
-							$.each(o.queryParams, function(k, v){
-								term[k] = v;
-							});
-							
-							$.getJSON( o.url, term, function(result){ 
-								var data = result.data;
-								var list = '';
-								ttl_page = Math.ceil(data.total/o.rows);
-								$.each(data.rows, function(k, v) {
-									rowData[v[o.idField]] = v;
-									list += '<li class="'+o.item_cls+'" data-'+o.idField+'="'+ v[o.idField] +'" data-'+o.textField+'="'+ v[o.textField] +'"><a>'+v[o.textField]+'</a></li>';
-								});
-								$menu.append(list);
-								
-								// lastTop = target.scrollTop;
-								// console.log('debug: after loading='+target.scrollTop);
-								loading = false;
-								$element.focus();
-							});
-						}, 100);
-					}
-				} 
-			}
-		}
-		
 		function keyup(e){
+			// console.log('debug: keyup');
 			switch(e.keyCode) {
-				case 40: // down arrow
-					if (!shown) {toggle();}
-					break;
-				case 39: // right arrow
-				case 38: // up arrow
-				case 37: // left arrow
-				case 36: // home
-				case 35: // end
-				case 16: // shift
-				case 17: // ctrl
-				case 18: // alt
-					break;
+			case 40: // down arrow
+				if (!$shown) {toggle();}
+				break;
+			case 39: // right arrow
+			case 38: // up arrow
+			case 37: // left arrow
+			case 36: // home
+			case 35: // end
+			case 16: // shift
+			case 17: // ctrl
+			case 18: // alt
+				break;
 
-				case 9: // tab
-				case 13: // enter
-					if (!shown) {return;}
-					select();
-					break;
+			case 9: // tab
+			case 13: // enter
+				if (!$shown) {return;}
+				select();
+				break;
 
-				case 27: // escape
-					if (!shown) {return;}
-					hide();
-					break;
+			case 27: // escape
+				if (!$shown) {return;}
+				hide();
+				break;
 
-				default:
-					queries();
+			default:
+				queries();
 			}
 
 			e.stopPropagation();
@@ -321,16 +431,18 @@
 		function listen(state){
 			// console.log('debug: listen-'+state);
 			if (state){
+				console.log('debug: listen-'+state);
 				$element
-					.on('focus',    function(){ focused = true; })
+					.on('focus',    function(){ $focused = true; })
 					.on('blur',     blur)
-					//.focusout(blur)
+					.focusout(blur)
+					// .focusout(focusout)
 					.on('keypress', function(e){
-						if (suppressKeyPressRepeat) {return;}
+						if ($suppressKeyPressRepeat) {return;}
 						move(e);
 					})
 					.on('keydown',  function(e){
-						suppressKeyPressRepeat = ~$.inArray(e.keyCode, [40,38,9,13,27]);
+						$suppressKeyPressRepeat = ~$.inArray(e.keyCode, [40,38,9,13,27]);
 						move(e);
 					})
 					.on('keyup',    keyup)
@@ -344,12 +456,12 @@
 						select();
 					})
 					.on('mouseenter', 'li', function(e){
-						mousedover = true;
+						$mousedover = true;
 						$menu.find('.active').removeClass('active');
 						$(e.currentTarget).addClass('active');
 					})
 					.on('mouseleave', function(){ 
-						mousedover = false; 
+						$mousedover = false; 
 					})
 					.scroll( scroll );
 
@@ -367,93 +479,29 @@
 	
 	Shollu_CB.prototype = {
 		constructor: Shollu_CB,
+		/* init: function(){
+			console.log('debug: init');
+			this.init();
+		}, */
 		version: function(){
-			return '1.2.0';
-		},
-		init: function(){
-			// console.log('debug: init');
-			if (!this.$element.data('init-shollu_cb')){
-				this.$element.data('init-shollu_cb', true);
-				this.$element.before(this.$container);
-				this.$target.before(this.$element);
-				this.$target.attr('name', this.$element.attr('name'));
-				this.$element.removeAttr('name')
-				
-				this._listen(true);
-				if (this.$element.attr('disabled')!==undefined) { this.disable(true); }
-				
-				var val = this.$element.val();
-				this.setValue(val);
-			}
+			// console.log('debug: version');
+			return this.version();
 		},
 		destroy: function(){
-			console.log('debug: destroy');
-			if (this.$element.data('init-shollu_cb')){
-				this.$element.data('init-shollu_cb', false);
-				this.$container.before(this.$element);
-				this.$container.remove();
-				this._listen(false);
-			}
+			// console.log('debug: destroy');
+			this.destroy();
 		},
 		disable: function(state){
-			if (state){
-				this.$element.prop('disabled', true);
-				this.$button.attr('disabled', true);
-				this._listen(false);
-				this._disabled(true);
-			} else {
-				this.$element.prop('disabled', false);
-				this.$button.attr('disabled', false);
-				this._listen(true);
-				this._disabled(false);
-			}
+			// console.log('debug: disable');
+			this.disabled(state);
 		},
 		getValue: function(field){
 			// console.log('debug: getValue');
-			var val;
-			field = (field === undefined) ? 'id' : field;
-			
-			/* For anticipate custom additional row */
-			if (this.rowData()[this.$element.attr('value')] === undefined)
-				return;
-			
-			if (this.$element.attr('value'))
-				return ((val = this.rowData()[this.$element.attr('value')][field]) === undefined) ? false : val;
+			return this.getValue();
 		},
 		setValue: function(val){
 			// console.log('debug: setValue');
-			if (this.$element.data('init-shollu_cb')===false){ return; }
-			var o 			 = this.o,
-					$element = this.$element,
-					$target  = this.$target,
-					selected = this._selected;
-					
-			if (!val || val < 0) {
-				$element
-					.attr('value', '')
-					.attr('data-'+o.idField, '')
-					.attr('data-'+o.textField, '')
-					.val('').trigger('change');
-				$target.val('').trigger('change');
-				return;
-			}
-			
-			setTimeout(function(){ 
-				$.getJSON( o.url, {id: val}, function(data){ 
-					var row = data.data.rows[0];
-					if (typeof row !== 'undefined'){
-						var id = row[o.idField],
-								text = row[o.textField];
-						$element
-							.attr('value', id)
-							.attr('data-'+o.idField, id)
-							.attr('data-'+o.textField, text)
-							.val(text).trigger('change');
-						$target.val(id).trigger('change');
-						selected(true);
-					} 
-				});
-			}, 100);
+			this.setValue(val);
 		},
 	}
 	/* 
@@ -468,9 +516,11 @@
 					inst = $this.data('shollu_cb');
 			
 			if (!inst) { return this; }
+			console.log(inst);
 			if ($.inArray(option, ["getValue", "version"]) !== -1) {
 				return inst[option].apply(inst, Array.prototype.slice.call(arguments, 1));
-			}	else {
+			}	else {	
+				/* ["setValue", "disable", "destroy"] */
 				inst[option].apply(inst, Array.prototype.slice.call(arguments, 1));
 				return this;
 			}
@@ -493,20 +543,21 @@
   };
 	
   $.fn.shollu_cb.defaults = {
-    source: function(term, response){},
+    // source: function(term, response){},
 		onSelect: function(rowData){},
     style: 'bs3',
 		menu_type: 'normal', // iscroll (infinite scroll), normal
 		emptyMessage: '<center><b>No results were found</b></center>',
-		colorBack: '#dd4b39',
-		colorText: '#000000',
+		// colorBack: '#dd4b39',
+		// colorText: '#000000',
     page: 1,
     rows: 50,
-    idField: 'id',
-    textField: 'name',
-		queryParams: {},
+    idField: 'value',
+    textField: 'text',
+		// queryParams: {},
 		item_cls: '',
 		addition: {},
+		remote: false,
   };
 	
 }(jQuery));

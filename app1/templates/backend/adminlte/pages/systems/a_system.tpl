@@ -38,11 +38,11 @@
 			{	title:"Date & Time Setup", idname:"tab-dat", content:function(){
 				a = []; col = [];
 				{* a.push(BSHelper.Input({ type:"text", label:"Date Format", idname:"date_format", required: true, placeholder:"d/m/Y" })); *}
-				a.push(BSHelper.Combobox({ label:"Date Format", idname:"date_format", required: true, list:[
-					{ value:"dd/mm/yyyy", title:"dd/mm/yyyy" },
-					{ value:"mm/dd/yyyy", title:"mm/dd/yyyy" },
-					{ value:"dd-mm-yyyy", title:"dd-mm-yyyy" },
-					{ value:"mm-dd-yyyy", title:"mm-dd-yyyy" },
+				a.push(BSHelper.Combobox({ label:"Date Format", idname:"date_format", required: true, rows:[
+					{ value:"dd/mm/yyyy", text:"dd/mm/yyyy" },
+					{ value:"mm/dd/yyyy", text:"mm/dd/yyyy" },
+					{ value:"dd-mm-yyyy", text:"dd-mm-yyyy" },
+					{ value:"mm-dd-yyyy", text:"mm-dd-yyyy" },
 				] }));
 				a.push(BSHelper.Input({ type:"text", label:"Time Format", idname:"time_format", required: true, placeholder:"h:i:s" }));
 				a.push(BSHelper.Input({ type:"text", label:"DateTime Format", idname:"datetime_format", required: true, placeholder:"d/m/Y h:i:s" }));
@@ -85,6 +85,12 @@
 			formContent.xform('load', result.data.rows[0]);  
 	});
 	{* End: Populate data to form *}
+	
+	{* Event *}
+	$("#date_format").shollu_cb({ onSelect:function(rowData){ 
+		console.log("onSelect : "+rowData.value); 
+		console.log($("#date_format").shollu_cb("disable", true));
+	} });
 	
 	{* Form submit action *}
 	formContent.validator().on('submit', function (e) {
