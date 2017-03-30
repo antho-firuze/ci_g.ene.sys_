@@ -2,7 +2,7 @@
 
   "use strict";
 
-  $.fn.xform = function(options) {
+  $.fn.shollu_af = function(options) {
 		var i, field_type, field_name, field_id;
 		
 		if (typeof options == 'string') {

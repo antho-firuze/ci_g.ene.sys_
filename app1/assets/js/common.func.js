@@ -201,17 +201,17 @@ function getURLFull(){
 
 function setSelectList(name, id, clazz, optionList) {
 	if(typeof(id)==='undefined') id = name;
-    var select = $("<select />", {
+	var select = $("<select />", {
 		"id": id,
 		"name": name,
 		"class": clazz
 	});
 
-    $.each(optionList, function(k, v) {
-        select.append($('<option />', {value: k}).html(v));
-    });
+	$.each(optionList, function(k, v) {
+		select.append($('<option />', {value: k}).html(v));
+	});
 
-    return select;
+	return select;
 }
 
 /* Using for bootstrap */

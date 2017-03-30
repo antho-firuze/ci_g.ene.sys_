@@ -229,6 +229,42 @@
 		return container;
 	};
 	
+	/* 
+	*		Sample: 
+	*		BSHelper.Combobox({ horz:false, label:"Role", idname:"role_id", list:{ "1":"One", "2":"Two" } });
+	*		BSHelper.Combobox({ horz:false, label:"Role", idname:"role_id", 
+	*			list:[ 
+	*				{ value:"1", title:"One", default:true },
+	*				{ value:"2", title:"Two" },
+	*			] 
+	*		});
+	*/
+	BSHelper.Combobox = function(options){
+		var o = $.extend( {}, BSHelper.defaults, options );
+		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
+		var placeholder = o.placeholder ? o.placeholder : "typed or choose";
+		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
+		var input = $('<select />', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: placeholder, value: o.value,	autocomplete: "off" }); 
+		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
+
+		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
+		if (o.required) input.attr('required','');
+		if (o.disabled) input.attr('disabled','');
+		if (o.readonly) input.attr('readonly','');
+		container.find('.control-input').append(input).append(help);
+		
+		$.each(o.list, function(i) {
+			var v = o.list[i]['value'];
+			var t = o.list[i]['title']
+			input.append( $('<option />', {value: v}).html(t) );
+		});
+		/* $.each(o.list, function(k, v) {
+			input.append( $('<option />', {value: k}).html(v) );
+		}); */
+		
+		return container;
+	};
+	
 	BSHelper.LineDesc = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
 		

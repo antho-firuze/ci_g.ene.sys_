@@ -37,7 +37,13 @@
 			} },
 			{	title:"Date & Time Setup", idname:"tab-dat", content:function(){
 				a = []; col = [];
-				a.push(BSHelper.Input({ type:"text", label:"Date Format", idname:"date_format", required: true, placeholder:"d/m/Y" }));
+				{* a.push(BSHelper.Input({ type:"text", label:"Date Format", idname:"date_format", required: true, placeholder:"d/m/Y" })); *}
+				a.push(BSHelper.Combobox({ label:"Date Format", idname:"date_format", required: true, list:[
+					{ value:"dd/mm/yyyy", title:"dd/mm/yyyy" },
+					{ value:"mm/dd/yyyy", title:"mm/dd/yyyy" },
+					{ value:"dd-mm-yyyy", title:"dd-mm-yyyy" },
+					{ value:"mm-dd-yyyy", title:"mm-dd-yyyy" },
+				] }));
 				a.push(BSHelper.Input({ type:"text", label:"Time Format", idname:"time_format", required: true, placeholder:"h:i:s" }));
 				a.push(BSHelper.Input({ type:"text", label:"DateTime Format", idname:"datetime_format", required: true, placeholder:"d/m/Y h:i:s" }));
 				a.push(BSHelper.Input({ type:"text", label:"User Photo Path", idname:"user_photo_path", required: true, placeholder:"string(200)" }));
