@@ -125,6 +125,7 @@
 			pricelist_id = rowData.pricelist_id;
 			pricelist_version_id = rowData.id;
 			filter_material();
+			{* $("#pricelist_version").combogrid('disabled', true); *}
 		}
 	});	
 	$("#swg_size_id").combogrid({ addition: { "id":0, "name":"Non Standard" },

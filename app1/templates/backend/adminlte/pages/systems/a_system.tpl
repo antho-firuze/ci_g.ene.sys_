@@ -88,8 +88,10 @@
 	
 	{* Event *}
 	$("#date_format").shollu_cb({ onSelect:function(rowData){ 
-		console.log("onSelect : "+rowData.value); 
-		console.log($("#date_format").shollu_cb("disable", true));
+		{* console.log("onSelect : "+rowData.value);  *}
+		{* console.log($("#date_format").shollu_cb("disable", true)); *}
+		$("#date_format").shollu_cb("disable", true);
+		{* console.log($("#date_format").shollu_cb("version")); *}
 	} });
 	
 	{* Form submit action *}

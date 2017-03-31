@@ -7,7 +7,7 @@
 			$element     = $(elem),
 			$container   = $(template()),
 			$target      = $container.find('input[type=hidden]'),
-			$button      = $container.find('.dropdown-toggle'),
+			$button      = $container.find('.shollu_cb.dropdown-toggle'),
 			$menu  		   = $(template_result()).appendTo('body'),
 			$disable    = false,
 			disablz    = false,
@@ -68,7 +68,7 @@
 						'<div class="input-group">'+
 							'<input type="hidden" />'+
 							'<div class="input-group-btn">'+
-								'<span class="btn btn-default dropdown-toggle" data-dropdown="dropdown">'+
+								'<span class="btn btn-default shollu_cb dropdown-toggle" data-dropdown="dropdown">'+
 								'<span class="caret" /></span>'+
 							'</div>'+
 						'</div>'+
@@ -80,11 +80,10 @@
 		}
 		
 		function disabled(state){
+			// console.log('disabled:'+state);
 			$element.prop('disabled', state);
 			$button.attr('disabled', state);
-			// console.log($button);
-			// if (state) $button.addClass('disabled'); else $button.removeClass('disabled');
-			// $button.attr('onclick', state?'return false;':'');
+			if (state) $button.addClass('disabled'); else $button.removeClass('disabled');
 			$disable = state;
 			listen(state?false:true);
 		}
@@ -143,7 +142,8 @@
 		}
 		
 		function toggle(){
-			console.log('debug: toggle - '+$disable);
+			// console.log('toggle:'+$disable);
+			$disable = ($element.attr('disabled') === undefined) ? false : true;
 			if (!$disable){
 				if ($shown){
 					hide();
@@ -249,7 +249,7 @@
 			
 			
 			if (id_old !== id) {
-				console.log('id_old:'+id_old+' id:'+id+' text:'+text);
+				// console.log('id_old:'+id_old+' id:'+id+' text:'+text);
 				// console.log($rowData[id]);
 				$element
 					.attr('value', id)
@@ -429,9 +429,9 @@
 		}
 		
 		function listen(state){
-			// console.log('debug: listen-'+state);
+			// console.log('listen-'+state);
 			if (state){
-				console.log('debug: listen-'+state);
+				// console.log('listen:'+state);
 				$element
 					.on('focus',    function(){ $focused = true; })
 					.on('blur',     blur)
@@ -516,14 +516,17 @@
 					inst = $this.data('shollu_cb');
 			
 			if (!inst) { return this; }
-			console.log(inst);
-			if ($.inArray(option, ["getValue", "version"]) !== -1) {
+			if ($.inArray(option, ["getValue", "version", "setValue", "disable", "destroy"]) !== -1) {
+				return inst[option].apply(inst, Array.prototype.slice.call(arguments, 1));
+			}
+			// console.log(inst);
+			/* if ($.inArray(option, ["getValue", "version"]) !== -1) {
 				return inst[option].apply(inst, Array.prototype.slice.call(arguments, 1));
 			}	else {	
-				/* ["setValue", "disable", "destroy"] */
+				// ["setValue", "disable", "destroy"]
 				inst[option].apply(inst, Array.prototype.slice.call(arguments, 1));
 				return this;
-			}
+			} */
 		}
 		
 		return this.each(function() {
