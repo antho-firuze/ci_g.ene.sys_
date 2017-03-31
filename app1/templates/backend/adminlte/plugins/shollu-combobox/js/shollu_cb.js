@@ -9,11 +9,8 @@
 			$target      = $container.find('input[type=hidden]'),
 			$button      = $container.find('.shollu_cb.dropdown-toggle'),
 			$menu  		   = $(template_result()).appendTo('body'),
-			$disable    = false,
-			disablz    = false,
-			$shown        = false,
-			$focused      = false,
-			$selected     = false,
+			focused      = false,
+			selected     = false,
 			$mousedover   = false,
 			$suppressKeyPressRepeat = {},
 			$loading			 = false,
@@ -38,11 +35,8 @@
 				$target.attr('name', $element.attr('name'));
 				$element.removeAttr('name')
 				
-				$disable = ($element.attr('disabled') === undefined) ? false : true;
-				disabled($disable); 
-				
-				// var val = $element.val();
-				// setValue(val);
+				o.disable = ($element.attr('disabled') === undefined) ? false : true;
+				disabled(o.disable); 
 			}
 		}
 		
@@ -84,7 +78,7 @@
 			$element.prop('disabled', state);
 			$button.attr('disabled', state);
 			if (state) $button.addClass('disabled'); else $button.removeClass('disabled');
-			$disable = state;
+			o.disable = state;
 			listen(state?false:true);
 		}
 		
@@ -96,7 +90,7 @@
 				.css({top: pos.top + pos.height, left: pos.left})
 				.show();
 			
-			$shown = true;
+			o.shown = true;
 		}
 		
 		function hide(){
@@ -104,21 +98,16 @@
 			$menu.hide();
 			$('.dropdown-menu').off('mousedown', function(e){
 				if (e.target.tagName == 'UL') {
-					// $element.off('blur');
+					$element.off('blur');
 				}
 			});
-			$shown = false;
+			o.shown = false;
 			return;
 		}
 
-		/* function focusout(){
-			console.log('debug: focusout');
-			console.log($element.val());
-		} */
-		
 		function blur(){
 			// console.log('debug: blur');
-			$focused = false;
+			focused = false;
 			select();
 			/* var val = $element.val(), 
 					_old = $element.attr('value'), 
@@ -131,21 +120,22 @@
 					.attr('data-'+o.textField, '')
 					.val('').trigger('change');
 				$target.val('').trigger('change');
-				$selected = false;
+				selected = false;
 				
 				if (_old != _new) {	
 					if (_new)	
 						o.onSelect.call(this, {}); 
 				}
 			} */
-			if (!$mousedover && $shown) { setTimeout(function(){ hide(); o.page = 1; }, 200); }
+			if (!$mousedover && o.shown) { setTimeout(function(){ hide(); o.page = 1; }, 200); }
 		}
 		
 		function toggle(){
-			// console.log('toggle:'+$disable);
-			$disable = ($element.attr('disabled') === undefined) ? false : true;
-			if (!$disable){
-				if ($shown){
+			// console.log('toggle:'+o.disable);
+			// o.disable = ($element.attr('disabled') === undefined) ? false : true;
+			if (shown) hide();
+			if (!o.disable){
+				if (o.shown){
 					hide();
 					$element.focus();
 				} else {
@@ -193,7 +183,6 @@
 				$rowData[v] = o.addition;
 			}
 			
-			
 			if (o.remote) {
 				rows = data.rows;
 				$tot_page = Math.ceil(data.total/o.rows);
@@ -212,6 +201,8 @@
 				$menu.append('<span style="color:#999;">'+o.emptyMessage+'</span>');
 			}
 			
+			/* insert to object o, for permanent storage & can be accessed on other function */
+			o.rowData = $rowData;
 			show();
 			$element.focus();
 		}
@@ -222,8 +213,8 @@
 			/* var text_new = $element.val();
 			if (text_new){
 				$.each($rowData, function(i){
-					var id = $rowData[i][o.idField];
-					var text = $rowData[i][o.textField];
+					var id = o.rowData[i][o.idField];
+					var text = o.rowData[i][o.textField];
 					
 					console.log(text+'=='+text_new);
 					
@@ -235,7 +226,7 @@
 							.attr('data-'+o.textField, text)
 							.val(text);
 						$target.val(id);
-						o.onSelect.call(this, $rowData[i]);
+						o.onSelect.call(this, o.rowData[i]);
 						return;
 					}
 				});
@@ -247,21 +238,18 @@
 					id = $menu.find('.active').data(o.idField),
 					text = $menu.find('.active').data(o.textField);
 			
+			if (id === undefined) { return hide(); }
 			
 			if (id_old !== id) {
-				// console.log('id_old:'+id_old+' id:'+id+' text:'+text);
-				// console.log($rowData[id]);
 				$element
 					.attr('value', id)
 					.attr('data-'+o.idField, id)
 					.attr('data-'+o.textField, text)
 					.val(text).trigger('change');
-					// .val(text);
 				$target.val(id).trigger('change');
-				// $target.val(id);
-				o.onSelect.call(this, $rowData[id]);
+				o.onSelect.call(this, o.rowData[id]);
 			}
-			$selected = true;
+			selected = true;
 			return hide();
 		}
 
@@ -295,7 +283,7 @@
 								.attr('data-'+o.textField, text)
 								.val(text).trigger('change');
 							$target.val(id).trigger('change');
-							$selected = true;
+							selected = true;
 						} 
 					});
 				}, 100);
@@ -354,7 +342,7 @@
 		}
 		
 		function move(e){
-			if (!$shown) {return;}
+			if (!o.shown) {return;}
 
 			switch(e.keyCode) {
 			case 9: // tab
@@ -397,7 +385,7 @@
 			// console.log('debug: keyup');
 			switch(e.keyCode) {
 			case 40: // down arrow
-				if (!$shown) {toggle();}
+				if (!o.shown) {toggle();}
 				break;
 			case 39: // right arrow
 			case 38: // up arrow
@@ -411,12 +399,12 @@
 
 			case 9: // tab
 			case 13: // enter
-				if (!$shown) {return;}
+				if (!o.shown) {return;}
 				select();
 				break;
 
 			case 27: // escape
-				if (!$shown) {return;}
+				if (!o.shown) {return;}
 				hide();
 				break;
 
@@ -433,7 +421,7 @@
 			if (state){
 				// console.log('listen:'+state);
 				$element
-					.on('focus',    function(){ $focused = true; })
+					.on('focus',    function(){ focused = true; })
 					.on('blur',     blur)
 					.focusout(blur)
 					// .focusout(focusout)

@@ -218,14 +218,14 @@
 		if (o.readonly) input.attr('readonly','');
 		container.find('.control-input').append(input).append(help);
 		
-		if (o.isLoad){
-			input.combogrid({ 
-				url: o.url,
-				idField: o.idField ? o.idField : 'id',
-				textField: o.textField ? o.textField : 'name',
-				emptyMessage: o.emptyMessage ? o.emptyMessage : '<center><b>No results were found</b></center>',
-			});
-		}
+		input.shollu_cg({ 
+			url: o.url,
+			idField: o.idField ? o.idField : 'id',
+			textField: o.textField ? o.textField : 'name',
+			emptyMessage: o.emptyMessage ? o.emptyMessage : '<center><b>No results were found</b></center>',
+			remote: o.remote,
+		});
+		
 		return container;
 	};
 	

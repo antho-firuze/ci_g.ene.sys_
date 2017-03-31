@@ -83,9 +83,14 @@ class Test extends CI_Controller {
 		echo $sess->user_id;
 	}
 	
-	function jQueryPlugins() 
+	function shollu_cg() 
 	{
-		$this->fenomx->view('test/combogrid');
+		$this->fenomx->view('test/shollu_cg');
+	}
+	
+	function shollu_cb() 
+	{
+		$this->fenomx->view('test/shollu_cb');
 	}
 	
 	function avatar($word)

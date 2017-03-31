@@ -1417,8 +1417,11 @@ class Systems extends Getmeb
 			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
+			// $this->params['where']['t1.province_id'] = isset($this->params['province_id']) ? $this->params['province_id'] : 0;
 			if (key_exists('province_id', $this->params) && !empty($this->params['province_id'])) 
 				$this->params['where']['t1.province_id'] = $this->params['province_id'];
+			else
+				$this->params['where']['t1.province_id'] = 0;
 			
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
@@ -1473,6 +1476,8 @@ class Systems extends Getmeb
 			
 			if (key_exists('city_id', $this->params) && !empty($this->params['city_id'])) 
 				$this->params['where']['t1.city_id'] = $this->params['city_id'];
+			else
+				$this->params['where']['t1.city_id'] = 0;
 			
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
@@ -1527,6 +1532,8 @@ class Systems extends Getmeb
 			
 			if (key_exists('district_id', $this->params) && !empty($this->params['district_id'])) 
 				$this->params['where']['t1.district_id'] = $this->params['district_id'];
+			else
+				$this->params['where']['t1.district_id'] = 0;
 			
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
