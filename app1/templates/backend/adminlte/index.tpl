@@ -26,7 +26,6 @@
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/iCheck/flat/blue.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/iCheck/flat/orange.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-dialog/css/bootstrap-dialog.min.css')}
-{$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-combogrid/css/bootstrap-combogrid-grey.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/shollu-combobox/css/shollu_cb-grey.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/animate/animate.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/lobibox/css/lobibox.min.css')}
@@ -49,8 +48,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/pace/pace.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}bootstrap/js/bootstrap.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-dialog/js/bootstrap-dialog.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-combogrid/js/bootstrap-combogrid.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/iCheck/icheck.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/datatables/media/js/jquery.dataTables.min.js"></script>

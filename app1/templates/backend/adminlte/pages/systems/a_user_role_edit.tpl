@@ -50,7 +50,7 @@
 	
 	{* standard fields table *}
 	col.append(BSHelper.Input({ type:"hidden", idname:"id" }));
-	col.append(BSHelper.Combogrid({ horz:false, label:"Role", idname:"role_id", url:"{$.php.base_url('systems/a_role')}", isLoad:true, placeholder:"typed or choose" }));
+	col.append(BSHelper.Combobox({ horz:false, label:"Role", idname:"role_id", url:"{$.php.base_url('systems/a_role')}", remote: true }));
 	col.append(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	formContent.append(subRow(col));
 	formContent.append(subRow(subCol()));

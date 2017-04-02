@@ -1,89 +1,137 @@
-(function($) {
+;(function($, window, document, undefined) {
 
   "use strict";
 	
-  function Shollu_CB( elem, options ) {
-		var o = options,
-			$element     = $(elem),
-			$container   = $(template()),
-			$target      = $container.find('input[type=hidden]'),
-			$button      = $container.find('.shollu_cb.dropdown-toggle'),
-			$menu  		   = $(template_result()).appendTo('body'),
-			focused      = false,
-			selected     = false,
-			$mousedover   = false,
-			$suppressKeyPressRepeat = {},
-			$loading			 = false,
-			$rowData			 = {},
-			$tot_page		 = 0;
+	var PLUGIN_NAME = 'shollu_cb',
+      PLUGIN_VERSION = '1.0.1',
+      PLUGIN_OPTIONS = {
+				source: function(term, response){},
+				onSelect: function(rowData){},
+				onChange: function(rowData){},
+				style: 'bs3',
+				menu_type: 'normal', // iscroll (infinite scroll), normal
+				emptyMessage: '<center><b>No results were found</b></center>',
+				page: 1,
+				rows: 50,
+				idField: 'id',
+				textField: 'name',
+				queryParams: {},
+				item_cls: '',
+				addition: {},
+				list: {},
+				remote: false,
+      };	
+			
+  var Shollu_CB = function ( elem, options ) {
+		/* Private variables */
+		var o = options;
+				o.guid	= newGuid();
+
+		var 
+		$element     = $(elem),
+		$container   = template(),
+		$target      = $container.find('input[type=hidden]'),
+		$button      = $container.find('span.shollu_cb.dropdown-toggle'),
+		$menu  		   = template_result(),
+		focused      = false,
+		mousedover   = false,
+		suppressKeyPressRepeat = {},
+		loading			= false,
+		rowData			= {},
+		tot_page		 	= 1;
 		
+		//Expose public methods
+		this.name 		= PLUGIN_NAME;
+		this.version 	= PLUGIN_VERSION + ' ('+o.guid+')';
 		this.o				= o;
 		this.destroy 	= function(){ destroy(); };
-		this.version 	= function(){ return version(); };
 		this.getValue = function(field){ return getValue(field); };
 		this.setValue = function(val){ setValue(val); };
-		this.disabled = function(state){ disabled(state); };
+		this.disable = function(state){ disabled(state); };
+		this.init  		= function(){ init(); };
 		
 		init();
 		
+		function newGuid(){
+			return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+				var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+				return v.toString(16);
+			});
+    };
+
+		function template(){
+			if (o.style == 'bs3')
+				return $('<div id="'+o.guid+'" class="shollu_cb-container">'+
+						'<div class="input-group">'+
+							'<input type="hidden">'+
+							'<div class="input-group-btn">'+
+								'<span data-guid="'+o.guid+'" class="btn btn-default shollu_cb dropdown-toggle" data-dropdown="dropdown">'+
+								'<span class="caret" /></span>'+
+							'</div>'+
+						'</div>'+
+					'</div>');
+		}
+		
+		function template_result(){
+			return $('<ul class="typeahead-long shollu_cb dropdown-menu dropdown-menu-right" />');
+		}
+			
 		function init(){
 			// console.log('debug: init');
 			if (!$element.data('init-shollu_cb')){
 				$element.data('init-shollu_cb', true);
 				$element.before($container);
 				$target.before($element);
+				
 				$target.attr('name', $element.attr('name'));
 				$element.removeAttr('name')
 				
-				o.disable = ($element.attr('disabled') === undefined) ? false : true;
+				o.disable = ($element.attr('disabled') === undefined) ? false : ($element.attr('disabled')) ? true : false;
 				disabled(o.disable); 
+				
+				if (!o.remote) {
+					if (Object.keys(o.list).length > 0) {
+						$.each(o.list, function(i) {
+							var v = o.list[i][o.idField];
+							var t = o.list[i][o.textField];
+							rowData[v] = o.list[i]; /* 1:{value:1, text:"One"}, 2:{value:2, text:"Two"} */
+						});
+						o.rowData = rowData;
+					}
+				}
+				
+				var val = $element.val();
+				setValue(val);
 			}
+			return this;
 		}
 		
 		function destroy(){
 			// console.log('debug: destroy');
 			if ($element.data('init-shollu_cb')){
 				$element.data('init-shollu_cb', false);
-				$container.before($element);
+				$element.insertBefore($container);
+				$element.attr('name', $target.attr('name'));
+				$element.val($target.val());
 				$container.remove();
+				
 				listen(false);
 			}
-		}
-		
-		function version(){
-			// console.log('debug: version');
-			return '1.0.0';
-		}
-		
-		function template(){
-			if (o.style == 'bs3')
-				return ''+
-					'<div class="shollu_cb-container">'+
-						'<div class="input-group">'+
-							'<input type="hidden" />'+
-							'<div class="input-group-btn">'+
-								'<span class="btn btn-default shollu_cb dropdown-toggle" data-dropdown="dropdown">'+
-								'<span class="caret" /></span>'+
-							'</div>'+
-						'</div>'+
-					'</div>';
-		}
-		
-		function template_result(){
-			return '<ul class="typeahead-long dropdown-menu dropdown-menu-right"></ul>';
 		}
 		
 		function disabled(state){
 			// console.log('disabled:'+state);
 			$element.prop('disabled', state);
 			$button.attr('disabled', state);
-			if (state) $button.addClass('disabled'); else $button.removeClass('disabled');
+			// $container.find('span.shollu_cb.dropdown-toggle').each(function(){
+				// $(this).attr('disabled', state);
+			// });
 			o.disable = state;
-			listen(state?false:true);
+			listen(state ? false : true);
 		}
 		
 		function show(){
-			var pos = $.extend({}, $element.position(), {	height: $element[0].offsetHeight });
+			var pos = $.extend({}, $element.position(), {height: $element[0].offsetHeight});
 
 			$menu
 				.insertAfter($element)
@@ -98,7 +146,7 @@
 			$menu.hide();
 			$('.dropdown-menu').off('mousedown', function(e){
 				if (e.target.tagName == 'UL') {
-					$element.off('blur');
+					// $element.off('blur');
 				}
 			});
 			o.shown = false;
@@ -106,34 +154,16 @@
 		}
 
 		function blur(){
-			// console.log('debug: blur');
 			focused = false;
+			if (o.escape) {return;}
 			select();
-			/* var val = $element.val(), 
-					_old = $element.attr('value'), 
-					_new = $element.val();
-			
-			if ( (!$selected && val == '') || ($selected && val == '') ) {
-				$element
-					.attr('value', '')
-					.attr('data-'+o.idField, '')
-					.attr('data-'+o.textField, '')
-					.val('').trigger('change');
-				$target.val('').trigger('change');
-				selected = false;
-				
-				if (_old != _new) {	
-					if (_new)	
-						o.onSelect.call(this, {}); 
-				}
-			} */
-			if (!$mousedover && o.shown) { setTimeout(function(){ hide(); o.page = 1; }, 200); }
+			if (!o.selected) {select();}
+			if (!mousedover && o.shown) {setTimeout(function () { hide(); o.page = 1; }, 200);}
 		}
 		
 		function toggle(){
-			// console.log('toggle:'+o.disable);
-			// o.disable = ($element.attr('disabled') === undefined) ? false : true;
-			if (shown) hide();
+			// console.log('debug: toggle');
+			if (o.shown) hide();
 			if (!o.disable){
 				if (o.shown){
 					hide();
@@ -146,183 +176,116 @@
 		
 		function queries(){
 			// console.log('debug: queries');
+			var id = $element.attr('data-'+o.idField);
+			var name = $element.attr('data-'+o.textField);
+			var text = $element.val();
+			
+			if (text != name){ 
+				$element
+					.attr('value', '')
+					.attr('data-'+o.idField, '')
+					.attr('data-'+o.textField, '');
+				$target.val('').trigger('change');
+				o.onChange.call(this, {});
+				id = '';
+			}
+			
 			if (o.remote){
-				var val = $element.val();
-				var params = {q:val, page:o.page, rows:o.rows};
-				
-				$.each(o.queryParams, function(k, v){	params[k] = v; });
+				var term = { page:o.page, rows:o.rows };
+				if (id) { term[o.idField] = id; }
+				if (text) { term['q'] = text; }
+				$.each(o.queryParams, function(k, v){ term[k] = v; });
 				setTimeout(function(){ 
-					$.getJSON( o.url, params, function(result){ 
+					$.getJSON( o.url, term, function(result){ 
 						var data = result.data;
 						if (Object.keys(data).length > 0){ lookup(data) } 
 					});
 				}, 100);
 			} else {
-				lookup(o.rows);
+				lookup(o.list);
 			}
 		}
-		
-		/* 
-		* remote
-		*	data = {total:3, rows:[{value:1, text:"One"},{value:2, text:"Two"}{value:3, text:"Three"}]} 
-		*
-		*	local
-		* data = [{value:1, text:"One"},{value:2, text:"Two"}{value:3, text:"Three"}]
-		*/
-		function lookup(data){
-			var list = [];
-			var rows = data;
-			
-			if (o.page == 1)
-				$menu.html('');
-			
-			if (Object.keys(o.addition).length > 0){
-				var v = o.addition[o.idField];
-				var t = o.addition[o.textField];
-				list.push($('<li class="'+o.item_cls+'" data-'+o.idField+'="'+v+'" data-'+o.textField+'="'+t+'"><a>'+t+'</a></li>'));
-				$rowData[v] = o.addition;
-			}
-			
-			if (o.remote) {
-				rows = data.rows;
-				$tot_page = Math.ceil(data.total/o.rows);
-			} 
-			
-			if (Object.keys(rows).length > 0) {
-				$.each(rows, function(i) {
-					var v = rows[i][o.idField];
-					var t = rows[i][o.textField];
-					list.push( $('<li class="'+o.item_cls+'" data-'+o.idField+'="'+v+'" data-'+o.textField+'="'+t+'"><a>'+t+'</a></li>') );
-					$rowData[v] = rows[i]; /* 1:{value:1, text:"One"}, 2:{value:2, text:"Two"} */
-				});
-				$menu.append(list);
-				// $menu.find('li').first().addClass('active');
-			} else {
-				$menu.append('<span style="color:#999;">'+o.emptyMessage+'</span>');
-			}
-			
-			/* insert to object o, for permanent storage & can be accessed on other function */
-			o.rowData = $rowData;
-			show();
-			$element.focus();
-		}
-		
-		function select(){
+	
+		function select() {
 			// console.log('debug: select up');
-			/* Searching by text */
-			/* var text_new = $element.val();
-			if (text_new){
-				$.each($rowData, function(i){
-					var id = o.rowData[i][o.idField];
-					var text = o.rowData[i][o.textField];
-					
-					console.log(text+'=='+text_new);
-					
-					if (text == text_new){
-						console.log('sameee');
-						$element
-							.attr('value', id)
-							.attr('data-'+o.idField, id)
-							.attr('data-'+o.textField, text)
-							.val(text);
-						$target.val(id);
-						o.onSelect.call(this, o.rowData[i]);
-						return;
-					}
-				});
-				
-			} */
+			var id = $element.attr('data-'+o.idField);
+			var name = $element.attr('data-'+o.textField);
+			var text = $element.val();
 			
-			/* Searching by id */
-			var id_old = $element.attr('value'),
-					id = $menu.find('.active').data(o.idField),
-					text = $menu.find('.active').data(o.textField);
-			
-			if (id === undefined) { return hide(); }
-			
-			if (id_old !== id) {
-				$element
-					.attr('value', id)
-					.attr('data-'+o.idField, id)
-					.attr('data-'+o.textField, text)
-					.val(text).trigger('change');
-				$target.val(id).trigger('change');
-				o.onSelect.call(this, o.rowData[id]);
-			}
-			selected = true;
-			return hide();
-		}
-
-		function getValue(field){
-			return 'test';
-		}
-		
-		function setValue(val){
-			if ($element.data('init-shollu_cb')===false){ return; }
-					
-			if (!val || val < 0) {
+			if (text != name){ 
 				$element
 					.attr('value', '')
 					.attr('data-'+o.idField, '')
 					.attr('data-'+o.textField, '')
 					.val('').trigger('change');
 				$target.val('').trigger('change');
-				return;
+				o.onSelect.call(this, {});
+			}
+
+			var id_old = $element.attr('value'),
+					id_new = $menu.find('.active').data(o.idField),
+					name_new = $menu.find('.active').data(o.textField);
+			
+			if (id_new === undefined) { return hide(); }
+			
+			if (id_new !== id_old) {
+				$element
+					.attr('value', id_new)
+					.attr('data-'+o.idField, id_new)
+					.attr('data-'+o.textField, name_new)
+					.val(name_new).trigger('change');
+				$target.val(id_new).trigger('change');
+				o.onSelect.call(this, o.rowData[id_new]);
+			}
+			o.selected = true;
+			return hide();
+		}
+
+		/* format data = {total:999, rows:{field1:value1, field2:value2}} */
+		function lookup(data){
+			var list = [];
+			var rows = data;
+			var id = $element.attr('data-'+o.idField);
+			
+			if (o.page == 1)
+				$menu.empty();
+			
+			// console.log('addition:'+Object.keys(o.addition).length);
+			if (Object.keys(o.addition).length > 0){
+				var v = o.addition[o.idField];
+				var t = o.addition[o.textField];
+				var cls = (o.item_cls) ? 'class="'+o.item_cls+'" ' : '';
+				list.push($('<li '+cls+'data-'+o.idField+'="'+v+'" data-'+o.textField+'="'+t+'"><a>'+t+'</a></li>'));
+				rowData[v] = o.addition;
 			}
 			
 			if (o.remote) {
-				setTimeout(function(){ 
-					$.getJSON( o.url, {id: val}, function(data){ 
-						var row = data.data.rows[0];
-						if (typeof row !== 'undefined'){
-							var id = row[o.idField],
-									text = row[o.textField];
-							$element
-								.attr('value', id)
-								.attr('data-'+o.idField, id)
-								.attr('data-'+o.textField, text)
-								.val(text).trigger('change');
-							$target.val(id).trigger('change');
-							selected = true;
-						} 
-					});
-				}, 100);
-			} else {
-				
-			}
-		}
-		
-		function scroll(e){
-			// console.log('debug: scroll');
-			$element.focus();
-			e.stopPropagation();
-			e.preventDefault();
-
-			var ct = e.currentTarget;
-			var scrollPercent = (ct.scrollTop + $(ct).height())/ct.scrollHeight*100;
-			if ( scrollPercent > 90) {
-				if (!$loading){
-					if (o.page < $tot_page){
-						// console.log('debug: $loading: true');
-						$loading = true;
-						o.page++;
-						
-						if (o.remote) {
-							var val = $element.val();
-							var params = {q:val, page:o.page, rows:o.rows};
-						
-							$.each(o.queryParams, function(k, v){ params[k] = v; });
-							setTimeout(function(){ 
-								$.getJSON( o.url, params, function(result){ 
-									var data = result.data;
-									if (Object.keys(data).length > 0){ lookup(data) } 
-									$loading = false;
-								});
-							}, 100);
-						}
+				rows = data.rows;
+				tot_page = Math.ceil(data.total/o.rows);
+			} 
+			
+			if (Object.keys(rows).length > 0) {
+				$.each(rows, function(i) {
+					var v = rows[i][o.idField];
+					var t = rows[i][o.textField];
+					var cls = (o.item_cls) ? 'class="'+o.item_cls+'" ' : '';
+					
+					if (id && (id == v)){
+						var active = 'active ';
+						cls = cls ? cls+active : 'class="'+active+'"';
 					}
-				} 
+					list.push( $('<li '+cls+'data-'+o.idField+'="'+v+'" data-'+o.textField+'="'+t+'"><a>'+t+'</a></li>') );
+					rowData[v] = rows[i]; /* 1:{value:1, text:"One"}, 2:{value:2, text:"Two"} */
+				});
+				$menu.append(list);
+			} else {
+				$menu.append('<span style="color:#999;">'+o.emptyMessage+'</span>');
 			}
+			
+			/* insert to object o, for permanent storage & can be accessed on other function */
+			o.rowData = rowData;
+			show();
+			$element.focus();
 		}
 		
 		function fixMenuScroll(){
@@ -341,75 +304,181 @@
 			}
 		}
 		
+		function getValue(field){
+			// console.log('debug: getValue');
+			var val;
+			field = (field === undefined) ? o.idField : field;
+			
+			/* For anticipate custom additional row */
+			val = $element.attr('value')===undefined ? '' : $element.attr('value')=='' ? '' : $element.attr('value');
+			if (!val)
+				return;
+			
+			if ($element.attr('value'))
+				return ((val = o.rowData[$element.attr('value')][field]) === undefined) ? false : val;
+		}
+		
+		function setValue(val){
+			if ($element.data('init-shollu_cb')===false){ return; }
+					
+			if (!val || val < 0) {
+				$element
+					.attr('value', '')
+					.attr('data-'+o.idField, '')
+					.attr('data-'+o.textField, '')
+					.val('').trigger('change');
+				$target.val('').trigger('change');
+				o.onChange.call(this, {});
+				return;
+			}
+			
+			if (o.remote) {
+				setTimeout(function(){ 
+					$.getJSON( o.url, {id: val}, function(data){ 
+						var row = data.data.rows[0];
+						if (typeof row !== 'undefined'){
+							var id = row[o.idField],
+									text = row[o.textField];
+							$element
+								.attr('value', id)
+								.attr('data-'+o.idField, id)
+								.attr('data-'+o.textField, text)
+								.val(text).trigger('change');
+							$target.val(id).trigger('change');
+							o.selected = true;
+							rowData[id] = row;
+							o.rowData = rowData;
+							o.onChange.call(this, o.rowData[id]);
+						} 
+					});
+				}, 100);
+			} else {
+				if (Object.keys(o.list).length > 0) {
+					if (o.rowData[val] !== undefined) {
+						var id = o.rowData[val][o.idField];
+						var text = o.rowData[val][o.textField];
+						$element
+							.attr('value', id)
+							.attr('data-'+o.idField, id)
+							.attr('data-'+o.textField, text)
+							.val(text).trigger('change');
+						$target.val(id).trigger('change');
+						o.selected = true;
+						o.onChange.call(this, o.rowData[id]);
+					}
+				}
+			}
+		}
+		
+		function scroll(e){
+			// console.log('debug: scroll');
+			$element.focus();
+			e.stopPropagation();
+			e.preventDefault();
+
+			var scrollPercent = (e.currentTarget.scrollTop + $(e.currentTarget).height())/e.currentTarget.scrollHeight*100;
+			if ( scrollPercent > 90) {
+				if (!loading){
+					if (o.page < tot_page){
+						// console.log('debug: loading: true');
+						loading = true;
+						o.page++;
+						
+						if (o.remote) {
+							var val = $element.val();
+							var params = {q:val, page:o.page, rows:o.rows};
+						
+							$.each(o.queryParams, function(k, v){ params[k] = v; });
+							setTimeout(function(){ 
+								$.getJSON( o.url, params, function(result){ 
+									var data = result.data;
+									if (Object.keys(data).length > 0){ lookup(data) } 
+									loading = false;
+								});
+							}, 100);
+						}
+					}
+				} 
+			}
+		}
+		
+		function next() {
+			var active = $menu.find('.active').removeClass('active'), 
+					$next = active.next();
+
+			if (!$next.length) {
+				$next = $($menu.find('li')[0]);
+			}
+
+			$next.addClass('active');
+		}
+		
+		function prev() {
+			var active = $menu.find('.active').removeClass('active'), 
+					$prev = active.prev();
+
+			if (!$prev.length) {
+				$prev = $menu.find('li').last();
+			}
+
+			$prev.addClass('active');
+		}
+		
 		function move(e){
 			if (!o.shown) {return;}
 
 			switch(e.keyCode) {
-			case 9: // tab
-			case 13: // enter
-			case 27: // escape
-				e.preventDefault();
-				break;
+				case 9: // tab
+				case 13: // enter
+				case 27: // escape
+					e.preventDefault();
+					break;
 
-			case 38: // up arrow
-				e.preventDefault();
-				prev();
-				fixMenuScroll();
-				break;
+				case 38: // up arrow
+					e.preventDefault();
+					prev();
+					fixMenuScroll();
+					break;
 
-			case 40: // down arrow
-				e.preventDefault();
-				next();
-				fixMenuScroll();
-				break;
+				case 40: // down arrow
+					e.preventDefault();
+					next();
+					fixMenuScroll();
+					break;
 			}
 
 			e.stopPropagation();
 		}
 		
-		function next() {
-			var active = $menu.find('.active').removeClass('active'), $next = active.next();
-
-			if (!$next.length) { $next = $($menu.find('li')[0]); }
-			$next.addClass('active');
-		}
-		
-		function prev() {
-			var active = $menu.find('.active').removeClass('active'), $prev = active.prev();
-
-			if (!$prev.length) { $prev = $menu.find('li').last();	}
-			$prev.addClass('active');
-		}
-		
 		function keyup(e){
-			// console.log('debug: keyup');
 			switch(e.keyCode) {
-			case 40: // down arrow
-				if (!o.shown) {toggle();}
-				break;
-			case 39: // right arrow
-			case 38: // up arrow
-			case 37: // left arrow
-			case 36: // home
-			case 35: // end
-			case 16: // shift
-			case 17: // ctrl
-			case 18: // alt
-				break;
+				case 40: // down arrow
+					if (!o.shown) {toggle();}
+					break;
+				case 39: // right arrow
+				case 38: // up arrow
+				case 37: // left arrow
+				case 36: // home
+				case 35: // end
+				case 16: // shift
+				case 17: // ctrl
+				case 18: // alt
+					break;
 
-			case 9: // tab
-			case 13: // enter
-				if (!o.shown) {return;}
-				select();
-				break;
+				case 9: // tab
+				case 13: // enter
+					if (!o.shown) {return;}
+					select();
+					break;
 
-			case 27: // escape
-				if (!o.shown) {return;}
-				hide();
-				break;
+				case 27: // escape
+					if (!o.shown) {return;}
+					o.escape = true;
+					hide();
+					break;
 
-			default:
-				queries();
+				default:
+					queries();
 			}
 
 			e.stopPropagation();
@@ -417,20 +486,18 @@
 		}
 		
 		function listen(state){
-			// console.log('listen-'+state);
+			// console.log('debug: listen-'+state);
 			if (state){
-				// console.log('listen:'+state);
 				$element
 					.on('focus',    function(){ focused = true; })
 					.on('blur',     blur)
-					.focusout(blur)
-					// .focusout(focusout)
+					// .focusout(blur)
 					.on('keypress', function(e){
-						if ($suppressKeyPressRepeat) {return;}
+						if (suppressKeyPressRepeat) {return;}
 						move(e);
 					})
 					.on('keydown',  function(e){
-						$suppressKeyPressRepeat = ~$.inArray(e.keyCode, [40,38,9,13,27]);
+						suppressKeyPressRepeat = ~$.inArray(e.keyCode, [40,38,9,13,27]);
 						move(e);
 					})
 					.on('keyup',    keyup)
@@ -444,12 +511,12 @@
 						select();
 					})
 					.on('mouseenter', 'li', function(e){
-						$mousedover = true;
+						mousedover = true;
 						$menu.find('.active').removeClass('active');
 						$(e.currentTarget).addClass('active');
 					})
 					.on('mouseleave', function(){ 
-						$mousedover = false; 
+						mousedover = false; 
 					})
 					.scroll( scroll );
 
@@ -465,90 +532,34 @@
 		
 	};
 	
-	Shollu_CB.prototype = {
-		constructor: Shollu_CB,
-		/* init: function(){
-			console.log('debug: init');
-			this.init();
-		}, */
-		version: function(){
-			// console.log('debug: version');
-			return this.version();
-		},
-		destroy: function(){
-			// console.log('debug: destroy');
-			this.destroy();
-		},
-		disable: function(state){
-			// console.log('debug: disable');
-			this.disabled(state);
-		},
-		getValue: function(field){
-			// console.log('debug: getValue');
-			return this.getValue();
-		},
-		setValue: function(val){
-			// console.log('debug: setValue');
-			this.setValue(val);
-		},
-	}
-	/* 
-	({key1:val1, key2:val2 key3:{subkey1:subval1, subkey2:subval2}})
-	('function', {field1:val1})
-	('function', 'params')
-	('function')
-	*/
   $.fn.shollu_cb = function(option) {
-		if (typeof option === 'string') {
-			var $this = $(this),
-					inst = $this.data('shollu_cb');
+		var $this = $(this), 
+				instl = $this.data('shollu_cb');
 			
-			if (!inst) { return this; }
-			if ($.inArray(option, ["getValue", "version", "setValue", "disable", "destroy"]) !== -1) {
-				return inst[option].apply(inst, Array.prototype.slice.call(arguments, 1));
+		if (typeof option === 'string') {
+			if (!instl) { return this; }
+			
+			if (instl[option]) {
+				if ($.isFunction(instl[option]))
+					return instl[option].apply(instl, Array.prototype.slice.call(arguments, 1));
+				else
+					return instl[option];
+			} else {
+				$.error( 'Method ' +  option + ' does not exist on jQuery.shollu_cb' );
 			}
-			// console.log(inst);
-			/* if ($.inArray(option, ["getValue", "version"]) !== -1) {
-				return inst[option].apply(inst, Array.prototype.slice.call(arguments, 1));
-			}	else {	
-				// ["setValue", "disable", "destroy"]
-				inst[option].apply(inst, Array.prototype.slice.call(arguments, 1));
-				return this;
-			} */
 		}
 		
 		return this.each(function() {
-			var $this = $(this),
-					inst = $this.data('shollu_cb'),
-					options = ((typeof option === 'object') ? option : {});
-			if (!inst) {
-				$this.data('shollu_cb', new Shollu_CB(this, $.extend({}, $.fn.shollu_cb.defaults, options)) );
-					// console.log($this.data('shollu_cb'));
+			if (!instl) {
+				$this.data('shollu_cb', new Shollu_CB(this, $.extend({}, PLUGIN_OPTIONS, option)) );
+				// console.log($this.data('shollu_cb'));
 			} else {
-				if (typeof option === 'object') {
-					$this.data('shollu_cb', new Shollu_CB(this, $.extend(inst.o, options)) );
-					// console.log($this.data('shollu_cb'));
-				} 
+				// $this.data('shollu_cb', new Shollu_CB(this, $.extend(instl.o, option)) );
+				instl.o = $.extend(instl.o, option);
+				$this.data('shollu_cb', instl);
+				// console.log($this.data('shollu_cb'));
 			}
 		});
-  };
-	
-  $.fn.shollu_cb.defaults = {
-    // source: function(term, response){},
-		onSelect: function(rowData){},
-    style: 'bs3',
-		menu_type: 'normal', // iscroll (infinite scroll), normal
-		emptyMessage: '<center><b>No results were found</b></center>',
-		// colorBack: '#dd4b39',
-		// colorText: '#000000',
-    page: 1,
-    rows: 50,
-    idField: 'value',
-    textField: 'text',
-		// queryParams: {},
-		item_cls: '',
-		addition: {},
-		remote: false,
   };
 	
 }(jQuery));

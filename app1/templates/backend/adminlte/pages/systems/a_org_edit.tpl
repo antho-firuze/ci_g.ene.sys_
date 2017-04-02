@@ -42,11 +42,11 @@
 	a.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description" }));
 	a.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	a.push(BSHelper.Checkbox({ horz:false, label:"Is Parent", idname:"is_parent", value:0 }));
-	a.push(BSHelper.Combogrid({ horz:false, label:"Parent Org", idname:"parent_id", url:"{$.php.base_url('systems/a_org')}?filter=is_parent='1'", isLoad:true, placeholder:"typed or choose" }));
-	a.push(BSHelper.Combogrid({ horz:false, label:"Org Type", idname:"orgtype_id", url:"{$.php.base_url('systems/a_orgtype')}", isLoad:true, placeholder:"typed or choose" }));
+	a.push(BSHelper.Combobox({ horz:false, label:"Parent Org", idname:"parent_id", url:"{$.php.base_url('systems/a_org')}?filter=is_parent='1'", remote: true }));
+	a.push(BSHelper.Combobox({ horz:false, label:"Org Type", idname:"orgtype_id", url:"{$.php.base_url('systems/a_orgtype')}", remote: true }));
 	col.push(subCol(6, a));
 	a = [];
-	a.push(BSHelper.Combogrid({ horz:false, label:"Supervisor", idname:"supervisor_id", url:"{$.php.base_url('systems/a_user')}", isLoad:true, placeholder:"typed or choose" }));
+	a.push(BSHelper.Combobox({ horz:false, label:"Supervisor", idname:"supervisor_id", url:"{$.php.base_url('systems/a_user')}", remote: true }));
 	a.push(BSHelper.Input({ horz:false, type:"text", label:"Phone", idname:"phone", required: false }));
 	a.push(BSHelper.Input({ horz:false, type:"text", label:"Phone 2", idname:"phone2", required: false }));
 	a.push(BSHelper.Input({ horz:false, type:"text", label:"Fax", idname:"fax", required: false }));

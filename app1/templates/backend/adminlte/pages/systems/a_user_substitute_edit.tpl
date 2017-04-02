@@ -53,7 +53,7 @@
 	
 	{* standard fields table *}
 	col.append(BSHelper.Input({ type:"hidden", idname:"id" }));
-	col.append(BSHelper.Combogrid({ horz:false, label:"User Substitute", idname:"substitute_id", url:"{$.php.base_url('systems/a_user')}", isLoad:true, placeholder:"typed or choose" }));
+	col.append(BSHelper.Combobox({ horz:false, label:"User Substitute", idname:"substitute_id", url:"{$.php.base_url('systems/a_user')}", remote: true }));
 	col.append(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", placeholder:"string(2000)" }));
 	col.append(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	col.append(BSHelper.Input({ type:"date", label:"Valid From", idname:"valid_from", inputmask:"'alias':'{$.session.date_format}'" }));

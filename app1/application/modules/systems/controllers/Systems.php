@@ -1527,13 +1527,14 @@ class Systems extends Getmeb
 	function c_5village()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
-			
-			if (key_exists('district_id', $this->params) && !empty($this->params['district_id'])) 
-				$this->params['where']['t1.district_id'] = $this->params['district_id'];
-			else
-				$this->params['where']['t1.district_id'] = 0;
+			else 
+				if (isset($this->params['district_id']) && !empty($this->params['district_id'])) 
+					$this->params['where']['t1.district_id'] = $this->params['district_id'];
+				else
+					$this->params['where']['t1.district_id'] = 0;
+
 			
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);

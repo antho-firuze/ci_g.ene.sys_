@@ -39,7 +39,7 @@
 	col.push(BSHelper.Input({ type:"hidden", idname:"x", value:x }));
 	{* standard fields table *}
 	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
-	col.push(BSHelper.Combogrid({ horz:false, label:"Please Choose Role to be copied !", idname:"copy_role_id", required:true, url:"{$.php.base_url('systems/a_role')}?filter=t1.id<>"+role_id, isLoad:true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Please Choose Role to be copied !", idname:"copy_role_id", required:true, url:"{$.php.base_url('systems/a_role')}?filter=t1.id<>"+role_id, remote: true }));
 	boxContent.find(".box-body").append(subRow(subCol(6, col)));
 	a = [];
 	a.push( BSHelper.Button({ type:"submit", label:"Submit", idname:"submit_btn" }) );

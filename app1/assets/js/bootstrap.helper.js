@@ -209,10 +209,11 @@
 		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
 		var placeholder = o.placeholder ? o.placeholder : "typed or choose";
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
-		var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: placeholder, value: o.value,	autocomplete: "off", "data-url": o.url }); 
+		var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: placeholder, value: o.value,	autocomplete: "off" }); 
 		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
 
 		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
+		if (o.url) input.attr('data-url',o.url);
 		if (o.required) input.attr('required','');
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
@@ -224,6 +225,8 @@
 			textField: o.textField ? o.textField : 'name',
 			emptyMessage: o.emptyMessage ? o.emptyMessage : '<center><b>No results were found</b></center>',
 			remote: o.remote,
+			addition: o.addition,
+			list: o.list,
 		});
 		
 		return container;
@@ -234,8 +237,8 @@
 	*		BSHelper.Combobox({ horz:false, label:"Role", idname:"role_id", list:{ "1":"One", "2":"Two" } });
 	*		BSHelper.Combobox({ horz:false, label:"Role", idname:"role_id", 
 	*			list:[ 
-	*				{ value:"1", title:"One", default:true },
-	*				{ value:"2", title:"Two" },
+	*				{ id:"1", name:"One", default:true },
+	*				{ id:"2", name:"Two" },
 	*			] 
 	*		});
 	*/
@@ -248,24 +251,20 @@
 		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
 
 		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
+		if (o.url) input.attr('data-url',o.url);
 		if (o.required) input.attr('required','');
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
 		container.find('.control-input').append(input).append(help);
 		
-		/* $.each(o.list, function(i) {
-			var v = o.list[i]['value'];
-			var t = o.list[i]['title']
-			input.append( $('<option />', {value: v}).html(t) );
-		}); */
-		
 		input.shollu_cb({
-			idField: o.idField ? o.idField : 'value',
-			textField: o.textField ? o.textField : 'text',
+			url: o.url,
+			idField: o.idField ? o.idField : 'id',
+			textField: o.textField ? o.textField : 'name',
 			emptyMessage: o.emptyMessage ? o.emptyMessage : '<center><b>No results were found</b></center>',
 			remote: o.remote ? true : false,
 			addition: o.addition,
-			rows: o.rows,
+			list: o.list,
 		});
 		
 		return container;

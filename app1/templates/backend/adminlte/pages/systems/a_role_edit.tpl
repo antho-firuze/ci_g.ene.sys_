@@ -46,8 +46,8 @@
 	col.append(BSHelper.Checkbox({ horz:false, label:"Can Approved Own Doc", idname:"is_canapproveowndoc" }));
 	col.append(BSHelper.Checkbox({ horz:false, label:"Access All Orgs", idname:"is_accessallorgs" }));
 	col.append(BSHelper.Checkbox({ horz:false, label:"Use User Org Access", idname:"is_useuserorgaccess" }));
-	col.append(BSHelper.Combogrid({ horz:false, label:"Currency", idname:"currency_id", url:"{$.php.base_url('systems/c_currency')}", isLoad:true, placeholder:"typed or choose" }));
-	col.append(BSHelper.Combogrid({ horz:false, label:"Supervisor", idname:"supervisor_id", url:"{$.php.base_url('systems/a_user')}", isLoad:true, placeholder:"typed or choose" }));
+	col.append(BSHelper.Combobox({ horz:false, label:"Currency", idname:"currency_id", url:"{$.php.base_url('systems/c_currency')}", remote: true }));
+	col.append(BSHelper.Combobox({ horz:false, label:"Supervisor", idname:"supervisor_id", url:"{$.php.base_url('systems/a_user')}", remote: true }));
 	formContent.append(subRow(col));
 	formContent.append(subRow(subCol()));
 	a = [];

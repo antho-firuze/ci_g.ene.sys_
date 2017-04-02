@@ -65,9 +65,9 @@
 	);
 	a.push( $('<ul class="list-group list-group-unbordered" />')
 		.append( $('<li class="list-group-item" />')
-			.append( BSHelper.Combogrid({ horz:false, label:"Role (Default)", idname:"user_role_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_role')}?filter=user_id="+{$.session.user_id}, isLoad:true, required:true }) ) )
+			.append( BSHelper.Combobox({ horz:false, label:"Role (Default)", idname:"user_role_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_role')}?filter=user_id="+{$.session.user_id}, remote: true, required:true }) ) )
 		.append( $('<li class="list-group-item" />')
-			.append( BSHelper.Combogrid({ horz:false, label:"Organization (Default)", idname:"user_org_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_org')}?filter=user_id="+{$.session.user_id}, isLoad:true, required:true }) ) )
+			.append( BSHelper.Combobox({ horz:false, label:"Organization (Default)", idname:"user_org_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_org')}?filter=user_id="+{$.session.user_id}, remote: true, required:true }) ) )
   );
 	a.push( BSHelper.Button({ type:"button", label:"Reload", idname:"btn_reload",
 		onclick:"var last_url = window.location.href;
@@ -127,8 +127,8 @@
 	uploader.init();
 
 	{* Event on Element *}
-	$("#user_role_id").combogrid({ onSelect: function(rowData){ $.ajax({ url:"{$url_module}?user_role_id="+rowData.id, method:"PUT" });	} });
-	$("#user_org_id").combogrid({ onSelect: function(rowData){ $.ajax({ url:"{$url_module}?user_org_id="+rowData.id, method:"PUT" });	} });
+	$("#user_role_id").shollu_cb({ onSelect: function(rowData){ $.ajax({ url:"{$url_module}?user_role_id="+rowData.id, method:"PUT" });	} });
+	$("#user_org_id").shollu_cb({ onSelect: function(rowData){ $.ajax({ url:"{$url_module}?user_org_id="+rowData.id, method:"PUT" });	} });
 	
 	
 	{* Form submit action *}
