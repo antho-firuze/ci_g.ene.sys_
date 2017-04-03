@@ -17,7 +17,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.TEMPLATE_URL}plugins/form-autofill/js/form-autofill.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/plupload/js/plupload.full.min.js"></script>
 <script>
 	var a = [];	var col = [];	var row = [];
@@ -81,7 +81,7 @@
 				$("img.profile-user-img").css("display", "");
 				$("img.profile-user-img").attr("src", "{$.const.BASE_URL~$.session.user_photo_path}"+filename);
 			}
-			formContent.xform('load', result.data.rows[0]);  
+			formContent.shollu_autofill('load', result.data.rows[0]);  
 		}
 	});
 	

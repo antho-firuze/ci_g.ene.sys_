@@ -23,7 +23,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.TEMPLATE_URL}plugins/form-autofill/js/form-autofill.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script>
 	var a=[];
 	var col = subCol(12,"");
@@ -47,7 +47,7 @@
 	{* Begin: Populate data to form *}
 	$.getJSON('{$url_module}', '', function(result){ 
 		if (!isempty_obj(result.data.rows)) 
-			formContent.xform('load', result.data.rows[0]);  
+			formContent.shollu_autofill('load', result.data.rows[0]);  
 	});
 	{* End: Populate data to form *}
 	
@@ -66,10 +66,10 @@
 			success: function(data) {
 				{* console.log(data); *}
 				BootstrapDialog.alert('Password has beed changed !', function(){
-					formContent.xform("reset");
+					formContent.shollu_autofill("reset");
 					$.getJSON('{$url_module}', '', function(result){ 
 						if (!isempty_obj(result.data.rows)) 
-							formContent.xform('load', result.data.rows[0]);  
+							formContent.shollu_autofill('load', result.data.rows[0]);  
 					});
         });
 			},

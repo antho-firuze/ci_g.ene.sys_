@@ -24,7 +24,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.TEMPLATE_URL}plugins/form-autofill/js/form-autofill.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/input-mask/jquery.inputmask.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/input-mask/jquery.inputmask.date.extensions.js"></script>
 {* <script src="{$.const.TEMPLATE_URL}plugins/input-mask/jquery.inputmask.extensions.js"></script> *}
@@ -70,7 +70,7 @@
 	{* Begin: Populate data to form *}
 	$.getJSON('{$url_module}', { "id": (id==null)?-1:id }, function(result){ 
 		if (!isempty_obj(result.data.rows)) 
-			formContent.xform('load', result.data.rows[0]);  
+			formContent.shollu_autofill('load', result.data.rows[0]);  
 	});
 	
 	{* Init data for combogrid *}

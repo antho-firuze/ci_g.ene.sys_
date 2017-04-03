@@ -15,7 +15,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.TEMPLATE_URL}plugins/form-autofill/js/form-autofill.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script>
 	var a=[];	var col = [];
 	var formContent = $('<form "autocomplete"="off" />');
@@ -45,8 +45,20 @@
 						{ id:"mm-dd-yyyy", name:"mm-dd-yyyy" },
 					] 
 				}));
-				a.push(BSHelper.Input({ type:"text", label:"Time Format", idname:"time_format", required: true, placeholder:"h:i:s" }));
-				a.push(BSHelper.Input({ type:"text", label:"DateTime Format", idname:"datetime_format", required: true, placeholder:"d/m/Y h:i:s" }));
+				a.push(BSHelper.Combobox({ label:"Time Format", idname:"time_format", required: true, 
+					list:[
+						{ id:"hh:mm", name:"hh:mm" },
+						{ id:"hh:mm:ss", name:"hh:mm:ss" },
+					] 
+				}));
+				a.push(BSHelper.Combobox({ label:"DateTime Format", idname:"datetime_format", required: true, 
+					list:[
+						{ id:"dd/mm/yyyy hh:mm", name:"dd/mm/yyyy hh:mm" },
+						{ id:"mm/dd/yyyy hh:mm", name:"mm/dd/yyyy hh:mm" },
+						{ id:"dd-mm-yyyy hh:mm", name:"dd-mm-yyyy hh:mm" },
+						{ id:"mm-dd-yyyy hh:mm", name:"mm-dd-yyyy hh:mm" },
+					] 
+				}));
 				a.push(BSHelper.Input({ type:"text", label:"User Photo Path", idname:"user_photo_path", required: true, placeholder:"string(200)" }));
 				col.push(subCol(6, a));
 				return subRow(col);
@@ -54,15 +66,51 @@
 			{	title:"Email Setup", idname:"tab-eml", content:function(){
 				a = []; col = [];
 				a.push(BSHelper.Input({ type:"text", label:"SMTP Host", idname:"smtp_host", }));
-				a.push(BSHelper.Input({ type:"number", label:"SMTP Port", idname:"smtp_port", }));
+				a.push(BSHelper.Combobox({ label:"SMTP Port", idname:"smtp_port", 
+					list:[
+						{ id:"25", name:"25" },
+						{ id:"465", name:"465" },
+					] 
+				}));
 				a.push(BSHelper.Input({ type:"text", label:"SMTP User", idname:"smtp_user", }));
-				a.push(BSHelper.Input({ type:"Password", label:"SMTP Password", idname:"smtp_pass", }));
-				a.push(BSHelper.Input({ type:"number", label:"SMTP Timeout", idname:"smtp_timeout", }));
+				a.push(BSHelper.Input({ type:"password", label:"SMTP Password", idname:"smtp_pass", }));
+				a.push(BSHelper.Combobox({ label:"SMTP Timeout", idname:"smtp_timeout", 
+					list:[
+						{ id:"5", name:"5" },
+						{ id:"6", name:"6" },
+						{ id:"7", name:"7" },
+						{ id:"8", name:"8" },
+						{ id:"9", name:"9" },
+						{ id:"10", name:"10" },
+					] 
+				}));
 				col.push(subCol(6, a)); a=[];
-				a.push(BSHelper.Input({ type:"text", label:"Charset", idname:"charset", }));
-				a.push(BSHelper.Input({ type:"text", label:"Mail Type", idname:"mailtype", }));
-				a.push(BSHelper.Input({ type:"number", label:"Priority", idname:"priority", }));
-				a.push(BSHelper.Input({ type:"text", label:"Protocol", idname:"protocol", }));
+				a.push(BSHelper.Combobox({ label:"Charset", idname:"charset", 
+					list:[
+						{ id:"iso-8859-1", name:"iso-8859-1" },
+						{ id:"utf-8", name:"utf-8" },
+					] 
+				}));
+				a.push(BSHelper.Combobox({ label:"Mail Type", idname:"mailtype", 
+					list:[
+						{ id:"html", name:"html" },
+						{ id:"text", name:"text" },
+					] 
+				}));
+				a.push(BSHelper.Combobox({ label:"Priority", idname:"priority", 
+					list:[
+						{ id:"1", name:"Highest" },
+						{ id:"3", name:"Normal" },
+						{ id:"5", name:"Lowest" },
+					] 
+				}));
+				a.push(BSHelper.Combobox({ label:"Protocol", idname:"protocol", 
+					list:[
+						{ id:"mail", name:"mail" },
+						{ id:"smtp", name:"smtp" },
+						{ id:"sendmail", name:"sendmail" },
+					] 
+				}));
 				col.push(subCol(6, a));
 				return subRow(col);
 			} },
@@ -83,17 +131,11 @@
 	{* Begin: Populate data to form *}
 	$.getJSON('{$url_module}', '', function(result){ 
 		if (!isempty_obj(result.data.rows)) 
-			formContent.xform('load', result.data.rows[0]);  
+			formContent.shollu_autofill('load', result.data.rows[0]);  
 	});
 	{* End: Populate data to form *}
 	
 	{* Event *}
-	$("#date_format").shollu_cb({ onSelect:function(rowData){ 
-		{* console.log("onSelect : "+rowData.value);  *}
-		{* console.log($("#date_format").shollu_cb("disable", true)); *}
-		$("#date_format").shollu_cb("disable", true);
-		{* console.log($("#date_format").shollu_cb("version")); *}
-	} });
 	
 	{* Form submit action *}
 	formContent.validator().on('submit', function (e) {

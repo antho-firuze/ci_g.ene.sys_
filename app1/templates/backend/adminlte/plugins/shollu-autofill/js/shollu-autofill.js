@@ -2,7 +2,7 @@
 
   "use strict";
 
-  $.fn.shollu_af = function(options) {
+  $.fn.shollu_autofill = function(options) {
 		var i, field_type, field_name, field_id;
 		
 		if (typeof options == 'string') {
@@ -31,8 +31,19 @@
 									if (! $(form[i]).hasClass('checkbox'))
 										form[i].value = v;
 								} else {
-									if (jQuery().combogrid){
-										$(form).find('#'+field_name).combogrid('setValue', v);
+									// var shollu = $(form).find('#'+field_name).data('init-shollu_cb')?'shollu_cb':'';
+									// shollu = shollu ? shollu : $(form).find('#'+field_name).data('init-shollu_cg')?'shollu_cg':'other';
+									// console.log(shollu);
+									
+									if ($(form).find('#'+field_name).data('init-shollu_cb')) {
+										if (jQuery().shollu_cb){
+											$(form).find('#'+field_name).shollu_cb('setValue', v);
+										}
+									}
+									if ($(form).find('#'+field_name).data('init-shollu_cg')) {
+										if (jQuery().shollu_cg){
+											$(form).find('#'+field_name).shollu_cg('setValue', v);
+										}
 									}
 								}
 								break;
@@ -77,9 +88,17 @@
 					case "textarea":
 					case "hidden":
 						form[i].value = "";
-						if (jQuery().combogrid){
-							if (field_name){
-								$(form).find('#'+field_name).combogrid('setValue', '');
+						
+						if (field_name){
+							if ($(form).find('#'+field_name).data('init-shollu_cb')) {
+								if (jQuery().shollu_cb){
+									$(form).find('#'+field_name).shollu_cb('setValue', '');
+								}
+							}
+							if ($(form).find('#'+field_name).data('init-shollu_cg')) {
+								if (jQuery().shollu_cg){
+									$(form).find('#'+field_name).shollu_cg('setValue', '');
+								}
 							}
 						}
 						break;
