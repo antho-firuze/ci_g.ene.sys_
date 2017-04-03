@@ -102,7 +102,7 @@
 <script src="{$.const.TEMPLATE_URL}js/custom.js"></script>
 <script>
 	{* init for skin & sidebar *}
-	$(document.body).addClass(get($sidebar)).addClass(get($skin));
+	$(document.body).addClass(get($sidebar)).addClass(get($skin)).addClass("{$.session.layout}");
 	
 	{* sign-out *}
 	$("#go-sign-out").click(function(e){

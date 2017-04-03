@@ -246,6 +246,7 @@
 			var list = [];
 			var rows = data;
 			var id = $element.attr('data-'+o.idField);
+			var text = $element.val().toLowerCase();
 			
 			if (o.page == 1)
 				$menu.empty();
@@ -274,7 +275,11 @@
 						var active = 'active ';
 						cls = cls ? cls+active : 'class="'+active+'"';
 					}
-					list.push( $('<li '+cls+'data-'+o.idField+'="'+v+'" data-'+o.textField+'="'+t+'"><a>'+t+'</a></li>') );
+					if (text && (text == t.toLowerCase())){
+						var active = 'active ';
+						cls = cls ? cls+active : 'class="'+active+'"';
+					}
+					list.push( $('<li '+cls+'data-'+o.idField+'="'+v+'" data-'+o.textField+'="'+t+'"><a>'+t.replace(text, "<b>"+text+"</b>")+'</a></li>') );
 					rowData[v] = rows[i]; /* 1:{value:1, text:"One"}, 2:{value:2, text:"Two"} */
 				});
 				$menu.append(list);

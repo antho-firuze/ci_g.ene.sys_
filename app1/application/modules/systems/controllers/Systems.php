@@ -290,29 +290,32 @@ class Systems extends Getmeb
 	
 	function x_config()
 	{
-		$data = json_decode($this->input->raw_input_stream);
-		$this->session->set_userdata((array)$data);
-		$return = 0; 
-		$result['data'] = [];
-		foreach($data as $key => $value)
-		{
-			$cond = ['user_id' => $this->sess->user_id, 'attribute' => $key];
-			$qry = $this->db->get_where('a_user_config', $cond, 1);
-			if ($qry->num_rows() < 1)
-			{
-				$data = array_merge($cond, ['value' => $value]);
-				$this->system_model->createUserConfig($data);
-				$return++;
-			}
-			else
-			{
-				if ($arow = $this->system_model->updateUserConfig(['value' => $value], $cond))
-				{
-					$return += $arow;
+		if ($this->r_method == 'PUT') {
+			if (count($this->params) > 0){
+				// $i = 0;
+				// foreach($this->params as $param){
+					// $param[i]->
+					// i++;
+				// }
+				/* update config to session */
+				$this->session->set_userdata([$this->params[0]->name => $this->params[0]->value]);
+
+				/* update config to database */
+				$data['value'] 		 = $this->params[0]->value;
+				$cond['attribute'] = $this->params[0]->name;
+				$cond['user_id'] 	 = $this->sess->user_id;
+				
+				$qry = $this->db->get_where('a_user_config', $cond, 1);
+				if ($qry->num_rows() > 0) {
+					if (!$this->updateRecord('a_user_config', $data, $cond, TRUE))
+						$this->xresponse(FALSE, ['message' => $this->messages()]);
+				} else {
+					if (!$this->insertRecord('a_user_config', array_merge($data, $cond), FALSE, TRUE))
+						$this->xresponse(FALSE, ['message' => $this->messages()]);
 				}
 			}
 		}
-		$this->xresponse(TRUE, $result);
+		$this->xresponse(TRUE);
 	}
 	
 	function x_profile($mode=NULL)
@@ -738,6 +741,63 @@ class Systems extends Getmeb
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
+	}
+	
+	function a_user_config()
+	{
+		if ($this->r_method == 'GET') {
+			if (isset($this->params['user_id']) && ($this->params['user_id'] != '')) 
+				$user_id = $this->params['user_id'];
+			else
+				$user_id = $this->sess->user_id;
+			
+			$user_config = $this->base_model->getValue('attribute, value', 'a_user_config', 'user_id', $user_id);
+			if ($user_config) {
+				$userconfig = [];
+				foreach($user_config as $k => $v) {
+					$userconfig[$v->attribute] = $v->value;
+				}
+			}
+			$userconfig = ($user_config===FALSE) ? [] : $userconfig;
+			$result['data'] = $userconfig;
+			$this->xresponse(TRUE, $result);
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$fields = $this->db->list_fields($this->c_method);
+			$boolfields = ['is_active'];
+			$nullfields = [];
+			$datefields = [];
+			$timefields = [];
+			$datetimefields = ['valid_from','valid_to'];
+			foreach($fields as $f){
+				if (key_exists($f, $this->params)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
+					} elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
+					} elseif (in_array($f, $datetimefields)){
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : datetime_db_format($this->params->{$f}, $this->sess->date_format); 
+					} else {
+						$datas[$f] = $this->params->{$f};
+					}
+				}
+			}
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
+			else
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		/* if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		} */
 	}
 	
 	/* Don't make example from a_role & a_user */

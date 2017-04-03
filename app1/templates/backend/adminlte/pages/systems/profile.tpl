@@ -1,6 +1,8 @@
 {var $url_module = $.php.base_url('systems/x_profile')}
 {var $url_module_a_user = $.php.base_url('systems/a_user')}
 {var $url_upload = $.php.base_url('systems/x_upload')}
+{var $url_module_a_user_config = $.php.base_url('systems/a_user_config')}
+{var $url_config = $.php.base_url('systems/x_config')}
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -27,7 +29,10 @@
 <script src="{$.const.TEMPLATE_URL}plugins/plupload/js/plupload.full.min.js"></script>
 <script>
 	var a=[];	var col = [];
-	var formContent = $('<form "autocomplete"="off" />');
+	var elForm = function(){ return $('<form "autocomplete"="off" />'); };
+	var formContent = new elForm();
+	var subForm = new elForm();
+	{* var formContent = $('<form "autocomplete"="off" />'); *}
 	var boxContent = $('<div class="box"><div class="box-header"></div><div class="box-body"></div><div class="box-footer"></div></div>');
 	var tabContent = BSHelper.Tabs({
 		dataList: [
@@ -45,12 +50,58 @@
 				return subRow(col);
 			} },
 			{	title:"Configuration", idname:"tab-dat", content:function(){
-				a = []; col = [];
-				{* a.push(BSHelper.Input({ type:"text", label:"Date Format", idname:"date_format", required: true, placeholder:"d/m/Y" })); *}
-				{* a.push(BSHelper.Input({ type:"text", label:"Time Format", idname:"time_format", required: true, placeholder:"h:i:s" })); *}
-				{* a.push(BSHelper.Input({ type:"text", label:"DateTime Format", idname:"datetime_format", required: true, placeholder:"d/m/Y h:i:s" })); *}
-				{* a.push(BSHelper.Input({ type:"text", label:"User Photo Path", idname:"user_photo_path", required: true, placeholder:"string(200)" })); *}
-				{* col.push(subCol(6, a)); *}
+				a = []; col = []; 
+				a.push(BSHelper.Combobox({ label:"Layout", idname:"layout", 
+					list:[
+						{ id:"layout-boxed", name:"Boxed" },
+						{ id:"layout-fixed", name:"Fixed" },
+						{ id:"sidebar-collapse", name:"Sidebar Collapse" },
+					]
+				}));
+				a.push(BSHelper.Combobox({ label:"Skin Color", idname:"skin", 
+					list:[
+						{ id:"skin-blue", name:"Blue" },
+						{ id:"skin-black", name:"Black" },
+						{ id:"skin-red", name:"Red" },
+						{ id:"skin-yellow", name:"Yellow" },
+						{ id:"skin-purple", name:"Purple" },
+						{ id:"skin-green", name:"Green" },
+						{ id:"skin-blue-light", name:"Blue Light" },
+						{ id:"skin-black-light", name:"Black Light" },
+						{ id:"skin-red-light", name:"Red Light" },
+						{ id:"skin-yellow-light", name:"Yellow Light" },
+						{ id:"skin-purple-light", name:"Purple Light" },
+						{ id:"skin-green-light", name:"Green Light" },
+					] 
+				}));
+				a.push(BSHelper.Combobox({ label:"Screen Timeout", idname:"screen_timeout", 
+					list:[
+						{ id:"60000", name:"1 minute" },
+						{ id:"120000", name:"2 minutes" },
+						{ id:"180000", name:"3 minutes" },
+						{ id:"300000", name:"5 minutes" },
+						{ id:"600000", name:"10 minutes" },
+						{ id:"900000", name:"15 minutes" },
+						{ id:"1200000", name:"20 minutes" },
+						{ id:"1500000", name:"25 minutes" },
+						{ id:"1800000", name:"30 minutes" },
+						{ id:"2700000", name:"45 minutes" },
+						{ id:"3600000", name:"1 hour" },
+						{ id:"7200000", name:"2 hours" },
+						{ id:"10800000", name:"3 hours" },
+						{ id:"14400000", name:"4 hours" },
+						{ id:"18000000", name:"5 hours" },
+					] 
+				}));
+				a.push(BSHelper.Combobox({ label:"Language", idname:"language", 
+					list:[
+						{ id:"english", name:"English" },
+						{ id:"indonesia", name:"Indonesia" },
+					] 
+				}));
+				{* a.push( subRow(subCol(12, BSHelper.Button({ type:"submit", label:"Save", cls:"btn-primary" }) )) ); *}
+				subForm.append(subCol(6, a));
+				col.push(subForm);
 				return subRow(col);
 			} },
 		],
@@ -97,6 +148,11 @@
 			formContent.shollu_autofill('load', result.data.rows[0]);  
 		}
 	});
+	$.getJSON("{$url_module_a_user_config}", '', function(result){ 
+		if (!isempty_obj(result.data)) {
+			subForm.shollu_autofill('load', result.data);  
+		}
+	});
 	{* End: Populate data to form *}
 	
 	{* Init data for custom element (combogrid, button etc.) *}
@@ -129,7 +185,19 @@
 	{* Event on Element *}
 	$("#user_role_id").shollu_cb({ onSelect: function(rowData){ $.ajax({ url:"{$url_module}?user_role_id="+rowData.id, method:"PUT" });	} });
 	$("#user_org_id").shollu_cb({ onSelect: function(rowData){ $.ajax({ url:"{$url_module}?user_org_id="+rowData.id, method:"PUT" });	} });
-	
+	$.each(subForm.find('input'), function(){
+		if ($(this).attr('id')){
+			var id = $(this).attr('id');
+			$(this).shollu_cb({ 
+				onSelect: function(rowData){ 
+					if (rowData.id){
+						var data = JSON.stringify($("[name='"+id+"']").serializeArray());
+						$.ajax({ url:"{$url_config}", method:"PUT", data:data });	
+					}
+				}
+			});
+		}
+	});
 	
 	{* Form submit action *}
 	formContent.validator().on('submit', function (e) {

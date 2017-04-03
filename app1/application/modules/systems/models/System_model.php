@@ -115,17 +115,6 @@ class System_Model extends CI_model
 		return $this->db->insert('a_user_recent', $data);
 	}
 	
-	function createUserConfig($data)
-	{
-		return $this->db->insert('a_user_config', $data);
-	}
-	
-	function updateUserConfig($data, $cond)
-	{
-		$this->db->update('a_user_config', $data, $cond);
-		return $this->db->affected_rows();
-	}
-	
 	function getUserAuthentication($params)
 	{
 		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
@@ -182,6 +171,15 @@ class System_Model extends CI_model
 		$params['join'][] 	= ['a_user as t2', 't1.user_id = t2.id', 'left'];
 		$params['where']['t1.is_deleted'] 	= '0';
 		$params['where']['t2.is_deleted'] 	= '0';
+		
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function get_a_user_config($params)
+	{
+		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
+		$params['table'] 	= "a_user_config as t1";
+		$params['where']['t1.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec($params);
 	}

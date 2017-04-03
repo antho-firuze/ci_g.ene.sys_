@@ -154,10 +154,12 @@ class Getmeb extends CI_Controller
 		$data = is_object($data) ? (array) $data : $data;
 		$data = $update_log ? array_merge($data, $this->update_log) : $data;
 		
-		if (!key_exists('id', $cond) && empty($cond['id'])) {
-			$this->set_message('update_data_unsuccessful');
-			return false;
-		}
+		$cond = is_object($cond) ? (array) $cond : $cond;
+
+		// if (!key_exists('id', $cond) && empty($cond['id'])) {
+			// $this->set_message('update_data_unsuccessful');
+			// return false;
+		// }
 		
 		if (!$return = $this->db->update($table, $data, $cond)) {
 			$this->set_message($this->db->error()['message']);

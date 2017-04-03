@@ -121,7 +121,8 @@
 		/* type=date => el=input,type=text */
 		/* type=time => el=input,type=text */
 		/* type=datetime => el=input,type=text */
-		switch (o.type){
+		var thetype = o.type;
+		switch (thetype.toLowerCase()){
 			case 'hidden':
 				input.attr('type',o.type);
 				return input;
