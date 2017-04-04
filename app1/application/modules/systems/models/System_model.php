@@ -100,33 +100,6 @@ class System_Model extends CI_model
 		$this->session->set_userdata($data);
 	}
 	
-	function createUserRecent($data)
-	{
-		/* $qry = $this->db
-			   ->select('*')
-			   ->from('a_user_recent')
-			   ->where($data)
-			   ->limit(1)
-			   ->order_by('id desc'); */
-		$qry = $this->db->order_by('id desc')->get_where('a_user_recent', $data, 1);
-		if ($qry->num_rows() > 0)
-			return $this->db->update('a_user_recent', ['last_update' => date('Y-m-d H:i:s')], $data);
-		
-		return $this->db->insert('a_user_recent', $data);
-	}
-	
-	function getUserAuthentication($params)
-	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= "a_user as t1";
-		$params['join'][] 	= ['a_client as ac', 't1.client_id = ac.id', 'left'];
-		$params['join'][] 	= ['a_org as ao', 't1.org_id = ao.id', 'left'];
-		$params['join'][] 	= ['a_role as ar', 't1.role_id = ar.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
-		
-		return $this->base_model->mget_rec($params);
-	}
-	
 	function get_a_user($params)
 	{
 		$params['select'] = "t1.id, t1.client_id, t1.user_org_id, t1.user_role_id, t1.is_active, t1.code, t1.name, coalesce(t1.code, '')||' '||t1.name as code_name, t1.description, t1.email, t1.last_login, t1.is_online, t1.supervisor_id,	t1.bpartner_id, t1.is_fullbpaccess, t1.is_expired, t1.ip_address, t1.photo_file, t2.org_id, t3.role_id";
@@ -184,29 +157,12 @@ class System_Model extends CI_model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function getUserRole($params)
+	function get_a_user_recent($params)
 	{
-		$params['select']	= "t1.*, t2.name as role_name";
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= "a_user_role t1";
-		$params['join'][] 	= ['a_role as t2', 't1.role_id = t2.id', 'left'];
-		$params['where']['t1.is_active'] 	= '1';
-		$params['where']['t1.is_deleted'] 	= '0';
+		$params['table'] 	= "a_user_recent as t1";
 		
 		return $this->base_model->mget_rec($params);
-	}
-	
-	function getUserWCount($params)
-	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= "a_user as t1";
-		$params['join'][] 	= ['a_user_config as auc', 't1.id = auc.user_id', 'left'];
-		$params['join'][] 	= ['a_client as ac', 't1.client_id = ac.id', 'left'];
-		$params['join'][] 	= ['a_org as ao', 't1.org_id = ao.id', 'left'];
-		$params['join'][] 	= ['a_role as ar', 't1.role_id = ar.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
-		
-		return $this->base_model->mget_rec_count($params);
 	}
 	
 	function get_a_menu($params)

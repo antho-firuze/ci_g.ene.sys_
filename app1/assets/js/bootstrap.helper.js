@@ -30,12 +30,110 @@
 	
 	BSHelper.version = '1.0.0';
 	
-	BSHelper.newGuid = function() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    };
+	BSHelper.newGuid = function(){
+		return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+			var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+			return v.toString(16);
+		});
+	};
+
+	BSHelper.PageHeader = function(options){
+		var default_opts = {
+			cls: '',
+			title: '',
+			title_desc: '',
+			bc_list: [],	// [{icon:"", title:"", link:""}, {icon:"", title:"", link:""}]
+		}
+		var o = $.extend( {}, default_opts, options );
+		var header = $('<section class="content-header" />');
+		
+		var title_desc = o.title_desc ? $('<small />').html(o.title_desc) : $('<small />');
+		header.append( $('<h1 />').html(o.title).append(title_desc) );
+		
+		var countlist = o.bc_list.length;
+		if (countlist > 0) {
+			var ol = $('<ol class="breadcrumb" />');
+			$.each(o.bc_list, function(j){
+				var link 	= o.bc_list[j]['link'];
+				var icon 	= o.bc_list[j]['icon'];
+				var title = icon ? '<i class="'+icon+'" />'+o.bc_list[j]['title'] : o.bc_list[j]['title'];
+				var li = $('<li />');
+				if (j == (countlist-1)) {
+					li.addClass('active').html(title);
+				} else {
+					li.append( $('<a href="'+link+'" />').html(title) );
+				}
+				ol.append(li);
+			});
+			ol.appendTo(header);
+		}
+		return header;
+	}
+	
+	BSHelper.Form = function(options){
+		var default_opts = {
+			cls: '',
+			autocomplete: 'on',
+			action: '',
+			enctype: 'application/x-www-form-urlencoded', // application/x-www-form-urlencoded, multipart/form-data, text/plain
+			method: 'get',	// get, post
+			idname: '',
+			target: '_blank',	// _blank, _self, _parent, _top
+			novalidate: true,
+		}
+		var o = $.extend( {}, default_opts, options );
+		var form = $('<form />');
+		form.attr('autocomplete', o.autocomplete);
+		form.attr('enctype', o.enctype);
+		form.attr('target', o.target);
+		form.attr('method', o.method);
+		form.attr('novalidate', o.novalidate);
+		if (o.cls) form.addClass(o.cls);
+		if (o.action) form.attr('action', o.action);
+		if (o.idname) { form.attr('id', o.idname); form.attr('name', o.idname); }
+		return form;
+	};
+	
+	BSHelper.Box = function(options){
+		var default_opts = {
+			cls: '',
+			title: '',
+			idname: '',
+			footer: false,
+			type: 'default', // default, primary, info, warning, success, danger
+		}
+		var o = $.extend( {}, default_opts, options );
+		var box = $('<div class="box">'+
+									'<div class="box-body"></div>'+
+								'</div>');
+		var box_header = $('<div class="box-header" />');
+		var box_footer = $('<div class="box-footer" />');
+		var box_body = box.find('.box-body');
+		if (o.title) box_header.insertBefore(box_body).append($('<h3 class="box-title" />').html(o.title));
+		if (o.footer) box_footer.insertAfter(box_body);
+		if (o.cls) box.addClass(o.cls);
+		if (o.idname) { box.attr('id', o.idname); box.attr('name', o.idname); }
+		switch (o.type){
+		case 'primary':
+			box.addClass('box-primary');
+			break;
+		case 'info':
+			box.addClass('box-info');
+			break;
+		case 'warning':
+			box.addClass('box-warning');
+			break;
+		case 'success':
+			box.addClass('box-success');
+			break;
+		case 'danger':
+			box.addClass('box-danger');
+			break;
+		default:
+			break;
+		}
+		return box;
+	};
 	
 	/* 
 	*	BSHelper.Tabs({dataList:[ title:"", idname:"", content:"" ]}); 

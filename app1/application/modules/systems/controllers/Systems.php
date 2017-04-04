@@ -765,41 +765,31 @@ class Systems extends Getmeb
 			$this->xresponse(TRUE, $result);
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active'];
-			$nullfields = [];
-			$datefields = [];
-			$timefields = [];
-			$datetimefields = ['valid_from','valid_to'];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} elseif (in_array($f, $datetimefields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : datetime_db_format($this->params->{$f}, $this->sess->date_format); 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
+			if (count($this->params) > 0){
+				// $i = 0;
+				// foreach($this->params as $param){
+					// $param[i]->
+					// i++;
+				// }
+				/* update config to session */
+				$this->session->set_userdata([$this->params[0]->name => $this->params[0]->value]);
+
+				/* update config to database */
+				$data['value'] 		 = $this->params[0]->value;
+				$cond['attribute'] = $this->params[0]->name;
+				$cond['user_id'] 	 = $this->sess->user_id;
+				
+				$qry = $this->db->get_where($this->c_method, $cond, 1);
+				if ($qry->num_rows() > 0) {
+					if (!$this->updateRecord($this->c_method, $data, $cond, TRUE))
+						$this->xresponse(FALSE, ['message' => $this->messages()]);
+				} else {
+					if (!$this->insertRecord($this->c_method, array_merge($data, $cond), FALSE, TRUE))
+						$this->xresponse(FALSE, ['message' => $this->messages()]);
 				}
 			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->xresponse(TRUE);
 		}
-		/* if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		} */
 	}
 	
 	/* Don't make example from a_role & a_user */
@@ -1265,8 +1255,8 @@ class Systems extends Getmeb
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active'];
-			$nullfields = [];
+			$boolfields = ['is_active', 'startnewyear', 'startnewmonth'];
+			$nullfields = ['code', 'description', 'prefix', 'suffix'];
 			foreach($fields as $f){
 				if (key_exists($f, $this->params)){
 					if (in_array($f, $boolfields)){

@@ -7,9 +7,9 @@
 	/* font-size: 13px; */
 /* } */
 @media (min-width: 992px) {
-	.content-header > .breadcrumb {
+	/* .content-header > .breadcrumb {
 		top: 55px !important;
-	}
+	} */
 }
 .info-marquee
 {

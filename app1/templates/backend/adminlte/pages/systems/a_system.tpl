@@ -18,8 +18,8 @@
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script>
 	var a=[];	var col = [];
-	var formContent = $('<form "autocomplete"="off" />');
-	var boxContent = $('<div class="box"><div class="box-header"></div><div class="box-body"></div><div class="box-footer"></div></div>');
+	var form1 = BSHelper.Form({ autocomplete:"off" });	
+	var box1 = $('<div class="box"><div class="box-header"></div><div class="box-body"></div><div class="box-footer"></div></div>');
 	var tabContent = BSHelper.Tabs({
 		dataList: [
 			{	title:"General Setup", idname:"tab-gen", content:function(){
@@ -116,34 +116,34 @@
 			} },
 		],
 	});
-	{* boxContent.find('.box-body').append(tabContent); *}
-	formContent.append(tabContent);
+	{* box1.find('.box-body').append(tabContent); *}
+	form1.append(tabContent);
 	
 	{* Button *}
 	a = [];
 	a.push( BSHelper.Button({ type:"submit", label:"Save", cls:"btn-primary" }) );
-	{* boxContent.find('.box-footer').append(a); *}
-	formContent.append(a);
+	{* box1.find('.box-footer').append(a); *}
+	form1.append(a);
 	
-	{* formContent.append(boxContent); *}
-	$(".content").append(formContent);
+	{* form1.append(box1); *}
+	$(".content").append(form1);
 	
 	{* Begin: Populate data to form *}
 	$.getJSON('{$url_module}', '', function(result){ 
 		if (!isempty_obj(result.data.rows)) 
-			formContent.shollu_autofill('load', result.data.rows[0]);  
+			form1.shollu_autofill('load', result.data.rows[0]);  
 	});
 	{* End: Populate data to form *}
 	
 	{* Event *}
 	
 	{* Form submit action *}
-	formContent.validator().on('submit', function (e) {
+	form1.validator().on('submit', function (e) {
 		{* e.stopPropagation; *}
 		if (e.isDefaultPrevented()) { return false;	} 
 		
 		$.ajax({ url: '{$url_module}', method:"PUT", async: true, dataType:'json',
-			data: formContent.serializeJSON(),
+			data: form1.serializeJSON(),
 			success: function(data) {
 				{* console.log(data); *}
 				BootstrapDialog.alert('Saving data successfully !', function(){

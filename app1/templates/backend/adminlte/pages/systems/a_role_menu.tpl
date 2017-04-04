@@ -3,14 +3,6 @@
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <h1>
-        {$window_title}
-        <small>{$description}</small>
-      </h1>
-    </section>
-
     <!-- Main content -->
     <section class="content">
       <div class="row">
@@ -28,8 +20,17 @@
 	{* Section 1: For parsing URL Parameters *}
 	var origin_url = window.location.origin+window.location.pathname;
 	var $param = {}, $id, $q;
-	
-	{* Set master key info to Page Title *}
+	{* Start :: Init for Title, Breadcrumb *}
+	$(".content").before(BSHelper.PageHeader({ 
+		title:"{$window_title}", 
+		title_desc:"{$description}", 
+		bc_list:[
+			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
+			{ icon:"", title:"Role Access", link:"javascript:history.back()" },
+			{ icon:"", title:"{$window_title}", link:"" },
+		]
+	}));
+	{* Additional for sub module *}
 	var role_id = getURLParameter("role_id");
 	$.getJSON('{$url_module_main}', { "id": (role_id==null)?-1:role_id }, function(result){ 
 		if (!isempty_obj(result.data.rows)) {
@@ -37,7 +38,8 @@
 			$('.content-header').find('h1').find('small').before(code_name);
 		}
 	});
-
+	{* End :: Init for Title, Breadcrumb *}
+	
 	{* Section 2: For building Datatables *}
 	var aLBtn = [];
 	{* aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs btn-info glyphicon glyphicon-duplicate" title="Copy" name="btn-copy" />'); *}
@@ -47,7 +49,7 @@
 	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=31>Role</a></span>');
 	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=32>Org</a></span>');
 	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=33>Subs</a></span>');
-	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
+	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="width:100%; table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
 	dataTable1 = tableData1.DataTable({
 		"pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, 
 		"ajax": {

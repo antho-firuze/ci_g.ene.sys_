@@ -3,79 +3,74 @@
 
    <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <h1>
-        {$window_title}
-        <small>{$description}</small>
-      </h1>
-    </section>
-
-    <!-- Main content -->
+     <!-- Main content -->
     <section class="content">
-
-      <!-- Default box -->
-      <div class="box">
-				<div class="box-body"></div>
-      </div>
-      <!-- /.box -->
-
     </section>
     <!-- /.content -->
-  </div>
+ </div>
   <!-- /.content-wrapper -->
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script>
-	var a = [];
-	var col = subCol(12,"");
+	{* Get Params *}
 	var id = getURLParameter("id");
 	var edit = getURLParameter("edit");
-	var formContent = $('<form "autocomplete"="off"><div class="row"><div class="col-left col-md-6"></div><div class="col-right col-md-6"></div></div></form>');
-	
-	{* Set status to Page Title *}
-	var desc = function(edit){ if (edit==1) return "(Edit)"; else if (edit==2) return "(New)"; else return "(Copy)"; };
 	var user_id = getURLParameter("user_id");
+	{* Start :: Init for Title, Breadcrumb *}
+	{* Set status (new|edit|copy) to Page Title *}
+	var desc = function(edit){ if (edit==1) return "(Edit)"; else if (edit==2) return "(New)"; else return "(Copy)"; };
+	$(".content").before(BSHelper.PageHeader({ 
+		title: "{$window_title}", 
+		title_desc: desc(edit), 
+		bc_list:[
+			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
+			{ icon:"", title:"User", link:"javascript:history.back()" },
+			{ icon:"", title:"{$window_title}", link:"javascript:history.back()" },
+			{ icon:"", title: desc(edit), link:"" },
+		]
+	}));
+	{* Additional for sub module *}
 	$.getJSON('{$url_module_main}', { "id": (user_id==null)?-1:user_id }, function(result){ 
 		if (!isempty_obj(result.data.rows)) {
 			var code_name = ": "+result.data.rows[0].code_name;
 			$('.content-header').find('h1').find('small').before(code_name);
 		}
 	});
-	$('.content-header').find('h1').find('small').html(desc(edit));
-	
+	{* End :: Init for Title, Breadcrumb *}
+
 	{* For design form interface *}
+	var col = [], row = [];
+	var form1 = BSHelper.Form({ autocomplete:"off" });	
+	var box1 = BSHelper.Box({ type:"info" });
 	var req = function(edit){ if (edit==1) return false; else if (edit==2) return true; else return true; };
 	{* adding master key id *}
-	col.append(BSHelper.Input({ type:"hidden", idname:"user_id", value:user_id }));
-	
+	col.push(BSHelper.Input({ type:"hidden", idname:"user_id", value:user_id }));
 	{* standard fields table *}
-	col.append(BSHelper.Input({ type:"hidden", idname:"id" }));
-	col.append(BSHelper.Combobox({ horz:false, label:"Organization", idname:"org_id", textField:"code_name", url:"{$.php.base_url('systems/a_org')}", remote: true }));
-	col.append(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
-	formContent.append(subRow(col));
-	formContent.append(subRow(subCol()));
-	a = [];
-	a.push( BSHelper.Button({ type:"submit", label:"Submit", idname:"submit_btn" }) );
-	a.push( '&nbsp;&nbsp;&nbsp;' );
-	a.push( BSHelper.Button({ type:"button", label:"Cancel", cls:"btn-danger", idname:"btn_cancel", onclick:"window.history.back();" }) );
-	formContent.append( a );
-	$('div.box-body').append(formContent);
+	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Organization", idname:"org_id", textField:"code_name", url:"{$.php.base_url('systems/a_org')}", remote: true }));
+	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
+	form1.append(subRow(subCol(12, col)));
+	form1.append(subRow(subCol()));
+	col = [];
+	col.push( BSHelper.Button({ type:"submit", label:"Submit", idname:"submit_btn" }) );
+	col.push( '&nbsp;&nbsp;&nbsp;' );
+	col.push( BSHelper.Button({ type:"button", label:"Cancel", cls:"btn-danger", idname:"btn_cancel", onclick:"window.history.back();" }) );
+	form1.append( col );
+	box1.find('.box-body').append(form1);
+	$(".content").append(box1);
 
 	{* Begin: Populate data to form *}
 	$.getJSON('{$url_module}', { "id": (id==null)?-1:id }, function(result){ 
 		if (!isempty_obj(result.data.rows)) 
-			formContent.shollu_autofill('load', result.data.rows[0]);  
+			form1.shollu_autofill('load', result.data.rows[0]);  
 	});
 	
-	{* Init data for combogrid *}
-
 	{* Form submit action *}
-	formContent.validator().on('submit', function (e) {
+	form1.validator().on('submit', function (e) {
 		{* e.stopPropagation; *}
 		if (e.isDefaultPrevented()) { return false;	} 
 		
 		$.ajax({ url: '{$url_module ~ "?id="}'+id, method:(edit==1?"PUT":"POST"), async: true, dataType:'json',
-			data: formContent.serializeJSON(),
+			data: form1.serializeJSON(),
 			success: function(data) {
 				{* console.log(data); *}
 				BootstrapDialog.alert('Saving data successfully !', function(){

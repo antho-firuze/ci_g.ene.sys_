@@ -3,14 +3,6 @@
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <h1>
-        {$window_title}
-        <small>{$description}</small>
-      </h1>
-    </section>
-
     <!-- Main content -->
     <section class="content">
       <div class="row">
@@ -28,8 +20,17 @@
 	{* Section 1: For parsing URL Parameters *}
 	var origin_url = window.location.origin+window.location.pathname;
 	var $param = {}, $id, $q;
-	
-	{* Set master key info to Page Title *}
+	{* Start :: Init for Title, Breadcrumb *}
+	$(".content").before(BSHelper.PageHeader({ 
+		title:"{$window_title}", 
+		title_desc:"{$description}", 
+		bc_list:[
+			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
+			{ icon:"", title:"User", link:"javascript:history.back()" },
+			{ icon:"", title:"{$window_title}", link:"" },
+		]
+	}));
+	{* Additional for sub module *}
 	var user_id = getURLParameter("user_id");
 	$.getJSON('{$url_module_main}', { "id": (user_id==null)?-1:user_id }, function(result){ 
 		if (!isempty_obj(result.data.rows)) {
@@ -37,6 +38,7 @@
 			$('.content-header').find('h1').find('small').before(code_name);
 		}
 	});
+	{* End :: Init for Title, Breadcrumb *}
 
 	{* Section 2: For building Datatables *}
 	var aLBtn = [];

@@ -21,9 +21,9 @@
 	var a = [];	var col = [];
 	var x = getURLParameter("x");
 	var role_id = getURLParameter("role_id");
-	var formContent = $('<form "autocomplete"="off"></form>');
-	var boxContent = $('<div class="box"><div class="box-header"></div><div class="box-body"></div><div class="box-footer"></div></div>');
-	formContent.append(boxContent);
+	var form1 = BSHelper.Form({ autocomplete:"off" });	
+	var box1 = $('<div class="box"><div class="box-header"></div><div class="box-body"></div><div class="box-footer"></div></div>');
+	form1.append(box1);
 	
 	{* Set status to Page Title *}
 	$.getJSON('{$url_module_main}', { "id": (role_id==null)?-1:role_id }, function(result){ 
@@ -40,21 +40,21 @@
 	{* standard fields table *}
 	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Please Choose Role to be copied !", idname:"copy_role_id", required:true, url:"{$.php.base_url('systems/a_role')}?filter=t1.id<>"+role_id, remote: true }));
-	boxContent.find(".box-body").append(subRow(subCol(6, col)));
+	box1.find(".box-body").append(subRow(subCol(6, col)));
 	a = [];
 	a.push( BSHelper.Button({ type:"submit", label:"Submit", idname:"submit_btn" }) );
 	a.push( '&nbsp;&nbsp;&nbsp;' );
 	a.push( BSHelper.Button({ type:"button", label:"Cancel", cls:"btn-danger", idname:"btn_cancel", onclick:"window.history.back();" }) );
-	boxContent.find(".box-footer").append( a );
-	$(".content").append(formContent);
+	box1.find(".box-footer").append( a );
+	$(".content").append(form1);
 
 	{* Form submit action *}
-	formContent.validator().on('submit', function (e) {
+	form1.validator().on('submit', function (e) {
 		{* e.stopPropagation; *}
 		if (e.isDefaultPrevented()) { return false;	} 
 		
 		$.ajax({ url: "{$url_module}", method:"OPTIONS", async: true, dataType:'json',
-			data: formContent.serializeJSON(),
+			data: form1.serializeJSON(),
 			success: function(data) {
 				{* console.log(data); *}
 				BootstrapDialog.alert(data.message, function(){
