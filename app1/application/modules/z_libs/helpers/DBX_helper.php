@@ -6,7 +6,8 @@ class DBX
 	public static function like_or($fields, $q)
 	{
 		$q = strtolower($q);
-		foreach (explode(',', $fields) as $v)
+		$fields = is_array($fields) ? $fields : explode(',', $fields);
+		foreach ($fields as $v)
 		{
 			$v = trim($v);
 			$like[] =  "lower({$v}) LIKE '%{$q}%' ESCAPE '!'";

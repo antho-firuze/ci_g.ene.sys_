@@ -207,7 +207,8 @@
 	*/
 	BSHelper.Combogrid = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
-		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
+		var lbllink = o.label_link ? '<a href="'+o.label_link+'">'+o.label+'</a>' : o.label;
+		var lblname = o.required ? '&nbsp;<span style="color:red;">'+lbllink+' *</span>' : lbllink;
 		var placeholder = o.placeholder ? o.placeholder : "typed or choose";
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
 		var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: placeholder, value: o.value,	autocomplete: "off" }); 
@@ -245,7 +246,8 @@
 	*/
 	BSHelper.Combobox = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
-		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
+		var lbllink = o.label_link ? '<a href="'+o.label_link+'">'+o.label+'</a>' : o.label;
+		var lblname = o.required ? '&nbsp;<span style="color:red;">'+lbllink+' *</span>' : lbllink;
 		var placeholder = o.placeholder ? o.placeholder : "typed or choose";
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
 		var input = $('<input />', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: placeholder, value: o.value,	autocomplete: "off" }); 

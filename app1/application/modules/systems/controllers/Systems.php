@@ -505,13 +505,13 @@ class Systems extends Getmeb
 			}
 			
 			
-			if (key_exists('id', $this->params) && ($this->params['id'] != '')) 
+			if (isset($this->params['id']) && ($this->params['id'] != '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('zone', $this->params) && ($this->params['zone']))
 				$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -574,7 +574,7 @@ class Systems extends Getmeb
 	function a_user_org()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('user_id', $this->params) && ($this->params['user_id'] != '')) 
@@ -583,8 +583,8 @@ class Systems extends Getmeb
 			if (key_exists('zone', $this->params) && ($this->params['zone']))
 				$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t2.code, t2.name', $this->params['q']);
+			if (isset($this->params['q']) && !empty($this->params['q']))
+				$this->params['like'] = DBX::like_or(["t2.code", "t2.name", "coalesce(t2.code,'') ||'_'|| t2.name"], $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
@@ -641,11 +641,13 @@ class Systems extends Getmeb
 				$this->params['where']['t1.role_id'] = $this->params['role_id'];
 			
 			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t2.code, t2.name', $this->params['q']);
+				// $this->params['like'] = DBX::like_or("coalesce(t2.code,'') ||'_'|| t2.name", $this->params['q']);
+				$this->params['like'] = DBX::like_or(["t2.code", "t2.name", "coalesce(t2.code,'') ||'_'|| t2.name"], $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
+				$result['str_query'] = $this->session->flashdata('str_query');
 				$this->xresponse(FALSE, $result);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -688,13 +690,13 @@ class Systems extends Getmeb
 	function a_user_substitute()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('user_id', $this->params) && ($this->params['user_id'] != '')) 
 				$this->params['where']['t1.user_id'] = $this->params['user_id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -932,13 +934,13 @@ class Systems extends Getmeb
 	function a_role_process()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('role_id', $this->params) && ($this->params['role_id'] != '')) 
 				$this->params['where']['t1.role_id'] = $this->params['role_id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -986,10 +988,10 @@ class Systems extends Getmeb
 	function a_system()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			$this->params['where']['t1.client_id'] 	=	DEFAULT_CLIENT_ID;
@@ -1040,10 +1042,10 @@ class Systems extends Getmeb
 	function a_client()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -1091,10 +1093,10 @@ class Systems extends Getmeb
 	function a_menu()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			$this->params['where']['t1.client_id'] 	=	DEFAULT_CLIENT_ID;
@@ -1144,10 +1146,10 @@ class Systems extends Getmeb
 	function a_org()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.code, t1.name, t1.description', $this->params['q']);
 
 			$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
@@ -1196,10 +1198,61 @@ class Systems extends Getmeb
 	function a_orgtype()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
+				$this->params['like'] = DBX::like_or('t1.code, t1.name, t1.description', $this->params['q']);
+
+			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$fields = $this->db->list_fields($this->c_method);
+			$boolfields = ['is_active'];
+			$nullfields = [];
+			foreach($fields as $f){
+				if (key_exists($f, $this->params)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
+					} 
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
+					} else {
+						$datas[$f] = $this->params->{$f};
+					}
+				}
+			}
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
+			else
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
+	function a_sequence()
+	{
+		if ($this->r_method == 'GET') {
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.code, t1.name, t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -1247,7 +1300,7 @@ class Systems extends Getmeb
 	function a_info()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('zone', $this->params) && ($this->params['zone'])) {
@@ -1259,7 +1312,7 @@ class Systems extends Getmeb
 				$this->params['where']['t1.valid_from <='] = datetime_db_format();
 			}
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -1316,10 +1369,10 @@ class Systems extends Getmeb
 	function c_currency()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -1367,10 +1420,10 @@ class Systems extends Getmeb
 	function c_1country()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -1418,7 +1471,7 @@ class Systems extends Getmeb
 	function c_2province()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('country_id', $this->params) && !empty($this->params['country_id'])) 
@@ -1426,7 +1479,7 @@ class Systems extends Getmeb
 			else
 				$this->params['where']['t1.country_id'] = 0;
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -1474,7 +1527,7 @@ class Systems extends Getmeb
 	function c_3city()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			// $this->params['where']['t1.province_id'] = isset($this->params['province_id']) ? $this->params['province_id'] : 0;
@@ -1483,7 +1536,7 @@ class Systems extends Getmeb
 			else
 				$this->params['where']['t1.province_id'] = 0;
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -1531,7 +1584,7 @@ class Systems extends Getmeb
 	function c_4district()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('city_id', $this->params) && !empty($this->params['city_id'])) 
@@ -1539,7 +1592,7 @@ class Systems extends Getmeb
 			else
 				$this->params['where']['t1.city_id'] = 0;
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -1596,7 +1649,7 @@ class Systems extends Getmeb
 					$this->params['where']['t1.district_id'] = 0;
 
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){

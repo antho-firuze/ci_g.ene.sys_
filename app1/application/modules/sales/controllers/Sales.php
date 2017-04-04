@@ -20,13 +20,13 @@ class Sales extends Getmeb
 	function a_user_org()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('zone', $this->params) && ($this->params['zone']))
+			if (isset($this->params['zone']) && $this->params['zone'])
 				$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t2.code, t2.name', $this->params['q']);
 
 			$this->params['where']['t1.is_active'] = '1';
@@ -46,10 +46,10 @@ class Sales extends Getmeb
 	function e_swg_class()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->sales_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -97,10 +97,10 @@ class Sales extends Getmeb
 	function e_swg_size()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->sales_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -148,10 +148,10 @@ class Sales extends Getmeb
 	function e_swg_series()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->sales_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -199,10 +199,10 @@ class Sales extends Getmeb
 	function m_pricelist()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->sales_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -250,10 +250,10 @@ class Sales extends Getmeb
 	function m_pricelist_version()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->sales_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -301,10 +301,10 @@ class Sales extends Getmeb
 	function m_pricelist_item()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->sales_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -352,10 +352,10 @@ class Sales extends Getmeb
 	function e_pl_swg_dimension()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 	
 			if (($result['data'] = $this->sales_model->{'get_'.$this->c_method}($this->params)) === FALSE){
@@ -403,10 +403,10 @@ class Sales extends Getmeb
 	function e_pl_swg_config()
 	{
 		if ($this->r_method == 'GET') {
-			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
-			if (key_exists('q', $this->params) && !empty($this->params['q']))
+			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.attribute, t1.description', $this->params['q']);
 	
 			if (($result['data'] = $this->sales_model->{'get_'.$this->c_method}($this->params)) === FALSE){

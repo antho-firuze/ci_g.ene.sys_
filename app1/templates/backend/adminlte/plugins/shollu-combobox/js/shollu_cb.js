@@ -192,8 +192,11 @@
 			
 			if (o.remote){
 				var term = { page:o.page, rows:o.rows };
-				if (id) { term[o.idField] = id; }
-				if (text) { term['q'] = text; }
+				if (id) { 
+					term[o.idField] = id;
+				} else {
+					if (text) { term['q'] = text; }
+				}
 				$.each(o.queryParams, function(k, v){ term[k] = v; });
 				setTimeout(function(){ 
 					$.getJSON( o.url, term, function(result){ 
