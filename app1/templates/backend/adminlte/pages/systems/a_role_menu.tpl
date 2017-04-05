@@ -66,10 +66,11 @@
 		"columns": [
 			{ width:"20px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render:function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
 			{ width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render: function(data, type, row){ return aLBtn.join(""); } },
-			{ width:"150px", orderable:false, data:"code_name", title:"Organization" },
+			{ width:"150px", orderable:false, data:"code_name", title:"Menu" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_parent", title:"Parent", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"150px", orderable:false, data:"parent_name", title:"Parent Name" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_readwrite", title:"Allow", render:function(data, type, row){ switch(data){ case '1':return 'Create';break; case '2':return 'Edit';break; case '3':return 'Delete';break; case '4':return 'Create & Edit';break; case '5':return 'Create & Delete';break; case '6':return 'Edit & Delete';break; case '7':return 'Can All';break; default:return ''; }; } },
 		],
 		"order": []
 	})

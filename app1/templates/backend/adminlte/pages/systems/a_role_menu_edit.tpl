@@ -48,6 +48,17 @@
 	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Menu", idname:"menu_id", url:"{$.php.base_url('systems/a_menu')}", remote: true }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Allow", idname:"is_readwrite", remote: false,
+		list:[
+			{ id:"1", name:"Only Create" },
+			{ id:"2", name:"Only Edit" },
+			{ id:"3", name:"Only Delete" },
+			{ id:"4", name:"Can Create & Edit" },
+			{ id:"5", name:"Can Create & Delete" },
+			{ id:"6", name:"Can Edit & Delete" },
+			{ id:"7", name:"Can All" },
+		] 
+	}));
 	form1.append(subRow(subCol(6, col)));
 	form1.append(subRow(subCol()));
 	col = [];

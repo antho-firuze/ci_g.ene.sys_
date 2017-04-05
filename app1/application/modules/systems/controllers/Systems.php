@@ -49,6 +49,10 @@ class Systems extends Getmeb
 		{
 			$this->_check_is_login();
 		}
+		if (in_array($this->r_method, ['POST','PUT','DELETE']))
+		{
+			$this->_check_is_allow();
+		}
 		return call_user_func_array(array($this, $method), $params);
 	}
 
@@ -854,7 +858,7 @@ class Systems extends Getmeb
 				$this->params['where']['t1.role_id'] = $this->params['role_id'];
 			
 			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
+				$this->params['like'] = DBX::like_or('t2.code, t2.name, t2.description', $this->params['q']);
 
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];

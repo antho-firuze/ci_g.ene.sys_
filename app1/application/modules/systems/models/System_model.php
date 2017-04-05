@@ -176,7 +176,7 @@ class System_Model extends CI_model
 	
 	function get_a_role_menu($params)
 	{
-		$params['select'] = "t1.id, t1.menu_id, t2.code, t2.name, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t2.is_parent, (select name from a_menu where id = t2.parent_id limit 1) as parent_name";
+		$params['select'] = "t1.id, t1.menu_id, t2.code, t2.name, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t2.is_parent, (select name from a_menu where id = t2.parent_id limit 1) as parent_name, t1.is_readwrite";
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= "a_role_menu t1";
 		$params['join'][] = ['a_menu t2', 't1.menu_id = t2.id', 'left'];

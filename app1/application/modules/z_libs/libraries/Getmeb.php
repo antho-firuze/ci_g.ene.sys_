@@ -111,6 +111,63 @@ class Getmeb extends CI_Controller
 		return TRUE;
 	}
 	
+	function _check_is_allow()
+	{
+		$this->params = is_array($this->params) ? (object)$this->params : $this->params;
+		
+		$menu = $this->base_model->getValue('id', 'a_menu', 'method', $this->c_method);
+		
+		// debug('c_method:'.$this->c_method.' - role_id:'.$this->session->role_id.' - menu_id:'.$menu->id);
+		
+		$allow = $this->base_model->getValue('is_readwrite', 'a_role_menu', ['role_id', 'menu_id', 'is_active', 'is_deleted'], [$this->session->role_id, $menu->id, '1', '0']);
+		
+		// debug(empty($allow->is_readwrite));
+		if ($allow === FALSE || empty($allow->is_readwrite)){
+			// debug($this->db->error()['message']);
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+		}
+		
+		switch($allow->is_readwrite){
+		case '1':
+			/* Only Create */
+			break;
+		case '2':
+			/* Only Edit */
+			break;
+		case '3':
+			/* Only Delete */
+			break;
+		case '4':
+			/* Can Create & Edit */
+			break;
+		case '5':
+			/* Can Create & Delete */
+			break;
+		case '6':
+			/* Can Edit & Delete */
+			break;
+		case '7':
+			/* Can All */
+			break;
+		default:
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+			break;
+		}
+		
+		/* for checking create process */
+		if ($this->r_method == 'POST') {
+			
+		}
+		/* for checking edit process */
+		if ($this->r_method == 'PUT') {
+			
+		}
+		/* for checking delete process */
+		if ($this->r_method == 'DELETE') {
+			
+		}
+	}
+	
 	function set_message($message)
 	{
 		$this->messages[] = $message;

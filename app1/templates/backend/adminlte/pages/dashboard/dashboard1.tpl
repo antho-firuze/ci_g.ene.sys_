@@ -1,16 +1,4 @@
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <h1>
-        Dashboard
-        <small>Control panel</small>
-      </h1>
-      <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li class="active">Dashboard</li>
-      </ol>
-    </section>
-
     <!-- Main content -->
     <section class="content">
       <!-- Small boxes (Stat box) -->
@@ -45,6 +33,15 @@
   
   
 <script>
+	{* Start :: Init for Title, Breadcrumb *}
+	$(".content").before(BSHelper.PageHeader({ 
+		title:"{$window_title}", 
+		title_desc:"{$description}", 
+		bc_list:[
+			{ icon:"fa fa-dashboard", title:" Dashboard", link:"{$.const.APPS_LNK}" },
+		]
+	}));
+	{* End :: Init for Title, Breadcrumb *}
 	{* $(".connectedSortable").sortable({
 		placeholder: "sort-highlight",
 		connectWith: ".connectedSortable",
