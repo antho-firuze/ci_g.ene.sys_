@@ -40,6 +40,7 @@
 	col.push(BSHelper.Combobox({ horz:false, label:"Parent Menu", idname:"parent_id", url:"{$.php.base_url('systems/a_menu')}?filter=is_parent='1'", remote: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Icon", idname:"icon", placeholder:"string(60)" }));
 	row.push(subCol(6, col)); col = [];
+	col.push(BSHelper.Checkbox({ horz:false, label:"Is Sub Module", idname:"is_submodule", value:0 }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Table", idname:"url", placeholder:"string(60)" }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Path", idname:"path", placeholder:"string(100)" }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Class", idname:"class", placeholder:"string(60)" }));

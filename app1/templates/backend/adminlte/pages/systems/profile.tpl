@@ -1,8 +1,5 @@
 {var $url_module = $.php.base_url('systems/x_profile')}
-{var $url_module_a_user = $.php.base_url('systems/a_user')}
-{var $url_upload = $.php.base_url('systems/x_upload')}
 {var $url_module_a_user_config = $.php.base_url('systems/a_user_config')}
-{var $url_config = $.php.base_url('systems/x_config')}
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -166,13 +163,13 @@
 		}
 	});
 	uploader.bind('BeforeUpload', function(uploader, file) {
-		uploader.settings.url = "{$url_upload}?userphoto=1&id="+{$.session.user_id}+"&photo_file="+$('#photo_file').val();
+		uploader.settings.url = "{$url_module}?userphoto=1&id="+{$.session.user_id}+"&photo_file="+$('#photo_file').val();
 	});
 	uploader.init();
 
 	{* Event on Element *}
-	$("#user_role_id").shollu_cb({ onSelect: function(rowData){ $.ajax({ url:"{$url_module}?user_role_id="+rowData.id, method:"PUT" });	} });
-	$("#user_org_id").shollu_cb({ onSelect: function(rowData){ $.ajax({ url:"{$url_module}?user_org_id="+rowData.id, method:"PUT" });	} });
+	$("#user_role_id").shollu_cb({ onSelect: function(rowData){ $.ajax({ url:"{$url_module}", method:"PUT", data:JSON.stringify({ "id":{$.session.user_id}, "user_role_id":rowData.id }) });	} });
+	$("#user_org_id").shollu_cb({ onSelect: function(rowData){ $.ajax({ url:"{$url_module}", method:"PUT", data:JSON.stringify({ "id":{$.session.user_id}, "user_org_id":rowData.id }) });	} });
 	$.each(form2.find('input'), function(){
 		if ($(this).attr('id')){
 			var id = $(this).attr('id');
@@ -180,7 +177,7 @@
 				onSelect: function(rowData){ 
 					if (rowData.id){
 						var data = JSON.stringify($("[name='"+id+"']").serializeArray());
-						$.ajax({ url:"{$url_config}", method:"PUT", data:data });	
+						$.ajax({ url:"{$url_module_a_user_config}", method:"PUT", data:data });	
 					}
 				}
 			});

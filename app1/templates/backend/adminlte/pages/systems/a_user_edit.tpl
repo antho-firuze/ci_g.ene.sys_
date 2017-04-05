@@ -1,5 +1,4 @@
 {var $url_module = $.php.base_url('systems/a_user')}
-{var $url_upload = $.php.base_url('systems/x_upload')}
 
    <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
@@ -86,7 +85,7 @@
 	});
 	
 	{* Init data for custom element (combogrid, button etc.) *}
-	var uploader = new plupload.Uploader({ url:"{$url_upload}?userphoto=1&id="+id+"&photo_file="+$('#photo_file').val(), runtimes:"html5",
+	var uploader = new plupload.Uploader({ url:"{$url_module}?userphoto=1&id="+id+"&photo_file="+$('#photo_file').val(), runtimes:"html5",
 		filters: { max_file_size: "2mb", mime_types: [{ title:"Image files", extensions:"jpg,gif,png" }] },
 		browse_button: "btn_uploadphoto", 
 		multi_selection: false,
@@ -108,7 +107,7 @@
 		}
 	});
 	uploader.bind('BeforeUpload', function(uploader, file) {
-		uploader.settings.url = "{$url_upload}?userphoto=1&id="+id+"&photo_file="+$('#photo_file').val();
+		uploader.settings.url = "{$url_module}?userphoto=1&id="+id+"&photo_file="+$('#photo_file').val();
 	});
 	uploader.init();
 

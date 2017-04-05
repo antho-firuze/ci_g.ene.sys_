@@ -10,49 +10,18 @@ class Systems extends Getmeb
 		$this->load->model('systems/system_model');
 	}
 	
-	/**
-	 * Prevent direct access to this controller via URL
-	 *
-	 * @access public
-	 * @param  string $method name of method to call
-	 * @param  array  $params Parameters that would normally get passed on to the method
-	 * @return void
-	 */
-	/*  
-	public function _remap($method, $params = array())
-	{
-		// get controller name
-		$controller = mb_strtolower(get_class($this));
-		$this->c_method = $method;
-		 
-		if ($controller === mb_strtolower($this->uri->segment(1))) {
-			// if requested controller and this controller have the same name
-			// show 404 error
-			show_404();
-		} elseif (method_exists($this, $method))
-		{
-			// if method exists
-			// call method and pass any parameters we recieved onto it.
-			return call_user_func_array(array($this, $method), $params);
-		} else {
-			// method doesn't exist, show error
-			show_404();
-		}
-	} */
-
+	/* This method (function _remap), is a must exists for every controller */
 	function _remap($method, $params = array())
 	{
+		/* get method name */
 		$this->c_method = $method;
+		/* Exeption list methods */
+		$this->exception_method = ['x_auth','x_login','x_logout','x_reload','x_forgot'];
+		/* This process is for checking login status (is a must on every controller) */
+		$this->_check_is_login();
+		/* This process is for checking permission (is a must on every controller) */
+		$this->_check_is_allow();
 		
-		/* THIS METHODS ARE NOT THROUGH CHECKING LOGIN */
-		if (!in_array($method, ['x_auth', 'x_login', 'x_logout', 'x_reload', 'x_forgot']))
-		{
-			$this->_check_is_login();
-		}
-		if (in_array($this->r_method, ['POST','PUT','DELETE']))
-		{
-			$this->_check_is_allow();
-		}
 		return call_user_func_array(array($this, $method), $params);
 	}
 
@@ -292,36 +261,6 @@ class Systems extends Getmeb
 		$this->xresponse(TRUE, $result);
 	}
 	
-	function x_config()
-	{
-		if ($this->r_method == 'PUT') {
-			if (count($this->params) > 0){
-				// $i = 0;
-				// foreach($this->params as $param){
-					// $param[i]->
-					// i++;
-				// }
-				/* update config to session */
-				$this->session->set_userdata([$this->params[0]->name => $this->params[0]->value]);
-
-				/* update config to database */
-				$data['value'] 		 = $this->params[0]->value;
-				$cond['attribute'] = $this->params[0]->name;
-				$cond['user_id'] 	 = $this->sess->user_id;
-				
-				$qry = $this->db->get_where('a_user_config', $cond, 1);
-				if ($qry->num_rows() > 0) {
-					if (!$this->updateRecord('a_user_config', $data, $cond, TRUE))
-						$this->xresponse(FALSE, ['message' => $this->messages()]);
-				} else {
-					if (!$this->insertRecord('a_user_config', array_merge($data, $cond), FALSE, TRUE))
-						$this->xresponse(FALSE, ['message' => $this->messages()]);
-				}
-			}
-		}
-		$this->xresponse(TRUE);
-	}
-	
 	function x_profile($mode=NULL)
 	{
 		if ($this->r_method == 'GET') {
@@ -356,6 +295,7 @@ class Systems extends Getmeb
 		}
 		
 		if ($this->r_method == 'PUT') {
+			debug('auahhh');
 			if (count($this->input->get()) > 0) {
 				$this->params = $this->input->get();
 				
@@ -399,6 +339,14 @@ class Systems extends Getmeb
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 		
+		if ($this->r_method == 'POST') {
+			/* This process is for Upload Photo */
+			$param_get = $this->input->get();
+			if (isset($param_get['userphoto']) && !empty($param_get['userphoto'])) {
+				$this->x_upload_user_photo();
+			}
+		}
+		
 		$this->backend_view('pages/systems/profile');
 	}
 	
@@ -439,7 +387,7 @@ class Systems extends Getmeb
 	*
 	*
 	*/
-	function x_upload()
+	function x_upload_user_photo()
 	{
 		/* get the params & files (special for upload file) */
 		$files = $_FILES;
@@ -527,6 +475,12 @@ class Systems extends Getmeb
 			}
 		}
 		if ($this->r_method == 'POST') {
+			/* This process is for Upload Photo */
+			$param_get = $this->input->get();
+			if (isset($param_get['userphoto']) && !empty($param_get['userphoto'])) {
+				$this->x_upload_user_photo();
+			}
+			
 			$this->load->library('z_auth/auth');
 			if (! $id = $this->auth->register($this->params->name, $this->params->password, $this->params->email, array_merge($this->fixed_data, $this->create_log)))
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
@@ -776,6 +730,8 @@ class Systems extends Getmeb
 					// i++;
 				// }
 				/* update config to session */
+				// debug($this->params);
+				$this->params = is_array($this->params) ? $this->params : (array)$this->params;
 				$this->session->set_userdata([$this->params[0]->name => $this->params[0]->value]);
 
 				/* update config to database */
@@ -1105,7 +1061,7 @@ class Systems extends Getmeb
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active'];
+			$boolfields = ['is_active','is_submodule'];
 			$nullfields = ['description','url','path','icon','class','method','window_title'];
 			foreach($fields as $f){
 				if (key_exists($f, $this->params)){

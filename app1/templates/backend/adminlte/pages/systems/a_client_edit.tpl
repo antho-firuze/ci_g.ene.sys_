@@ -28,7 +28,7 @@
 	{* End :: Init for Title, Breadcrumb *}
 	
 	{* For design form interface *}
-	var col = [];
+	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info" });
 	var req = function(edit){ if (edit==1) return false; else if (edit==2) return true; else return true; };

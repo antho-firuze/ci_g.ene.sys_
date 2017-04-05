@@ -12,7 +12,14 @@ class Sales extends Getmeb
 	
 	function _remap($method, $params = array())
 	{
+		/* Exeption list methods */
+		$exception_method = [];
+		/* get method name */
 		$this->c_method = $method;
+		/* This process is for checking login status (is a must on every controller) */
+		$this->_check_is_login($method, $exception_method);
+		/* This process is for checking permission (is a must on every controller) */
+		$this->_check_is_allow();
 		
 		return call_user_func_array(array($this, $method), $params);
 	}

@@ -33,7 +33,7 @@
 <script>
 	{* DECLARE VARIABLE *}
 	{var $sidebar = $.session.sidebar !: ''}
-	var x_config_lnk = '{$.const.CONFIG_LNK}';
+	var x_config_lnk = '{$.const.U_CONFIG_LNK}';
 	var $skin = 'skin{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
 	var $sidebar = 'sidebar{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
 	var $screen_timeout = 'screen_timeout{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';

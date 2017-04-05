@@ -10,6 +10,8 @@ class Getmeb extends CI_Controller
 	public $r_method;	
 	/* FOR CONTROLLER METHOD */
 	public $c_method;
+	/* FOR EXCEPTION METHOD */
+	public $exception_method = [];
 	/* FOR GETTING PARAMS FROM REQUEST URL */
 	public $params;
 	/* FOR STORE SESSION DATA */
@@ -101,11 +103,20 @@ class Getmeb extends CI_Controller
 	
 	function _check_is_login()
 	{
+		/* This process is for bypass methods which do not need to login */
+		if (count($this->exception_method) > 0){
+			if (in_array($this->c_method, $this->exception_method)){
+				return TRUE;
+			}
+		}
+		
+		/* Check the session data for user_id */
 		if (!$this->session->userdata('user_id')) {
 			/* set reference url to session */
 			setURL_Index();
 			/* forward to login page */
-			$this->x_login();
+			// $this->x_login();
+			redirect(LOGIN_LNK);
 			exit();
 		}
 		return TRUE;
@@ -113,59 +124,100 @@ class Getmeb extends CI_Controller
 	
 	function _check_is_allow()
 	{
+		/* This process is for bypass methods which do not need to login */
+		if (count($this->exception_method) > 0){
+			if (in_array($this->c_method, $this->exception_method))
+				return;
+		}
+		if (!in_array($this->r_method, ['POST','PUT','DELETE'])){
+			return;
+		}
 		$this->params = is_array($this->params) ? (object)$this->params : $this->params;
 		
-		$menu = $this->base_model->getValue('id', 'a_menu', 'method', $this->c_method);
-		
-		// debug('c_method:'.$this->c_method.' - role_id:'.$this->session->role_id.' - menu_id:'.$menu->id);
-		
-		$allow = $this->base_model->getValue('is_readwrite', 'a_role_menu', ['role_id', 'menu_id', 'is_active', 'is_deleted'], [$this->session->role_id, $menu->id, '1', '0']);
-		
-		// debug(empty($allow->is_readwrite));
-		if ($allow === FALSE || empty($allow->is_readwrite)){
-			// debug($this->db->error()['message']);
-			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+		// debug('c_method:'.$this->c_method);
+		$menu = $this->base_model->getValue('id, name', 'a_menu', 'url', $this->c_method);
+		if (!$menu){
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Method ['.$this->c_method.'] not found in [a_menu] !'], 401);
 		}
-		
+		// debug('role_id:'.$this->session->role_id);
+		// debug('menu_id:'.$menu->id);
+		$allow = $this->base_model->getValue('is_readwrite', 'a_role_menu', ['role_id', 'menu_id', 'is_active', 'is_deleted'], [$this->session->role_id, $menu->id, '1', '0']);
+		// debug(empty($allow->is_readwrite));
+		if ($allow === FALSE)
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Menu ['.$menu->name.'] not found in [a_role_menu] !'], 401);
+
 		switch($allow->is_readwrite){
 		case '1':
 			/* Only Create */
+			if (!in_array($this->r_method, ['POST']))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
 			break;
 		case '2':
 			/* Only Edit */
+			if (!in_array($this->r_method, ['PUT']))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
 			break;
 		case '3':
 			/* Only Delete */
+			if (!in_array($this->r_method, ['DELETE']))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
 			break;
 		case '4':
 			/* Can Create & Edit */
+			if (!in_array($this->r_method, ['POST','PUT']))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
 			break;
 		case '5':
 			/* Can Create & Delete */
+			if (!in_array($this->r_method, ['POST','DELETE']))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
 			break;
 		case '6':
 			/* Can Edit & Delete */
+			if (!in_array($this->r_method, ['PUT','DELETE']))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
 			break;
 		case '7':
 			/* Can All */
+			if (!in_array($this->r_method, ['POST','PUT','DELETE']))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
 			break;
 		default:
-			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Menu ['.$menu->name.'] is not set !'], 401);
 			break;
 		}
+	}
+	
+	/**
+	 * Prevent direct access to this controller via URL
+	 *
+	 * @access public
+	 * @param  string $controller name
+	 * @param  string $method name 
+	 * @param  array|boolean  $exception_method Parameters that would normally get passed on to the method
+	 * @return void
+	 *
+	**/  
+	function _direct_access_this_controller_via_url($controller, $method, $exception_method = TRUE)
+	{
+		if ($exception_method === TRUE)
+			return;
 		
-		/* for checking create process */
-		if ($this->r_method == 'POST') {
+		$controller = mb_strtolower($controller);
+		if ($controller === mb_strtolower($this->uri->segment(1))) {
+			// if requested controller and this controller have the same name
+			// show 404 error
+			// show_404();
+			if ($exception_method === FALSE)
+				$this->backend_view('pages/404', ['message'=>'']);
 			
-		}
-		/* for checking edit process */
-		if ($this->r_method == 'PUT') {
-			
-		}
-		/* for checking delete process */
-		if ($this->r_method == 'DELETE') {
-			
-		}
+			if (is_array($exception_method)){
+				if (in_array($method, $exception_method))
+					return;
+			}
+			$this->backend_view('pages/404', ['message'=>'']);
+		} 
+		return;
 	}
 	
 	function set_message($message)

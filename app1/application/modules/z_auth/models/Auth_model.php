@@ -628,7 +628,6 @@ class Auth_model extends CI_Model
 				return $user->id;
 			}
 		}
-				echo 'password NOKE';
 		// Hash something anyway, just to take up time
 		$this->hash_password($password);
 

@@ -2,47 +2,42 @@
 
    <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <h1>
-        {$window_title}
-        <small>{$description}</small>
-      </h1>
-    </section>
-
     <!-- Main content -->
     <section class="content">
-
-      <!-- Default box -->
-      <div class="box">
-				<div class="box-body"></div>
-      </div>
-      <!-- /.box -->
-
     </section>
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script>
-	var a=[];
-	var col = subCol(12,"");
-	var form1 = $('<form "autocomplete"="off"><div class="row"><div class="col-left col-md-6"></div><div class="col-right col-md-6"></div></div></form>');
-	var col_l = form1.find('div.col-left');
-	var col_r = form1.find('div.col-right');
-	
-	col.append(BSHelper.Input({ type:"hidden", idname:"id" }));
-	col.append(BSHelper.Input({ type:"text", label:"User Name", idname:"name", readonly: true, placeholder:"string(60)" }));
-	col.append(BSHelper.Input({ type:"password", label:"Old Password", idname:"password", required: true, placeholder:"Old Password" }));
+	{* Start :: Init for Title, Breadcrumb *}
+	$(".content").before(BSHelper.PageHeader({ 
+		title:"{$window_title}", 
+		title_desc:"{$description}", 
+		bc_list:[
+			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
+			{ icon:"", title:"{$window_title}", link:"" },
+		]
+	}));
+	{* End :: Init for Title, Breadcrumb *}
+
+	{* For design form interface *}
+	var col = [], row = [], a = [];
+	var form1 = BSHelper.Form({ autocomplete:"off" });
+	var box1 = BSHelper.Box({ type:"info" });
+	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
+	col.push(BSHelper.Input({ type:"text", label:"User Name", idname:"name", readonly: true, placeholder:"string(60)" }));
+	col.push(BSHelper.Input({ type:"password", label:"Old Password", idname:"password", required: true, placeholder:"Old Password" }));
 	a.push(subCol(6, BSHelper.Input({ type:"password", label:"", idname:"password_new", required: true, placeholder:"New Password", minlength:6, help:"Minimum of 6 characters" })));
 	a.push(subCol(6, BSHelper.Input({ type:"password", label:"", idname:"password_confirm", required: true, placeholder:"Confirm", idmatch:"password_new", errormatch:"Whoops, these don't match" })));
-	col.append(BSHelper.Label({ horz:false, label:"New Password", idname:"password_new", required: true, elcustom:subRow(a) }));
-	form1.append(subRow(col));
+	col.push(BSHelper.Label({ horz:false, label:"New Password", idname:"password_new", required: true, elcustom:subRow(a) }));
+	form1.append(subRow(subCol(6, col)));
 	form1.append(subRow(subCol()));
-	a = [];
-	a.push( BSHelper.Button({ type:"submit", label:"Submit", cls:"btn-primary" }) );
-	form1.append( a );
-	$('div.box-body').append(form1);
+	col = [];
+	col.push( BSHelper.Button({ type:"submit", label:"Submit", cls:"btn-primary" }) );
+	form1.append( col );
+	box1.find('.box-body').append(form1);
+	$(".content").append(box1);
 	
 	{* Begin: Populate data to form *}
 	$.getJSON('{$url_module}', '', function(result){ 
