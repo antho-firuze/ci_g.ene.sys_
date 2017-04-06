@@ -34,7 +34,6 @@
 		$button      = $container.find('span.shollu_cb.dropdown-toggle'),
 		$menu  		   = template_result(),
 		focused      = false,
-		mousedover   = false,
 		suppressKeyPressRepeat = {},
 		loading			= false,
 		rowData			= {},
@@ -46,11 +45,12 @@
 		//Expose public methods
 		this.name 		= PLUGIN_NAME;
 		this.version 	= PLUGIN_VERSION + ' ('+o.guid+')';
+		this.guid 		= o.guid;
 		this.o				= o;
 		this.destroy 	= function(){ destroy(); };
 		this.getValue = function(field){ return getValue(field); };
 		this.setValue = function(val){ setValue(val); };
-		this.disable = function(state){ disabled(state); };
+		this.disable  = function(state){ disabled(state); };
 		this.init  		= function(){ init(); };
 		
 		init();
