@@ -7,17 +7,17 @@ class Sales extends Getmeb
 	function __construct() {
 		parent::__construct();
 		
-		$this->load->model('sales/sales_model');
+		$class = strtolower(get_class($this));
+		$this->load->model($class.'_model');
 	}
 	
+	/* This method (function _remap), is a must exists for every controller */
 	function _remap($method, $params = array())
 	{
 		/* Exeption list methods */
 		$exception_method = [];
-		/* get method name */
-		$this->c_method = $method;
 		/* This process is for checking login status (is a must on every controller) */
-		$this->_check_is_login($method, $exception_method);
+		$this->_check_is_login();
 		/* This process is for checking permission (is a must on every controller) */
 		$this->_check_is_allow();
 		

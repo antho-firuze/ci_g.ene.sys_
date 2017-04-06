@@ -2,26 +2,12 @@
 
    <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <h1>
-        {$window_title}
-        <small>{$description}</small>
-      </h1>
-    </section>
-
     <!-- Main content -->
     <section class="content">
 
       <!-- Default box -->
       <div class="box">
-        {* <div class="box-header with-border">
-          <h3 class="box-title">Title</h3>
-        </div> *}
 				<div class="box-body">
-					<!-- /.box-body -->
-					{* <div class="box-footer"></div> *}
-					<!-- /.box-footer-->
 				</div>
       </div>
       <!-- /.box -->
@@ -30,8 +16,26 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
+	{* Section 1: For parsing URL Parameters *}
+	var $url_module = "{$url_module}";
+	var origin_url = window.location.origin+window.location.pathname;
+	var $param = {}, $id, $q;
+	{* Start :: Init for Title, Breadcrumb *}
+	$(".content").before(BSHelper.PageHeader({ 
+		title:"{$window_title}", 
+		title_desc:"{$description}", 
+		bc_list:[
+			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
+			{ icon:"", title:"{$window_title}", link:"" },
+		]
+	}));
+	{* End :: Init for Title, Breadcrumb *}
+
 	var a=[];
 	var formContent = $('<form "autocomplete"="off"><div class="row"><div class="col-left col-md-6"></div><div class="col-right col-md-6"></div></div></form>');
 	var col_l = formContent.find('div.col-left');

@@ -8,7 +8,9 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
 	var id = getURLParameter("id");
 	var edit = getURLParameter("edit");

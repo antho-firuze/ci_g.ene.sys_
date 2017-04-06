@@ -7,16 +7,15 @@ class Systems extends Getmeb
 	function __construct() {
 		parent::__construct();
 		
-		$this->load->model('systems/system_model');
+		$class = strtolower(get_class($this));
+		$this->load->model($class.'_model');
 	}
 	
 	/* This method (function _remap), is a must exists for every controller */
 	function _remap($method, $params = array())
 	{
-		/* get method name */
-		$this->c_method = $method;
 		/* Exeption list methods */
-		$this->exception_method = ['x_auth','x_login','x_logout','x_reload','x_forgot'];
+		$this->exception_method = ['x_auth','x_forgot','x_login','x_logout','x_reload'];
 		/* This process is for checking login status (is a must on every controller) */
 		$this->_check_is_login();
 		/* This process is for checking permission (is a must on every controller) */
@@ -44,13 +43,13 @@ class Systems extends Getmeb
 			//run the forgotten password method to email an activation code to the user
 			if (($user = $this->auth->forgotten_password($this->params['email'])) === FALSE){
 				/* Trapping user_agent, ip address & status */
-				$this->system_model->_save_useragent($this->params['email'], 'Email Not Registered/Intruder Detected');
+				$this->systems_model->_save_useragent($this->params['email'], 'Email Not Registered/Intruder Detected');
 				
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
 			
 			/* Trapping user_agent, ip address & status */
-			$this->system_model->_save_useragent($this->params['email'], 'Forgot Password Success');
+			$this->systems_model->_save_useragent($this->params['email'], 'Forgot Password Success');
 		
 			/* Trying to sending email */
 			$message = AUTH_LNK."?code=".$user->forgotten_password_code;
@@ -94,7 +93,7 @@ class Systems extends Getmeb
 			/* Reset Password*/
 			if (($user_id = $this->auth->reset_password($username, $password)) === FALSE ) {
 				/* Trapping user_agent, ip address & status */
-				$this->system_model->_save_useragent($username, 'Reset Password Failed');
+				$this->systems_model->_save_useragent($username, 'Reset Password Failed');
 				
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
@@ -103,10 +102,10 @@ class Systems extends Getmeb
 			$this->session->unset_userdata('allow-reset');
 
 			/* Trapping user_agent, ip address & status */
-			$this->system_model->_save_useragent($username, 'Reset Password Success');
+			$this->systems_model->_save_useragent($username, 'Reset Password Success');
 		
 			/* Store configuration to session */
-			$this->system_model->_store_config($user_id);
+			$this->systems_model->_store_config($user_id);
 			
 			$this->xresponse(TRUE, ['message' => $this->auth->messages()]);
 		}
@@ -125,16 +124,16 @@ class Systems extends Getmeb
 			/* Try to login */
 			if (! $user_id = $this->auth->login($username, $password)) {
 				/* Trapping user_agent, ip address & status */
-				$this->system_model->_save_useragent($username, 'Login Failed/Intruder Detected');
+				$this->systems_model->_save_useragent($username, 'Login Failed/Intruder Detected');
 				
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
 
 			/* Trapping user_agent, ip address & status */
-			$this->system_model->_save_useragent($username, 'Login Success');
+			$this->systems_model->_save_useragent($username, 'Login Success');
 			
 			/* Store configuration to session */
-			$this->system_model->_store_config($user_id);
+			$this->systems_model->_store_config($user_id);
 			
 			if (isset($this->params['rememberme']) && $this->params['rememberme'])
 			{
@@ -167,7 +166,7 @@ class Systems extends Getmeb
 			if (! $this->auth->login($username, $password))
 			{
 				/* Trapping user_agent, ip address & status */
-				$this->system_model->_save_useragent($username, 'Unlock Failed/Intruder Detected');
+				$this->systems_model->_save_useragent($username, 'Unlock Failed/Intruder Detected');
 				
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
@@ -179,8 +178,8 @@ class Systems extends Getmeb
 	/* Re-Store configuration to session */
 	function x_reload()
 	{
-		if ($this->sess->user_id) {
-			$this->system_model->_store_config($this->sess->user_id);
+		if ($this->session->user_id) {
+			$this->systems_model->_store_config($this->session->user_id);
 		
 			$this->xresponse(TRUE);
 		}
@@ -190,9 +189,9 @@ class Systems extends Getmeb
 	function x_chgpwd()
 	{
 		if ($this->r_method == 'GET') {
-			$this->params['where']['t1.id'] = $this->sess->user_id;
+			$this->params['where']['t1.id'] = $this->session->user_id;
 			
-			if (($result['data'] = $this->system_model->get_a_user($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->get_a_user($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -234,57 +233,27 @@ class Systems extends Getmeb
 	}
 	
 	// REQUIRED LOGIN
-	/* function x_setUserRecent()
-	{
-		$params = (count($params = $this->input->get()) < 1) ? '' : '?'.http_build_query($this->params);
-		
-		$data = [
-			'user_id'	=> $this->sess->user_id,
-			'value'		=> current_url().$params
-		];
-		// log_message('error', $data['value']);
-		$this->system_model->createUserRecent($data);
-	} */
-	
 	function x_srcmenu()
 	{
 		if (isset($this->params['q']) && $this->params['q']) 
 			$this->params['like']	= DBX::like_or('t2.name', $this->params['q']);
 			
-		$this->params['where']['t1.role_id']	= $this->sess->role_id;
+		$this->params['where']['t1.role_id']	= $this->session->role_id;
 		$this->params['where']['t2.is_active']	= '1';
 		$this->params['where']['t1.is_active']	= '1';
 		$this->params['where']['t2.is_parent']	= '0';
 		$this->params['order'] = "t2.name";
 		$this->params['list']	= 1;
-		$result['data'] = $this->system_model->get_a_role_menu($this->params);
+		$result['data'] = $this->systems_model->get_a_role_menu($this->params);
 		$this->xresponse(TRUE, $result);
 	}
 	
 	function x_profile($mode=NULL)
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['genphoto']) && $this->params['genphoto']) {
-				if (isset($this->params['name']) && $this->params['name'] && isset($this->params['id']) && $this->params['id']) {
-					/* create avatar image */
-					$data = ['word'=>$this->params['name'][0], 'img_path'=>$this->sess->user_photo_path, 'img_url'=> base_url().$this->sess->user_photo_path];
-					$data = create_avatar_img($data);
-					if ($data) {
-						/* delete old file photo */
-						if (isset($this->params['photo_file']) && $this->params['photo_file']) {
-							@unlink($this->sess->user_photo_path.$this->params['photo_file']);
-						}
-						/* update to table */
-						$this->updateRecord($this->c_method, ['photo_file'=>$data['filename']], ['id' => $this->params['id']]);
-						$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => $data['file_url'], 'photo_file' => $data['filename']]);
-					}
-				}
-				$this->xresponse(TRUE, ['message' => $this->lang->line('err_generate_photo')]);
-			}
-			
 			if (isset($this->params['view']) && $this->params['view']) {
-				$this->params['where']['t1.id'] = $this->sess->user_id;
-				if (($result['data'] = $this->system_model->get_a_user($this->params)) === FALSE){
+				$this->params['where']['t1.id'] = $this->session->user_id;
+				if (($result['data'] = $this->systems_model->get_a_user($this->params)) === FALSE){
 					$result['data'] = [];
 					$result['message'] = $this->base_model->errors();
 					$this->xresponse(FALSE, $result);
@@ -295,48 +264,19 @@ class Systems extends Getmeb
 		}
 		
 		if ($this->r_method == 'PUT') {
-			debug('auahhh');
 			if (count($this->input->get()) > 0) {
 				$this->params = $this->input->get();
 				
 				if (isset($this->params['user_role_id']) && ($this->params['user_role_id'] != '')) {
-					if (! $this->updateRecord('a_user', [ 'user_role_id' => $this->params['user_role_id']], ['id' => $this->sess->user_id]))
+					if (! $this->updateRecord('a_user', [ 'user_role_id' => $this->params['user_role_id']], ['id' => $this->session->user_id]))
 						$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
 				}
 				if (isset($this->params['user_org_id']) && ($this->params['user_org_id'] != '')) {
-					if (! $this->updateRecord('a_user', [ 'user_org_id' => $this->params['user_org_id']], ['id' => $this->sess->user_id]))
+					if (! $this->updateRecord('a_user', [ 'user_org_id' => $this->params['user_org_id']], ['id' => $this->session->user_id]))
 						$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
 				}
 				$this->xresponse(TRUE);
 			}
-			
-			/* Reset Password*/
-			if (isset($this->params->password) && ($this->params->password != '')) {
-				$this->load->library('z_auth/auth');
-				$this->auth->reset_password($this->params->name, $this->params->password);
-				unset($this->params->password);
-			}
-			$fields = $this->db->list_fields('a_user');
-			$boolfields = [];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			
-			unset($datas['id']);
-			if (! $this->updateRecord('a_user', array_merge($datas, $this->update_log), ['id' => $this->params->id]))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 		
 		if ($this->r_method == 'POST') {
@@ -419,15 +359,15 @@ class Systems extends Getmeb
 					
 					/* Moving to desire location with rename */
 					$ext = strtolower(pathinfo($files['file']['name'], PATHINFO_EXTENSION));
-					rename($result["path"], $this->sess->user_photo_path.$rndName.'.'.$ext);
+					rename($result["path"], $this->session->user_photo_path.$rndName.'.'.$ext);
 				
 					/* delete old file photo */
 					if (isset($this->params['photo_file']) && $this->params['photo_file']) {
-						@unlink($this->sess->user_photo_path.$this->params['photo_file']);
+						@unlink($this->session->user_photo_path.$this->params['photo_file']);
 					}
 					/* update to table */
 					$this->updateRecord('a_user', ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params['id']]);
-					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => base_url().$this->sess->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
+					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => base_url().$this->session->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
 				}
 			}
 			$this->xresponse(FALSE, ['message' => $this->lang->line('err_upload_photo')]);
@@ -438,25 +378,6 @@ class Systems extends Getmeb
 	function a_user()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['genphoto']) && $this->params['genphoto']) {
-				if (isset($this->params['name']) && $this->params['name'] && isset($this->params['id']) && $this->params['id']) {
-					/* create avatar image */
-					$data = ['word'=>$this->params['name'][0], 'img_path'=>$this->sess->user_photo_path, 'img_url'=> base_url().$this->sess->user_photo_path];
-					$data = create_avatar_img($data);
-					if ($data) {
-						/* delete old file photo */
-						if (isset($this->params['photo_file']) && $this->params['photo_file']) {
-							@unlink($this->sess->user_photo_path.$this->params['photo_file']);
-						}
-						/* update to table */
-						$this->updateRecord($this->c_method, ['photo_file'=>$data['filename']], ['id' => $this->params['id']]);
-						$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => $data['file_url'], 'photo_file' => $data['filename']]);
-					}
-				}
-				$this->xresponse(TRUE, ['message' => $this->lang->line('err_generate_photo')]);
-			}
-			
-			
 			if (isset($this->params['id']) && ($this->params['id'] != '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
@@ -466,7 +387,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -486,7 +407,7 @@ class Systems extends Getmeb
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 
 			/* create avatar image */
-			$data = ['word'=>$this->params->name[0], 'img_path'=>$this->sess->user_photo_path, 'img_url'=> base_url().$this->sess->user_photo_path];
+			$data = ['word'=>$this->params->name[0], 'img_path'=>$this->session->user_photo_path, 'img_url'=> base_url().$this->session->user_photo_path];
 			$data = create_avatar_img($data);
 			if ($data) {
 				$this->updateRecord($this->c_method, ['photo_file'=>$data['filename']], ['id' => $id]);
@@ -494,6 +415,24 @@ class Systems extends Getmeb
 			$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 		}
 		if ($this->r_method == 'PUT') {
+			if (isset($this->params->genphoto) && $this->params->genphoto) {
+				if (isset($this->params->name) && $this->params->name && isset($this->params->id) && $this->params->id) {
+					/* create avatar image */
+					$data = ['word'=>$this->params->name[0], 'img_path'=>$this->session->user_photo_path, 'img_url'=> base_url().$this->session->user_photo_path];
+					$data = create_avatar_img($data);
+					if ($data) {
+						/* delete old file photo */
+						if (isset($this->params->photo_file) && $this->params->photo_file) {
+							@unlink($this->session->user_photo_path.$this->params->photo_file);
+						}
+						/* update to table */
+						$this->updateRecord($this->c_method, ['photo_file'=>$data['filename']], ['id' => $this->params->id]);
+						$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => $data['file_url'], 'photo_file' => $data['filename']]);
+					}
+				}
+				$this->xresponse(TRUE, ['message' => $this->lang->line('err_generate_photo')]);
+			}
+			
 			/* Reset Password*/
 			if (isset($this->params->password) && ($this->params->password != '')) {
 				$this->load->library('z_auth/auth');
@@ -521,12 +460,6 @@ class Systems extends Getmeb
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
 	}
 	
 	function a_user_org()
@@ -544,7 +477,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or(["t2.code", "t2.name", "coalesce(t2.code,'') ||'_'|| t2.name"], $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -578,12 +511,6 @@ class Systems extends Getmeb
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
 	}
 	
 	function a_user_role()
@@ -602,7 +529,7 @@ class Systems extends Getmeb
 				// $this->params['like'] = DBX::like_or("coalesce(t2.code,'') ||'_'|| t2.name", $this->params['q']);
 				$this->params['like'] = DBX::like_or(["t2.code", "t2.name", "coalesce(t2.code,'') ||'_'|| t2.name"], $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$result['str_query'] = $this->session->flashdata('str_query');
@@ -637,12 +564,6 @@ class Systems extends Getmeb
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
 	}
 	
 	function a_user_substitute()
@@ -657,7 +578,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -679,7 +600,7 @@ class Systems extends Getmeb
 					} elseif (in_array($f, $nullfields)){
 						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
 					} elseif (in_array($f, $datetimefields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : datetime_db_format($this->params->{$f}, $this->sess->date_format); 
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : datetime_db_format($this->params->{$f}, $this->session->date_format); 
 					} else {
 						$datas[$f] = $this->params->{$f};
 					}
@@ -695,12 +616,6 @@ class Systems extends Getmeb
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
 	}
 	
 	function a_user_config()
@@ -709,7 +624,7 @@ class Systems extends Getmeb
 			if (isset($this->params['user_id']) && ($this->params['user_id'] != '')) 
 				$user_id = $this->params['user_id'];
 			else
-				$user_id = $this->sess->user_id;
+				$user_id = $this->session->user_id;
 			
 			$user_config = $this->base_model->getValue('attribute, value', 'a_user_config', 'user_id', $user_id);
 			if ($user_config) {
@@ -737,7 +652,7 @@ class Systems extends Getmeb
 				/* update config to database */
 				$data['value'] 		 = $this->params[0]->value;
 				$cond['attribute'] = $this->params[0]->name;
-				$cond['user_id'] 	 = $this->sess->user_id;
+				$cond['user_id'] 	 = $this->session->user_id;
 				
 				$qry = $this->db->get_where($this->c_method, $cond, 1);
 				if ($qry->num_rows() > 0) {
@@ -762,7 +677,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -796,12 +711,6 @@ class Systems extends Getmeb
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
 	}
 	
 	function a_role_menu()
@@ -816,7 +725,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t2.code, t2.name, t2.description', $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -846,12 +755,6 @@ class Systems extends Getmeb
 				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
@@ -893,7 +796,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -927,12 +830,6 @@ class Systems extends Getmeb
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
 	}
 	
 	function a_system()
@@ -947,7 +844,7 @@ class Systems extends Getmeb
 			$this->params['where']['t1.client_id'] 	=	DEFAULT_CLIENT_ID;
 			$this->params['where']['t1.org_id']			= DEFAULT_ORG_ID;
 			
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -981,12 +878,6 @@ class Systems extends Getmeb
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
 	}
 	
 	function a_client()
@@ -998,7 +889,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1032,12 +923,6 @@ class Systems extends Getmeb
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
 	}
 	
 	function a_menu()
@@ -1051,7 +936,7 @@ class Systems extends Getmeb
 
 			$this->params['where']['t1.client_id'] 	=	DEFAULT_CLIENT_ID;
 			
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1085,12 +970,6 @@ class Systems extends Getmeb
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
 	}
 	
 	function a_org()
@@ -1103,7 +982,7 @@ class Systems extends Getmeb
 				$this->params['like'] = DBX::like_or('t1.code, t1.name, t1.description', $this->params['q']);
 
 			$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1137,12 +1016,6 @@ class Systems extends Getmeb
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
 	}
 	
 	function a_orgtype()
@@ -1154,7 +1027,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.code, t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1188,12 +1061,6 @@ class Systems extends Getmeb
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
 	}
 	
 	function a_sequence()
@@ -1205,7 +1072,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.code, t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1239,12 +1106,6 @@ class Systems extends Getmeb
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
 	}
 	
 	function a_info()
@@ -1265,7 +1126,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1299,12 +1160,6 @@ class Systems extends Getmeb
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
 	}
 	
 	function a_loginattempt()
@@ -1325,7 +1180,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1355,12 +1210,6 @@ class Systems extends Getmeb
 				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
@@ -1376,7 +1225,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1406,12 +1255,6 @@ class Systems extends Getmeb
 				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
@@ -1432,7 +1275,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1462,12 +1305,6 @@ class Systems extends Getmeb
 				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
@@ -1489,7 +1326,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1519,12 +1356,6 @@ class Systems extends Getmeb
 				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
@@ -1545,7 +1376,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1575,12 +1406,6 @@ class Systems extends Getmeb
 				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
 			
 			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
@@ -1602,7 +1427,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1636,17 +1461,6 @@ class Systems extends Getmeb
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
-	}
-	
-	function f_user_generate_photo()
-	{
-		
 	}
 	
 	function z_smarty()

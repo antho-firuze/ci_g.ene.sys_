@@ -42,14 +42,11 @@
 	store($sidebar, "{$.session.sidebar !: ''}");
 	store($screen_timeout, "{$.session.screen_timeout !: 60000}");
 </script>
-<script src="{$.const.ASSET_URL}js/form_crud.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/jQuery/jQuery-2.1.4.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/jQuery/jquery-3.2.0.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/idletimer/idle-timer.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/pace/pace.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}bootstrap/js/bootstrap.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-dialog/js/bootstrap-dialog.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/iCheck/icheck.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/datatables/media/js/jquery.dataTables.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/datatables/media/js/dataTables.bootstrap4.min.js"></script>
@@ -58,18 +55,6 @@
 <script src="{$.const.TEMPLATE_URL}plugins/fastclick/fastclick.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/autoComplete/jquery.auto-complete.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}dist/js/app.min.js"></script>
-{* <script src="{$.const.TEMPLATE_URL}plugins/validation/jquery.validate.min.js"></script> *}
-<script src="{$.const.TEMPLATE_URL}plugins/lobibox/js/notifications.min.js"></script>
-<script>
-	paceOptions = {	elements: false, restartOnRequestAfter: false	};
-	Lobibox.notify.DEFAULTS = $.extend({}, Lobibox.notify.DEFAULTS, { 
-		soundPath:"{$.const.TEMPLATE_URL}plugins/lobibox/sounds/",  
-		showClass:'rollIn',
-		hideClass:'rollOut'
-		{* showClass:'zoomInUp', *}
-		{* hideClass:'zoomOutDown' *}
-	});
-</script>
 <script src="{$.const.ASSET_URL}js/common.extend.func.js"></script>
 <script src="{$.const.ASSET_URL}js/bootstrap.helper.js"></script>
 <script src="{$.const.ASSET_URL}js/datatables.helper.js"></script>
@@ -101,8 +86,15 @@
 {include $.const.TEMPLATE_PATH ~ "include/lockscreen.tpl"}
 <script src="{$.const.TEMPLATE_URL}js/custom.js"></script>
 <script>
+	{* init for pace option *}
+	paceOptions = {	elements: false, restartOnRequestAfter: false	};
 	{* init for skin & sidebar *}
 	$(document.body).addClass(get($sidebar)).addClass(get($skin)).addClass("{$.session.layout}");
+	
+	{* This lines is for removing tab index on tag <a> *}
+	$("body").find("a").each(function(){
+		$(this).attr("tabindex", "-1");
+	});
 	
 	{* sign-out *}
 	$("#go-sign-out").click(function(e){

@@ -9,7 +9,9 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/input-mask/jquery.inputmask.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/input-mask/jquery.inputmask.date.extensions.js"></script>
 {* <script src="{$.const.TEMPLATE_URL}plugins/input-mask/jquery.inputmask.extensions.js"></script> *}

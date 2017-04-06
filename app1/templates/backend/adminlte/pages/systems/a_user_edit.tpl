@@ -8,8 +8,10 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/plupload/js/plupload.full.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
 	{* Get Params *}
 	var id = getURLParameter("id");
@@ -40,10 +42,15 @@
 		.append( BSHelper.Button({ type:"button", label:"Upload Photo", idname:"btn_uploadphoto" }) ) 
 		.append( '&nbsp;&nbsp;&nbsp;' ) 
 		.append( BSHelper.Button({ type:"button", label:"Generate Image", idname:"btn_generatephoto", 
-			onclick:"$.getJSON('{$url_module}?genphoto=1&id='+$('#id').val()+'&name='+$('#name').val()+'&photo_file='+$('#photo_file').val(), '', function(data){	
-				if (data.status) { 
-					$('img.profile-user-img').attr('src', data.file_url);
-					$('#photo_file').val(data.photo_file);
+			onclick:"$.ajax({ 
+				url:'{$url_module}',
+				data: JSON.stringify({ genphoto:1, id:$('#id').val(), name:$('#name').val(), photo_file:$('#photo_file').val() }),
+				method:'PUT', async: true, dataType:'json', 
+				success: function(data){	
+					if (data.status) { 
+						$('img.profile-user-img').attr('src', data.file_url);
+						$('#photo_file').val(data.photo_file);
+					}
 				}
 			});" 
 		}) ) 

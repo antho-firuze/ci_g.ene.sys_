@@ -9,7 +9,9 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
 	{* Get Params *}
 	var id = getURLParameter("id");
@@ -23,7 +25,7 @@
 		title_desc: desc(edit), 
 		bc_list:[
 			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
-			{ icon:"", title:"User", link:"javascript:history.back()" },
+			{ icon:"", title:"Role Access", link:"javascript:history.back()" },
 			{ icon:"", title:"{$window_title}", link:"javascript:history.back()" },
 			{ icon:"", title: desc(edit), link:"" },
 		]

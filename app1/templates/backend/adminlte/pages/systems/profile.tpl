@@ -6,7 +6,9 @@
   </div>
   <!-- /.content-wrapper -->
 
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/plupload/js/plupload.full.min.js"></script>
 <script>
 	{* Start :: Init for Title, Breadcrumb & Content Body *}
@@ -168,8 +170,18 @@
 	uploader.init();
 
 	{* Event on Element *}
-	$("#user_role_id").shollu_cb({ onSelect: function(rowData){ $.ajax({ url:"{$url_module}", method:"PUT", data:JSON.stringify({ "id":{$.session.user_id}, "user_role_id":rowData.id }) });	} });
-	$("#user_org_id").shollu_cb({ onSelect: function(rowData){ $.ajax({ url:"{$url_module}", method:"PUT", data:JSON.stringify({ "id":{$.session.user_id}, "user_org_id":rowData.id }) });	} });
+	$("#user_role_id").shollu_cb({ 
+		onSelect: function(rowData){ 
+			if (rowData.id)
+				$.ajax({ url:"{$url_module}", method:"PUT", data:JSON.stringify({ "id":{$.session.user_id}, "user_role_id":rowData.id }) });	
+		} 
+	});
+	$("#user_org_id").shollu_cb({ 
+		onSelect: function(rowData){ 
+			if (rowData.id)
+				$.ajax({ url:"{$url_module}", method:"PUT", data:JSON.stringify({ "id":{$.session.user_id}, "user_org_id":rowData.id }) });	
+		} 
+	});
 	$.each(form2.find('input'), function(){
 		if ($(this).attr('id')){
 			var id = $(this).attr('id');

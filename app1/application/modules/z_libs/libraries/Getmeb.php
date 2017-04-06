@@ -14,10 +14,6 @@ class Getmeb extends CI_Controller
 	public $exception_method = [];
 	/* FOR GETTING PARAMS FROM REQUEST URL */
 	public $params;
-	/* FOR STORE SESSION DATA */
-	public $sess;
-	/* FOR STORE SYSTEM SETTING */
-	public $sysconfig;
 	/* FOR ADDITIONAL CRUD FIXED DATA */
 	public $fixed_data = array();
 	public $create_log = array();
@@ -30,35 +26,51 @@ class Getmeb extends CI_Controller
 	function __construct() {
 		parent::__construct();
 		$this->r_method = $_SERVER['REQUEST_METHOD'];
-		if (in_array($this->r_method, ['GET','DELETE']))
-			$this->params = $this->input->get();
-		if (in_array($this->r_method, ['POST','PUT','OPTIONS']))
-			$this->params = json_decode($this->input->raw_input_stream);
+		$this->c_method = $this->uri->segment(2);
+		
+		/* Defined for template */
 		define('ASSET_URL', base_url().'/assets/');
 		define('TEMPLATE_URL', base_url().TEMPLATE_FOLDER.'/backend/'.$this->theme.'/');
 		define('TEMPLATE_PATH', '/backend/'.$this->theme.'/');
-		define('HOME_LINK', base_url().'systems');
 		
-		$this->sess = (object) $this->session->userdata();
-		$this->lang->load('systems/systems', (!empty($this->sess->language) ? $this->sess->language : 'english'));
+		$this->lang->load('systems/systems', (!empty($this->session->language) ? $this->session->language : 'english'));
 		
 		$this->fixed_data = [
 			'client_id'		=> DEFAULT_CLIENT_ID,
 			'org_id'			=> DEFAULT_ORG_ID
 		];
 		$this->create_log = [
-			'created_by'	=> (!empty($this->sess->user_id) ? $this->sess->user_id : '0'),
+			'created_by'	=> (!empty($this->session->user_id) ? $this->session->user_id : '0'),
 			'created_at'	=> date('Y-m-d H:i:s')
 		];
 		$this->update_log = [
-			'updated_by'	=> (!empty($this->sess->user_id) ? $this->sess->user_id : '0'),
+			'updated_by'	=> (!empty($this->session->user_id) ? $this->session->user_id : '0'),
 			'updated_at'	=> date('Y-m-d H:i:s')
 		];
 		$this->delete_log = [
 			'is_deleted'	=> 1,
-			'deleted_by'	=> (!empty($this->sess->user_id) ? $this->sess->user_id : '0'),
+			'deleted_by'	=> (!empty($this->session->user_id) ? $this->session->user_id : '0'),
 			'deleted_at'	=> date('Y-m-d H:i:s')
 		];
+
+		if (in_array($this->r_method, ['GET'])) {
+			/* Become Array */
+			$this->params = $this->input->get();
+		}
+		
+		if (in_array($this->r_method, ['POST','PUT','OPTIONS'])) {
+			/* Become Object */
+			$this->params = json_decode($this->input->raw_input_stream);
+		}
+		
+		if (in_array($this->r_method, ['DELETE'])) {
+			/* Become Array */
+			$this->params = $this->input->get();
+			if (! $this->deleteRecords($this->c_method, $this->params['id']))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
 	}
 	
 	function _check_menu($data=[])
@@ -129,10 +141,10 @@ class Getmeb extends CI_Controller
 			if (in_array($this->c_method, $this->exception_method))
 				return;
 		}
+		/* Only check this request method */
 		if (!in_array($this->r_method, ['POST','PUT','DELETE'])){
 			return;
 		}
-		$this->params = is_array($this->params) ? (object)$this->params : $this->params;
 		
 		// debug('c_method:'.$this->c_method);
 		$menu = $this->base_model->getValue('id, name', 'a_menu', 'url', $this->c_method);
@@ -369,8 +381,8 @@ class Getmeb extends CI_Controller
 	{
 		/* Start Treeview Menu */
 		$html = ''; $li1_closed = false; $li2_closed = false; $menu_id1 = 0; $menu_id2 = 0; $menu_id3 = 0; $parent_id = 0;
-		$rowParentMenu = ($result = $this->system_model->getParentMenu($cur_page)) ? $result[0] : (object)['lvl1_id'=>0, 'lvl2_id'=>0];
-		$rowMenus = $this->system_model->getMenuByRoleId($this->sess->role_id);
+		$rowParentMenu = ($result = $this->systems_model->getParentMenu($cur_page)) ? $result[0] : (object)['lvl1_id'=>0, 'lvl2_id'=>0];
+		$rowMenus = $this->systems_model->getMenuByRoleId($this->session->role_id);
 		if ($rowMenus) {
 			foreach ($rowMenus as $menu){
 				if (($menu_id1 != $menu->menu_id1) && $li1_closed){

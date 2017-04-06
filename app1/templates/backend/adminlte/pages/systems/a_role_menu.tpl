@@ -16,8 +16,10 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+<script src="{$.const.ASSET_URL}js/form_crud.js"></script>
 <script>
 	{* Section 1: For parsing URL Parameters *}
+	var $url_module = "{$url_module}";
 	var origin_url = window.location.origin+window.location.pathname;
 	var $param = {}, $id, $q;
 	{* Start :: Init for Title, Breadcrumb *}
@@ -94,55 +96,12 @@
 
 	{* AVAILABLE BUTTON LIST ['btn-copy','btn-new','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-process'] *}
 	setDisableToolBtn(['btn-copy','btn-message','btn-print','btn-export','btn-import']);
-	setVisibleToolBtn(['btn-copy','btn-message','btn-print','btn-export','btn-import']);
+	setHideToolBtn(['btn-copy','btn-message','btn-print','btn-export','btn-import']);
 	
 	{* Additional Menu on Toolbar Process Button *}
 	addProcessMenu('btn-process1', 'Copy Menu From Role...');
 
 	{* =================================================================================== *}
-	
-	{* For class aLBtn : btn-copy in DataTable *}
-	tableData1.find('tbody').on( 'click', '[name="btn-copy"]', function () {
-		var data = dataTable1.row( $(this).parents('tr') ).data();
-		
-		if (!confirm("Copy this data ?")) {
-			return false;
-		}
-		
-		window.location.href = getURLOrigin()+window.location.search+"&edit=3&id="+data.id;
-	});
-	
-	{* For class aLBtn : btn-edit in DataTable *}
-	tableData1.find('tbody').on( 'click', '[name="btn-edit"]', function () {
-		var data = dataTable1.row( $(this).parents('tr') ).data();
-		
-		window.location.href = getURLOrigin()+window.location.search+"&edit=1&id="+data.id;
-	});
-	
-	{* For class aLBtn : btn-delete in DataTable *}
-	tableData1.find('tbody').on( 'click', '[name="btn-delete"]', function () {
-		var data = dataTable1.row( $(this).parents('tr') ).data();
-		
-		if (!confirm("Are you sure want to delete this record ?")) {
-			return false;
-		}
-		
-		$.ajax({ url: '{$url_module ~ "?id="}'+data.id, method: "DELETE", async: true, dataType: 'json',
-			success: function(data) {
-				dataTable1.ajax.reload( null, false );
-				Lobibox.notify('info', { msg: data.message });
-			},
-			error: function(data) {
-				if (data.status==500){
-					var message = data.statusText;
-				} else {
-					var error = JSON.parse(data.responseText);
-					var message = error.message;
-				}
-				BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
-			}
-		});
-	});
 	
 	{* For class aRBtn *}
 	tableData1.find('tbody').on( 'click', '.aRBtn', function () {
@@ -153,70 +112,7 @@
 		window.location.href = url;
 	});
 	
-	{* btn-new in Toolbar *}
-	$('#btn-new').click(function(){
-		window.location.href = getURLOrigin()+window.location.search+"&edit=2";
-	});
-	
-	{* btn-refresh in Toolbar *}
-	$('#btn-refresh').click(function(){
-		dataTable1.ajax.reload( null, false );
-	});
-	
-	{* btn-delete in Toolbar *}
-	$('#btn-delete').click(function(){
-		var data = dataTable1.rows('.selected').data();
-		
-		if (data.count() < 1)
-			return false;
 
-		var tblConfirm = BSHelper.Table({
-				data: data,	rowno: true, showheader: true, maxrows: 3, isConfirm: true,
-				columns:[
-					{ data:"code_name"					,title:"Name" },
-				],
-			});
-			
-		var ids = [];
-		$.each(data, function(i){	ids[i] = data[i]['id'];	});
-		BootstrapDialog.show({ title: 'Delete Record/s', type: BootstrapDialog.TYPE_DANGER, message: tblConfirm,
-			buttons: [{
-				icon: 'glyphicon glyphicon-send',
-				cssClass: 'btn-danger',
-				label: '&nbsp;&nbsp;Delete',
-				action: function(dialog) {
-					var button = this;
-					button.spin();
-					
-					$.ajax({ url: '{$url_module ~ "?id="}'+ids.join(), method: "DELETE", async: true, dataType: 'json',
-						success: function(data) {
-							dialog.close();
-							dataTable1.ajax.reload( null, false );
-							Lobibox.notify('info', { msg: data.message });
-						},
-						error: function(data) {
-							if (data.status==500){
-								var message = data.statusText;
-							} else {
-								var error = JSON.parse(data.responseText);
-								var message = error.message;
-							}
-							button.stopSpin();
-							dialog.enableButtons(true);
-							dialog.setClosable(true);
-							BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
-						}
-					});
-				}
-			}, {
-					label: 'Close',
-					action: function(dialog) { dialog.close(); }
-			}],
-			onshown: function(dialog) {
-				{**}
-			}
-		});
-	});
 	
 	{* btn-process1 in Toolbar *}
 	$('#btn-process1').click(function(){
