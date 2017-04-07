@@ -215,9 +215,11 @@ function setSelectList(name, id, clazz, optionList) {
 }
 
 /* Using for bootstrap */
-function subRow(el){
+function subRow(el, cls){
 	if(typeof(el)==='undefined') el = '';
+	if(typeof(cls)==='undefined') cls = '';
 	var container = $('<div class="row"></div>');
+	if (cls) container.addClass(cls);
 	return container.append(el);
 }
 

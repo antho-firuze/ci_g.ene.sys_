@@ -71,19 +71,6 @@
 			}
 			head_cb.data("clicks", !clicks);
 		});
-		/* {* $('#btn-check').click(function(){
-			var clicks = $(this).data('clicks');
-			if (clicks) {
-				dataTable1.rows().deselect();
-				tableData1.find('input[type="checkbox"]').iCheck("uncheck");
-				$(this).removeClass("glyphicon-check").addClass('glyphicon-unchecked');
-			} else {
-				dataTable1.rows().select();
-				tableData1.find('input[type="checkbox"]').iCheck("check");
-				$(this).removeClass("glyphicon-unchecked").addClass('glyphicon-check');
-			}
-			$(this).data("clicks", !clicks);
-		}); *} */
 		
 		/* {* Don't change this code: This is for (Checked & Unchecked) or (Selected & Unselected) on DataTable *} */
 		tableData1.find('tbody').on( 'click', 'tr', function () {
@@ -116,11 +103,6 @@
 	};
 	
 	DTHelper.defaults = {
-		setCustomLeftButton: ''+
-			'<button type="button" class="btn btn-xs btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />'+
-			'<button type="button" class="btn btn-xs btn-danger glyphicon glyphicon-trash" title="Delete" name="btn-delete" />'+
-			'<button type="button" class="btn btn-xs btn-default glyphicon glyphicon-chevron-right" title="Detail" name="btn-detail" />',
-		setCustomRightButton: '',
 		tableData1: $('<table class="table table-bordered table-hover" />'),
 	};
 	

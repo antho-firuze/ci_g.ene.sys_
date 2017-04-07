@@ -8,7 +8,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
+<script src="{$.const.ASSET_URL}js/form_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script>
 	{* Start :: Init for Title, Breadcrumb *}

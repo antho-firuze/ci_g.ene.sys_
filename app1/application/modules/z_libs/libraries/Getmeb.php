@@ -56,6 +56,10 @@ class Getmeb extends CI_Controller
 		if (in_array($this->r_method, ['GET'])) {
 			/* Become Array */
 			$this->params = $this->input->get();
+			/* Request for record info */
+			if (isset($this->params['rec_info']) && !empty($this->params['rec_info'])) {
+				$this->_get_record_info();
+			}
 		}
 		
 		if (in_array($this->r_method, ['POST','PUT','OPTIONS'])) {
@@ -200,6 +204,34 @@ class Getmeb extends CI_Controller
 		}
 	}
 	
+	function _get_record_info()
+	{
+		$result = [];
+		$result['table'] = $this->c_method;
+		$result['id'] = $this->params['id'];
+		if ($info = $this->base_model->getValue('created_by, updated_by, deleted_by', $this->c_method, 'id', $this->params['id'])){
+			if ($info->created_by){
+				if ($user = $this->base_model->getValue('id, name', 'a_user', 'id', $info->created_by)) {
+					$result['created_by'] 		 = $user->id;
+					$result['created_by_name'] = $user->name;
+				}
+			}
+			if ($info->updated_by){
+				if ($user = $this->base_model->getValue('id, name', 'a_user', 'id', $info->updated_by)) {
+					$result['updated_by'] 		 = $user->id;
+					$result['updated_by_name'] = $user->name;
+				}
+			}
+			if ($info->deleted_by){
+				if ($user = $this->base_model->getValue('id, name', 'a_user', 'id', $info->deleted_by)) {
+					$result['deleted_by'] 		 = $user->id;
+					$result['deleted_by_name'] = $user->name;
+				}
+			}
+		}
+		$this->xresponse(TRUE, ['data' => $result]);
+	}
+	
 	/**
 	 * Prevent direct access to this controller via URL
 	 *
@@ -285,8 +317,10 @@ class Getmeb extends CI_Controller
 		if (!$return = $this->db->update($table, $data, $cond)) {
 			$this->set_message($this->db->error()['message']);
 			return false;
+		} else {
+			$this->set_message('success_update');
+			return true;
 		}
-		return true;
 		
 		/* $this->db->update($table, $data, $cond);
 		$return = $this->db->affected_rows() == 1;

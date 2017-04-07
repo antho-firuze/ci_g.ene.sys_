@@ -410,7 +410,7 @@
 	BSHelper.Table = function(options){
 		var o = $.extend( {}, BSHelper.Table.defaults, options );
 		
-		var container = $('<div>'+o.title+'<br><table class="table"><thead></thead><tbody></tbody></table></div>'),
+		var container = $('<div><p></p><table class="table"><thead></thead><tbody></tbody></table></div>'),
 				table = container.find('table'),
 				thead = container.find('thead'),
 				tbody = container.find('tbody'),
@@ -418,6 +418,9 @@
 				c = 1,
 				confirm_text = o.confirm_text.replace(/({rows_count})/gi, o.data.length);
 		
+		if (o.title){
+			container.find('p').append(o.title);
+		}
 		if (o.isConfirm){
 			if (o.data.length > o.maxrows){
 				table.remove();

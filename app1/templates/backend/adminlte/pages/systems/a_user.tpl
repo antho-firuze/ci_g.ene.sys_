@@ -16,7 +16,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/form_crud.js"></script>
+<script src="{$.const.ASSET_URL}js/form_view.js"></script>
 <script>
 	{* Section 1: For parsing URL Parameters *}
 	var $url_module = "{$url_module}";

@@ -1,11 +1,11 @@
 /*!
- * form_crud.js v1.0.0
+ * form_view.js v1.0.0
  * Copyright 2016, Ahmad Firuze
  *
  * Freely distributable under the MIT license.
  * Portions of G.ENE.SYS Ultimate - Manufacturing Systems
  *
- * A functions for build CRUD Form
+ * A functions for build Form to View Data
  */
 /* 
 	$.each(btn, function(k,v){
@@ -99,15 +99,33 @@ $(document.body).click('button', function(e){
 				BootstrapDialog.alert('Please chosed one record !');
 				return false;
 			}
-			var tblConfirm = BSHelper.Table({
-					title: "",
-					data: data,	rowno: true, showheader: true, maxrows: 3, isConfirm: true,
-					columns:[
-						{ data:"name"					,title:"Name" },
-						{ data:"description"	,title:"Description" },
-					],
-				});
-			BootstrapDialog.alert(tblConfirm);
+			$.getJSON($url_module, { rec_info: 1, id: data[0].id }, function(result){ 
+				// console.log(result.data);
+				// return false;
+				var c = [], r = [];
+				if (result.data.created_by_name){
+					c.push(subCol(3, 'Created By:'));
+					c.push(subCol(2, result.data.create_by_name));
+					c.push(subCol(3, data[0].created_at));
+					r.push(subRow(c, 'clearfix')); c = [];
+				}
+				if (result.data.updated_by_name){
+					c.push(subCol(3, 'Updated By:'));
+					c.push(subCol(2, result.data.updated_by_name));
+					c.push(subCol(3, data[0].updated_at));
+					r.push(subRow(c, 'clearfix')); c = [];
+				}
+				var tblConfirm = BSHelper.Table({
+						title: r,
+						data: data,	rowno: true, showheader: true, maxrows: 3, isConfirm: true,
+						columns:[
+							{ data:"name"					,title:"Name" },
+							{ data:"description"	,title:"Description" },
+						],
+					});
+				BootstrapDialog.alert(tblConfirm);
+			});
+
 			break;
 			
 		case 'btn-delete':
