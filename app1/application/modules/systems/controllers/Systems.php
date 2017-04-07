@@ -264,40 +264,69 @@ class Systems extends Getmeb
 		}
 		
 		if ($this->r_method == 'PUT') {
-			if (count($this->input->get()) > 0) {
-				$this->params = $this->input->get();
-				
-				if (isset($this->params['user_role_id']) && ($this->params['user_role_id'] != '')) {
-					if (! $this->updateRecord('a_user', [ 'user_role_id' => $this->params['user_role_id']], ['id' => $this->session->user_id]))
-						$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
-				}
-				if (isset($this->params['user_org_id']) && ($this->params['user_org_id'] != '')) {
-					if (! $this->updateRecord('a_user', [ 'user_org_id' => $this->params['user_org_id']], ['id' => $this->session->user_id]))
-						$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
-				}
+			/* This line is for update default user role & user org */
+			if (isset($this->params->user_role_id) && ($this->params->user_role_id != '')) {
+				if (! $this->updateRecord($this->params->table, ['user_role_id' => $this->params->user_role_id], ['id' => $this->session->user_id]))
+					$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
+
+				$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
+			}
+			if (isset($this->params->user_org_id) && ($this->params->user_org_id != '')) {
+				if (! $this->updateRecord($this->params->table, ['user_org_id' => $this->params->user_org_id], ['id' => $this->session->user_id]))
+					$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
+
 				$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 			}
 			
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = [];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
+			/* This line is for udpate user config */
+			if (isset($this->params->table) && ($this->params->table == 'a_user_config')) {
+				$result = [];
+				foreach($this->params as $k => $v) {
+					$data['value'] 		 = $v;
+					$cond['attribute'] = $k;
+					$cond['user_id'] 	 = $this->session->user_id;
+					
+					/* update to session */
+					$this->session->set_userdata([$k => $v]);
+					/* update config to database */
+					$qry = $this->db->get_where($this->params->table, $cond, 1);
+					if ($qry->num_rows() > 0) {
+						if (!$this->updateRecord($this->params->table, $data, $cond, TRUE))
+							$result[$k] = $this->messages();	// Trapping error
 					} else {
-						$datas[$f] = $this->params->{$f};
+						if (!$this->insertRecord($this->params->table, array_merge($data, $cond), FALSE, TRUE))
+							$result[$k] = $this->messages();	// Trapping error
 					}
+				}
+				if (count($result) > 0) {
+					$this->xresponse(FALSE, ['message' => $result]);
+				} else {
+					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 				}
 			}
 			
-			if (! $this->updateRecord('a_user', array_merge($datas, $this->update_log), ['id' => $this->params->id]))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			/* This line is for update user info */
+			if (isset($this->params->table) && ($this->params->table == 'a_user')) {
+				$fields = $this->db->list_fields($this->params->table);
+				$boolfields = [];
+				$nullfields = [];
+				foreach($fields as $f){
+					if (key_exists($f, $this->params)){
+						if (in_array($f, $boolfields)){
+							$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
+						} 
+						elseif (in_array($f, $nullfields)){
+							$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
+						} else {
+							$datas[$f] = $this->params->{$f};
+						}
+					}
+				}
+				if (! $this->updateRecord($this->params->table, array_merge($datas, $this->update_log), ['id' => $this->params->id]))
+					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+				else
+					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
+			}
 		}
 		
 		if ($this->r_method == 'POST') {
