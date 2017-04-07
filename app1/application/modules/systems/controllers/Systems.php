@@ -275,8 +275,29 @@ class Systems extends Getmeb
 					if (! $this->updateRecord('a_user', [ 'user_org_id' => $this->params['user_org_id']], ['id' => $this->session->user_id]))
 						$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
 				}
-				$this->xresponse(TRUE);
+				$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 			}
+			
+			$fields = $this->db->list_fields($this->c_method);
+			$boolfields = [];
+			$nullfields = [];
+			foreach($fields as $f){
+				if (key_exists($f, $this->params)){
+					if (in_array($f, $boolfields)){
+						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
+					} 
+					elseif (in_array($f, $nullfields)){
+						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
+					} else {
+						$datas[$f] = $this->params->{$f};
+					}
+				}
+			}
+			
+			if (! $this->updateRecord('a_user', array_merge($datas, $this->update_log), ['id' => $this->params->id]))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 		
 		if ($this->r_method == 'POST') {
@@ -638,20 +659,12 @@ class Systems extends Getmeb
 			$this->xresponse(TRUE, $result);
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			if (count($this->params) > 0){
-				// $i = 0;
-				// foreach($this->params as $param){
-					// $param[i]->
-					// i++;
-				// }
-				/* update config to session */
-				// debug($this->params);
-				$this->params = is_array($this->params) ? $this->params : (array)$this->params;
-				$this->session->set_userdata([$this->params[0]->name => $this->params[0]->value]);
-
+			if (isset($this->params->profile) && $this->params->profile) {
+				/* update to session */
+				$this->session->set_userdata([$this->params->name => $this->params->value]);
 				/* update config to database */
-				$data['value'] 		 = $this->params[0]->value;
-				$cond['attribute'] = $this->params[0]->name;
+				$data['value'] 		 = $this->params->value;
+				$cond['attribute'] = $this->params->name;
 				$cond['user_id'] 	 = $this->session->user_id;
 				
 				$qry = $this->db->get_where($this->c_method, $cond, 1);
@@ -662,8 +675,29 @@ class Systems extends Getmeb
 					if (!$this->insertRecord($this->c_method, array_merge($data, $cond), FALSE, TRUE))
 						$this->xresponse(FALSE, ['message' => $this->messages()]);
 				}
+				$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 			}
-			$this->xresponse(TRUE);
+			
+			$result = [];
+			foreach($this->params as $k => $v) {
+				$data['value'] 		 = $v;
+				$cond['attribute'] = $k;
+				$cond['user_id'] 	 = $this->session->user_id;
+				
+				$qry = $this->db->get_where($this->c_method, $cond, 1);
+				if ($qry->num_rows() > 0) {
+					if (!$this->updateRecord($this->c_method, $data, $cond, TRUE))
+						$result[$k] = $this->messages();
+				} else {
+					if (!$this->insertRecord($this->c_method, array_merge($data, $cond), FALSE, TRUE))
+						$result[$k] = $this->messages();
+				}
+			}
+			if (count($result) > 0) {
+				$this->xresponse(FALSE, ['message' => $result]);
+			} else {
+				$this->xresponse(TRUE);
+			}
 		}
 	}
 	

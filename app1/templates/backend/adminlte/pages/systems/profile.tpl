@@ -45,14 +45,14 @@
 			} },
 			{	title:"Configuration", idname:"tab-dat", content:function(){
 				col = []; 
-				col.push(BSHelper.Combobox({ label:"Layout", idname:"layout", 
+				col.push(BSHelper.Combobox({ label:"Layout", idname:"layout", required: true,
 					list:[
 						{ id:"layout-boxed", name:"Boxed" },
 						{ id:"layout-fixed", name:"Fixed" },
 						{ id:"sidebar-collapse", name:"Sidebar Collapse" },
 					]
 				}));
-				col.push(BSHelper.Combobox({ label:"Skin Color", idname:"skin", 
+				col.push(BSHelper.Combobox({ label:"Skin Color", idname:"skin", required: true,
 					list:[
 						{ id:"skin-blue", name:"Blue" },
 						{ id:"skin-black", name:"Black" },
@@ -68,7 +68,7 @@
 						{ id:"skin-green-light", name:"Green Light" },
 					] 
 				}));
-				col.push(BSHelper.Combobox({ label:"Screen Timeout", idname:"screen_timeout", 
+				col.push(BSHelper.Combobox({ label:"Screen Timeout", idname:"screen_timeout", required: true,
 					list:[
 						{ id:"60000", name:"1 minute" },
 						{ id:"120000", name:"2 minutes" },
@@ -87,12 +87,13 @@
 						{ id:"18000000", name:"5 hours" },
 					] 
 				}));
-				col.push(BSHelper.Combobox({ label:"Language", idname:"language", 
+				col.push(BSHelper.Combobox({ label:"Language", idname:"language", required: true,
 					list:[
 						{ id:"english", name:"English" },
-						{ id:"indonesia", name:"Indonesia" },
+						{* { id:"indonesia", name:"Indonesia" }, *}
 					] 
 				}));
+				col.push( BSHelper.Button({ type:"submit", label:"Save", idname:"btn_saveconfig" }) ); 
 				form2.append(col);
 				return subRow(subCol(6, form2));
 			} },
@@ -182,19 +183,18 @@
 				$.ajax({ url:"{$url_module}", method:"PUT", data:JSON.stringify({ "id":{$.session.user_id}, "user_org_id":rowData.id }) });	
 		} 
 	});
-	$.each(form2.find('input'), function(){
-		if ($(this).attr('id')){
-			var id = $(this).attr('id');
+	{* $.each(form2.find('input'), function(){
+		var id;
+		if (id = $(this).attr('id')){
 			$(this).shollu_cb({ 
 				onSelect: function(rowData){ 
 					if (rowData.id){
-						var data = JSON.stringify($("[name='"+id+"']").serializeArray());
-						$.ajax({ url:"{$url_module_a_user_config}", method:"PUT", data:data });	
+						$.ajax({ url:"{$url_module_a_user_config}", method:"PUT", data: JSON.stringify({ profile:1, name:id, value:rowData.id }) });	
 					}
 				}
 			});
 		}
-	});
+	}); *}
 	
 	{* Form submit action *}
 	form1.validator().on('submit', function (e) {
@@ -205,9 +205,34 @@
 			data: form1.serializeJSON(),
 			success: function(data) {
 				{* console.log(data); *}
-				BootstrapDialog.alert('Saving data successfully !', function(){
-					{* window.history.back(); *}
-        });
+				BootstrapDialog.alert(data.message);
+			},
+			error: function(data) {
+				if (data.status==500){
+					var message = data.statusText;
+				} else {
+					var error = JSON.parse(data.responseText);
+					var message = error.message;
+				}
+				BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+			}
+		});
+
+		return false;
+	});
+	
+	form2.validator().on('submit', function (e) {
+		{* e.stopPropagation; *}
+		if (e.isDefaultPrevented()) { return false;	} 
+		
+		console.log(form2.serializeJSON());
+		return false;
+		
+		$.ajax({ url: '{$url_module_a_user_config}', method:"PUT", async: true, dataType:'json',
+			data: form2.serializeJSON(),
+			success: function(data) {
+				{* console.log(data); *}
+				BootstrapDialog.alert(data.message);
 			},
 			error: function(data) {
 				if (data.status==500){

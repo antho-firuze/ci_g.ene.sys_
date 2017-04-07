@@ -254,7 +254,7 @@
       change_skin($(this).data('skin'));
 	
 			$.ajax({ url: x_config_lnk,	method: "PUT",	dataType: 'json',
-				data: JSON.stringify([{"name":"skin", "value":$(this).data('skin')}])
+				data: JSON.stringify({profile:1, name:"skin", value:$(this).data('skin')})
 			});
     });
 
@@ -266,7 +266,7 @@
 				store($sidebar, 'sidebar-collapse');
 			
 			$.ajax({ url: x_config_lnk,	method: "PUT",	dataType: 'json',
-				data: JSON.stringify([{"name":"sidebar", "value":get($sidebar)}])
+				data: JSON.stringify({profile:1, name:"sidebar", value:get($sidebar)})
 			});
 		});
 		
@@ -276,7 +276,7 @@
 			init_screen_timeout();
 			
 			$.ajax({ url: x_config_lnk,	method: "PUT",	dataType: 'json',
-				data: JSON.stringify([{"name":"screen_timeout", "value":$("#timeout_list").val()}])
+				data: JSON.stringify({profile:1, name:"screen_timeout", value:$("#timeout_list").val()})
 			});
 		});
 	
