@@ -64,8 +64,8 @@
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canexport", title:"Can Export", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canreport", title:"Can Report", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canapproveowndoc", title:"Can Approve", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_accessallorgs", title:"Access All Org", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_useuserorgaccess", title:"Use User Org Access", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{* { width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_accessallorgs", title:"Access All Org", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } }, *}
+			{* { width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_useuserorgaccess", title:"Use User Org Access", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } }, *}
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"is_changelog", title:"Change Log", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-center", title:"Sub Menu", render:function(data, type, row){ return aRBtn.join("&nbsp;-&nbsp;"); } },
 		],
