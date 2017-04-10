@@ -9,7 +9,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/form_edit.js"></script>
+<script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
@@ -23,12 +23,12 @@
 	{* Set status (new|edit|copy) to Page Title *}
 	var desc = function(edit){ if (edit==1) return "(Edit)"; else if (edit==2) return "(New)"; else return "(Copy)"; };
 	$(".content").before(BSHelper.PageHeader({ 
-		title: "{$window_title}", 
+		title: "{$title}", 
 		title_desc: desc(edit), 
 		bc_list:[
 			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
 			{ icon:"", title:"Role Access", link:"javascript:history.back()" },
-			{ icon:"", title:"{$window_title}", link:"javascript:history.back()" },
+			{ icon:"", title:"{$title}", link:"javascript:history.back()" },
 			{ icon:"", title: desc(edit), link:"" },
 		]
 	}));
@@ -49,9 +49,17 @@
 	col.push(BSHelper.Input({ type:"hidden", idname:"role_id", value:role_id }));
 	{* standard fields table *}
 	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Menu", idname:"menu_id", url:"{$.php.base_url('systems/a_menu')}", remote: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Menu", idname:"menu_id", url:"{$.php.base_url('systems/a_menu')}?filter=is_active='1',type<>'G'&ob=name", remote: true }));
+	col.push(BSHelper.Combobox({ label:"Type", idname:"type", disabled: true, 
+		list:[
+			{ id:"G", name:"GROUP" },
+			{ id:"F", name:"FORM" },
+			{ id:"P", name:"PROCESS/REPORT" },
+			{ id:"W", name:"WINDOW" },
+		] 
+	}));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Allow", idname:"is_readwrite", remote: false,
+	col.push(BSHelper.Combobox({ horz:false, label:"Allow", idname:"permit_window", remote: false, 
 		list:[
 			{ id:"1", name:"Only Create" },
 			{ id:"2", name:"Only Edit" },
@@ -60,6 +68,16 @@
 			{ id:"5", name:"Can Create & Delete" },
 			{ id:"6", name:"Can Edit & Delete" },
 			{ id:"7", name:"Can All" },
+		] 
+	}));
+	col.push(BSHelper.Combobox({ horz:false, label:"Allow", idname:"permit_form", remote: false, 
+		list:[
+			{ id:"1", name:"Execute" },
+		] 
+	}));
+	col.push(BSHelper.Combobox({ horz:false, label:"Allow", idname:"permit_process", remote: false, 
+		list:[
+			{ id:"1", name:"Execute" },
 		] 
 	}));
 	form1.append(subRow(subCol(6, col)));
@@ -72,4 +90,38 @@
 	box1.find('.box-body').append(form1);
 	$(".content").append(box1);
 
+	{* Event *}
+	$("#menu_id").shollu_cb({
+		onSelect: function(rowData){
+			$("#type").shollu_cb('setValue', rowData.type);
+			hidden_permission_box();
+			if (rowData.type == 'F')
+				$("#permit_form").closest(".form-group").css("display", "");
+			if (rowData.type == 'P')
+				$("#permit_process").closest(".form-group").css("display", "");
+			if (rowData.type == 'W')
+				$("#permit_window").closest(".form-group").css("display", "");
+		},
+		onChange: function(rowData){
+			{* console.log(rowData); *}
+			hidden_permission_box();
+			if (rowData.type == 'F')
+				$("#permit_form").closest(".form-group").css("display", "");
+			if (rowData.type == 'P')
+				$("#permit_process").closest(".form-group").css("display", "");
+			if (rowData.type == 'W')
+				$("#permit_window").closest(".form-group").css("display", "");
+		}
+	});
+	
+	function hidden_permission_box(){
+		$("#permit_form").closest(".form-group").css("display", "none");
+		$("#permit_process").closest(".form-group").css("display", "none");
+		$("#permit_window").closest(".form-group").css("display", "none");
+	}
+	
+	$(document).ready(function(){
+		hidden_permission_box();
+	});
+	
 </script>

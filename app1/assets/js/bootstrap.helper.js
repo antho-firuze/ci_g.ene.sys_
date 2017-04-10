@@ -230,6 +230,7 @@
 				input.attr('type',o.type);
 				break;
 			case 'number':
+				if (o.step) input.attr('step',o.step);		
 				input.attr('placeholder',(o.placeholder) ? o.placeholder : 'number');
 				input.attr('type',o.type);
 				break;

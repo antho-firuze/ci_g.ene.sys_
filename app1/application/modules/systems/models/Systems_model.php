@@ -176,7 +176,7 @@ class Systems_Model extends CI_model
 	
 	function get_a_role_menu($params)
 	{
-		$params['select'] = "t1.id, t1.menu_id, t2.code, t2.name, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t2.is_parent, (select name from a_menu where id = t2.parent_id limit 1) as parent_name, t1.is_readwrite";
+		$params['select'] = "t1.id, t1.menu_id, t2.code, t2.name, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t2.is_parent, (select coalesce(code,'') ||'_'|| name from a_menu where id = t2.parent_id limit 1) as parent_name, t2.type, t1.permit_form, t1.permit_process, t1.permit_window";
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= "a_role_menu t1";
 		$params['join'][] = ['a_menu t2', 't1.menu_id = t2.id', 'left'];
@@ -236,23 +236,61 @@ class Systems_Model extends CI_model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function getMenuByRoleId_old($role_id)
+	function getMenuByRoleId($role_id)
 	{
 		if ($role_id) {
 			$query = "select 
-			am1.id as menu_id1, am1.role_id as role_id1, am1.name as name1, am1.is_parent as is_parent1, am1.url as url1, am1.icon as icon1, am1.is_readwrite as is_readwrite1, 
-			am2.id as menu_id2, am2.role_id as role_id2, am2.name as name2, am2.is_parent as is_parent2, am2.url as url2, am2.icon as icon2, am2.is_readwrite as is_readwrite2, 
-			am3.id as menu_id3, am3.role_id as role_id3, am3.name as name3, am3.is_parent as is_parent3, am3.url as url3, am3.icon as icon3, am3.is_readwrite as is_readwrite3
+						am1.id as menu_id1, am1.name as name1, am1.is_parent as is_parent1, am1.icon as icon1, am1.type as type1,
+						am2.id as menu_id2, am2.name as name2, am2.is_parent as is_parent2, am2.icon as icon2, am2.type as type2,
+						am3.id as menu_id3, am3.name as name3, am3.is_parent as is_parent3, am3.icon as icon3, am3.type as type3
 			from (
-				select am.*, arm.role_id, arm.is_readwrite from a_role_menu arm left join a_menu am on am.id = arm.menu_id 
+				select * from a_menu am where am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and am.parent_id = '0' and 
+				exists (
+					select * from (
+						select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
+						from a_menu am
+						left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
+						where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
+					) basemenu where role_id is not null and parent_id = am.id
+				)
+			) am1
+			left join (
+				select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
+				from a_menu am
+				left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
+				where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
+			) am2 on am1.id = am2.parent_id and am2.role_id is not null
+			left join (
+				select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
+				from a_menu am
+				left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
+				where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
+			) am3 on am2.id = am3.parent_id and am3.role_id is not null
+			order by am1.line_no, am2.line_no, am3.line_no";
+			
+			$row = $this->db->query($query);
+			return ($row->num_rows() > 0) ? $row->result() : FALSE;
+		}
+		return FALSE;
+	}
+	
+	function getMenuByRoleId_old1($role_id)
+	{
+		if ($role_id) {
+			$query = "select 
+			am1.id as menu_id1, am1.name as name1, am1.is_parent as is_parent1, am1.icon as icon1, 
+			am2.id as menu_id2, am2.name as name2, am2.is_parent as is_parent2, am2.icon as icon2, 
+			am3.id as menu_id3, am3.name as name3, am3.is_parent as is_parent3, am3.icon as icon3
+			from (
+				select am.*, arm.role_id from a_role_menu arm left join a_menu am on am.id = arm.menu_id 
 				where am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
 			) am1
 			left join (
-				select am.*, arm.role_id, arm.is_readwrite from a_role_menu arm left join a_menu am on am.id = arm.menu_id 
+				select am.*, arm.role_id from a_role_menu arm left join a_menu am on am.id = arm.menu_id 
 				where am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
 			) am2 on am1.id = am2.parent_id 
 			left join (
-				select am.*, arm.role_id, arm.is_readwrite from a_role_menu arm left join a_menu am on am.id = arm.menu_id 
+				select am.*, arm.role_id from a_role_menu arm left join a_menu am on am.id = arm.menu_id 
 				where am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
 			) am3 on am2.id = am3.parent_id 
 			where am1.parent_id = '0'
@@ -264,7 +302,7 @@ class Systems_Model extends CI_model
 		return FALSE;
 	}
 	
-	function getMenuByRoleId($role_id)
+	function getMenuByRoleId_old2($role_id)
 	{
 		if ($role_id) {
 			$query = "select 

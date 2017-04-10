@@ -242,6 +242,19 @@
 			}
 			/* Menu selected but same with current (Nothing changed) */
 			if (id_new == id_old) {	
+				if (Object.keys(o.addition).length > 0){
+					// console.log('2.1'); 
+					if (id_new == 0){
+						// console.log('2.2'); 
+						$element
+							.attr('value', id_new)
+							.attr('data-'+o.idField, id_new)
+							.attr('data-'+o.textField, name_new)
+							.val(name_new).trigger('change');
+						$target.val(id_new).trigger('change');
+						o.onSelect.call(this, o.rowData[id_new]);	
+					}
+				}
 				// console.log('2'); 
 				return hide(); 
 			}
@@ -305,19 +318,14 @@
 			if (o.page == 1)
 				$menu.empty();
 			
-			// console.log('addition:'+Object.keys(o.addition).length);
-			if (Object.keys(o.addition).length > 0){
-				var v = o.addition[o.idField];
-				var t = o.addition[o.textField];
-				var cls = (o.item_cls) ? 'class="'+o.item_cls+'" ' : '';
-				list.push($('<li '+cls+'data-'+o.idField+'="'+v+'" data-'+o.textField+'="'+t+'"><a>'+t+'</a></li>'));
-				rowData[v] = o.addition;
-			}
-			
 			if (o.remote) {
 				rows = data.rows;
 				tot_page = Math.ceil(data.total/o.rows);
 			} 
+			
+			if (Object.keys(o.addition).length > 0){
+				rows.unshift(o.addition);
+			}
 			
 			if (Object.keys(rows).length > 0) {
 				$.each(rows, function(i) {

@@ -90,14 +90,14 @@ class Getmeb extends CI_Controller
 		}
 
 		/* CHECK PATH FILE */
-		if (!$this->_check_path($data['path'].$data['url'])) {
+		if (!$this->_check_path($data['path'].$data['table'])) {
 			$this->set_message('ERROR: Menu [path] is could not be found or file not exist !');
 			return FALSE;
 		}
 		
 		if (key_exists('edit', $this->params) && !empty($this->params['edit'])) {
-			if (!$this->_check_path($data['path'].$data['url'].'_edit')) {
-				$this->set_message('ERROR: Page or File ['.$data['path'].$data['url'].'_edit'.'] is could not be found or file not exist !');
+			if (!$this->_check_path($data['path'].$data['table'].'_edit')) {
+				$this->set_message('ERROR: Page or File ['.$data['path'].$data['table'].'_edit'.'] is could not be found or file not exist !');
 				return FALSE;
 			}
 		}
@@ -142,7 +142,7 @@ class Getmeb extends CI_Controller
 		return TRUE;
 	}
 	
-	function _check_is_allow()
+	function _check_is_allow_new_but_inhold()
 	{
 		/* This process is for bypass methods which do not need to login */
 		if (count($this->exception_method) > 0){
@@ -264,7 +264,7 @@ class Getmeb extends CI_Controller
 		}
 	}
 	
-	function _check_is_allow_old()
+	function _check_is_allow()
 	{
 		/* This process is for bypass methods which do not need to login */
 		if (count($this->exception_method) > 0){
@@ -276,57 +276,79 @@ class Getmeb extends CI_Controller
 			return;
 		}
 		
-		// debug('c_method:'.$this->c_method);
-		$menu = $this->base_model->getValue('id, name', 'a_menu', 'url', $this->c_method);
+		$menu = $this->base_model->getValue('id, name, type', 'a_menu', 'table', $this->c_method);
 		if (!$menu){
-			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Method ['.$this->c_method.'] not found in [a_menu] !'], 401);
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Table ['.$this->c_method.'] not found in [a_menu] !'], 401);
 		}
-		// debug('role_id:'.$this->session->role_id);
-		// debug('menu_id:'.$menu->id);
-		$allow = $this->base_model->getValue('is_readwrite', 'a_role_menu', ['role_id', 'menu_id', 'is_active', 'is_deleted'], [$this->session->role_id, $menu->id, '1', '0']);
-		// debug(empty($allow->is_readwrite));
+		$allow = $this->base_model->getValue('permit_form, permit_process, permit_window', 'a_role_menu', ['role_id', 'menu_id', 'is_active', 'is_deleted'], [$this->session->role_id, $menu->id, '1', '0']);
 		if ($allow === FALSE)
-			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Menu ['.$menu->name.'] not found in [a_role_menu] !'], 401);
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Permission ['.$menu->name.'] not found in [a_role_menu] !'], 401);
 
-		switch($allow->is_readwrite){
-		case '1':
-			/* Only Create */
-			if (!in_array($this->r_method, ['POST']))
-				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
-			break;
-		case '2':
-			/* Only Edit */
-			if (!in_array($this->r_method, ['PUT']))
-				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
-			break;
-		case '3':
-			/* Only Delete */
-			if (!in_array($this->r_method, ['DELETE']))
-				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
-			break;
-		case '4':
-			/* Can Create & Edit */
-			if (!in_array($this->r_method, ['POST','PUT']))
-				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
-			break;
-		case '5':
-			/* Can Create & Delete */
-			if (!in_array($this->r_method, ['POST','DELETE']))
-				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
-			break;
-		case '6':
-			/* Can Edit & Delete */
-			if (!in_array($this->r_method, ['PUT','DELETE']))
-				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
-			break;
-		case '7':
-			/* Can All */
-			if (!in_array($this->r_method, ['POST','PUT','DELETE']))
-				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
-			break;
-		default:
-			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Menu ['.$menu->name.'] is not set !'], 401);
-			break;
+		if ($menu->type == 'F') {
+			switch($allow->permit_form){
+			case '1':
+				/* Execute */
+				if (!in_array($this->r_method, ['POST']))
+					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+				break;
+			default:
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Permission ['.$menu->name.'] is not set !'], 401);
+				break;
+			}
+		}
+		if ($menu->type == 'P') {
+			switch($allow->permit_process){
+			case '1':
+				/* Export */
+				if (!in_array($this->r_method, ['POST']))
+					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+				break;
+			default:
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Permission ['.$menu->name.'] is not set !'], 401);
+				break;
+			}
+		}
+		if ($menu->type == 'W') {
+			switch($allow->permit_window){
+			case '1':
+				/* Only Create */
+				if (!in_array($this->r_method, ['POST']))
+					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+				break;
+			case '2':
+				/* Only Edit */
+				if (!in_array($this->r_method, ['PUT']))
+					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+				break;
+			case '3':
+				/* Only Delete */
+				if (!in_array($this->r_method, ['DELETE']))
+					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+				break;
+			case '4':
+				/* Can Create & Edit */
+				if (!in_array($this->r_method, ['POST','PUT']))
+					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+				break;
+			case '5':
+				/* Can Create & Delete */
+				if (!in_array($this->r_method, ['POST','DELETE']))
+					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+				break;
+			case '6':
+				/* Can Edit & Delete */
+				if (!in_array($this->r_method, ['PUT','DELETE']))
+					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+				break;
+			case '7':
+				/* Can All */
+				if (!in_array($this->r_method, ['POST','PUT','DELETE']))
+					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+				break;
+			default:
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Menu ['.$menu->name.'] is not set !'], 401);
+				break;
+			}
 		}
 	}
 	
@@ -458,12 +480,12 @@ class Getmeb extends CI_Controller
 
 		// debug(var_dump($data));
 		if (!$return = $this->db->insert($table, $data)) {
-			// echo $this->db->last_query();
-			// return;
 			$this->set_message($this->db->error()['message']);
 			return false;
+		} else {
+			$this->set_message('success_saving');
+			return true;
 		}
-		return true;
 	}
 	
 	function updateRecord($table, $data, $cond, $update_log = FALSE)

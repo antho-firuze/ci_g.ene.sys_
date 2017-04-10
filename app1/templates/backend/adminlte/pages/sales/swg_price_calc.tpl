@@ -16,7 +16,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/form_edit.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
@@ -27,11 +27,11 @@
 	var $url_module = "{$url_module}";
 	{* Default init for for Title, Breadcrumb *}
 	$(".content").before(BSHelper.PageHeader({ 
-		title:"{$window_title}", 
-		title_desc:"{$description}", 
+		title:"{$title}", 
+		title_desc:"{$title_desc}", 
 		bc_list:[
 			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
-			{ icon:"", title:"{$window_title}", link:"" },
+			{ icon:"", title:"{$title}", link:"" },
 		]
 	}));
 
@@ -45,10 +45,10 @@
 	a.push( subCol(4, BSHelper.Combobox({ label:"Series", idname:"swg_series_id", url:"{$.php.base_url('sales/e_swg_series')}", required: true, remote: true })) );
 	col_l.append(subRow(a));
 	a = [];
-	a.push( subCol(3, BSHelper.Input({ type:"number", label:"D1", idname:"d1", required: true, placeholder:"0", readonly: true })) );
-	a.push( subCol(3, BSHelper.Input({ type:"number", label:"D2", idname:"d2", required: true, placeholder:"0", readonly: true  })) );
-	a.push( subCol(3, BSHelper.Input({ type:"number", label:"D3", idname:"d3", required: true, placeholder:"0", readonly: true  })) );
-	a.push( subCol(3, BSHelper.Input({ type:"number", label:"D4", idname:"d4", required: true, placeholder:"0", readonly: true  })) );
+	a.push( subCol(3, BSHelper.Input({ type:"number", step:"any", label:"D1", idname:"d1", required: true, placeholder:"0", readonly: true })) );
+	a.push( subCol(3, BSHelper.Input({ type:"number", step:"any", label:"D2", idname:"d2", required: true, placeholder:"0", readonly: true  })) );
+	a.push( subCol(3, BSHelper.Input({ type:"number", step:"any", label:"D3", idname:"d3", required: true, placeholder:"0", readonly: true  })) );
+	a.push( subCol(3, BSHelper.Input({ type:"number", step:"any", label:"D4", idname:"d4", required: true, placeholder:"0", readonly: true  })) );
 	col_l.append(subRow(a));
 	col_l.append(BSHelper.Input({ type:"number", label:"Quantity", idname:"qty", required: true, placeholder:"numeric", value:1 }));
 	col_r.append(BSHelper.Combobox({ label:"Material IR", idname:"ir_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: false, remote: true }));
@@ -131,7 +131,8 @@
 			{* $("#pricelist_version").shollu_cb('disabled', true); *}
 		}
 	});	
-	$("#swg_size_id").shollu_cb({ addition: { "id":0, "name":"Non Standard" },
+	$("#swg_size_id").shollu_cb({ 
+		addition: { "id":0, "name":"Non Standard" },
 		onSelect: function(rowData){ populate_dimension(); }
 	});
 	$("#swg_class_id").shollu_cb({ onSelect: function(rowData){ populate_dimension(); }	});
@@ -172,7 +173,7 @@
 		{* e.stopPropagation; *}
 		if (e.isDefaultPrevented()) { return false;	} 
 		
-		$.ajax({ url: '{$url_module}', method: "GET", async: true, dataType: 'json',
+		$.ajax({ url: '{$url_module}', method: "POST", async: true, dataType: 'json',
 			data: formContent.serializeJSON(),
 			success: function(data) {
 				{* console.log(data.data); *}

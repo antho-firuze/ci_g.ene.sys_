@@ -8,7 +8,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/form_edit.js"></script>
+<script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
@@ -21,11 +21,11 @@
 	{* Set status (new|edit|copy) to Page Title *}
 	var desc = function(edit){ if (edit==1) return "(Edit)"; else if (edit==2) return "(New)"; else return "(Copy)"; };
 	$(".content").before(BSHelper.PageHeader({ 
-		title:"{$window_title}", 
+		title:"{$title}", 
 		title_desc: desc(edit), 
 		bc_list:[
 			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
-			{ icon:"", title:"{$window_title}", link:"javascript:history.back()" },
+			{ icon:"", title:"{$title}", link:"javascript:history.back()" },
 			{ icon:"", title: desc(edit), link:"" },
 		]
 	}));
@@ -36,19 +36,28 @@
 	var box1 = BSHelper.Box({ type:"info" });
 	var req = function(edit){ if (edit==1) return false; else if (edit==2) return true; else return true; };
 	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Name", idname:"name", required: true, placeholder:"string(60)", }));
-	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", placeholder:"string(2000)" }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Name", idname:"name", required: true }));
+	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
-	col.push(BSHelper.Checkbox({ horz:false, label:"Is Parent", idname:"is_parent", value:0 }));
+	col.push(BSHelper.Checkbox({ horz:false, label:"Is Parent Menu", idname:"is_parent", value:0 }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Parent Menu", idname:"parent_id", url:"{$.php.base_url('systems/a_menu')}?filter=is_parent='1'", remote: true }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Icon", idname:"icon", placeholder:"string(60)" }));
-	row.push(subCol(6, col)); col = [];
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Icon", idname:"icon" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Sub Module", idname:"is_submodule", value:0 }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Table", idname:"url", placeholder:"string(60)" }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Path", idname:"path", placeholder:"string(100)" }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Class", idname:"class", placeholder:"string(60)" }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Method", idname:"method", placeholder:"string(60)" }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Window Title", idname:"window_title", placeholder:"string(100)" }));
+	row.push(subCol(6, col)); col = [];
+	col.push(BSHelper.Combobox({ label:"Type", idname:"type", required: true, 
+		list:[
+			{ id:"G", name:"GROUP" },
+			{ id:"F", name:"FORM" },
+			{ id:"P", name:"PROCESS/REPORT" },
+			{ id:"W", name:"WINDOW" },
+		] 
+	}));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Path", idname:"path" }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Class", idname:"class" }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Method", idname:"method" }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Table", idname:"table" }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Title", idname:"title" }));
+	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Title Description", idname:"title_desc" }));
 	row.push(subCol(6, col));
 	form1.append(subRow(row));
 	form1.append(subRow(subCol()));

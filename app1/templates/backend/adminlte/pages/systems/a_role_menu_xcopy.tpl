@@ -9,7 +9,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/form_edit.js"></script>
+<script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
@@ -20,12 +20,12 @@
 	{* Set status (new|edit|copy) to Page Title *}
 	var desc = function(x){ if (x=='copy') return "(Copy Menu From Role...)"; };
 	$(".content").before(BSHelper.PageHeader({ 
-		title: "{$window_title}", 
-		title_desc: "{$description}", 
+		title: "{$title}", 
+		title_desc: "{$title_desc}", 
 		bc_list:[
 			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
 			{ icon:"", title:"Role Access", link:"javascript:history.back()" },
-			{ icon:"", title:"{$window_title}", link:"javascript:history.back()" },
+			{ icon:"", title:"{$title}", link:"javascript:history.back()" },
 			{ icon:"", title: desc(x), link:"" },
 		]
 	}));

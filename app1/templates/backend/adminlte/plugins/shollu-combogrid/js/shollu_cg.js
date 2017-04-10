@@ -234,8 +234,27 @@
 					.val('').trigger('change');
 				return hide(); 
 			}
+			/* Menu selected but not same with current and mouse klik outside */
+			if ((id_new != '') && (id_old != '') && !o.mousedover) {
+				// console.log('1.75'); 
+				$menu.find('.active').removeClass('active');
+				return hide(); 
+			}
 			/* Menu selected but same with current (Nothing changed) */
 			if (id_new == id_old) {	
+				if (Object.keys(o.addition).length > 0){
+					// console.log('2.1'); 
+					if (id_new == 0){
+						// console.log('2.2'); 
+						$element
+							.attr('value', id_new)
+							.attr('data-'+o.idField, id_new)
+							.attr('data-'+o.textField, name_new)
+							.val(name_new).trigger('change');
+						$target.val(id_new).trigger('change');
+						o.onSelect.call(this, o.rowData[id_new]);	
+					}
+				}
 				// console.log('2'); 
 				return hide(); 
 			}
@@ -299,19 +318,14 @@
 			if (o.page == 1)
 				$menu.empty();
 			
-			// console.log('addition:'+Object.keys(o.addition).length);
-			if (Object.keys(o.addition).length > 0){
-				var v = o.addition[o.idField];
-				var t = o.addition[o.textField];
-				var cls = (o.item_cls) ? 'class="'+o.item_cls+'" ' : '';
-				list.push($('<li '+cls+'data-'+o.idField+'="'+v+'" data-'+o.textField+'="'+t+'"><a>'+t+'</a></li>'));
-				rowData[v] = o.addition;
-			}
-			
 			if (o.remote) {
 				rows = data.rows;
 				tot_page = Math.ceil(data.total/o.rows);
 			} 
+			
+			if (Object.keys(o.addition).length > 0){
+				rows.unshift(o.addition);
+			}
 			
 			if (Object.keys(rows).length > 0) {
 				$.each(rows, function(i) {
@@ -319,28 +333,27 @@
 					var t = rows[i][o.textField];
 					var cls = (o.item_cls) ? 'class="'+o.item_cls+'" ' : '';
 
-					if (id && (id == v)){
-						var active = 'active ';
-						cls = cls ? cls+active : 'class="'+active+'"';
-					}
-					if (text && (text == t.toLowerCase())){
-						var active = 'active ';
-						cls = cls ? cls+active : 'class="'+active+'"';
-					}
 					text = text.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 					var re = new RegExp("(" + text.split(' ').join('|') + ")", "gi");
-					list.push( $('<li '+cls+'data-'+o.idField+'="'+v+'" data-'+o.textField+'="'+t+'"><a>'+t.replace(re, "<b>$1</b>")+'</a></li>') );
+					var li = $('<li data-'+o.idField+'="'+v+'" data-'+o.textField+'="'+t+'"><a>'+t.replace(re, "<b>$1</b>")+'</a></li>');
+					if (o.item_cls) li.addClass(o.item_cls);
+					if (id && (id == v)) li.addClass('active');
+					if (text && (text == t.toLowerCase())) { 
+						if (! li.hasClass('active')) 
+							li.addClass('active'); 
+					}
+					list.push( li );
 					rowData[v] = rows[i]; /* 1:{value:1, text:"One"}, 2:{value:2, text:"Two"} */
 				});
 				$menu.append(list);
 			} else {
 				$menu.append('<span style="color:#999;">'+o.emptyMessage+'</span>');
 			}
-			
 			/* insert to object o, for permanent storage & can be accessed on other function */
 			o.rowData = rowData;
 			show();
 			$element.focus();
+			fixMenuScroll();
 		}
 		
 		function fixMenuScroll(){

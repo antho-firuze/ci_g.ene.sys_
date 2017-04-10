@@ -8,16 +8,16 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/form_edit.js"></script>
+<script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script>
 	{* Start :: Init for Title, Breadcrumb *}
 	$(".content").before(BSHelper.PageHeader({ 
-		title:"{$window_title}", 
-		title_desc:"{$description}", 
+		title:"{$title}", 
+		title_desc:"{$title_desc}", 
 		bc_list:[
 			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
-			{ icon:"", title:"{$window_title}", link:"" },
+			{ icon:"", title:"{$title}", link:"" },
 		]
 	}));
 

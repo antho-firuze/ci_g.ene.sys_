@@ -15,7 +15,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/form_view.js"></script>
+<script src="{$.const.ASSET_URL}js/window_view.js"></script>
 <script>
 	{* Get Params *}
 	var $q = getURLParameter("q");
@@ -24,11 +24,11 @@
 	{* Default init for for Title, Breadcrumb *}
 	$( document ).ready(function() {
 		$(".content").before(BSHelper.PageHeader({ 
-			title:"{$window_title}", 
-			title_desc:"{$description}", 
+			title:"{$title}", 
+			title_desc:"{$title_desc}", 
 			bc_list:[
 				{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
-				{ icon:"", title:"{$window_title}", link:"" },
+				{ icon:"", title:"{$title}", link:"" },
 			]
 		}));
 	});

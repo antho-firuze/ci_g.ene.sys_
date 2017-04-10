@@ -33,7 +33,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/pace/pace.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/iCheck/icheck.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-dialog/js/bootstrap-dialog.min.js"></script>
-<script src="{$.const.ASSET_URL}js/form_edit.js"></script>
+<script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 
 </head>
 <body class="hold-transition login-page">

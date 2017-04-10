@@ -5,8 +5,8 @@
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        {$window_title}
-        <small>{$description}</small>
+        {$title}
+        <small>{$title_desc}</small>
       </h1>
     </section>
     <!-- Main content -->
@@ -15,7 +15,6 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/form_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
@@ -149,9 +148,7 @@
 			data: form1.serializeJSON(),
 			success: function(data) {
 				{* console.log(data); *}
-				BootstrapDialog.alert('Saving data successfully !', function(){
-					{* window.history.back(); *}
-        });
+				BootstrapDialog.alert(data.message);
 			},
 			error: function(data) {
 				if (data.status==500){

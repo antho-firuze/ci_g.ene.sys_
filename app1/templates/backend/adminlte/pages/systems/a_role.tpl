@@ -15,7 +15,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/form_view.js"></script>
+<script src="{$.const.ASSET_URL}js/window_view.js"></script>
 <script>
 	{* Get Params *}
 	var $q = getURLParameter("q");
@@ -23,11 +23,11 @@
 	var $url_module = "{$url_module}";
 	{* Default init for for Title, Breadcrumb *}
 	$(".content").before(BSHelper.PageHeader({ 
-		title:"{$window_title}", 
-		title_desc:"{$description}", 
+		title:"{$title}", 
+		title_desc:"{$title_desc}", 
 		bc_list:[
 			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
-			{ icon:"", title:"{$window_title}", link:"" },
+			{ icon:"", title:"{$title}", link:"" },
 		]
 	}));
 	
@@ -37,10 +37,10 @@
 	aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />');
 	aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs btn-danger glyphicon glyphicon-trash" title="Delete" name="btn-delete" />');
 	var aRBtn = [];
-	{* aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=36>Menu</a></span>'); *}
-	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=38>Form</a></span>');
-	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=37>Process</a></span>');
-	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=36>Window</a></span>');
+	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=36>Menu Access</a></span>');
+	{* aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=38>Form</a></span>'); *}
+	{* aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=37>Process</a></span>'); *}
+	{* aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=36>Window</a></span>'); *}
 	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="width:100%; table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
 	dataTable1 = tableData1.DataTable({
 		"pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, 

@@ -35,8 +35,8 @@
 <script>
 	{* Start :: Init for Title, Breadcrumb *}
 	$(".content").before(BSHelper.PageHeader({ 
-		title:"{$window_title}", 
-		title_desc:"{$description}", 
+		title:"{$title}", 
+		title_desc:"{$title_desc}", 
 		bc_list:[
 			{ icon:"fa fa-dashboard", title:" Dashboard", link:"{$.const.APPS_LNK}" },
 		]

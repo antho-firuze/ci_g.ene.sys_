@@ -9,7 +9,7 @@
     <!-- /.content -->
  </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/form_edit.js"></script>
+<script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
@@ -23,12 +23,12 @@
 	{* Set status (new|edit|copy) to Page Title *}
 	var desc = function(edit){ if (edit==1) return "(Edit)"; else if (edit==2) return "(New)"; else return "(Copy)"; };
 	$(".content").before(BSHelper.PageHeader({ 
-		title: "{$window_title}", 
+		title: "{$title}", 
 		title_desc: desc(edit), 
 		bc_list:[
 			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
 			{ icon:"", title:"User", link:"javascript:history.back()" },
-			{ icon:"", title:"{$window_title}", link:"javascript:history.back()" },
+			{ icon:"", title:"{$title}", link:"javascript:history.back()" },
 			{ icon:"", title: desc(edit), link:"" },
 		]
 	}));

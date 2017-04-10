@@ -29,9 +29,9 @@ class Systems extends Getmeb
 		redirect(base_url().'systems/x_page?pageid=1');
 	}
 	
-	function dashboard()
+	function dashboard1()
 	{
-		// $this->backend_view('dashboard1', 'pages/dashboard/dashboard1');
+		$this->backend_view('dashboard1', 'pages/dashboard/dashboard1');
 	}
 	
 	function x_auth()
@@ -354,14 +354,14 @@ class Systems extends Getmeb
 			
 			/* Check for edit & new page */
 			if (isset($this->params['edit']) && !empty($this->params['edit']))
-				$this->backend_view($menu['path'].$menu['url'].'_edit', $menu);
+				$this->backend_view($menu['path'].$menu['table'].'_edit', $menu);
 			else
 				/* Check for additional/custom page */
 				if (isset($this->params['x']) && !empty($this->params['x']))
-					$this->backend_view($menu['path'].$menu['url'].'_x'.$this->params['x'], $menu);
+					$this->backend_view($menu['path'].$menu['table'].'_x'.$this->params['x'], $menu);
 				else
 					/* Standard page */
-					$this->backend_view($menu['path'].$menu['url'], $menu);
+					$this->backend_view($menu['path'].$menu['table'], $menu);
 		}
 		$this->backend_view('pages/404', ['message'=>'']);
 	}
@@ -717,8 +717,15 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			switch ($this->params->type){
+				case 'F': $this->params->permit_process = ''; $this->params->permit_window = ''; break;
+				case 'P': $this->params->permit_form = ''; $this->params->permit_window = ''; break;
+				case 'W': $this->params->permit_form = ''; $this->params->permit_process = ''; break;
+			}
+			
+			if ($this->params->type)
 			$this->boolfields = ['is_active'];
-			$this->nullfields = [];
+			$this->nullfields = ['permit_form','permit_process','permit_window'];
 			$datas = $this->_pre_update_records(TRUE);
 			
 			if ($this->r_method == 'POST')
@@ -855,7 +862,7 @@ class Systems extends Getmeb
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$this->boolfields = ['is_active','is_submodule'];
-			$this->nullfields = ['description','url','path','icon','class','method','window_title'];
+			$this->nullfields = ['description','table','path','icon','class','method','window_title'];
 			$this->_pre_update_records();
 		}
 	}

@@ -15,7 +15,7 @@ class Sales extends Getmeb
 	function _remap($method, $params = array())
 	{
 		/* Exeption list methods */
-		$exception_method = [];
+		$this->exception_method = [];
 		/* This process is for checking login status (is a must on every controller) */
 		$this->_check_is_login();
 		/* This process is for checking permission (is a must on every controller) */
@@ -34,10 +34,10 @@ class Sales extends Getmeb
 				$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
 			
 			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t2.code, t2.name', $this->params['q']);
+				$this->params['like'] = DBX::like_or(["t2.code", "t2.name", "coalesce(t2.code,'') ||'_'|| t2.name"], $this->params['q']);
 
 			$this->params['where']['t1.is_active'] = '1';
-			$this->params['where']['t1.client_id'] = $this->sess->user_id;
+			$this->params['where']['t1.user_id'] = $this->session->user_id;
 			
 			$this->load->model('systems/system_model');
 			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){

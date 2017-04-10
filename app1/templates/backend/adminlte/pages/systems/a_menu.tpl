@@ -15,7 +15,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/form_view.js"></script>
+<script src="{$.const.ASSET_URL}js/window_view.js"></script>
 <script>
 	{* Get Params *}
 	var $q = getURLParameter("q");
@@ -23,11 +23,11 @@
 	var $url_module = "{$url_module}";
 	{* Default init for for Title, Breadcrumb *}
 	$(".content").before(BSHelper.PageHeader({ 
-		title:"{$window_title}", 
-		title_desc:"{$description}", 
+		title:"{$title}", 
+		title_desc:"{$title_desc}", 
 		bc_list:[
 			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
-			{ icon:"", title:"{$window_title}", link:"" },
+			{ icon:"", title:"{$title}", link:"" },
 		]
 	}));
 	
@@ -57,15 +57,17 @@
 		"columns": [
 			{ width:"20px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render:function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
 			{ width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render: function(data, type, row){ return aLBtn.join(""); } },
-			{ width:"175px", orderable:false, data:"name", title:"Name" },
-			{ width:"250px", orderable:false, data:"description", title:"Description" },
+			{ width:"150px", orderable:false, data:"name", title:"Name" },
+			{ width:"150px", orderable:false, data:"title", title:"Title" },
+			{ width:"200px", orderable:false, data:"title_desc", title:"Description" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"is_parent", title:"Parent", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"100px", orderable:false, data:"icon", title:"Icon" },
-			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Type" },
-			{* { width:"125px", orderable:false, data:"path", title:"Path" }, *}
-			{* { width:"100px", orderable:false, data:"class", title:"Class" }, *}
-			{* { width:"110px", orderable:false, data:"method", title:"Method" }, *}
+			{ width:"55px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Type", render:function(data, type, row){ return (data=='F') ? 'FORM' : (data=='P') ? 'PROCESS' : (data=='W') ? 'WINDOW' : 'GROUP'; } },
+			{ width:"125px", orderable:false, data:"path", title:"Path" },
+			{ width:"100px", orderable:false, data:"class", title:"Class" },
+			{ width:"110px", orderable:false, data:"method", title:"Method" },
+			{ width:"110px", orderable:false, data:"table", title:"Table" },
 		],
 		"order": []
 	})

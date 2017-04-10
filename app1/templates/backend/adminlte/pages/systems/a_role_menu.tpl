@@ -16,7 +16,7 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/form_view.js"></script>
+<script src="{$.const.ASSET_URL}js/window_view.js"></script>
 <script>
 	{* Get Params *}
 	var $q = getURLParameter("q");
@@ -24,12 +24,12 @@
 	var $url_module = "{$url_module}";
 	{* Default init for for Title, Breadcrumb *}
 	$(".content").before(BSHelper.PageHeader({ 
-		title:"{$window_title}", 
-		title_desc:"{$description}", 
+		title:"{$title}", 
+		title_desc:"{$title_desc}", 
 		bc_list:[
 			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
 			{ icon:"", title:"Role Access", link:"javascript:history.back()" },
-			{ icon:"", title:"{$window_title}", link:"" },
+			{ icon:"", title:"{$title}", link:"" },
 		]
 	}));
 	{* Additional for sub module *}
@@ -68,10 +68,38 @@
 			{ width:"20px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render:function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
 			{ width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render: function(data, type, row){ return aLBtn.join(""); } },
 			{ width:"150px", orderable:false, data:"code_name", title:"Menu" },
+			{ width:"55px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Type", render:function(data, type, row){ return (data=='F') ? 'FORM' : (data=='P') ? 'PROCESS' : (data=='W') ? 'WINDOW' : 'GROUP'; } },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_parent", title:"Parent", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"150px", orderable:false, data:"parent_name", title:"Parent Name" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_readwrite", title:"Allow", render:function(data, type, row){ switch(data){ case '1':return 'Create';break; case '2':return 'Edit';break; case '3':return 'Delete';break; case '4':return 'Create & Edit';break; case '5':return 'Create & Delete';break; case '6':return 'Edit & Delete';break; case '7':return 'Can All';break; default:return ''; }; } },
+			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Allow", 
+				render:function(data, type, row){ 
+					if (row.type == 'W'){
+						switch(row.permit_window){ 
+							case '1':return 'Create';break; 
+							case '2':return 'Edit';break; 
+							case '3':return 'Delete';break; 
+							case '4':return 'Create & Edit';break; 
+							case '5':return 'Create & Delete';break; 
+							case '6':return 'Edit & Delete';break; 
+							case '7':return 'Can All';break; 
+							default:return 'Not Allow'; 
+						}; 
+					} else if (row.type == 'F'){
+						switch(row.permit_form){ 
+							case '1':return 'Execute';break; 
+							default:return 'Not Allow'; 
+						}; 
+					} else if (row.type == 'P'){
+						switch(row.permit_process){ 
+							case '1':return 'Execute';break; 
+							default:return 'Not Allow'; 
+						}; 
+					} else {
+						return ''
+					}
+				} 
+			},
 		],
 		"order": []
 	})
