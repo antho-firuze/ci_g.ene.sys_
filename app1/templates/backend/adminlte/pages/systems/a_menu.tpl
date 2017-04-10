@@ -17,11 +17,11 @@
   <!-- /.content-wrapper -->
 <script src="{$.const.ASSET_URL}js/form_view.js"></script>
 <script>
-	{* Section 1: For parsing URL Parameters *}
+	{* Get Params *}
+	var $q = getURLParameter("q");
+	var $id = getURLParameter("id");
 	var $url_module = "{$url_module}";
-	var origin_url = window.location.origin+window.location.pathname;
-	var $param = {}, $id, $q;
-	{* Start :: Init for Title, Breadcrumb *}
+	{* Default init for for Title, Breadcrumb *}
 	$(".content").before(BSHelper.PageHeader({ 
 		title:"{$window_title}", 
 		title_desc:"{$description}", 
@@ -30,7 +30,6 @@
 			{ icon:"", title:"{$window_title}", link:"" },
 		]
 	}));
-	{* End :: Init for Title, Breadcrumb *}
 	
 	{* Section 2: For building Datatables *}
 	var aLBtn = [];
@@ -58,27 +57,19 @@
 		"columns": [
 			{ width:"20px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render:function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
 			{ width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render: function(data, type, row){ return aLBtn.join(""); } },
-			{ width:"200px", orderable:false, data:"name", title:"Name" },
+			{ width:"175px", orderable:false, data:"name", title:"Name" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"is_parent", title:"Parent", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"100px", orderable:false, data:"icon", title:"Icon" },
-			{ width:"110px", orderable:false, data:"url", title:"Table" },
-			{ width:"125px", orderable:false, data:"path", title:"Path" },
-			{ width:"100px", orderable:false, data:"class", title:"Class" },
-			{ width:"110px", orderable:false, data:"method", title:"Method" },
+			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Type" },
+			{* { width:"125px", orderable:false, data:"path", title:"Path" }, *}
+			{* { width:"100px", orderable:false, data:"class", title:"Class" }, *}
+			{* { width:"110px", orderable:false, data:"method", title:"Method" }, *}
 		],
 		"order": []
 	})
 	.search($q ? $q : '');
-	
-	{* Don't change this code: Re-coding dataTables search method *}
-	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
-		$q = $(this).val();
-		$url = insertParam('q', $q);
-		dataTable1.ajax.reload( null, false );
-		history.pushState({}, '', origin_url +'?'+ $url);
-	});		
 	
 	DTHelper.initCheckList(tableData1, dataTable1);
 	

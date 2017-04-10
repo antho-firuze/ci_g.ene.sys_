@@ -79,6 +79,22 @@ function setHideToolBtn(btn)
   });
 }
 
+
+
+/* ========================================= */
+/* Default init for dataTables search method */
+/* ========================================= */
+$( document ).ready(function() {
+	/* For parsing URL Parameters */
+	var origin_url = window.location.origin+window.location.pathname;
+	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
+		$q = $(this).val();
+		$url = insertParam('q', $q);
+		dataTable1.ajax.reload( null, false );
+		history.pushState({}, '', origin_url +'?'+ $url);
+	});		
+});
+
 /* ==================================== */
 /* Default action for Form CRUD Toolbar */
 /* ==================================== */
@@ -100,30 +116,40 @@ $(document.body).click('button', function(e){
 				return false;
 			}
 			$.getJSON($url_module, { rec_info: 1, id: data[0].id }, function(result){ 
-				// console.log(result.data);
-				// return false;
-				var c = [], r = [];
-				if (result.data.created_by_name){
-					c.push(subCol(3, 'Created By:'));
-					c.push(subCol(2, result.data.create_by_name));
-					c.push(subCol(3, data[0].created_at));
-					r.push(subRow(c, 'clearfix')); c = [];
+				// console.log(data[0]);
+				if (!result.status){
+					BootstrapDialog.alert(result.message);
+				} else {
+					var c = [], r = [], a = [];
+					a.push(BSHelper.Input({ type:'text', label:'Table', value:result.data.table, readonly:true }));
+					c.push(subCol(6, a)); a = [];
+					a.push(BSHelper.Input({ type:'text', label:'Record ID', value:result.data.id, readonly:true }));
+					c.push(subCol(6, a)); a = [];
+					r.push(subRow(c)); c = [];
+					if (result.data.created_by_name){
+						a.push(BSHelper.Input({ type:'text', label:'Created By', value:result.data.created_by_name, readonly:true }));
+						c.push(subCol(6, a)); a = [];
+						a.push(BSHelper.Input({ type:'text', label:'Created At', value:result.data.created_at, readonly:true }));
+						c.push(subCol(6, a)); a = [];
+						r.push(subRow(c)); c = [];
+					}
+					if (result.data.updated_by_name){
+						a.push(BSHelper.Input({ type:'text', label:'Updated By', value:result.data.updated_by_name, readonly:true }));
+						c.push(subCol(6, a)); a = [];
+						a.push(BSHelper.Input({ type:'text', label:'Updated At', value:result.data.updated_at, readonly:true }));
+						c.push(subCol(6, a)); a = [];
+						r.push(subRow(c)); c = [];
+					}
+					var tblConfirm = BSHelper.Table({
+							title: r,
+							data: data,	rowno: true, showheader: true, maxrows: 3, isConfirm: true,
+							columns:[
+								{ data:"name"					,title:"Name" },
+								{ data:"description"	,title:"Description" },
+							],
+						});
+					BootstrapDialog.alert(tblConfirm);
 				}
-				if (result.data.updated_by_name){
-					c.push(subCol(3, 'Updated By:'));
-					c.push(subCol(2, result.data.updated_by_name));
-					c.push(subCol(3, data[0].updated_at));
-					r.push(subRow(c, 'clearfix')); c = [];
-				}
-				var tblConfirm = BSHelper.Table({
-						title: r,
-						data: data,	rowno: true, showheader: true, maxrows: 3, isConfirm: true,
-						columns:[
-							{ data:"name"					,title:"Name" },
-							{ data:"description"	,title:"Description" },
-						],
-					});
-				BootstrapDialog.alert(tblConfirm);
 			});
 
 			break;

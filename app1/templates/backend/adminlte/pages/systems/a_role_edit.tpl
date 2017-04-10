@@ -29,7 +29,6 @@
 			{ icon:"", title: desc(edit), link:"" },
 		]
 	}));
-	{* End :: Init for Title, Breadcrumb *}
 	
 	{* For design form interface *}
 	var col = [], row = [];
@@ -48,6 +47,7 @@
 	col.push(BSHelper.Checkbox({ horz:false, label:"Can Approved Own Doc", idname:"is_canapproveowndoc" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Access All Orgs", idname:"is_accessallorgs" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Use User Org Access", idname:"is_useuserorgaccess" }));
+	col.push(BSHelper.Checkbox({ horz:false, label:"View Change Log", idname:"is_changelog" }));
 	row.push(subCol(6, col));
 	form1.append(subRow(row));
 	form1.append(subRow(subCol()));

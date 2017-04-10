@@ -17,11 +17,11 @@
   <!-- /.content-wrapper -->
 <script src="{$.const.ASSET_URL}js/form_view.js"></script>
 <script>
-	{* Section 1: For parsing URL Parameters *}
+	{* Get Params *}
+	var $q = getURLParameter("q");
+	var $id = getURLParameter("id");
 	var $url_module = "{$url_module}";
-	var origin_url = window.location.origin+window.location.pathname;
-	var $param = {}, $id, $q;
-	{* Start :: Init for Title, Breadcrumb *}
+	{* Default init for for Title, Breadcrumb *}
 	$(".content").before(BSHelper.PageHeader({ 
 		title:"{$window_title}", 
 		title_desc:"{$description}", 
@@ -30,7 +30,6 @@
 			{ icon:"", title:"{$window_title}", link:"" },
 		]
 	}));
-	{* End :: Init for Title, Breadcrumb *}
 	
 	{* Section 2: For building Datatables *}
 	var aLBtn = [];
@@ -71,14 +70,6 @@
 		"order": []
 	})
 	.search($q ? $q : '');
-	
-	{* Don't change this code: Re-coding dataTables search method *}
-	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
-		$q = $(this).val();
-		$url = insertParam('q', $q);
-		dataTable1.ajax.reload( null, false );
-		history.pushState({}, '', origin_url +'?'+ $url);
-	});		
 	
 	DTHelper.initCheckList(tableData1, dataTable1);
 

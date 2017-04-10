@@ -29,7 +29,6 @@
 			{ icon:"", title: desc(edit), link:"" },
 		]
 	}));
-	{* End :: Init for Title, Breadcrumb *}
 	
 	{* For design form interface *}
 	var col = [];

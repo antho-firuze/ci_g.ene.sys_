@@ -39,7 +39,6 @@
 			$('.content-header').find('h1').find('small').before(code_name);
 		}
 	});
-	{* End :: Init for Title, Breadcrumb *}
 
 	{* For design form interface *}
 	var col = [], row = [];

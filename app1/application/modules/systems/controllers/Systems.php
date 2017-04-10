@@ -308,14 +308,14 @@ class Systems extends Getmeb
 			/* This line is for update user info */
 			if (isset($this->params->table) && ($this->params->table == 'a_user')) {
 				$fields = $this->db->list_fields($this->params->table);
-				$boolfields = [];
-				$nullfields = [];
+				$this->boolfields = [];
+				$this->nullfields = [];
 				foreach($fields as $f){
 					if (key_exists($f, $this->params)){
-						if (in_array($f, $boolfields)){
+						if (in_array($f, $this->boolfields)){
 							$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
 						} 
-						elseif (in_array($f, $nullfields)){
+						elseif (in_array($f, $this->nullfields)){
 							$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
 						} else {
 							$datas[$f] = $this->params->{$f};
@@ -489,26 +489,9 @@ class Systems extends Getmeb
 				$this->auth->reset_password($this->params->name, $this->params->password);
 				unset($this->params->password);
 			}
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active','is_fullbpaccess'];
-			$nullfields = ['supervisor_id'];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			
-			if (! $this->updateRecord($this->c_method, array_merge($datas, $this->update_log), ['id' => $this->params->id]))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = ['is_active','is_fullbpaccess'];
+			$this->nullfields = ['supervisor_id'];
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -536,21 +519,10 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active'];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
+			$this->boolfields = ['is_active'];
+			$this->nullfields = [];
+			$datas = $this->_pre_update_records(TRUE);
+			
 			if ($this->r_method == 'POST')
 				$result = $this->insertRecord($this->c_method, array_merge($datas, ['client_id' => DEFAULT_CLIENT_ID]), FALSE, TRUE);
 			else
@@ -589,30 +561,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active'];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = ['is_active'];
+			$this->nullfields = [];
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -637,17 +588,16 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active'];
-			$nullfields = [];
+			$this->boolfields = ['is_active'];
+			$this->nullfields = [];
 			$datefields = [];
 			$timefields = [];
 			$datetimefields = ['valid_from','valid_to'];
 			foreach($fields as $f){
 				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
+					if (in_array($f, $this->boolfields)){
 						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} elseif (in_array($f, $nullfields)){
+					} elseif (in_array($f, $this->nullfields)){
 						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
 					} elseif (in_array($f, $datetimefields)){
 						$datas[$f] = ($this->params->{$f}=='') ? NULL : datetime_db_format($this->params->{$f}, $this->session->date_format); 
@@ -656,15 +606,6 @@ class Systems extends Getmeb
 					}
 				}
 			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
 	
@@ -749,30 +690,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active','is_canexport','is_canreport','is_canapproveowndoc','is_accessallorgs','is_useuserorgaccess'];
-			$nullfields = ['currency_id','supervisor_id'];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = ['is_active','is_canexport','is_canreport','is_canapproveowndoc','is_accessallorgs','is_useuserorgaccess','is_changelog'];
+			$this->nullfields = ['currency_id','supervisor_id'];
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -797,21 +717,10 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active'];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
+			$this->boolfields = ['is_active'];
+			$this->nullfields = [];
+			$datas = $this->_pre_update_records(TRUE);
+			
 			if ($this->r_method == 'POST')
 				$result = $this->insertRecord($this->c_method, $datas, FALSE, TRUE);
 			else
@@ -868,30 +777,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active'];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = ['is_active'];
+			$this->nullfields = [];
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -916,30 +804,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = [];
-			$nullfields = ['description'];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = [];
+			$this->nullfields = ['description'];
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -961,30 +828,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active','is_securesmtp'];
-			$nullfields = ['description','smtp_host','smtp_port'];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = ['is_active','is_securesmtp'];
+			$this->nullfields = ['description','smtp_host','smtp_port'];
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -1008,30 +854,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active','is_submodule'];
-			$nullfields = ['description','url','path','icon','class','method','window_title'];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = ['is_active','is_submodule'];
+			$this->nullfields = ['description','url','path','icon','class','method','window_title'];
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -1054,30 +879,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active','is_parent'];
-			$nullfields = ['supervisor_id','phone','phone2','fax','email','website','address_map'];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = ['is_active','is_parent'];
+			$this->nullfields = ['supervisor_id','phone','phone2','fax','email','website','address_map'];
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -1099,30 +903,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active'];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = ['is_active'];
+			$this->nullfields = [];
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -1144,30 +927,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active', 'startnewyear', 'startnewmonth'];
-			$nullfields = ['code', 'description', 'prefix', 'suffix'];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = ['is_active', 'startnewyear', 'startnewmonth'];
+			$this->nullfields = ['code', 'description', 'prefix', 'suffix'];
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -1198,30 +960,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = [];
-			$nullfields = ['valid_from','valid_till'];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = [];
+			$this->nullfields = ['valid_from','valid_till'];
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -1252,30 +993,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = [];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = [];
+			$this->nullfields = [];
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -1297,30 +1017,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = [];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = [];
+			$this->nullfields = [];
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -1347,30 +1046,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = [];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = [];
+			$this->nullfields = [];
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -1398,30 +1076,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = [];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = [];
+			$this->nullfields = [];
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -1448,30 +1105,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = [];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = [];
+			$this->nullfields = [];
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -1499,30 +1135,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = [];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->boolfields = [];
+			$this->nullfields = [];
+			$this->_pre_update_records();
 		}
 	}
 	

@@ -21,11 +21,11 @@
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
-	{* Section 1: For parsing URL Parameters *}
+	{* Get Params *}
+	var $q = getURLParameter("q");
+	var $id = getURLParameter("id");
 	var $url_module = "{$url_module}";
-	var origin_url = window.location.origin+window.location.pathname;
-	var $param = {}, $id, $q;
-	{* Start :: Init for Title, Breadcrumb *}
+	{* Default init for for Title, Breadcrumb *}
 	$(".content").before(BSHelper.PageHeader({ 
 		title:"{$window_title}", 
 		title_desc:"{$description}", 
@@ -34,7 +34,6 @@
 			{ icon:"", title:"{$window_title}", link:"" },
 		]
 	}));
-	{* End :: Init for Title, Breadcrumb *}
 
 	var a=[];
 	var formContent = $('<form "autocomplete"="off"><div class="row"><div class="col-left col-md-6"></div><div class="col-right col-md-6"></div></div></form>');

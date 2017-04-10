@@ -26,6 +26,7 @@ $( document ).ready(function() {
 			if (e.isDefaultPrevented()) { return false;	} 
 			
 			$.ajax({ url: $url_module+'?id='+id, method:(edit==1?"PUT":"POST"), async: true, dataType:'json',
+				headers: { "TYPE": "W" },
 				data: form.serializeJSON(),
 				success: function(data) {
 					BootstrapDialog.alert(data.message, function(){

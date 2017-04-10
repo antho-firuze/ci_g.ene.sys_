@@ -14,6 +14,10 @@ class Getmeb extends CI_Controller
 	public $exception_method = [];
 	/* FOR GETTING PARAMS FROM REQUEST URL */
 	public $params;
+	/* FOR DEFINED BOOLEAN FIELDS */
+	public $boolfields = [];
+	/* FOR DEFINED ALLOW NULL FIELDS */
+	public $nullfields = [];
 	/* FOR ADDITIONAL CRUD FIXED DATA */
 	public $fixed_data = array();
 	public $create_log = array();
@@ -58,7 +62,7 @@ class Getmeb extends CI_Controller
 			$this->params = $this->input->get();
 			/* Request for record info */
 			if (isset($this->params['rec_info']) && !empty($this->params['rec_info'])) {
-				$this->_get_record_info();
+				$this->_get_change_log();
 			}
 		}
 		
@@ -150,6 +154,128 @@ class Getmeb extends CI_Controller
 			return;
 		}
 		
+		$type 	 = $this->input->server('HTTP_TYPE');
+		if (!in_array($type, ['F', 'P', 'W']))
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Menu Type is not exist !'], 401);
+
+		if ($type == 'F')
+			$this->_check_allow_form();
+		
+		if ($type == 'P')
+			$this->_check_allow_process();
+		
+		if ($type == 'W')
+			$this->_check_allow_window();
+	}
+	
+	function _check_allow_form()
+	{
+		$table 	 = $this->base_model->getValue('id, name', 'a_form', 'table', $this->c_method);
+		if (!$table){
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Table ['.$this->c_method.'] not found in [a_form] !'], 401);
+		}
+		$allow = $this->base_model->getValue('permit', 'a_role_form', ['role_id', 'form_id', 'is_active', 'is_deleted'], [$this->session->role_id, $table->id, '1', '0']);
+		if ($allow === FALSE)
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Permission ['.$table->name.'] not found in [a_role_form] !'], 401);
+
+		switch($allow->permit){
+		case '1':
+			/* Execute */
+			if (!in_array($this->r_method, ['POST']))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+			break;
+		default:
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Permission ['.$table->name.'] is not set !'], 401);
+			break;
+		}
+	}
+	
+	function _check_allow_process()
+	{
+		$table = $this->base_model->getValue('id, name', 'a_process', 'table', $this->c_method);
+		if (!$table){
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Table ['.$this->c_method.'] not found in [a_process] !'], 401);
+		}
+		$allow = $this->base_model->getValue('permit', 'a_role_process', ['role_id', 'process_id', 'is_active', 'is_deleted'], [$this->session->role_id, $table->id, '1', '0']);
+		if ($allow === FALSE)
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Permission ['.$table->name.'] not found in [a_role_process] !'], 401);
+
+		switch($allow->permit){
+		case '1':
+			/* Export */
+			if (!in_array($this->r_method, ['POST']))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+			break;
+		default:
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Permission ['.$table->name.'] is not set !'], 401);
+			break;
+		}
+	}
+	
+	function _check_allow_window()
+	{
+		$table  = $this->base_model->getValue('id, name', 'a_window', 'table', $this->c_method);
+		if (!$table){
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Table ['.$this->c_method.'] not found in [a_window] !'], 401);
+		}
+		$allow = $this->base_model->getValue('permit', 'a_role_window', ['role_id', 'window_id', 'is_active', 'is_deleted'], [$this->session->role_id, $table->id, '1', '0']);
+		if ($allow === FALSE)
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Permission ['.$table->name.'] not found in [a_role_window] !'], 401);
+
+		switch($allow->permit){
+		case '1':
+			/* Only Create */
+			if (!in_array($this->r_method, ['POST']))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+			break;
+		case '2':
+			/* Only Edit */
+			if (!in_array($this->r_method, ['PUT']))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+			break;
+		case '3':
+			/* Only Delete */
+			if (!in_array($this->r_method, ['DELETE']))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+			break;
+		case '4':
+			/* Can Create & Edit */
+			if (!in_array($this->r_method, ['POST','PUT']))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+			break;
+		case '5':
+			/* Can Create & Delete */
+			if (!in_array($this->r_method, ['POST','DELETE']))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+			break;
+		case '6':
+			/* Can Edit & Delete */
+			if (!in_array($this->r_method, ['PUT','DELETE']))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+			break;
+		case '7':
+			/* Can All */
+			if (!in_array($this->r_method, ['POST','PUT','DELETE']))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+			break;
+		default:
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Permission ['.$table->name.'] is not set !'], 401);
+			break;
+		}
+	}
+	
+	function _check_is_allow_old()
+	{
+		/* This process is for bypass methods which do not need to login */
+		if (count($this->exception_method) > 0){
+			if (in_array($this->c_method, $this->exception_method))
+				return;
+		}
+		/* Only check this request method */
+		if (!in_array($this->r_method, ['POST','PUT','DELETE'])){
+			return;
+		}
+		
 		// debug('c_method:'.$this->c_method);
 		$menu = $this->base_model->getValue('id, name', 'a_menu', 'url', $this->c_method);
 		if (!$menu){
@@ -204,27 +330,34 @@ class Getmeb extends CI_Controller
 		}
 	}
 	
-	function _get_record_info()
+	function _get_change_log()
 	{
+		$role = $this->base_model->getValue('*', 'a_role', 'id', $this->session->role_id);
+		if (!$role->is_changelog)
+			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
+		
 		$result = [];
 		$result['table'] = $this->c_method;
 		$result['id'] = $this->params['id'];
-		if ($info = $this->base_model->getValue('created_by, updated_by, deleted_by', $this->c_method, 'id', $this->params['id'])){
+		if ($info = $this->base_model->getValue('created_by, created_at, updated_by, updated_at, deleted_by, deleted_at', $this->c_method, 'id', $this->params['id'])){
 			if ($info->created_by){
 				if ($user = $this->base_model->getValue('id, name', 'a_user', 'id', $info->created_by)) {
 					$result['created_by'] 		 = $user->id;
+					$result['created_at'] 		 = $info->created_at;
 					$result['created_by_name'] = $user->name;
 				}
 			}
 			if ($info->updated_by){
 				if ($user = $this->base_model->getValue('id, name', 'a_user', 'id', $info->updated_by)) {
 					$result['updated_by'] 		 = $user->id;
+					$result['updated_at'] 		 = $info->updated_at;
 					$result['updated_by_name'] = $user->name;
 				}
 			}
 			if ($info->deleted_by){
 				if ($user = $this->base_model->getValue('id, name', 'a_user', 'id', $info->deleted_by)) {
 					$result['deleted_by'] 		 = $user->id;
+					$result['deleted_at'] 		 = $info->deleted_at;
 					$result['deleted_by_name'] = $user->name;
 				}
 			}
@@ -262,6 +395,37 @@ class Getmeb extends CI_Controller
 			$this->backend_view('pages/404', ['message'=>'']);
 		} 
 		return;
+	}
+	
+	function _pre_update_records($return_data = FALSE)
+	{
+		$datas = [];
+		$fields = $this->db->list_fields($this->c_method);
+		foreach($fields as $f){
+			if (key_exists($f, $this->params)){
+				/* Check if any exists boolean fields */
+				if (in_array($f, $this->boolfields)){
+					$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
+				} 
+				/* Check if any exists allow null fields */
+				elseif (in_array($f, $this->nullfields)){
+					$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
+				} else {
+					$datas[$f] = $this->params->{$f};
+				}
+			}
+		}
+		if ($return_data) return $datas;
+			
+		if ($this->r_method == 'POST')
+			$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
+		else
+			$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);				
+		
+		if (! $result)
+			$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+		else
+			$this->xresponse(TRUE, ['message' => $this->messages()]);
 	}
 	
 	function set_message($message)
@@ -415,6 +579,7 @@ class Getmeb extends CI_Controller
 	{
 		/* Start Treeview Menu */
 		$html = ''; $li1_closed = false; $li2_closed = false; $menu_id1 = 0; $menu_id2 = 0; $menu_id3 = 0; $parent_id = 0;
+		$html.= $this->li($cur_page, 1, 'systems/x_page?pageid=1', 'Dashboard', 'fa fa-dashboard');
 		$rowParentMenu = ($result = $this->systems_model->getParentMenu($cur_page)) ? $result[0] : (object)['lvl1_id'=>0, 'lvl2_id'=>0];
 		$rowMenus = $this->systems_model->getMenuByRoleId($this->session->role_id);
 		if ($rowMenus) {

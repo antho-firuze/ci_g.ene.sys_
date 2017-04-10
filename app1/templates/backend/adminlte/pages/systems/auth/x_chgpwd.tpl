@@ -20,7 +20,6 @@
 			{ icon:"", title:"{$window_title}", link:"" },
 		]
 	}));
-	{* End :: Init for Title, Breadcrumb *}
 
 	{* For design form interface *}
 	var col = [], row = [], a = [];

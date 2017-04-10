@@ -17,11 +17,11 @@
   <!-- /.content-wrapper -->
 <script src="{$.const.ASSET_URL}js/form_view.js"></script>
 <script>
-	{* Section 1: For parsing URL Parameters *}
+	{* Get Params *}
+	var $q = getURLParameter("q");
+	var $id = getURLParameter("id");
 	var $url_module = "{$url_module}";
-	var origin_url = window.location.origin+window.location.pathname;
-	var $param = {}, $id, $q;
-	{* Start :: Init for Title, Breadcrumb *}
+	{* Default init for for Title, Breadcrumb *}
 	$(".content").before(BSHelper.PageHeader({ 
 		title:"{$window_title}", 
 		title_desc:"{$description}", 
@@ -30,7 +30,6 @@
 			{ icon:"", title:"{$window_title}", link:"" },
 		]
 	}));
-	{* End :: Init for Title, Breadcrumb *}
 	
 	{* Section 2: For building Datatables *}
 	var aLBtn = [];
@@ -38,8 +37,10 @@
 	aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />');
 	aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs btn-danger glyphicon glyphicon-trash" title="Delete" name="btn-delete" />');
 	var aRBtn = [];
-	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=36>Menu</a></span>');
+	{* aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=36>Menu</a></span>'); *}
+	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=38>Form</a></span>');
 	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=37>Process</a></span>');
+	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=36>Window</a></span>');
 	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="width:100%; table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
 	dataTable1 = tableData1.DataTable({
 		"pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, 
@@ -60,24 +61,17 @@
 			{ width:"130px", orderable:false, data:"name", 		 	 title:"Name" },
 			{ width:"250px", orderable:false, data:"description", title:"Description", orderable: false },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canexport", title:"Can Export", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canreport", title:"Can Report", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canapproveowndoc", title:"Can Approve", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canexport", title:"Can Export", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canreport", title:"Can Report", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canapproveowndoc", title:"Can Approve", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_accessallorgs", title:"Access All Org", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_useuserorgaccess", title:"Use User Org Access", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"is_changelog", title:"Change Log", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-center", title:"Sub Menu", render:function(data, type, row){ return aRBtn.join("&nbsp;-&nbsp;"); } },
 		],
 		"order": []
 	})
 	.search($q ? $q : '');
-	
-	{* Don't change this code: Re-coding dataTables search method *}
-	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
-		$q = $(this).val();
-		$url = insertParam('q', $q);
-		dataTable1.ajax.reload( null, false );
-		history.pushState({}, '', origin_url +'?'+ $url);
-	});		
 	
 	DTHelper.initCheckList(tableData1, dataTable1);
 
