@@ -40,8 +40,8 @@ function setToolbarButton(){
 	btnGroup1.append($('<button type="button" class="btn btn-danger glyphicon glyphicon-trash" title="Delete" id="btn-delete" />'));
 	btnGroup2.append($('<button type="button" class="btn btn-info glyphicon glyphicon-comment" title="Chat/Message/Attach" id="btn-message" />'));
 	btnGroup3.append($('<button type="button" class="btn bg-purple glyphicon glyphicon-print" title="Print" id="btn-print" />'));
-	btnGroup3.append($('<button type="button" class="btn btn-warning glyphicon glyphicon-open" title="Export" id="btn-export" />'));
-	btnGroup3.append($('<button type="button" class="btn btn-warning glyphicon glyphicon-save" title="Import" id="btn-import" />'));
+	btnGroup3.append($('<button type="button" class="btn btn-warning glyphicon glyphicon-save" title="Export" id="btn-export" />'));
+	btnGroup3.append($('<button type="button" class="btn btn-warning glyphicon glyphicon-open" title="Import" id="btn-import" />'));
 	btnGroup4.append($('<button type="button" class="btn btn-default fa fa-info fa-lg" style="width:35px; height:35px;" title="Record Info" id="btn-rec-info" />'));
 	btnGroup5.append($('<button type="button" class="btn bg-purple glyphicon glyphicon-cog dropdown-toggle" data-toggle="dropdown" title="Process" id="btn-process" /><ul class="dropdown-menu" />'));
 

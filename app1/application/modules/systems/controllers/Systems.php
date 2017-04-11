@@ -7,8 +7,8 @@ class Systems extends Getmeb
 	function __construct() {
 		parent::__construct();
 		
-		$class = strtolower(get_class($this));
-		$this->load->model($class.'_model');
+		$this->mdl = strtolower(get_class($this)).'_model';
+		$this->load->model($this->mdl);
 	}
 	
 	/* This method (function _remap), is a must exists for every controller */
@@ -43,13 +43,13 @@ class Systems extends Getmeb
 			//run the forgotten password method to email an activation code to the user
 			if (($user = $this->auth->forgotten_password($this->params['email'])) === FALSE){
 				/* Trapping user_agent, ip address & status */
-				$this->systems_model->_save_useragent($this->params['email'], 'Email Not Registered/Intruder Detected');
+				$this->{$this->mdl}->_save_useragent($this->params['email'], 'Email Not Registered/Intruder Detected');
 				
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
 			
 			/* Trapping user_agent, ip address & status */
-			$this->systems_model->_save_useragent($this->params['email'], 'Forgot Password Success');
+			$this->{$this->mdl}->_save_useragent($this->params['email'], 'Forgot Password Success');
 		
 			/* Trying to sending email */
 			$message = AUTH_LNK."?code=".$user->forgotten_password_code;
@@ -93,7 +93,7 @@ class Systems extends Getmeb
 			/* Reset Password*/
 			if (($user_id = $this->auth->reset_password($username, $password)) === FALSE ) {
 				/* Trapping user_agent, ip address & status */
-				$this->systems_model->_save_useragent($username, 'Reset Password Failed');
+				$this->{$this->mdl}->_save_useragent($username, 'Reset Password Failed');
 				
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
@@ -102,10 +102,10 @@ class Systems extends Getmeb
 			$this->session->unset_userdata('allow-reset');
 
 			/* Trapping user_agent, ip address & status */
-			$this->systems_model->_save_useragent($username, 'Reset Password Success');
+			$this->{$this->mdl}->_save_useragent($username, 'Reset Password Success');
 		
 			/* Store configuration to session */
-			$this->systems_model->_store_config($user_id);
+			$this->{$this->mdl}->_store_config($user_id);
 			
 			$this->xresponse(TRUE, ['message' => $this->auth->messages()]);
 		}
@@ -124,16 +124,16 @@ class Systems extends Getmeb
 			/* Try to login */
 			if (! $user_id = $this->auth->login($username, $password)) {
 				/* Trapping user_agent, ip address & status */
-				$this->systems_model->_save_useragent($username, 'Login Failed/Intruder Detected');
+				$this->{$this->mdl}->_save_useragent($username, 'Login Failed/Intruder Detected');
 				
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
 
 			/* Trapping user_agent, ip address & status */
-			$this->systems_model->_save_useragent($username, 'Login Success');
+			$this->{$this->mdl}->_save_useragent($username, 'Login Success');
 			
 			/* Store configuration to session */
-			$this->systems_model->_store_config($user_id);
+			$this->{$this->mdl}->_store_config($user_id);
 			
 			if (isset($this->params['rememberme']) && $this->params['rememberme'])
 			{
@@ -166,7 +166,7 @@ class Systems extends Getmeb
 			if (! $this->auth->login($username, $password))
 			{
 				/* Trapping user_agent, ip address & status */
-				$this->systems_model->_save_useragent($username, 'Unlock Failed/Intruder Detected');
+				$this->{$this->mdl}->_save_useragent($username, 'Unlock Failed/Intruder Detected');
 				
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
@@ -179,7 +179,7 @@ class Systems extends Getmeb
 	function x_reload()
 	{
 		if ($this->session->user_id) {
-			$this->systems_model->_store_config($this->session->user_id);
+			$this->{$this->mdl}->_store_config($this->session->user_id);
 		
 			$this->xresponse(TRUE);
 		}
@@ -191,7 +191,7 @@ class Systems extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->params['where']['t1.id'] = $this->session->user_id;
 			
-			if (($result['data'] = $this->systems_model->get_a_user($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->get_a_user($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -244,7 +244,7 @@ class Systems extends Getmeb
 		$this->params['where']['t2.is_parent']	= '0';
 		$this->params['order'] = "t2.name";
 		$this->params['list']	= 1;
-		$result['data'] = $this->systems_model->get_a_role_menu($this->params);
+		$result['data'] = $this->{$this->mdl}->get_a_role_menu($this->params);
 		$this->xresponse(TRUE, $result);
 	}
 	
@@ -253,7 +253,7 @@ class Systems extends Getmeb
 		if ($this->r_method == 'GET') {
 			if (isset($this->params['view']) && $this->params['view']) {
 				$this->params['where']['t1.id'] = $this->session->user_id;
-				if (($result['data'] = $this->systems_model->get_a_user($this->params)) === FALSE){
+				if (($result['data'] = $this->{$this->mdl}->get_a_user($this->params)) === FALSE){
 					$result['data'] = [];
 					$result['message'] = $this->base_model->errors();
 					$this->xresponse(FALSE, $result);
@@ -405,7 +405,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -498,7 +498,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or(["t2.code", "t2.name", "coalesce(t2.code,'') ||'_'|| t2.name"], $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -539,7 +539,7 @@ class Systems extends Getmeb
 				// $this->params['like'] = DBX::like_or("coalesce(t2.code,'') ||'_'|| t2.name", $this->params['q']);
 				$this->params['like'] = DBX::like_or(["t2.code", "t2.name", "coalesce(t2.code,'') ||'_'|| t2.name"], $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$result['str_query'] = $this->session->flashdata('str_query');
@@ -567,7 +567,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -669,7 +669,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -696,7 +696,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t2.code, t2.name, t2.description', $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -763,7 +763,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -790,7 +790,7 @@ class Systems extends Getmeb
 			$this->params['where']['t1.client_id'] 	=	DEFAULT_CLIENT_ID;
 			$this->params['where']['t1.org_id']			= DEFAULT_ORG_ID;
 			
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -814,7 +814,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -840,7 +840,7 @@ class Systems extends Getmeb
 
 			$this->params['where']['t1.client_id'] 	=	DEFAULT_CLIENT_ID;
 			
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -849,7 +849,7 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = ['is_active','is_submodule'];
+			$this->boolfields = ['is_active','is_submodule','is_parent'];
 			$this->nullfields = ['description','table','path','icon','class','method','window_title'];
 			$this->_pre_update_records();
 		}
@@ -865,7 +865,7 @@ class Systems extends Getmeb
 				$this->params['like'] = DBX::like_or('t1.code, t1.name, t1.description', $this->params['q']);
 
 			$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -889,7 +889,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.code, t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -913,7 +913,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.code, t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -946,7 +946,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -979,7 +979,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1003,7 +1003,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1032,7 +1032,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1062,7 +1062,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1091,7 +1091,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1121,7 +1121,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (($result['data'] = $this->systems_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);

@@ -7,8 +7,8 @@ class Frontend extends Getmef
 	function __construct() {
 		parent::__construct();
 		
-		$this->load->model('frontend/frontend_model');
-		$this->params = $this->input->get();
+		$this->mdl = strtolower(get_class($this)).'_model';
+		$this->load->model($this->mdl);
 	}
 	
 	function index()

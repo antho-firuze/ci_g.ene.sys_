@@ -21,7 +21,7 @@ class Getmef_Model extends CI_Model
 			select am.* from w_menu am 
 			where am.is_active = '1' and am.is_deleted = '0' and am.client_id = ".DEFAULT_CLIENT_ID." and am.org_id = ".DEFAULT_ORG_ID."
 		) am3 on am2.id = am3.parent_id 
-		where am1.parent_id = '0'
+		where am1.parent_id = '0' or am1.parent_id is null
 		order by am1.line_no, am2.line_no, am3.line_no";
 		
 		$row = $this->db->query($query);

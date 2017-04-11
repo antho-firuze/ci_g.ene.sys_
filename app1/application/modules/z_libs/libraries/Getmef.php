@@ -12,26 +12,32 @@ class Getmef extends CI_Controller
 	public $c_method;
 	/* FOR GETTING PARAMS FROM REQUEST URL */
 	public $params;
+	/* FOR AUTOLOAD MODEL */
+	public $mdl;
 	
 	function __construct() {
+		parent::__construct();
 		header('Access-Control-Allow-Origin: *');
 		header("Access-Control-Allow-Headers: X-API-KEY, X-AUTH, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
 		header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-		// $method = $_SERVER['REQUEST_METHOD'];
-		// if($method == "OPTIONS") {
-			// die();
-		// }
-		
-		parent::__construct();
 		$this->r_method = $_SERVER['REQUEST_METHOD'];
-		if (in_array($this->r_method, ['GET','DELETE']))
-			$this->params = $this->input->get();
-		if (in_array($this->r_method, ['POST','PUT','OPTIONS']))
-			$this->params = json_decode($this->input->raw_input_stream);
+		$this->c_method = $this->uri->segment(2);
+		
+		/* Defined for template */
 		define('ASSET_URL', base_url().'/assets/');
 		define('TEMPLATE_URL', base_url().TEMPLATE_FOLDER.'/frontend/'.$this->theme.'/');
 		define('TEMPLATE_PATH', '/frontend/'.$this->theme.'/');
-		define('HOME_LINK', base_url());
+		
+		if (in_array($this->r_method, ['GET','DELETE'])){
+			/* Become Array */
+			$this->params = $this->input->get();
+		}
+		if (in_array($this->r_method, ['POST','PUT','OPTIONS'])){
+			/* Become Object */
+			$this->params = json_decode($this->input->raw_input_stream);
+			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
+		}
+			
 		
 		$this->load->model('z_libs/getmef_model');
 	}

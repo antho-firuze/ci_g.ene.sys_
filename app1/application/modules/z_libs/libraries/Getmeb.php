@@ -14,6 +14,8 @@ class Getmeb extends CI_Controller
 	public $exception_method = [];
 	/* FOR GETTING PARAMS FROM REQUEST URL */
 	public $params;
+	/* FOR AUTOLOAD MODEL */
+	public $mdl;
 	/* FOR ADDITIONAL CRUD FIXED DATA */
 	public $fixed_data = array();
 	public $create_log = array();

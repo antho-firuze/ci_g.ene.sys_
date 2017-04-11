@@ -1,54 +1,24 @@
   <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <section class="content-header">
-      <h1>
-        {$title}
-        <small>{$short_desc}</small>
-      </h1>
-      {* <ol class="breadcrumb">
-        <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
-        <li class="active">Dashboard</li>
-      </ol> *}
-    </section>
-
     <!-- Main content -->
     <section class="content">
 			{$description}
-			{* 
-      <!-- Small boxes (Stat box) -->
-      <div class="row">
-				{foreach $content_box_3 as $board}
-				{include $theme_path ~ "pages/{$board}"}
-				{/foreach}
-      </div>
-			 *}
-      <!-- /.row -->
-			{* 
-      <!-- Main row -->
-      <div class="row">
-        <!-- Left col -->
-        <section class="col-lg-7 connectedSortable">
-					{foreach $content_box_7 as $board}
-						{include $theme_path ~ "pages/{$board}"}
-					{/foreach}
-        </section>
-        <!-- /.Left col -->
-        <!-- right col (We are only adding the ID to make the widgets sortable)-->
-        <section class="col-lg-5 connectedSortable">
-					{foreach $content_box_5 as $board}
-						{include $theme_path ~ "pages/{$board}"}
-					{/foreach}
-        </section>
-        <!-- right col -->
-      </div>
-      <!-- /.row (main row) -->
-			 *}
     </section>
     <!-- /.content -->
   </div>
   
   
 <script>
+	{* Default init for for Title, Breadcrumb *}
+	$( document ).ready(function() {
+		$(".content").before(BSHelper.PageHeader({ 
+			title:"{$title}", 
+			title_desc:"{$title_desc}", 
+			bc_list:[
+				{ icon:"fa fa-dashboard", title:"Home", link:"{$.const.HOME_LNK}" },
+				{ icon:"", title:"{$title}", link:"" },
+			]
+		}));
+	});
 	{* 
 	$(".connectedSortable").sortable({
 		placeholder: "sort-highlight",

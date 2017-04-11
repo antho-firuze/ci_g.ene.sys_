@@ -23,8 +23,13 @@
 							case "email":
 							case "number":
 							case "password":
-							case "textarea":
 								form[i].value = v;
+								break;
+							case "textarea":
+								// if (CKEDITOR.instances[field_name])
+									// CKEDITOR.instances[field_name].setData(v);
+								// else 
+									form[i].value = v;
 								break;
 							case "hidden":
 								if (field_id == field_name) {

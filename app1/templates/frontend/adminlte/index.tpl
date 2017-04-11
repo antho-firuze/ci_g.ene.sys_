@@ -23,13 +23,7 @@
 {$.php.link_tag($.const.TEMPLATE_URL~'css/custom.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/pace/pace.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/iCheck/flat/blue.css')}
-{$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-dialog/css/bootstrap-dialog.min.css')}
-{$.php.link_tag($.const.TEMPLATE_URL~'plugins/morris/morris.css')}
-{$.php.link_tag($.const.TEMPLATE_URL~'plugins/jvectormap/jquery-jvectormap-1.2.2.css')}
-{$.php.link_tag($.const.TEMPLATE_URL~'plugins/datepicker/datepicker3.css')}
-{$.php.link_tag($.const.TEMPLATE_URL~'plugins/daterangepicker/daterangepicker-bs3.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css')}
-{$.php.link_tag($.const.TEMPLATE_URL~'plugins/autoComplete/jquery.auto-complete.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/marquee/css/jquery.marquee.min.css')}
 
 <script src="{$.const.ASSET_URL}js/common.func.js"></script>
@@ -46,23 +40,13 @@
 <script>$.widget.bridge("uibutton", $.ui.button);</script>
 <script src="{$.const.TEMPLATE_URL}bootstrap/js/bootstrap.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/pace/pace.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-dialog/js/bootstrap-dialog.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/raphael/raphael-min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/morris/morris.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/sparkline/jquery.sparkline.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/knob/jquery.knob.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/moment/min/moment.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/daterangepicker.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/datepicker/bootstrap-datepicker.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/slimScroll/jquery.slimscroll.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/fastclick/fastclick.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/autoComplete/jquery.auto-complete.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}dist/js/app.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/validation/jquery.validate.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/marquee/lib/jquery.marquee.min.js"></script>
+<script src="{$.const.ASSET_URL}js/bootstrap.helper.js"></script>
 </head>
 
 <body class="hold-transition sidebar-mini">
