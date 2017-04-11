@@ -14,18 +14,34 @@ class Getmeb extends CI_Controller
 	public $exception_method = [];
 	/* FOR GETTING PARAMS FROM REQUEST URL */
 	public $params;
-	/* FOR DEFINED BOOLEAN FIELDS */
-	public $boolfields = [];
-	/* FOR DEFINED ALLOW NULL FIELDS */
-	public $nullfields = [];
 	/* FOR ADDITIONAL CRUD FIXED DATA */
 	public $fixed_data = array();
 	public $create_log = array();
 	public $update_log = array();
 	public $delete_log = array();
-	
 	/* FOR GETTING ERROR MESSAGE OR SUCCESS MESSAGE */
 	public $messages = array();
+	
+	/* ========================================= */
+	/* This variable for INSERT & UPDATE records */
+	/* ========================================= */
+	/* FOR DEFINED BOOLEAN FIELDS */
+	public $boolfields = [];
+	/* FOR DEFINED ALLOW NULL FIELDS */
+	public $nullfields = [];
+	
+	/* ========================================= */
+	/* This variable for UPLOAD & DOWNLOAD files */
+	/* ========================================= */
+	public $tmp_dir = APPPATH.'../var/tmp/';
+	public $allow_ext = 'jpg,jpeg,png,gif,xls,xlsx,doc,docx,ppt,pptx,pdf,zip,rar';
+	public $max_file_upload = '2mb';
+	
+	/* ========================================= */
+	/* This variable for IMPORT & EXPORT files */
+	/* ========================================= */
+	public $require_fields = [];
+	public $file_type = 'xls';	// csv, xls
 	
 	function __construct() {
 		parent::__construct();
@@ -69,6 +85,7 @@ class Getmeb extends CI_Controller
 		if (in_array($this->r_method, ['POST','PUT','OPTIONS'])) {
 			/* Become Object */
 			$this->params = json_decode($this->input->raw_input_stream);
+			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
 		}
 		
 		if (in_array($this->r_method, ['DELETE'])) {
@@ -265,38 +282,6 @@ class Getmeb extends CI_Controller
 		$this->xresponse(TRUE, ['data' => $result]);
 	}
 	
-	/**
-	 * Prevent direct access to this controller via URL
-	 *
-	 * @access public
-	 * @param  string $controller name
-	 * @param  string $method name 
-	 * @param  array|boolean  $exception_method Parameters that would normally get passed on to the method
-	 * @return void
-	 *
-	**/  
-	function _direct_access_this_controller_via_url($controller, $method, $exception_method = TRUE)
-	{
-		if ($exception_method === TRUE)
-			return;
-		
-		$controller = mb_strtolower($controller);
-		if ($controller === mb_strtolower($this->uri->segment(1))) {
-			// if requested controller and this controller have the same name
-			// show 404 error
-			// show_404();
-			if ($exception_method === FALSE)
-				$this->backend_view('pages/404', ['message'=>'']);
-			
-			if (is_array($exception_method)){
-				if (in_array($method, $exception_method))
-					return;
-			}
-			$this->backend_view('pages/404', ['message'=>'']);
-		} 
-		return;
-	}
-	
 	function _pre_update_records($return_data = FALSE)
 	{
 		$datas = [];
@@ -326,6 +311,82 @@ class Getmeb extends CI_Controller
 			$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 		else
 			$this->xresponse(TRUE, ['message' => $this->messages()]);
+	}
+	
+	function _upload_file()
+	{
+		/* get the params & files (special for upload file) */
+		$files = $_FILES;
+		
+		$this->max_file_upload = isset($this->session->max_file_upload) ? $this->session->max_file_upload : $this->max_file_upload;
+		
+		@ini_set( 'upload_max_size' , $this->max_file_upload );
+		@ini_set( 'post_max_size', $this->max_file_upload );
+		@ini_set( 'max_execution_time', '300' );
+		
+		if ($this->r_method == 'POST') {
+			if (isset($files['file']['name']) && $files['file']['name']) {
+				/* Load the library */
+				require_once APPPATH."/third_party/Plupload/PluploadHandler.php"; 
+				$ph = new PluploadHandler(array(
+					'target_dir' => $this->tmp_dir,
+					'allow_extensions' => $this->allow_ext
+				));
+				$ph->sendNoCacheHeaders();
+				$ph->sendCORSHeaders();
+				/* And Do Upload */
+				if (!$result = $ph->handleUpload()) {
+					$this->set_message($ph->getErrorMessage());
+					return FALSE;
+				}
+				/* Result Output in array : array('name', 'path', 'chunk', 'size') */
+				return $result;
+			}
+		}
+	}
+	
+	function _export_data()
+	{
+		ini_set('memory_limit', '-1');
+		$this->load->library('Excel');
+		$objPHPExcel = new PHPExcel();
+		$objPHPExcel->getProperties()->setTitle("export")->setDescription("none");
+ 
+		$objPHPExcel->setActiveSheetIndex(0);
+		
+		// Set the Title in the first row
+		$columns = array('A');
+		$current = 'A';
+		$col = 0;
+		foreach ($qry->list_fields() as $field) {
+			$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, 1, $field);
+			$col++;
+			$columns[] = ++$current;
+		}
+		
+		// Set the Data in the next row
+		$row = 2;
+		foreach($qry->result() as $data) {
+			$col = 0;
+			foreach ($fields as $field) {
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, $row, $data->$field);
+				$col++;
+			}
+			$row++;
+		}
+		
+		// Set the Column to Fit AutoSize
+		foreach($columns as $column) {
+			$objPHPExcel->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
+		}
+		
+		// Sending headers to force the user to download the file
+		header("Content-Type: application/vnd.ms-excel");
+		header("Content-Disposition: attachment;filename='LOGBOOK_PHD_$type.xls'");
+		header("Cache-Control: max-age=0");
+		
+		$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
+		$objWriter->save('php://output');
 	}
 	
 	function set_message($message)

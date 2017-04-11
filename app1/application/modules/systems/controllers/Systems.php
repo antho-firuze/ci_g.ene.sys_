@@ -331,9 +331,30 @@ class Systems extends Getmeb
 		
 		if ($this->r_method == 'POST') {
 			/* This process is for Upload Photo */
-			$param_get = $this->input->get();
-			if (isset($param_get['userphoto']) && !empty($param_get['userphoto'])) {
-				$this->x_upload_user_photo();
+			if (isset($this->params->userphoto) && !empty($this->params->userphoto)) {
+				if (isset($this->params->id) && $this->params->id) {
+					
+					if (!$result = $this->_upload_file()){
+						$this->xresponse(FALSE, ['message' => $this->messages()]);
+					}
+						
+					/* If Success */
+					/* Create random filename */
+					$this->load->helper('string');
+					$rndName = random_string('alnum', 10);
+					
+					/* Moving to desire location with rename */
+					$ext = strtolower(pathinfo($result['name'], PATHINFO_EXTENSION));
+					rename($result["path"], $this->session->user_photo_path.$rndName.'.'.$ext);
+				
+					/* delete old file photo */
+					if (isset($this->params->photo_file) && $this->params->photo_file) {
+						@unlink($this->session->user_photo_path.$this->params->photo_file);
+					}
+					/* update to table */
+					$this->updateRecord('a_user', ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params->id]);
+					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => base_url().$this->session->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
+				}
 			}
 		}
 		
@@ -371,59 +392,6 @@ class Systems extends Getmeb
 		$this->single_view('pages/systems/auth/forgot');
 	}
 	
-	/* 
-	*	Using for upload anything: 
-	*		
-	*
-	*
-	*/
-	function x_upload_user_photo()
-	{
-		/* get the params & files (special for upload file) */
-		$files = $_FILES;
-		$this->params = $this->input->get();
-		
-		if (isset($this->params['userphoto']) && !empty($this->params['userphoto'])) {
-			if (isset($this->params['id']) && $this->params['id']) {
-				if (isset($files['file']['name']) && $files['file']['name']) {
-					/* Load the library */
-					/* START::Process */
-					require_once APPPATH."/third_party/Plupload/PluploadHandler.php"; 
-					$ph = new PluploadHandler(array(
-						'target_dir' => APPPATH.'../var/tmp/',
-						'allow_extensions' => 'jpg,jpeg,png,gif,xls,xlsx,doc,docx,ppt,pptx,pdf,zip,rar'
-					));
-					$ph->sendNoCacheHeaders();
-					$ph->sendCORSHeaders();
-					/* And Do Upload */
-					/* Output array('name', 'path', 'size') */
-					if (!$result = $ph->handleUpload()) {
-						$this->xresponse(FALSE, ['message' => $ph->getErrorMessage()]);
-					}
-					/* END::Process */
-					
-					/* If Success */
-					/* Create random filename */
-					$this->load->helper('string');
-					$rndName = random_string('alnum', 10);
-					
-					/* Moving to desire location with rename */
-					$ext = strtolower(pathinfo($files['file']['name'], PATHINFO_EXTENSION));
-					rename($result["path"], $this->session->user_photo_path.$rndName.'.'.$ext);
-				
-					/* delete old file photo */
-					if (isset($this->params['photo_file']) && $this->params['photo_file']) {
-						@unlink($this->session->user_photo_path.$this->params['photo_file']);
-					}
-					/* update to table */
-					$this->updateRecord('a_user', ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params['id']]);
-					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => base_url().$this->session->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
-				}
-			}
-			$this->xresponse(FALSE, ['message' => $this->lang->line('err_upload_photo')]);
-		}
-	}
-	
 	/* Don't make example from a_user & a_role */
 	function a_user()
 	{
@@ -447,9 +415,29 @@ class Systems extends Getmeb
 		}
 		if ($this->r_method == 'POST') {
 			/* This process is for Upload Photo */
-			$param_get = $this->input->get();
-			if (isset($param_get['userphoto']) && !empty($param_get['userphoto'])) {
-				$this->x_upload_user_photo();
+			if (isset($this->params->userphoto) && !empty($this->params->userphoto)) {
+				if (isset($this->params->id) && $this->params->id) {
+					if (!$result = $this->_upload_file()){
+						$this->xresponse(FALSE, ['message' => $this->messages()]);
+					}
+						
+					/* If Success */
+					/* Create random filename */
+					$this->load->helper('string');
+					$rndName = random_string('alnum', 10);
+					
+					/* Moving to desire location with rename */
+					$ext = strtolower(pathinfo($result['name'], PATHINFO_EXTENSION));
+					rename($result["path"], $this->session->user_photo_path.$rndName.'.'.$ext);
+				
+					/* delete old file photo */
+					if (isset($this->params->photo_file) && $this->params->photo_file) {
+						@unlink($this->session->user_photo_path.$this->params->photo_file);
+					}
+					/* update to table */
+					$this->updateRecord('a_user', ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params->id]);
+					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => base_url().$this->session->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
+				}
 			}
 			
 			$this->load->library('z_auth/auth');

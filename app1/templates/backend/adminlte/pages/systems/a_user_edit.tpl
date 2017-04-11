@@ -92,10 +92,11 @@
 	});
 	
 	{* Init data for custom element (combogrid, button etc.) *}
-	var uploader = new plupload.Uploader({ url:"{$url_module}?userphoto=1&id="+id+"&photo_file="+$('#photo_file').val(), runtimes:"html5",
-		filters: { max_file_size: "2mb", mime_types: [{ title:"Image files", extensions:"jpg,gif,png" }] },
+	var uploader = new plupload.Uploader({ url:"{$url_module}", runtimes:"html5",
+		filters: { max_file_size: "{$.session.max_file_upload}", mime_types: [{ title:"Image files", extensions:"jpg,gif,png" }] },
 		browse_button: "btn_uploadphoto", 
 		multi_selection: false,
+		multipart_params: { "userphoto":1, "id":id, "photo_file":$('#photo_file').val() },
 		init: {
 			FilesAdded: function(up, files) {
 				uploader.start();
@@ -114,7 +115,7 @@
 		}
 	});
 	uploader.bind('BeforeUpload', function(uploader, file) {
-		uploader.settings.url = "{$url_module}?userphoto=1&id="+id+"&photo_file="+$('#photo_file').val();
+		uploader.settings.multipart_params = { "userphoto":1, "id":id, "photo_file":$('#photo_file').val() };
 	});
 	uploader.init();
 
