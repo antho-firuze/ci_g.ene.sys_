@@ -9,6 +9,7 @@
   </div>
   <!-- /.content-wrapper -->
 <script src="{$.const.TEMPLATE_URL}plugins/ckeditor/ckeditor.js"></script>
+{* <script src="{$.const.TEMPLATE_URL}plugins/tinymce/js/tinymce/tinymce.min.js"></script> *}
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
@@ -60,6 +61,7 @@
 	$(".content").append(box1);
 	
 	$(document).ready(function(){
+		{* tinymce.init({ selector:'body_content' }); *}
 		CKEDITOR.replace('body_content');
 		
 		setTimeout(function(){

@@ -478,7 +478,7 @@ class Systems extends Getmeb
 				unset($this->params->password);
 			}
 			$this->boolfields = ['is_active','is_fullbpaccess'];
-			$this->nullfields = ['supervisor_id'];
+			$this->nullfields = ['supervisor_id','user_role_id','user_org_id'];
 			$this->_pre_update_records();
 		}
 	}
