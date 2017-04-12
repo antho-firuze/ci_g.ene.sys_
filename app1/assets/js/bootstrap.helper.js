@@ -267,6 +267,10 @@
 		if (o.minlength) input.attr('data-minlength',o.minlength);
 		if (o.idmatch) input.attr('data-match','#'+o.idmatch);
 		if (o.errormatch) input.attr('data-match-error',o.errormatch);
+		if (o.cls) input.addClass(o.cls);
+		if (o.editor) {
+			if (o.editor.toLowerCase() == 'tinymce') input.addClass('editor-tinymce');
+		}
 		container.find('.control-input').append(input).append(help);
 		return container;
 	};

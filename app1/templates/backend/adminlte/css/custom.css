@@ -6,6 +6,9 @@
 	/* margin: 0 0 -5px; */
 	/* font-size: 13px; */
 /* } */
+.mce-fullscreen {
+    z-index: 21050 !important; // or any higher value
+}
 @media (min-width: 992px) {
 	/* .content-header > .breadcrumb {
 		top: 55px !important;

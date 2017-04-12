@@ -26,11 +26,16 @@
 								form[i].value = v;
 								break;
 							case "textarea":
-								// if (CKEDITOR.instances[field_name]){
-									// CKEDITOR.instances[field_name].setData(v);
-								// } else {
+								if (typeof(tinyMCE) !== 'undefined') {
+									if (tinyMCE.get(field_id)){
+										var id_tmp = field_id, val = v;
+										setTimeout(function(){
+											tinyMCE.get(id_tmp).setContent(val);
+										}, 500);
+									} 
+								} else {
 									form[i].value = v;
-								// }
+								}
 								break;
 							case "hidden":
 								if (field_id == field_name) {
