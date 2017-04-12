@@ -18,7 +18,6 @@
 	var $url_module = "{$url_module}";
 	var id = getURLParameter("id");
 	var edit = getURLParameter("edit");
-	{* var auto_populate = false; *}
 	{* Start :: Init for Title, Breadcrumb *}
 	{* Set status (new|edit|copy) to Page Title *}
 	var desc = function(edit){ if (edit==1) return "(Edit)"; else if (edit==2) return "(New)"; else return "(Copy)"; };

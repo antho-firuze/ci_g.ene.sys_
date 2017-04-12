@@ -231,6 +231,8 @@
 				break;
 			case 'number':
 				if (o.step) input.attr('step',o.step);		
+				if (o.min) input.attr('min',o.min);		
+				if (o.max) input.attr('max',o.max);		
 				input.attr('placeholder',(o.placeholder) ? o.placeholder : 'number');
 				input.attr('type',o.type);
 				break;

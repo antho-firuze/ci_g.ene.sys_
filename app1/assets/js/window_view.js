@@ -206,6 +206,9 @@ $(document.body).click('button', function(e){
 				}
 			});
 			break;
+		case 'btn-export':
+			window.location.href = getURLOrigin()+window.location.search+"&export=1";
+			break;
 	}
 });
 

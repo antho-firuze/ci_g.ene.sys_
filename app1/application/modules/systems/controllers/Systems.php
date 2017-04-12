@@ -373,6 +373,10 @@ class Systems extends Getmeb
 				$this->backend_view('pages/404', ['message'=>'<b>'.$this->messages().'</b>']);
 			}
 			
+			/* Check for export/import data */
+			if (isset($this->params['export']) && !empty($this->params['export']))
+				$this->backend_view('include/export_data', $menu);
+			
 			/* Check for edit & new page */
 			if (isset($this->params['edit']) && !empty($this->params['edit']))
 				$this->backend_view($menu['path'].$menu['table'].'_edit', $menu);

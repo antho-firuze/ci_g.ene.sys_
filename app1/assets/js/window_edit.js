@@ -18,7 +18,8 @@ $( document ).ready(function() {
 	if (auto_populate){
 		$.getJSON($url_module, { "id": (id==null)?-1:id }, function(result){ 
 			if (!isempty_obj(result.data.rows)) 
-				form1.shollu_autofill('load', result.data.rows[0]);  
+				$('form').shollu_autofill('load', result.data.rows[0]);  
+				$('form').validator('update');
 		});
 	}
 	
