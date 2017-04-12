@@ -23,8 +23,7 @@
 {$.php.link_tag($.const.TEMPLATE_URL~'css/custom.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/pace/pace.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/iCheck/flat/blue.css')}
-{$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css')}
-{$.php.link_tag($.const.TEMPLATE_URL~'plugins/marquee/css/jquery.marquee.min.css')}
+{* {$.php.link_tag($.const.TEMPLATE_URL~'plugins/marquee/css/jquery.marquee.min.css')} *}
 
 <script src="{$.const.ASSET_URL}js/common.func.js"></script>
 <script>
@@ -36,16 +35,15 @@
 </script>
 
 <script src="{$.const.TEMPLATE_URL}plugins/jQuery/jQuery-2.1.4.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/jQueryUI/jquery-ui.min.js"></script>
-<script>$.widget.bridge("uibutton", $.ui.button);</script>
+{* <script src="{$.const.TEMPLATE_URL}plugins/jQueryUI/jquery-ui.min.js"></script> *}
+{* <script>$.widget.bridge("uibutton", $.ui.button);</script> *}
 <script src="{$.const.TEMPLATE_URL}bootstrap/js/bootstrap.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/pace/pace.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/moment/min/moment.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/slimScroll/jquery.slimscroll.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/fastclick/fastclick.js"></script>
 <script src="{$.const.TEMPLATE_URL}dist/js/app.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/marquee/lib/jquery.marquee.min.js"></script>
+{* <script src="{$.const.TEMPLATE_URL}plugins/marquee/lib/jquery.marquee.min.js"></script> *}
 <script src="{$.const.ASSET_URL}js/bootstrap.helper.js"></script>
 </head>
 

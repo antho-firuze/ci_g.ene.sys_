@@ -1,7 +1,7 @@
   <div class="content-wrapper">
     <!-- Main content -->
     <section class="content">
-			{$description}
+			{$body_content}
     </section>
     <!-- /.content -->
   </div>

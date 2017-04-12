@@ -8,16 +8,17 @@
     <!-- /.content -->
   </div>
   <!-- /.content-wrapper -->
+<script src="{$.const.TEMPLATE_URL}plugins/ckeditor/ckeditor.js"></script>
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
-<script src="https://cdn.ckeditor.com/4.6.2/standard/ckeditor.js"></script>
 <script>
 	{* Get Params *}
 	var $url_module = "{$url_module}";
 	var id = getURLParameter("id");
 	var edit = getURLParameter("edit");
+	var auto_populate = false;
 	{* Start :: Init for Title, Breadcrumb *}
 	{* Set status (new|edit|copy) to Page Title *}
 	var desc = function(edit){ if (edit==1) return "(Edit)"; else if (edit==2) return "(New)"; else return "(Copy)"; };
@@ -40,12 +41,12 @@
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Name", idname:"name", required: true })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description" })); *}
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Title", idname:"title", required: true }));
-	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Title Desc", idname:"title_desc" }));
+	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Title Desc", idname:"title_desc", ckeditor: true }));
+	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	row.push(subCol(6, col)); col = [];
-	row.push(subCol(6, col)); col = [];
 	a.push(subRow(row)); row = [];
-	col.push(BSHelper.Input({ horz:false, type:"textarea", idname:"content" }));
+	col.push(BSHelper.Input({ horz:false, type:"textarea", idname:"body_content" }));
 	row.push(subCol(12, col)); col = [];
 	a.push(subRow(row));
 	form1.append(a);
@@ -59,20 +60,20 @@
 	$(".content").append(box1);
 	
 	$(document).ready(function(){
-		CKEDITOR.replace('content');
+		CKEDITOR.replace('body_content');
 		
+		setTimeout(function(){
+			$.getJSON($url_module, { "id": (id==null)?-1:id }, function(result){ 
+				if (!isempty_obj(result.data.rows)) {
+					form1.shollu_autofill('load', result.data.rows[0]);  
+					CKEDITOR.instances['body_content'].setData(result.data.rows[0].body_content);
+				}
+			});
+		}, 200)
 	});
 	
 	$('form').on('submit', function(){
-		CKEDITOR.instances.content.updateElement();
-		
-		if (CKEDITOR.instances['content'])
-			console.log('CKEDITOR Installed');
-		else 
-			console.log('CKEDITOR Not Installed');
-		
-		
-		return false;
+		CKEDITOR.instances.body_content.updateElement();
 	});
 	
 </script>

@@ -3,9 +3,9 @@
   Genesys, v1.0.0
 */
 @media (min-width: 992px) {
-	.content-header > .breadcrumb {
+	/* .content-header > .breadcrumb {
 		top: 55px !important;
-	}
+	} */
 }
 .info-marquee
 {

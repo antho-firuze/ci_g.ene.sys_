@@ -14,10 +14,14 @@
 $( document ).ready(function() {
 	
 	/* Begin: Populate data to form */
-	$.getJSON($url_module, { "id": (id==null)?-1:id }, function(result){ 
-		if (!isempty_obj(result.data.rows)) 
-			form1.shollu_autofill('load', result.data.rows[0]);  
-	});
+	if(typeof(auto_populate)==='undefined') auto_populate = true;
+	if (auto_populate){
+		console.log('auto_populate');
+		$.getJSON($url_module, { "id": (id==null)?-1:id }, function(result){ 
+			if (!isempty_obj(result.data.rows)) 
+				form1.shollu_autofill('load', result.data.rows[0]);  
+		});
+	}
 	
 	/* Init form */
 	$('form').each(function(e){
