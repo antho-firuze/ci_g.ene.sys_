@@ -38,6 +38,8 @@
 	var $sidebar = 'sidebar{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
 	var $screen_timeout = 'screen_timeout{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
 	var $lockscreen = 'lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
+	var $BASE_URL = '{$.php.base_url()}';
+	var $APPS_LNK = '{$.const.APPS_LNK}';
 	var $TEMPLATE_URL = '{$.const.TEMPLATE_URL}';
 	store($skin, "{$.session.skin !: 'skin-purple'}");
 	store($sidebar, "{$.session.sidebar !: ''}");

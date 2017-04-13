@@ -79,7 +79,23 @@ function setHideToolBtn(btn)
   });
 }
 
+/* ========================================= */
+/* Default init for Header									 */
+/* ========================================= */
+$( document ).ready(function() {
+	/* Start :: Init for Title, Breadcrumb */
+	$( document ).ready(function() {
+		$(".content").before(BSHelper.PageHeader({ 
+			title: $title, 
+			title_desc: $title_desc, 
+			bc_list:[
+				{ icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK },
+				{ icon:"", title: $title, link:"" },
+			]
+		}));
+	});
 
+});
 
 /* ========================================= */
 /* Default init for dataTables search method */
@@ -102,7 +118,7 @@ $(document.body).click('button', function(e){
 	// console.log($(e.target).attr('id'));
 	switch($(e.target).attr('id')){
 		case 'btn-new':
-			window.location.href = getURLOrigin()+window.location.search+"&edit=2";
+			window.location.href = getURLOrigin()+window.location.search+"&action=new";
 			break;
 			
 		case 'btn-refresh':
@@ -115,7 +131,7 @@ $(document.body).click('button', function(e){
 				BootstrapDialog.alert('Please chosed one record !');
 				return false;
 			}
-			$.getJSON($url_module, { rec_info: 1, id: data[0].id }, function(result){ 
+			$.getJSON($url_module, { viewlog:1, id:data[0].id }, function(result){ 
 				// console.log(data[0]);
 				if (!result.status){
 					BootstrapDialog.alert(result.message);
@@ -224,11 +240,11 @@ $(document.body).click('button', function(e){
 			if (!confirm("Copy this data ?")) {
 				return false;
 			}
-			window.location.href = getURLOrigin()+window.location.search+"&edit=3&id="+data.id;
+			window.location.href = getURLOrigin()+window.location.search+"&action=cpy&id="+data.id;
 			break;
 			
 		case 'btn-edit':
-			window.location.href = getURLOrigin()+window.location.search+"&edit=1&id="+data.id;
+			window.location.href = getURLOrigin()+window.location.search+"&action=edt&id="+data.id;
 			break;
 			
 		case 'btn-delete':

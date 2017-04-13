@@ -362,6 +362,25 @@ class Systems extends Getmeb
 				$this->backend_view('pages/404', ['message'=>'<b>'.$this->messages().'</b>']);
 			}
 			
+			/* Check for action pages */
+			if (isset($this->params['action']) && !empty($this->params['action'])){
+				switch($this->params['action']) {
+					case 'new': 
+					case 'cpy': 
+					case 'edt': 
+						$this->backend_view($menu['path'].$menu['table'].'_edit', $menu);
+						break;
+					case 'exp':
+						$this->backend_view('include/export_data', $menu);
+						break;
+					case 'imp':
+						$this->backend_view('include/import_data', $menu);
+						break;
+					default:
+						$this->backend_view('pages/404', ['message'=>'']);
+				}
+			}
+			
 			/* Check for export/import data */
 			if (isset($this->params['export']) && !empty($this->params['export']))
 				$this->backend_view('include/export_data', $menu);
@@ -389,7 +408,7 @@ class Systems extends Getmeb
 	function a_user()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] != '')) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('zone', $this->params) && ($this->params['zone']))
@@ -479,7 +498,7 @@ class Systems extends Getmeb
 	function a_user_org()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('user_id', $this->params) && ($this->params['user_id'] != '')) 
@@ -519,7 +538,7 @@ class Systems extends Getmeb
 	function a_user_role()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (isset($this->params['user_id']) && ($this->params['user_id'] != '')) 
@@ -551,7 +570,7 @@ class Systems extends Getmeb
 	function a_user_substitute()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('user_id', $this->params) && ($this->params['user_id'] != '')) 
@@ -593,7 +612,7 @@ class Systems extends Getmeb
 	function a_user_config()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['user_id']) && ($this->params['user_id'] != '')) 
+			if (isset($this->params['user_id']) && ($this->params['user_id'] !== '')) 
 				$user_id = $this->params['user_id'];
 			else
 				$user_id = $this->session->user_id;
@@ -656,7 +675,7 @@ class Systems extends Getmeb
 	function a_role()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] != '')) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (isset($this->params['q']) && !empty($this->params['q']))
@@ -680,7 +699,7 @@ class Systems extends Getmeb
 	function a_role_menu()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (isset($this->params['role_id']) && ($this->params['role_id'] != '')) 
@@ -747,7 +766,7 @@ class Systems extends Getmeb
 	function a_role_process()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('role_id', $this->params) && ($this->params['role_id'] != '')) 
@@ -774,7 +793,7 @@ class Systems extends Getmeb
 	function a_system()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (isset($this->params['q']) && !empty($this->params['q']))
@@ -801,7 +820,7 @@ class Systems extends Getmeb
 	function a_client()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (isset($this->params['q']) && !empty($this->params['q']))
@@ -825,7 +844,7 @@ class Systems extends Getmeb
 	function a_menu()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (isset($this->params['q']) && !empty($this->params['q']))
@@ -851,7 +870,7 @@ class Systems extends Getmeb
 	function a_org()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (isset($this->params['q']) && !empty($this->params['q']))
@@ -876,7 +895,7 @@ class Systems extends Getmeb
 	function a_orgtype()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (isset($this->params['q']) && !empty($this->params['q']))
@@ -900,7 +919,7 @@ class Systems extends Getmeb
 	function a_sequence()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (isset($this->params['q']) && !empty($this->params['q']))
@@ -924,7 +943,7 @@ class Systems extends Getmeb
 	function a_info()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('zone', $this->params) && ($this->params['zone'])) {
@@ -963,10 +982,11 @@ class Systems extends Getmeb
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
+	
 	function c_currency()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (isset($this->params['q']) && !empty($this->params['q']))
@@ -990,7 +1010,7 @@ class Systems extends Getmeb
 	function c_1country()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (isset($this->params['q']) && !empty($this->params['q']))
@@ -1014,7 +1034,7 @@ class Systems extends Getmeb
 	function c_2province()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('country_id', $this->params) && !empty($this->params['country_id'])) 
@@ -1043,7 +1063,7 @@ class Systems extends Getmeb
 	function c_3city()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			// $this->params['where']['t1.province_id'] = isset($this->params['province_id']) ? $this->params['province_id'] : 0;
@@ -1073,7 +1093,7 @@ class Systems extends Getmeb
 	function c_4district()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			
 			if (key_exists('city_id', $this->params) && !empty($this->params['city_id'])) 
@@ -1102,7 +1122,7 @@ class Systems extends Getmeb
 	function c_5village()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
 			else 
 				if (isset($this->params['district_id']) && !empty($this->params['district_id'])) 

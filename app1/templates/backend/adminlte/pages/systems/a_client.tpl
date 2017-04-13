@@ -17,21 +17,12 @@
   <!-- /.content-wrapper -->
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>
 <script>
+	var $url_module = "{$url_module}";
+	var $title 			= "{$title}";
+	var $title_desc = "{$title_desc}";
 	{* Get Params *}
 	var $q = getURLParameter("q");
 	var $id = getURLParameter("id");
-	var $url_module = "{$url_module}";
-	{* Default init for for Title, Breadcrumb *}
-	$( document ).ready(function() {
-		$(".content").before(BSHelper.PageHeader({ 
-			title:"{$title}", 
-			title_desc:"{$title_desc}", 
-			bc_list:[
-				{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
-				{ icon:"", title:"{$title}", link:"" },
-			]
-		}));
-	});
 	
 	{* Section 2: For building Datatables *}
 	var aLBtn = [];

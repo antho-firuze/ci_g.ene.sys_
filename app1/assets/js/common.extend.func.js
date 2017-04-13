@@ -2,37 +2,35 @@
 
     "use strict";
 
+	$.fn.serialize = function(type) {
+		if (typeof(type) == 'undefined') type = 'json';
+		type = type.toLowerCase();
+		
+		var o = {};
+		var a = this.serializeArray();
+		$.each(a, function (i, v) {
+			v.value = (v.value == 'on') ? '1' : v.value;
+			o[v.name] = o[v.name] ? o[v.name] || v.value : v.value;
+		});
+		return (type == 'json') ? JSON.stringify(o) : o;
+	};
+
 	$.fn.serializeJSON = function () {
 		var o = {};
 		var a = this.serializeArray();
 		$.each(a, function (i, v) {
+			v.value = (v.value == 'on') ? '1' : v.value;
 			o[v.name] = o[v.name] ? o[v.name] || v.value : v.value;
-			// "on" ? "on" || "0" : "0"
-			/* if (o[this.name] !== undefined) {
-				if (!o[this.name].push) {
-					o[this.name] = [o[this.name]];
-				}
-					o[this.name].push(this.value || '');
-			} else {
-				o[this.name] = this.value || '';
-			} */
 		});
 		return JSON.stringify(o);
 	};
 
-	$.fn.serializeObject = function () {
+	$.fn.serializeOBJ = function () {
 		var o = {};
 		var a = this.serializeArray();
-		$.each(a, function () {
+		$.each(a, function (i, v) {
+			v.value = (v.value == 'on') ? '1' : v.value;
 			o[v.name] = o[v.name] ? o[v.name] || v.value : v.value;
-			/* if (o[this.name] !== undefined) {
-				if (!o[this.name].push) {
-					o[this.name] = [o[this.name]];
-				}
-					o[this.name].push(this.value || '');
-			} else {
-				o[this.name] = this.value || '';
-			} */
 		});
 		return o;
 	};

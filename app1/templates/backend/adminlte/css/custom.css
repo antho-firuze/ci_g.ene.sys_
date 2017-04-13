@@ -7,7 +7,7 @@
 	/* font-size: 13px; */
 /* } */
 .mce-fullscreen {
-    z-index: 21050 !important; // or any higher value
+    z-index: 1500 !important; // or any higher value
 }
 @media (min-width: 992px) {
 	/* .content-header > .breadcrumb {

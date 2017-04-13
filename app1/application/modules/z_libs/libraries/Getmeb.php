@@ -81,9 +81,20 @@ class Getmeb extends CI_Controller
 		if (in_array($this->r_method, ['GET'])) {
 			/* Become Array */
 			$this->params = $this->input->get();
-			/* Request for record info */
-			if (isset($this->params['rec_info']) && !empty($this->params['rec_info'])) {
+
+			/* Request for viewlog */
+			if (isset($this->params['viewlog']) && !empty($this->params['viewlog'])) {
+				/* Check permission in the role */
+				$this->_check_is_allow_inrole('canviewlog');
 				$this->_get_viewlog();
+			}
+			
+			/* Request for Export Data */
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				// debug($this->params);
+				/* Check permission in the role */
+				$this->_check_is_allow_inrole('canexport');
+				$this->_pre_export_data();
 			}
 		}
 		
@@ -97,6 +108,8 @@ class Getmeb extends CI_Controller
 
 			/* Request for Export Data */
 			if (isset($this->params->export) && !empty($this->params->export)) {
+				/* Check permission in the role */
+				$this->_check_is_allow_inrole('canexport');
 				$this->_pre_export_data();
 			}
 		}
@@ -288,9 +301,6 @@ class Getmeb extends CI_Controller
 	
 	function _get_viewlog()
 	{
-		/* Check permission in the role */
-		$this->_check_is_allow_inrole('canviewlog');
-		
 		$result = [];
 		$result['table'] = $this->c_method;
 		$result['id'] = $this->params['id'];
@@ -328,7 +338,7 @@ class Getmeb extends CI_Controller
 			if (key_exists($f, $this->params)){
 				/* Check if any exists boolean fields */
 				if (in_array($f, $this->boolfields)){
-					$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
+					$datas[$f] = empty($this->params->{$f}) ? '0' : '1'; 
 				} 
 				/* Check if any exists allow null fields */
 				elseif (in_array($f, $this->nullfields)){

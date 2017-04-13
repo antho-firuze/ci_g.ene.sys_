@@ -29,11 +29,14 @@
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });	
 	var box1 = BSHelper.Box({ type:"info" });
-	{* adding master key id *}
-	{* col.push(BSHelper.Input({ type:"hidden", idname:"role_id", value:role_id })); *}
-	{* standard fields table *}
-	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Please Choose Role to be copied !", idname:"copy_role_id", required:true, url:"{$.php.base_url('systems/a_role')}?filter=t1.id<>"+role_id, remote: true }));
+	col.push(BSHelper.Combobox({ label:"File Type", idname:"filetype", required: true, 
+		list:[
+			{ id:"xls", name:"Excel File (.xls)" },
+			{ id:"pdf", name:"Acrobat File (.pdf)" },
+			{ id:"csv", name:"Comma Separated Values File (.csv)" },
+		] 
+	}));
+	col.push(BSHelper.Checkbox({ horz:false, label:"Compress The File (.zip)", idname:"is_compress", help:"Compress output file (xls/pdf/csv) to ZIP File (.zip)" }));
 	form1.append(subRow(subCol(6, col)));
 	form1.append(subRow(subCol()));
 	col = [];
@@ -44,28 +47,4 @@
 	box1.find('.box-body').append(form1);
 	$(".content").append(box1);
 
-	{* Form submit action *}
-	{* form1.validator().on('submit', function (e) {
-		if (e.isDefaultPrevented()) { return false;	} 
-		
-		$.ajax({ url: "{$url_module}", method:"OPTIONS", async: true, dataType:'json',
-			data: form1.serializeJSON(),
-			success: function(data) {
-				BootstrapDialog.alert(data.message, function(){
-					window.history.back();
-        });
-			},
-			error: function(data) {
-				if (data.status==500){
-					var message = data.statusText;
-				} else {
-					var error = JSON.parse(data.responseText);
-					var message = error.message;
-				}
-				BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
-			}
-		});
-
-		return false;
-	}); *}
 </script>

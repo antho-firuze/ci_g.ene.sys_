@@ -8,6 +8,22 @@
  * A functions for build Form to Add/Edit/Copy Data
  */
 /* 
+/* ========================================= */
+/* Default init for Header									 */
+/* ========================================= */
+$( document ).ready(function() {
+	/* Start :: Init for Title, Breadcrumb */
+	$(".content").before(BSHelper.PageHeader({ 
+		title: $title, 
+		title_desc: act_name, 
+		bc_list:[
+			{ icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK },
+			{ icon:"", title: $title, link:"javascript:history.back()" },
+			{ icon:"", title: act_name, link:"" },
+		]
+	}));
+
+});
 /* ==================================== */
 /* Default action for Form Edit */
 /* ==================================== */
