@@ -5,23 +5,12 @@ require APPPATH . '/modules/z_libs/libraries/Getmeb.php';
 class Sales extends Getmeb
 {
 	function __construct() {
+		/* Exeption list methods is not required login */
+		$this->exception_method = [];
 		parent::__construct();
 		
 		$class = strtolower(get_class($this));
 		$this->load->model($class.'_model');
-	}
-	
-	/* This method (function _remap), is a must exists for every controller */
-	function _remap($method, $params = array())
-	{
-		/* Exeption list methods */
-		$this->exception_method = [];
-		/* This process is for checking login status (is a must on every controller) */
-		$this->_check_is_login();
-		/* This process is for checking permission (is a must on every controller) */
-		$this->_check_is_allow();
-		
-		return call_user_func_array(array($this, $method), $params);
 	}
 	
 	function a_user_org()

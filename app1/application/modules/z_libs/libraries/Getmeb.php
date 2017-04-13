@@ -75,22 +75,36 @@ class Getmeb extends CI_Controller
 			'deleted_at'	=> date('Y-m-d H:i:s')
 		];
 
+		/* This process is running before checking request method */
+		$this->_check_is_login();
+		
 		if (in_array($this->r_method, ['GET'])) {
 			/* Become Array */
 			$this->params = $this->input->get();
 			/* Request for record info */
 			if (isset($this->params['rec_info']) && !empty($this->params['rec_info'])) {
-				$this->_get_change_log();
+				$this->_get_viewlog();
 			}
 		}
 		
 		if (in_array($this->r_method, ['POST','PUT','OPTIONS'])) {
+			/* Must be checking permission before next process */
+			$this->_check_is_allow();
+
 			/* Become Object */
 			$this->params = json_decode($this->input->raw_input_stream);
 			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
+
+			/* Request for Export Data */
+			if (isset($this->params->export) && !empty($this->params->export)) {
+				$this->_pre_export_data();
+			}
 		}
 		
 		if (in_array($this->r_method, ['DELETE'])) {
+			/* Must be checking permission before next process */
+			$this->_check_is_allow();
+
 			/* Become Array */
 			$this->params = $this->input->get();
 			if (! $this->deleteRecords($this->c_method, $this->params['id']))
@@ -249,11 +263,33 @@ class Getmeb extends CI_Controller
 		}
 	}
 	
-	function _get_change_log()
+	function _check_is_allow_inrole($permit)
 	{
 		$role = $this->base_model->getValue('*', 'a_role', 'id', $this->session->role_id);
-		if (!$role->is_changelog)
-			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
+		switch($permit){
+			case 'canviewlog':
+				if (!$role->is_canviewlog)
+					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
+				break;
+			case 'canexport':
+				if (!$role->is_canexport)
+					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
+				break;
+			case 'canapproveowndoc':
+				if (!$role->is_canapproveowndoc)
+					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
+				break;
+			case 'canreport':
+				if (!$role->is_canreport)
+					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
+				break;
+		}
+	}
+	
+	function _get_viewlog()
+	{
+		/* Check permission in the role */
+		$this->_check_is_allow_inrole('canviewlog');
 		
 		$result = [];
 		$result['table'] = $this->c_method;
@@ -345,6 +381,12 @@ class Getmeb extends CI_Controller
 				return $result;
 			}
 		}
+	}
+	
+	function _pre_export_data()
+	{
+		
+		$this->_export_data();
 	}
 	
 	function _export_data()
