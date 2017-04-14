@@ -77,7 +77,7 @@ class Getmeb extends CI_Controller
 
 		/* This process is running before checking request method */
 		$this->_check_is_login();
-		
+		/* This Request for GETTING/VIEWING Data */
 		if (in_array($this->r_method, ['GET'])) {
 			/* Become Array */
 			$this->params = $this->input->get();
@@ -98,22 +98,17 @@ class Getmeb extends CI_Controller
 			}
 		}
 		
-		if (in_array($this->r_method, ['POST','PUT','OPTIONS'])) {
+		/* This Request for INDERT & UPDATE Data */
+		if (in_array($this->r_method, ['POST','PUT'])) {
 			/* Must be checking permission before next process */
 			$this->_check_is_allow();
-
+			
 			/* Become Object */
 			$this->params = json_decode($this->input->raw_input_stream);
 			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
-
-			/* Request for Export Data */
-			if (isset($this->params->export) && !empty($this->params->export)) {
-				/* Check permission in the role */
-				$this->_check_is_allow_inrole('canexport');
-				$this->_pre_export_data();
-			}
 		}
 		
+		/* This Request for DELETE Data */
 		if (in_array($this->r_method, ['DELETE'])) {
 			/* Must be checking permission before next process */
 			$this->_check_is_allow();
@@ -125,6 +120,24 @@ class Getmeb extends CI_Controller
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
+		
+		/* This Request for EXPORT/IMPORT, PROCESS/REPORT & FORM  */
+		if (in_array($this->r_method, ['OPTIONS'])) {
+			/* Must be checking permission before next process */
+			$this->_check_is_allow();
+			
+			/* Become Object */
+			$this->params = json_decode($this->input->raw_input_stream);
+			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
+			
+			/* Request for Export Data */
+			if (isset($this->params->export) && !empty($this->params->export)) {
+				/* Check permission in the role */
+				$this->_check_is_allow_inrole('canexport');
+				$this->_pre_export_data();
+			}
+		}
+		
 	}
 	
 	function _check_menu($data=[])
@@ -196,7 +209,7 @@ class Getmeb extends CI_Controller
 				return;
 		}
 		/* Only check this request method */
-		if (!in_array($this->r_method, ['POST','PUT','DELETE'])){
+		if (!in_array($this->r_method, ['POST','PUT','DELETE','OPTIONS'])){
 			return;
 		}
 		
@@ -336,18 +349,22 @@ class Getmeb extends CI_Controller
 		$fields = $this->db->list_fields($this->c_method);
 		foreach($fields as $f){
 			if (key_exists($f, $this->params)){
-				/* Check if any exists boolean fields */
-				if (in_array($f, $this->boolfields)){
-					$datas[$f] = empty($this->params->{$f}) ? '0' : '1'; 
-				} 
 				/* Check if any exists allow null fields */
-				elseif (in_array($f, $this->nullfields)){
+				$datas[$f] = ($this->params->{$f} == '') ? NULL : $this->params->{$f}; 
+				
+				/* Check if any exists boolean fields */
+				/* if (in_array($f, $this->boolfields)){
+					$datas[$f] = empty($this->params->{$f}) ? '0' : '1'; 
+				}  */
+				/* Check if any exists allow null fields */
+				/* elseif (in_array($f, $this->nullfields)){
 					$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
 				} else {
 					$datas[$f] = $this->params->{$f};
-				}
+				} */
 			}
 		}
+		
 		if ($return_data) return $datas;
 			
 		if ($this->r_method == 'POST')

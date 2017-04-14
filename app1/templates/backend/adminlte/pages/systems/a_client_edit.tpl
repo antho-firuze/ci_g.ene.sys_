@@ -13,14 +13,10 @@
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
-	var $url_module = "{$url_module}";
-	var $title 			= "{$title}";
+	var $url_module = "{$url_module}", $title	= "{$title}";
 	{* Get Params *}
-	var id = getURLParameter("id");
-	var edit = getURLParameter("edit");
-	var act = getURLParameter("action");
+	var id = getURLParameter("id"), act = getURLParameter("action");
 	var act_name = (act == 'new') ? "(New)" : (act == 'edt') ? "(Edit)" : (act == 'cpy') ? "(Copy)" : "(Unknown)";
-	
 	{* For design form interface *}
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });

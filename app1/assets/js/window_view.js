@@ -7,16 +7,8 @@
  *
  * A functions for build Form to View Data
  */
-/* 
-	$.each(btn, function(k,v){
-		if (k=='btn-copy') 
-				if (v)
-					btnGroup1.append($('<button type="button" class="btn btn-success glyphicon glyphicon-duplicate" title="Copy" id="btn-copy" />'));
-				else
-					
-		
-  }); */
-function setToolbarButton(){
+function setToolbarBtn(btnList)
+{
 	var container = $('<div class="row toolbar_container">'+
 											'<div class="col-md-12">'+
 												'<div class="btn-toolbar">'+
@@ -28,55 +20,53 @@ function setToolbarButton(){
 												'</div>'+
 											'</div>'+
 										'</div>');
-	var btnGroup1 = container.find('.btnGroup1'); 
-	var btnGroup2 = container.find('.btnGroup2'); 
-	var btnGroup3 = container.find('.btnGroup3'); 
-	var btnGroup4 = container.find('.btnGroup4'); 
-	var btnGroup5 = container.find('.btnGroup5'); 
+	var buttons = {
+		"btn-new": 			{group:1, id:"btn-new", title:"New", bstyle:"btn-success", icon:"glyphicon glyphicon-plus"},
+		"btn-copy": 		{group:1, id:"btn-copy", title:"Copy", bstyle:"btn-success", icon:"glyphicon glyphicon-duplicate"},
+		"btn-refresh": 	{group:1, id:"btn-refresh", title:"Refresh", bstyle:"btn-success", icon:"glyphicon glyphicon-refresh"},
+		"btn-delete": 	{group:1, id:"btn-delete", title:"Delete", bstyle:"btn-danger", icon:"glyphicon glyphicon-trash"},
+		"btn-message": 	{group:2, id:"btn-message", title:"Chat/Message/Attach", bstyle:"btn-info", icon:"glyphicon glyphicon-comment"},
+		"btn-print": 		{group:3, id:"btn-print", title:"Print", bstyle:"bg-purple", icon:"glyphicon glyphicon-print"},
+		"btn-export": 	{group:3, id:"btn-export", title:"Export", bstyle:"btn-warning", icon:"glyphicon glyphicon-save"},
+		"btn-import": 	{group:3, id:"btn-import", title:"Import", bstyle:"btn-warning", icon:"glyphicon glyphicon-open"},
+		"btn-viewlog": 	{group:4, id:"btn-viewlog", title:"Record Info", bstyle:"btn-default", icon:"fa fa-info fa-lg", style:"width:35px; height:35px;"},
+		"btn-process": 	{group:5, id:"btn-process", title:"Process", bstyle:"bg-purple", icon:"glyphicon glyphicon-cog dropdown-toggle", data_toggle:"dropdown"},
+	};
+	$.each(btnList, function(k,v){
+		var btn = $('<button/>', { type:"button", id:buttons[v].id, title:buttons[v].title, 'class':'btn '+buttons[v].bstyle+' '+buttons[v].icon, style:buttons[v].style, 'data-toggle':buttons[v].data_toggle });
+		container.find('.btnGroup'+buttons[v].group).append(btn); 
+  });
 	
-	btnGroup1.append($('<button type="button" class="btn btn-success glyphicon glyphicon-plus" title="New" id="btn-new" />'));
-	btnGroup1.append($('<button type="button" class="btn btn-success glyphicon glyphicon-duplicate" title="Copy" id="btn-copy" />'));
-	btnGroup1.append($('<button type="button" class="btn btn-success glyphicon glyphicon-refresh" title="Refresh" id="btn-refresh" />'));
-	btnGroup1.append($('<button type="button" class="btn btn-danger glyphicon glyphicon-trash" title="Delete" id="btn-delete" />'));
-	btnGroup2.append($('<button type="button" class="btn btn-info glyphicon glyphicon-comment" title="Chat/Message/Attach" id="btn-message" />'));
-	btnGroup3.append($('<button type="button" class="btn bg-purple glyphicon glyphicon-print" title="Print" id="btn-print" />'));
-	btnGroup3.append($('<button type="button" class="btn btn-warning glyphicon glyphicon-save" title="Export" id="btn-export" />'));
-	btnGroup3.append($('<button type="button" class="btn btn-warning glyphicon glyphicon-open" title="Import" id="btn-import" />'));
-	btnGroup4.append($('<button type="button" class="btn btn-default fa fa-info fa-lg" style="width:35px; height:35px;" title="Record Info" id="btn-rec-info" />'));
-	btnGroup5.append($('<button type="button" class="btn bg-purple glyphicon glyphicon-cog dropdown-toggle" data-toggle="dropdown" title="Process" id="btn-process" /><ul class="dropdown-menu" />'));
-
 	return container;
 }
 
-function addProcessMenu(btnId, btnTitle)
+function initToolbarButton()
 {
-	var dropdown_menu = $('.btn-toolbar').find('.dropdown-menu'); 
-	$('<li disabled />').append($('<a href="#" title="'+btnTitle+'" id="'+btnId+'" />').html(btnTitle)).appendTo(dropdown_menu);
-}
-
-function setDisableToolBtn(btn)
-{
-	if(typeof(btn)==='undefined') btn = [];
-	$.each(btn, function(k,v){
-		// $('#'+v).addClass('disabled');
+	
+	if (!Toolbar_Init.toolbar)
+		return false;
+	
+	var toolbarBtn = setToolbarBtn(Toolbar_Init.toolbarBtn);
+	
+	$('.content').find('div:first').before( toolbarBtn.css('margin-bottom','10px') );
+	
+	$.each(Toolbar_Init.disableBtn, function(k,v){
 		$('#'+v).prop( "disabled", true );
   });
-}
-
-function setDisableMenuProcess(btn)
-{
-	if(typeof(btn)==='undefined') btn = [];
-	$.each(btn, function(k,v){
-		$('#'+v).parent().addClass('disabled');
-  });
-}
-
-function setHideToolBtn(btn)
-{
-	if(typeof(btn)==='undefined') btn = [];
-	$.each(btn, function(k,v){
+	$.each(Toolbar_Init.hiddenBtn, function(k,v){
 		$('#'+v).css( "display", "none" );
   });
+	
+	/* Init for Process Menu Button */
+	if (Toolbar_Init.processMenu.length > 0){
+		var dropdown_menu = $('<ul class="dropdown-menu" />').insertAfter(toolbarBtn.find('#btn-process'));
+		$.each(Toolbar_Init.processMenu, function(k,v){
+			$('<li disabled />').append($('<a href="#" title="'+v.title+'" id="'+v.id+'" />').html(v.title)).appendTo(dropdown_menu);
+		});
+		$.each(Toolbar_Init.processMenuDisable, function(k,v){
+			$('#'+v).parent().addClass('disabled');
+		});
+	}
 }
 
 /* ========================================= */
@@ -95,12 +85,16 @@ $( document ).ready(function() {
 		}));
 	});
 
+	/* Init for Toolbar Button */
+	initToolbarButton();
+
 });
 
 /* ========================================= */
-/* Default init for dataTables search method */
+/* Default init for dataTables  */
 /* ========================================= */
 $( document ).ready(function() {
+	
 	/* For parsing URL Parameters */
 	var origin_url = window.location.origin+window.location.pathname;
 	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
@@ -109,6 +103,13 @@ $( document ).ready(function() {
 		dataTable1.ajax.reload( null, false );
 		history.pushState({}, '', origin_url +'?'+ $url);
 	});		
+	
+	DTHelper.initCheckList(tableData1, dataTable1);
+	
+	$('div.dataTables_wrapper').find('div.row:first').insertBefore('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_filter');
+	$('div.dataTables_wrapper').find('div.row:last').insertAfter('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_paginate');
+	$('div.box').css('margin-bottom','10px');
+	
 });
 
 /* ==================================== */
@@ -125,7 +126,7 @@ $(document.body).click('button', function(e){
 			dataTable1.ajax.reload( null, false );
 			break;
 			
-		case 'btn-rec-info':
+		case 'btn-viewlog':
 			var data = dataTable1.rows('.selected').data();
 			if (data.count() < 1 || data.count() > 1){
 				BootstrapDialog.alert('Please chosed one record !');
@@ -226,6 +227,7 @@ $(document.body).click('button', function(e){
 			window.location.href = getURLOrigin()+window.location.search+"&export=1";
 			break;
 	}
+	
 });
 
 /* ==================================== */

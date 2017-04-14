@@ -493,6 +493,16 @@ class Systems extends Getmeb
 			$this->nullfields = ['supervisor_id','user_role_id','user_org_id'];
 			$this->_pre_update_records();
 		}
+
+		if ($this->r_method == 'OPTIONS') {
+			debug('test');
+			if (isset($this->params->loginattempt) && $this->params->loginattempt) {
+				if (! $this->deleteRecords('a_loginattempt', $this->params->id, TRUE))
+					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+				else
+					$this->xresponse(TRUE, ['message' => $this->messages()]);
+			}
+		}
 	}
 	
 	function a_user_org()
@@ -519,8 +529,6 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = ['is_active'];
-			$this->nullfields = [];
 			$datas = $this->_pre_update_records(TRUE);
 			
 			if ($this->r_method == 'POST')
@@ -561,8 +569,6 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = ['is_active'];
-			$this->nullfields = [];
 			$this->_pre_update_records();
 		}
 	}
@@ -588,22 +594,16 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = ['is_active'];
-			$this->nullfields = [];
 			$datefields = [];
 			$timefields = [];
 			$datetimefields = ['valid_from','valid_to'];
 			foreach($fields as $f){
 				if (key_exists($f, $this->params)){
-					if (in_array($f, $this->boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} elseif (in_array($f, $this->nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} elseif (in_array($f, $datetimefields)){
+					/* Check if any exists allow null fields */
+					$datas[$f] = ($this->params->{$f} == '') ? NULL : $this->params->{$f}; 
+					
+					if (in_array($f, $datetimefields))
 						$datas[$f] = ($this->params->{$f}=='') ? NULL : datetime_db_format($this->params->{$f}, $this->session->date_format); 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
 				}
 			}
 		}
@@ -690,8 +690,6 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = ['is_active','is_canexport','is_canreport','is_canapproveowndoc','is_accessallorgs','is_useuserorgaccess','is_changelog'];
-			$this->nullfields = ['currency_id','supervisor_id'];
 			$this->_pre_update_records();
 		}
 	}
@@ -723,9 +721,6 @@ class Systems extends Getmeb
 				case 'W': $this->params->permit_form = ''; $this->params->permit_process = ''; break;
 			}
 			
-			if ($this->params->type)
-			$this->boolfields = ['is_active'];
-			$this->nullfields = ['permit_form','permit_process','permit_window'];
 			$datas = $this->_pre_update_records(TRUE);
 			
 			if ($this->r_method == 'POST')
@@ -784,8 +779,6 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = ['is_active'];
-			$this->nullfields = [];
 			$this->_pre_update_records();
 		}
 	}
@@ -811,8 +804,6 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = [];
-			$this->nullfields = ['description'];
 			$this->_pre_update_records();
 		}
 	}
@@ -835,8 +826,6 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = ['is_active','is_securesmtp'];
-			$this->nullfields = ['description','smtp_host','smtp_port'];
 			$this->_pre_update_records();
 		}
 	}
@@ -861,8 +850,6 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = ['is_active','is_submodule','is_parent'];
-			$this->nullfields = ['description','table','path','icon','class','method','window_title'];
 			$this->_pre_update_records();
 		}
 	}
@@ -886,8 +873,6 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = ['is_active','is_parent'];
-			$this->nullfields = ['supervisor_id','phone','phone2','fax','email','website','address_map'];
 			$this->_pre_update_records();
 		}
 	}
@@ -910,8 +895,6 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = ['is_active'];
-			$this->nullfields = [];
 			$this->_pre_update_records();
 		}
 	}
@@ -934,8 +917,6 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = ['is_active', 'startnewyear', 'startnewmonth'];
-			$this->nullfields = ['code', 'description', 'prefix', 'suffix'];
 			$this->_pre_update_records();
 		}
 	}
@@ -967,19 +948,7 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = [];
-			$this->nullfields = ['valid_from','valid_till'];
 			$this->_pre_update_records();
-		}
-	}
-	
-	function a_loginattempt()
-	{
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id'], TRUE))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
 	
@@ -1001,8 +970,6 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = [];
-			$this->nullfields = [];
 			$this->_pre_update_records();
 		}
 	}
@@ -1025,8 +992,6 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = [];
-			$this->nullfields = [];
 			$this->_pre_update_records();
 		}
 	}
@@ -1054,8 +1019,6 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = [];
-			$this->nullfields = [];
 			$this->_pre_update_records();
 		}
 	}
@@ -1084,8 +1047,6 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = [];
-			$this->nullfields = [];
 			$this->_pre_update_records();
 		}
 	}
@@ -1113,8 +1074,6 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = [];
-			$this->nullfields = [];
 			$this->_pre_update_records();
 		}
 	}
@@ -1143,8 +1102,6 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = [];
-			$this->nullfields = [];
 			$this->_pre_update_records();
 		}
 	}

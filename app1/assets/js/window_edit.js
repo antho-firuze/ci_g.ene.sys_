@@ -118,9 +118,9 @@ $( document ).ready(function() {
 		
 		form.validator().on('submit', function(e) {
 			if (e.isDefaultPrevented()) { return false;	} 
+			var r_method = (act == 'new') ? 'POST' : 'PUT';
 			
-			$.ajax({ url: $url_module+'?id='+id, method:(edit==1?"PUT":"POST"), async: true, dataType:'json',
-				headers: { "TYPE": "W" },
+			$.ajax({ url: $url_module, method: r_method, async: true, dataType:'json',
 				data: form.serializeJSON(),
 				success: function(data) {
 					BootstrapDialog.alert(data.message, function(){
