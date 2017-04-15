@@ -377,24 +377,16 @@ class Systems extends Getmeb
 						$this->backend_view('include/import_data', $menu);
 						break;
 					default:
-						$this->backend_view('pages/404', ['message'=>'']);
+						/* Check for additional/custom page */
+						if ($this->params['action'][0] == 'x')
+							$this->backend_view($menu['path'].$menu['table'].'_'.$this->params['action'], $menu);
+						else
+							$this->backend_view('pages/404', ['message'=>'']);
 				}
 			}
 			
-			/* Check for export/import data */
-			if (isset($this->params['export']) && !empty($this->params['export']))
-				$this->backend_view('include/export_data', $menu);
-			
-			/* Check for edit & new page */
-			if (isset($this->params['edit']) && !empty($this->params['edit']))
-				$this->backend_view($menu['path'].$menu['table'].'_edit', $menu);
-			else
-				/* Check for additional/custom page */
-				if (isset($this->params['x']) && !empty($this->params['x']))
-					$this->backend_view($menu['path'].$menu['table'].'_x'.$this->params['x'], $menu);
-				else
-					/* Standard page */
-					$this->backend_view($menu['path'].$menu['table'], $menu);
+			/* Standard page */
+			$this->backend_view($menu['path'].$menu['table'], $menu);
 		}
 		$this->backend_view('pages/404', ['message'=>'']);
 	}
@@ -402,6 +394,16 @@ class Systems extends Getmeb
 	function x_forgot()
 	{
 		$this->single_view('pages/systems/auth/forgot');
+	}
+	
+	function a_loginattempt()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			if (! $this->deleteRecords('a_loginattempt', $this->params->id, TRUE))
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
 	}
 	
 	/* Don't make example from a_user & a_role */
@@ -417,6 +419,11 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->protected_fields = ['user_org_id','user_role_id','api_token','password','salt','remember_token','is_online','forgotten_password_code','forgotten_password_time','ip_address','photo_file'];
+				$this->_pre_export_data();
+			}
+			
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -492,16 +499,6 @@ class Systems extends Getmeb
 			$this->boolfields = ['is_active','is_fullbpaccess'];
 			$this->nullfields = ['supervisor_id','user_role_id','user_org_id'];
 			$this->_pre_update_records();
-		}
-
-		if ($this->r_method == 'OPTIONS') {
-			debug('test');
-			if (isset($this->params->loginattempt) && $this->params->loginattempt) {
-				if (! $this->deleteRecords('a_loginattempt', $this->params->id, TRUE))
-					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-				else
-					$this->xresponse(TRUE, ['message' => $this->messages()]);
-			}
 		}
 	}
 	
@@ -681,6 +678,10 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -706,6 +707,21 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t2.code, t2.name, t2.description', $this->params['q']);
 
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				// $this->_pre_export_data();
+				$this->params['export'] = 1;
+				$this->params['select']	= "t1.is_active, t2.code, t2.name, t2.type, (select coalesce(code,'') ||'_'|| name from a_menu where id = t2.parent_id limit 1) as parent_name, t1.permit_form, t1.permit_process, t1.permit_window";
+				$this->params['table'] 	= "a_role_menu t1";
+				$this->params['join'][] = ['a_menu t2', 't1.menu_id = t2.id', 'left'];
+				$this->params['where']['t1.is_deleted']	= '0';
+				$this->params['where']['t2.is_deleted']	= '0';
+				if (! $result = $this->base_model->mget_rec($this->params))
+					$this->xresponse(FALSE, ['message' => $this->base_model->errors()]);
+				
+				$result = $this->_export_data($result, TRUE);
+				$this->xresponse(TRUE, $result);
+			}
+			
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -733,53 +749,32 @@ class Systems extends Getmeb
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
-		if ($this->r_method == 'OPTIONS') {
-			/* For copy menu from another role */
-			if (isset($this->params->x) && ($this->params->x=='copy')) {
-				$this->db->delete('a_role_menu', ['role_id'=>$this->params->role_id]);
-				$copy_role = $this->base_model->getValueArray($this->params->role_id.' as role_id, menu_id, is_active, is_readwrite','a_role_menu', 'role_id', $this->params->copy_role_id);
-				
-				if ($copy_role){
-					$error_out = [];
-					foreach($copy_role as $k=>$v){
-						if (! $this->db->insert('a_role_menu', $copy_role[$k])){
-							$copy_role['status'] = $this->db->error()['message'];
-							$error_out[] = $copy_role;
-						}
-					}
-					if (count($error_out) > 1)
-						$this->xresponse(TRUE, ['message' => $error_out]);
-					else
-						$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
-				}
-				
-				$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
-			}
-		}
 	}
 	
-	function a_role_process()
+	function a_role_menu_xcopy()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+		if ($this->r_method == 'OPTIONS') {
+			/* For copy menu from another role */
+			$copy_role = $this->base_model->getValueArray($this->params->role_id.' as role_id, menu_id, is_active, permit_form, permit_process, permit_window', 'a_role_menu', ['role_id', 'is_active', 'is_deleted'], [$this->params->copy_role_id, '1', '0']);
 			
-			if (key_exists('role_id', $this->params) && ($this->params['role_id'] != '')) 
-				$this->params['where']['t1.role_id'] = $this->params['role_id'];
-			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
-
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
-			} else {
-				$this->xresponse(TRUE, $result);
+			if ($copy_role){
+				/* Delete old role menu */
+				$this->db->delete('a_role_menu', ['role_id'=>$this->params->role_id]);
+				
+				$error_out = [];
+				foreach($copy_role as $k=>$v){
+					if (! $this->db->insert('a_role_menu', $copy_role[$k])){
+						$copy_role['status'] = $this->db->error()['message'];
+						$error_out[] = $copy_role;
+					}
+				}
+				if (count($error_out) > 1)
+					$this->xresponse(TRUE, ['message' => $error_out]);
+				else
+					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
+			
+			$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 		}
 	}
 	
@@ -817,6 +812,10 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -841,6 +840,10 @@ class Systems extends Getmeb
 
 			$this->params['where']['t1.client_id'] 	=	DEFAULT_CLIENT_ID;
 			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -863,6 +866,10 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.code, t1.name, t1.description', $this->params['q']);
 
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
 			$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
@@ -886,6 +893,10 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.code, t1.name, t1.description', $this->params['q']);
 
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -961,6 +972,10 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -983,6 +998,10 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -1010,6 +1029,10 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -1038,6 +1061,10 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -1065,6 +1092,10 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -1089,10 +1120,13 @@ class Systems extends Getmeb
 				else
 					$this->params['where']['t1.district_id'] = 0;
 
-			
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();

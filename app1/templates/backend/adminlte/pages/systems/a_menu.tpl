@@ -1,26 +1,23 @@
-{var $url_module = $.php.base_url('systems/a_menu')}
-
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Main content -->
-    <section class="content">
-      <!-- /.row -->
-			<div class="box box-body table-responsive no-padding"></div>
-          <!-- /.box -->
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/window_view.js"></script>
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+	<!-- Main content -->
+	<section class="content">
+		<!-- /.row -->
+		<div class="box box-body table-responsive no-padding"></div>
+				<!-- /.box -->
+	</section>
+	<!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
 <script>
-	var $url_module = "{$url_module}", $title = "{$title}", $title_desc = "{$title_desc}";
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $title = "{$title}", $title_desc = "{$title_desc}";
 	{* Get Params *}
 	var $q = getURLParameter("q"), $id = getURLParameter("id");
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		toolbar: true,
 		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process'],
-		disableBtn: ['btn-copy','btn-message','btn-print','btn-import'],
+		disableBtn: ['btn-copy','btn-message','btn-print','btn-import','btn-process'],
 		hiddenBtn: ['btn-copy','btn-message','btn-print','btn-import'],
 		processMenu: [{ id:"btn-process1", title:"Process 1" }, { id:"btn-process2", title:"Process 2" }, ],
 		processMenuDisable: ['btn-process1'],
@@ -37,7 +34,7 @@
 	{* Setup DataTables *}
 	dataTable1 = tableData1.DataTable({ "pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, 
 		"ajax": {
-			"url": '{$url_module}'+window.location.search+'&ob=id desc',
+			"url": $url_module+window.location.search+'&ob=id desc',
 			"data": function(d){ return $.extend({}, d, { "q": $q });	},
 			"dataFilter": function(data){
 				var json = jQuery.parseJSON( data );
@@ -59,11 +56,12 @@
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Type", render:function(data, type, row){ return (data=='F') ? 'FORM' : (data=='P') ? 'PROCESS' : (data=='W') ? 'WINDOW' : 'GROUP'; } },
 			{ width:"125px", orderable:false, data:"path", title:"Path" },
 			{ width:"100px", orderable:false, data:"class", title:"Class" },
-			{ width:"110px", orderable:false, data:"method", title:"Method" },
-			{ width:"110px", orderable:false, data:"table", title:"Table" },
+			{ width:"120px", orderable:false, data:"method", title:"Method" },
+			{ width:"120px", orderable:false, data:"table", title:"Table" },
 		],
 		"order": []
 	})
 	.search($q ? $q : '');
 	
 </script>
+<script src="{$.const.ASSET_URL}js/window_view.js"></script>

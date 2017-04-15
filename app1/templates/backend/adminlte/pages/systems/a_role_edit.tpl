@@ -1,53 +1,37 @@
-{var $url_module = $.php.base_url('systems/a_role')}
-
-   <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Main content -->
-    <section class="content">
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+	<!-- Main content -->
+	<section class="content">
+	</section>
+	<!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $title	= "{$title}";
 	{* Get Params *}
-	var $url_module = "{$url_module}";
-	var id = getURLParameter("id");
-	var edit = getURLParameter("edit");
-	{* Start :: Init for Title, Breadcrumb *}
-	{* Set status (new|edit|copy) to Page Title *}
-	var desc = function(edit){ if (edit==1) return "(Edit)"; else if (edit==2) return "(New)"; else return "(Copy)"; };
-	$(".content").before(BSHelper.PageHeader({ 
-		title:"{$title}", 
-		title_desc: desc(edit), 
-		bc_list:[
-			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
-			{ icon:"", title:"{$title}", link:"javascript:history.back()" },
-			{ icon:"", title: desc(edit), link:"" },
-		]
-	}));
-	
+	var id = getURLParameter("id"), act = getURLParameter("action");
+	var act_name = (act == 'new') ? "(New)" : (act == 'edt') ? "(Edit)" : (act == 'cpy') ? "(Copy)" : act;
 	{* For design form interface *}
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });	
 	var box1 = BSHelper.Box({ type:"info" });
-	var req = function(edit){ if (edit==1) return false; else if (edit==2) return true; else return true; };
 	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Name", idname:"name", required: true, placeholder:"string(60)", }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", placeholder:"string(2000)" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Can Export", idname:"is_canexport" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Can Report", idname:"is_canreport" }));
+	col.push(BSHelper.Checkbox({ horz:false, label:"Can View Log", idname:"is_canviewlog" }));
 	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Combobox({ horz:false, label:"Currency", idname:"currency_id", url:"{$.php.base_url('systems/c_currency')}", remote: true }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Supervisor", idname:"supervisor_id", url:"{$.php.base_url('systems/a_user')}", remote: true }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Can Approved Own Doc", idname:"is_canapproveowndoc" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Access All Orgs", idname:"is_accessallorgs" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Use User Org Access", idname:"is_useuserorgaccess" }));
-	col.push(BSHelper.Checkbox({ horz:false, label:"View Change Log", idname:"is_changelog" }));
 	row.push(subCol(6, col));
 	form1.append(subRow(row));
 	form1.append(subRow(subCol()));

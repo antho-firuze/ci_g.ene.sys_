@@ -162,19 +162,22 @@ class Base_Model extends CI_Model
 			$this->set_error($this->db->error()['message']);
 			return FALSE;
 		} 
+		
+		if (key_exists('export', $params) && ($params['export'])) {
+
+			return $query;
+		}
+		
 		$result = $query->result();
 		
 		if (key_exists('list', $params) && ($params['list'])) {
 			
 			return $result;
-			
-		} else {
-			
-			$response['total'] = $this->mget_rec_count($params);
-			$response['rows']  = $result;
-			return $response;
-		}
+		} 
 		
+		$response['total'] = $this->mget_rec_count($params);
+		$response['rows']  = $result;
+		return $response;
 	}
 	
 	function mget_rec_count($params = NULL)

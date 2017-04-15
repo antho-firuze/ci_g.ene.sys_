@@ -8,6 +8,26 @@
  * A script file to support export_data.tpl
  */
 /* 
+/* ========================================= */
+/* Default init for Header									 */
+/* ========================================= */
+var $pageid = getURLParameter("pageid");
+
+$( document ).ready(function() {
+	/* Start :: Init for Title, Breadcrumb */
+	var $title	= $.cookie('title'+$pageid)
+	$(".content").before(BSHelper.PageHeader({ 
+		title: $title, 
+		title_desc: act_name, 
+		bc_list:[
+			{ icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK },
+			{ icon:"", title: $title, link:"javascript:history.back()" },
+			{ icon:"", title: act_name, link:"" },
+		]
+	}));
+
+});
+/* 
 /* ==================================== */
 /* Default action for Form Export Data */
 /* ==================================== */
@@ -20,18 +40,18 @@ $( document ).ready(function() {
 		form.validator().on('submit', function(e) {
 			if (e.isDefaultPrevented()) { return false;	} 
 			
-			var data = form.serializeOBJ();
-			// console.log(data);
-			// console.log(data.is_compress);
-			// return false;
+			form.find("[type='submit']").prop( "disabled", true );
 			
-			$.getJSON( $BASE_URL+'systems', { export:1, filetype:data.filetype, is_compress:data.is_compress }, function(result){ 
-				if (!result.status){
+			var data = form.serializeOBJ();
+			
+			$.getJSON( $BASE_URL+$class+'/'+$method, { export:1, pageid:$pageid, filetype:data.filetype, is_compress:data.is_compress }, function(result){ 
+				if (!result.status) {
 					BootstrapDialog.alert(result.message);
+					form.find("[type='submit']").prop( "disabled", false );
 				} else {
-					BootstrapDialog.alert(data.message, function(){
-						window.history.back();
-					});
+					window.open(result.file_url);
+					
+					setTimeout(function(){ window.history.back(); }, 500); 
 				}
 			});
 

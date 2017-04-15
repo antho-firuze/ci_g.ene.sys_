@@ -1,16 +1,13 @@
-{var $url_module = $.php.base_url('systems/x_profile')}
-{var $url_module_a_user_config = $.php.base_url('systems/a_user_config')}
-
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-  </div>
-  <!-- /.content-wrapper -->
-
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+</div>
+<!-- /.content-wrapper -->
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/plupload/js/plupload.full.min.js"></script>
 <script>
+	var $url_module = "{$.php.base_url('systems/x_profile')}";
 	{* Start :: Init for Title, Breadcrumb & Content Body *}
 	$(".content-wrapper").append(BSHelper.PageHeader({ 
 		title:"User Profile", 
@@ -134,7 +131,7 @@
 	$(".content").append(subRow(col));
 	
 	{* Begin: Populate data to form *}
-	$.getJSON("{$url_module}?view=1", '', function(result){ 
+	$.getJSON($url_module+"?view=1", '', function(result){ 
 		if (!isempty_obj(result.data.rows)) {
 			var filename = result.data.rows[0]['photo_file'];
 			if (filename) {
@@ -145,7 +142,7 @@
 			form2.shollu_autofill('load', result.data.rows[0]);  
 		}
 	});
-	$.getJSON("{$url_module_a_user_config}", '', function(result){ 
+	$.getJSON("{$.php.base_url('systems/a_user_config')}", '', function(result){ 
 		if (!isempty_obj(result.data)) {
 			form3.shollu_autofill('load', result.data);  
 		}
@@ -153,7 +150,7 @@
 	{* End: Populate data to form *}
 	
 	{* Init data for custom element (combogrid, button etc.) *}
-	var uploader = new plupload.Uploader({ url:"{$url_module}", runtimes:"html5",
+	var uploader = new plupload.Uploader({ url: $url_module, runtimes:"html5",
 		filters: { max_file_size: "2mb", mime_types: [{ title:"Image files", extensions:"jpg,gif,png" }] },
 		browse_button: "btn_uploadphoto", 
 		multi_selection: false, 
@@ -188,7 +185,7 @@
 				onSelect: function(rowData){ 
 					if (rowData.id){
 						var data = {}; data["table"] = "a_user"; data[id] = rowData.id;
-						$.ajax({ url:"{$url_module}", method:"PUT", data: JSON.stringify(data) });	
+						$.ajax({ url: $url_module, method:"PUT", data: JSON.stringify(data) });	
 					}
 				}
 			});
@@ -204,11 +201,14 @@
 				{* e.stopPropagation; *}
 				if (e.isDefaultPrevented()) { return false;	} 
 				
-				$.ajax({ url: '{$url_module}', method:"PUT", async: true, dataType:'json',
+				$(this).find("[type='submit']").prop( "disabled", true );
+				
+				$.ajax({ url: $url_module, method:"PUT", async: true, dataType:'json',
 					data: $(this).serializeJSON(),
 					success: function(data) {
 						{* console.log(data); *}
 						BootstrapDialog.alert(data.message);
+						$(this).find("[type='submit']").prop( "disabled", false );
 					},
 					error: function(data) {
 						if (data.status==500){
@@ -217,6 +217,7 @@
 							var error = JSON.parse(data.responseText);
 							var message = error.message;
 						}
+						$(this).find("[type='submit']").prop( "disabled", false );
 						BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
 					}
 				});

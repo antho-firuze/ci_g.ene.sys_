@@ -35,15 +35,18 @@ class Getmeb extends CI_Controller
 	/* ========================================= */
 	/* This variable for UPLOAD & DOWNLOAD files */
 	/* ========================================= */
-	public $tmp_dir = APPPATH.'../var/tmp/';
+	// public $tmp_dir = APPPATH.'../var/tmp/';
+	public $tmp_dir = FCPATH.'var/tmp/';
 	public $allow_ext = 'jpg,jpeg,png,gif,xls,xlsx,doc,docx,ppt,pptx,pdf,zip,rar';
 	public $max_file_upload = '2mb';
 	
 	/* ========================================= */
 	/* This variable for IMPORT & EXPORT files */
 	/* ========================================= */
-	public $require_fields = [];
-	public $file_type = 'xls';	// csv, xls
+	public $protected_fields = [];
+	public $rel_tmp_dir = 'var/tmp/';
+	public $filetype = 'xls';	// xls, csv, pdf, html
+	public $is_compress = false;	
 	
 	function __construct() {
 		parent::__construct();
@@ -75,6 +78,8 @@ class Getmeb extends CI_Controller
 			'deleted_at'	=> date('Y-m-d H:i:s')
 		];
 
+		$this->_clear_tmp();
+		
 		/* This process is running before checking request method */
 		$this->_check_is_login();
 		/* This Request for GETTING/VIEWING Data */
@@ -91,10 +96,8 @@ class Getmeb extends CI_Controller
 			
 			/* Request for Export Data */
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				// debug($this->params);
 				/* Check permission in the role */
 				$this->_check_is_allow_inrole('canexport');
-				$this->_pre_export_data();
 			}
 		}
 		
@@ -137,7 +140,19 @@ class Getmeb extends CI_Controller
 				$this->_pre_export_data();
 			}
 		}
-		
+	}
+	
+	function _clear_tmp()
+	{
+		if ($handle = @opendir($this->tmp_dir)) {
+			while (false !== ($file = @readdir($handle))) {
+				if (! preg_match('/^(\.htaccess|index\.(html|htm|php)|web\.config)$/i', $file)) {
+					if ((time()-filectime($this->tmp_dir.$file)) > 60*60) {  
+						@unlink($this->tmp_dir.$file);
+					}
+				}
+			}
+		}
 	}
 	
 	function _check_menu($data=[])
@@ -225,7 +240,7 @@ class Getmeb extends CI_Controller
 			switch($allow->permit_form){
 			case '1':
 				/* Execute */
-				if (!in_array($this->r_method, ['POST']))
+				if (!in_array($this->r_method, ['OPTIONS']))
 					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
 				break;
 			default:
@@ -237,7 +252,7 @@ class Getmeb extends CI_Controller
 			switch($allow->permit_process){
 			case '1':
 				/* Export */
-				if (!in_array($this->r_method, ['POST']))
+				if (!in_array($this->r_method, ['OPTIONS']))
 					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
 				break;
 			default:
@@ -410,36 +425,63 @@ class Getmeb extends CI_Controller
 		}
 	}
 	
-	function _pre_export_data()
+	function _pre_export_data($return = FALSE)
 	{
+		/* Get the Table */
+		$menu = $this->base_model->getValue('*', 'a_menu', ['client_id','id'], [DEFAULT_CLIENT_ID, $this->params['pageid']]);
+		if (!$menu)
+			$this->xresponse(FALSE, ['message' => $this->lang->line('export_failed'), 'note' => '[pageid='.$this->params['pageid'].'] is not exists on [a_menu]'], 401);
+
+		if (!$this->db->table_exists($menu->table))
+			$this->xresponse(FALSE, ['message' => $this->lang->line('export_failed'), 'note' => '[pageid='.$this->params['pageid'].'][table='.$menu->table.'] does not exists'], 401);
+
+		$protected_fields = ['id','client_id','org_id','is_deleted','created_by','updated_by','deleted_by','created_at','updated_at','deleted_at'];
+		$fields = $this->db->list_fields($menu->table);
+		$fields = array_diff($fields, array_merge($protected_fields, $this->protected_fields));
+		$select = implode(',', $fields);
 		
-		$this->_export_data();
+		$this->params['export'] = 1;
+		$this->params['select'] = $select;
+		if (! $result = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			$result['data'] = [];
+			$result['message'] = $this->base_model->errors();
+			$this->xresponse(FALSE, $result);
+		}
+
+		if ($return)
+			return $result;
+		
+		$this->filetype = $this->params['filetype'];
+		$this->is_compress = $this->params['is_compress'];
+		
+		// $this->_export_data($result);
+		$result = $this->_export_data($result, TRUE);
+		$this->xresponse(TRUE, $result);
 	}
 	
-	function _export_data()
+	function _export_data($qry, $return = FALSE)
 	{
 		ini_set('memory_limit', '-1');
-		$this->load->library('Excel');
+		$this->load->library('z_libs/Excel');
 		$objPHPExcel = new PHPExcel();
 		$objPHPExcel->getProperties()->setTitle("export")->setDescription("none");
  
 		$objPHPExcel->setActiveSheetIndex(0);
 		
 		// Set the Title in the first row
-		$columns = array('A');
 		$current = 'A';
 		$col = 0;
 		foreach ($qry->list_fields() as $field) {
+			$columns[] = ($col == 0) ? $current : ++$current;
 			$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, 1, $field);
 			$col++;
-			$columns[] = ++$current;
 		}
-		
+
 		// Set the Data in the next row
 		$row = 2;
 		foreach($qry->result() as $data) {
 			$col = 0;
-			foreach ($fields as $field) {
+			foreach ($qry->list_fields() as $field) {
 				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, $row, $data->$field);
 				$col++;
 			}
@@ -451,13 +493,116 @@ class Getmeb extends CI_Controller
 			$objPHPExcel->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
 		}
 		
-		// Sending headers to force the user to download the file
-		header("Content-Type: application/vnd.ms-excel");
-		header("Content-Disposition: attachment;filename='LOGBOOK_PHD_$type.xls'");
-		header("Cache-Control: max-age=0");
+		$filename = $this->c_method.'_'.date('YmdHi').'.'.$this->filetype;
 		
-		$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
-		$objWriter->save('php://output');
+		if ($this->filetype == 'xls') {
+			if ($return){
+				$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
+				$objWriter->save($this->tmp_dir.$filename);
+				if ($this->is_compress) {
+					if(! $result = $this->_compress_file($this->tmp_dir.$filename))
+						return FALSE;
+					
+					return $result;
+				}
+				return ['filename' => $filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
+			}
+
+			$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
+			$objWriter->save('php://output');
+		}
+		if ($this->filetype == 'csv'){
+			PHPExcel_Shared_String::setDecimalSeparator('.');
+			PHPExcel_Shared_String::setThousandsSeparator(',');
+
+			if ($return){
+				$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);
+				$objWriter->save($this->tmp_dir.$filename);
+				if ($this->is_compress) {
+					if(! $result = $this->_compress_file($this->tmp_dir.$filename))
+						return FALSE;
+					
+					return $result;
+				}
+				return ['filename' => $filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
+			}
+			
+			$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);
+			$objWriter->save('php://output');
+			
+		}
+		if ($this->filetype == 'pdf'){
+			$rendererName = PHPExcel_Settings::PDF_RENDERER_MPDF;
+			$rendererLibraryPath = FCPATH.'../vendor/mpdf/mpdf/src/';
+			if (!PHPExcel_Settings::setPdfRenderer($rendererName,	$rendererLibraryPath)) {
+					die(
+							'Please set the $rendererName and $rendererLibraryPath values' .
+							PHP_EOL .
+							' as appropriate for your directory structure'
+					);
+			}
+			if ($return){
+				$objWriter = new PHPExcel_Writer_PDF($objPHPExcel);
+				$objWriter->save($this->tmp_dir.$filename);
+				if ($this->is_compress) {
+					if(! $result = $this->_compress_file($this->tmp_dir.$filename))
+						return FALSE;
+					
+					return $result;
+				}
+				return ['filename' => $filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
+			}
+			$objWriter = new PHPExcel_Writer_PDF($objPHPExcel);
+			$objWriter->save('php://output');
+		}
+		if ($this->filetype == 'html'){
+			if ($return){
+				$objWriter = new PHPExcel_Writer_HTML($objPHPExcel);
+				$objWriter->save($this->tmp_dir.$filename);
+				if ($this->is_compress) {
+					if(! $result = $this->_compress_file($this->tmp_dir.$filename))
+						return FALSE;
+					
+					return $result;
+				}
+				return ['filename' => $filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
+			}
+			
+			$objWriter = new PHPExcel_Writer_HTML($objPHPExcel);
+			$objWriter->save('php://output');
+		}
+		exit;
+	}
+	
+	function _compress_file($file)
+	{
+		$zip = new ZipArchive();
+		$pathinfo = pathinfo($file);
+		$dir = $pathinfo['dirname'];
+		$fil = $pathinfo['filename'];
+		$fbn = $pathinfo['basename'];
+		$ext = strtolower($pathinfo['extension']);
+		$filezip = $fil.'.zip';
+		$fil_tmp = $dir.'/'.$filezip;
+		if ($zip->open($fil_tmp, ZipArchive::CREATE)!==TRUE) {
+			exit("cannot open <$fil_tmp>\n");
+		}
+		$zip->addFile($file,$fbn);
+		$zip->close();
+		return ['filename' => $filezip, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filezip];
+	}
+	
+	function import_data()
+	{
+		$this->load->library('Excel');
+		$objReader = new PHPExcel_Reader_CSV();
+		$objReader->setInputEncoding('CP1252');
+		$objReader->setDelimiter(';');
+		$objReader->setEnclosure('');
+		$objReader->setLineEnding("\r\n");
+		$objReader->setSheetIndex(0);
+
+		$objPHPExcel = $objReader->load("sample.csv");
 	}
 	
 	function set_message($message)

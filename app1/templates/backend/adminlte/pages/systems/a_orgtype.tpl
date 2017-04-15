@@ -1,26 +1,23 @@
-{var $url_module = $.php.base_url('systems/a_orgtype')}
-
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Main content -->
-    <section class="content">
-      <!-- /.row -->
-			<div class="box box-body table-responsive no-padding"></div>
-			<!-- /.box -->
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/window_view.js"></script>
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+	<!-- Main content -->
+	<section class="content">
+		<!-- /.row -->
+		<div class="box box-body table-responsive no-padding"></div>
+		<!-- /.box -->
+	</section>
+	<!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
 <script>
-	var $url_module = "{$url_module}", $title = "{$title}", $title_desc = "{$title_desc}";
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $title = "{$title}", $title_desc = "{$title_desc}";
 	{* Get Params *}
 	var $q = getURLParameter("q"), $id = getURLParameter("id");
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		toolbar: true,
 		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process'],
-		disableBtn: ['btn-copy','btn-message','btn-print','btn-import'],
+		disableBtn: ['btn-copy','btn-message','btn-print','btn-import','btn-process','btn-process'],
 		hiddenBtn: ['btn-copy','btn-message','btn-print','btn-import'],
 		processMenu: [{ id:"btn-process1", title:"Process 1" }, { id:"btn-process2", title:"Process 2" }, ],
 		processMenuDisable: ['btn-process1'],
@@ -37,7 +34,7 @@
 	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="width:100%; table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
 	dataTable1 = tableData1.DataTable({ "pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, 
 		"ajax": {
-			"url": '{$url_module}'+window.location.search+'&ob=id desc',
+			"url": $url_module+window.location.search+'&ob=id desc',
 			"data": function(d){ return $.extend({}, d, { "q": $q });	},
 			"dataFilter": function(data){
 				var json = jQuery.parseJSON( data );
@@ -59,3 +56,4 @@
 	.search($q ? $q : '');
 	
 </script>
+<script src="{$.const.ASSET_URL}js/window_view.js"></script>

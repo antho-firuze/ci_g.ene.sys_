@@ -1,52 +1,32 @@
-{var $url_module = $.php.base_url('systems/a_role_menu')}
-{var $url_module_main = $.php.base_url('systems/a_role')}
+{var $url_copyrole = $.php.base_url('systems/a_role_menu_xcopy')}
 
-   <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Main content -->
-    <section class="content">
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+	<!-- Main content -->
+	<section class="content">
+	</section>
+	<!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $title	= "{$title}";
 	{* Get Params *}
-	var x = getURLParameter("x");
-	var role_id = getURLParameter("role_id");
-	{* Start :: Init for Title, Breadcrumb *}
-	{* Set status (new|edit|copy) to Page Title *}
-	var desc = function(x){ if (x=='copy') return "(Copy Menu From Role...)"; };
-	$(".content").before(BSHelper.PageHeader({ 
-		title: "{$title}", 
-		title_desc: "{$title_desc}", 
-		bc_list:[
-			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
-			{ icon:"", title:"Role Access", link:"javascript:history.back()" },
-			{ icon:"", title:"{$title}", link:"javascript:history.back()" },
-			{ icon:"", title: desc(x), link:"" },
-		]
-	}));
-	{* Additional for sub module *}
-	$.getJSON('{$url_module_main}', { "id": (role_id==null)?-1:role_id }, function(result){ 
-		if (!isempty_obj(result.data.rows)) {
-			var code_name = ": "+result.data.rows[0].code_name;
-			$('.content-header').find('h1').find('small').before(code_name);
-		}
-	});
-
+	var id = getURLParameter("id"), act = getURLParameter("action"), key = getURLParameter("key"), val = getURLParameter("val");
+	var act_name = "(Copy Menu From Role...)";
 	{* For design form interface *}
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });	
 	var box1 = BSHelper.Box({ type:"info" });
-	{* adding master key id *}
-	col.push(BSHelper.Input({ type:"hidden", idname:"role_id", value:role_id }));
-	col.push(BSHelper.Input({ type:"hidden", idname:"x", value:x }));
+	{* adding master key id & value *}
+	col.push(BSHelper.Input({ type:"hidden", idname: key, value: val }));
+	{* Start here to custom *}
+	col.push(BSHelper.Input({ type:"hidden", idname:"action", value: act }));
 	{* standard fields table *}
 	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Please Choose Role to be copied !", idname:"copy_role_id", required:true, url:"{$.php.base_url('systems/a_role')}?filter=t1.id<>"+role_id, remote: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Please Choose Role to be copied !", idname:"copy_role_id", required:true, url:"{$.php.base_url('systems/a_role')}?filter=t1.id<>"+val, remote: true }));
 	form1.append(subRow(subCol(6, col)));
 	form1.append(subRow(subCol()));
 	col = [];
@@ -62,7 +42,9 @@
 		{* e.stopPropagation; *}
 		if (e.isDefaultPrevented()) { return false;	} 
 		
-		$.ajax({ url: "{$url_module}", method:"OPTIONS", async: true, dataType:'json',
+		form1.find("[type='submit']").prop( "disabled", true );
+		
+		$.ajax({ url: "{$url_copyrole}", method:"OPTIONS", async: true, dataType:'json',
 			data: form1.serializeJSON(),
 			success: function(data) {
 				{* console.log(data); *}
@@ -77,6 +59,7 @@
 					var error = JSON.parse(data.responseText);
 					var message = error.message;
 				}
+				form1.find("[type='submit']").prop( "disabled", false );
 				BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
 			}
 		});

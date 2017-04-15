@@ -1,6 +1,6 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-require_once( FCPATH.'../vendor/fenom/fenom/src/Fenom.php' );
+require_once( FCPATH . '../vendor/autoload.php' );
 
 class Fenomx extends Fenom
 {

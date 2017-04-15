@@ -1,40 +1,26 @@
-{var $url_module = $.php.base_url('systems/a_user')}
-
-   <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-     <!-- Main content -->
-    <section class="content">
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-{* <script src="{$.const.ASSET_URL}js/window_edit.js"></script> *}
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+	 <!-- Main content -->
+	<section class="content">
+	</section>
+	<!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
+<script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/plupload/js/plupload.full.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $title	= "{$title}", auto_populate = false;
 	{* Get Params *}
-	var id = getURLParameter("id");
-	var edit = getURLParameter("edit");
-	{* Start :: Init for Title, Breadcrumb *}
-	{* Set status (new|edit|copy) to Page Title *}
-	var desc = function(edit){ if (edit==1) return "(Edit)"; else if (edit==2) return "(New)"; else return "(Copy)"; };
-	$(".content").before(BSHelper.PageHeader({ 
-		title:"{$title}", 
-		title_desc: desc(edit), 
-		bc_list:[
-			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
-			{ icon:"", title:"{$title}", link:"javascript:history.back()" },
-			{ icon:"", title: desc(edit), link:"" },
-		]
-	}));
-
+	var id = getURLParameter("id"), act = getURLParameter("action");
+	var act_name = (act == 'new') ? "(New)" : (act == 'edt') ? "(Edit)" : (act == 'cpy') ? "(Copy)" : act;
 	{* For design form interface *}
 	var col = [], row = [], a = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info" });
-	var req = function(edit){ if (edit==1) return false; else if (edit==2) return true; else return true; };
+	var req = (act == 'new') ? true : (act == 'edt') ? false : true;
 	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
 	col.push(BSHelper.Input({ type:"hidden", idname:"photo_file" }));
 	col.push( $('<div style="text-align:center;width:100%;" />')
@@ -43,7 +29,7 @@
 		.append( '&nbsp;&nbsp;&nbsp;' ) 
 		.append( BSHelper.Button({ type:"button", label:"Generate Image", idname:"btn_generatephoto", 
 			onclick:"$.ajax({ 
-				url:'{$url_module}',
+				url:$url_module,
 				data: JSON.stringify({ genphoto:1, id:$('#id').val(), name:$('#name').val(), photo_file:$('#photo_file').val() }),
 				method:'PUT', async: true, dataType:'json', 
 				success: function(data){	
@@ -56,9 +42,9 @@
 		}) ) 
 	);
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"User Name", idname:"name", required: true, placeholder:"string(60)", }));
-	a.push(subCol(6, BSHelper.Input({ type:"password", label:"", idname:"password", required: req(edit), placeholder:"Password", minlength:6, help:"Minimum of 6 characters" })));
-	a.push(subCol(6, BSHelper.Input({ type:"password", label:"", idname:"password_confirm", required: req(edit), placeholder:"Confirm", idmatch:"password", errormatch:"Whoops, these don't match" })));
-	col.push(BSHelper.Label({ horz:false, label:"Password", idname:"password", required: req(edit), elcustom:subRow(a) }));
+	a.push(subCol(6, BSHelper.Input({ type:"password", label:"", idname:"password", required: req, placeholder:"Password", minlength:6, help:"Minimum of 6 characters" })));
+	a.push(subCol(6, BSHelper.Input({ type:"password", label:"", idname:"password_confirm", required: req, placeholder:"Confirm", idmatch:"password", errormatch:"Whoops, these don't match" })));
+	col.push(BSHelper.Label({ horz:false, label:"Password", idname:"password", required: req, elcustom:subRow(a) }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", placeholder:"string(2000)" }));
 	row.push(subCol(6, col));
 	col = [];
@@ -80,7 +66,7 @@
 
 	{* Begin: Populate data to form *}
 	$("img.profile-user-img").css("display", "none");
-	$.getJSON('{$url_module}', { "id": (id==null)?-1:id }, function(result){ 
+	$.getJSON($url_module, { "id": (id==null)?-1:id }, function(result){ 
 		if (!isempty_obj(result.data.rows)) {
 			var filename = result.data.rows[0]['photo_file'];
 			if (filename) {
@@ -119,31 +105,4 @@
 	});
 	uploader.init();
 
-	
-	{* Form submit action *}
-	form1.validator().on('submit', function (e) {
-		{* e.stopPropagation; *}
-		if (e.isDefaultPrevented()) { return false;	} 
-		
-		$.ajax({ url: '{$url_module ~ "?id="}'+id, method:(edit==1?"PUT":"POST"), async: true, dataType:'json',
-			data: form1.serializeJSON(),
-			success: function(data) {
-				{* console.log(data); *}
-				BootstrapDialog.alert('Saving data successfully !', function(){
-					window.history.back();
-        });
-			},
-			error: function(data) {
-				if (data.status==500){
-					var message = data.statusText;
-				} else {
-					var error = JSON.parse(data.responseText);
-					var message = error.message;
-				}
-				BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
-			}
-		});
-
-		return false;
-	});
 </script>

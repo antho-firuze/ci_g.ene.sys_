@@ -1,30 +1,25 @@
-{var $url_module = $.php.base_url('sales/swg_price_calc')}
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+	<!-- Main content -->
+	<section class="content">
 
-   <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Main content -->
-    <section class="content">
+		<!-- Default box -->
+		<div class="box">
+			<div class="box-body">
+			</div>
+		</div>
+		<!-- /.box -->
 
-      <!-- Default box -->
-      <div class="box">
-				<div class="box-body">
-				</div>
-      </div>
-      <!-- /.box -->
-
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
+	</section>
+	<!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
-	{* Get Params *}
-	var $q = getURLParameter("q");
-	var $id = getURLParameter("id");
-	var $url_module = "{$url_module}";
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}";
 	{* Default init for for Title, Breadcrumb *}
 	$(".content").before(BSHelper.PageHeader({ 
 		title:"{$title}", 
@@ -173,7 +168,9 @@
 		{* e.stopPropagation; *}
 		if (e.isDefaultPrevented()) { return false;	} 
 		
-		$.ajax({ url: '{$url_module}', method: "POST", async: true, dataType: 'json',
+		formContent.find("[type='submit']").prop( "disabled", true );
+		
+		$.ajax({ url: $url_module, method: "POST", async: true, dataType: 'json',
 			data: formContent.serializeJSON(),
 			success: function(data) {
 				{* console.log(data.data); *}
@@ -191,6 +188,7 @@
 				}
 				$content.append( subCol(12, a ) );
 				BootstrapDialog.show({ type:BootstrapDialog.TYPE_PRIMARY, title:'Result !', message:$content });
+				formContent.find("[type='submit']").prop( "disabled", false );
 			},
 			error: function(data) {
 				if (data.status==500){
@@ -199,6 +197,7 @@
 					var error = JSON.parse(data.responseText);
 					var message = error.message;
 				}
+				formContent.find("[type='submit']").prop( "disabled", false );
 				BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
 			}
 		});

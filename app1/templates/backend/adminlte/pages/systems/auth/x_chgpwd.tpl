@@ -1,16 +1,15 @@
-{var $url_module = $.php.base_url('systems/x_chgpwd')}
-
-   <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Main content -->
-    <section class="content">
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+	<!-- Main content -->
+	<section class="content">
+	</section>
+	<!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script>
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}";
 	{* Start :: Init for Title, Breadcrumb *}
 	$(".content").before(BSHelper.PageHeader({ 
 		title:"{$title}", 
@@ -40,7 +39,7 @@
 	$(".content").append(box1);
 	
 	{* Begin: Populate data to form *}
-	$.getJSON('{$url_module}', '', function(result){ 
+	$.getJSON($url_module, '', function(result){ 
 		if (!isempty_obj(result.data.rows)) 
 			form1.shollu_autofill('load', result.data.rows[0]);  
 	});
@@ -51,7 +50,7 @@
 		{* e.stopPropagation; *}
 		if (e.isDefaultPrevented()) { return false;	} 
 		
-		$.ajax({ url: '{$url_module}', method:"PUT", async: true, dataType:'json',
+		$.ajax({ url: $url_module, method:"PUT", async: true, dataType:'json',
 			data: JSON.stringify({ "password_new": $("#password_new").val() }), 
 			headers: { "X-AUTH": "Basic " + btoa($("#name").val() + ":" + $("#password").val())	},
 			beforeSend: function(xhr) {	form1.find('[type="submit"]').attr("disabled", "disabled"); },
@@ -62,7 +61,7 @@
 				{* console.log(data); *}
 				BootstrapDialog.alert('Password has beed changed !', function(){
 					form1.shollu_autofill("reset");
-					$.getJSON('{$url_module}', '', function(result){ 
+					$.getJSON($url_module, '', function(result){ 
 						if (!isempty_obj(result.data.rows)) 
 							form1.shollu_autofill('load', result.data.rows[0]);  
 					});

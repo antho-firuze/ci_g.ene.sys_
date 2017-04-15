@@ -42,7 +42,6 @@ function setToolbarBtn(btnList)
 
 function initToolbarButton()
 {
-	
 	if (!Toolbar_Init.toolbar)
 		return false;
 	
@@ -66,34 +65,122 @@ function initToolbarButton()
 		$.each(Toolbar_Init.processMenuDisable, function(k,v){
 			$('#'+v).parent().addClass('disabled');
 		});
+		$.each(Toolbar_Init.processMenuHidden, function(k,v){
+			$('#'+v).css( "display", "none" );
+		});
 	}
 }
+
+function initCheckList(tableData1, dataTable1){
+	/* {* Don't change this code: Init for iCheck Plugin *} */
+	var iCounter=0;
+	var head_cb = tableData1.find('input[type="checkbox"].head-check');
+	head_cb.iCheck({ checkboxClass: 'icheckbox_flat-blue', radioClass: 'iradio_flat-blue' });
+	
+	dataTable1.on( 'draw.dt', function () {
+		var count_rows = dataTable1.rows().data().length;
+		var line_cb = tableData1.find('input[type="checkbox"].line-check');
+		line_cb.iCheck({ checkboxClass: 'icheckbox_flat-blue', radioClass: 'iradio_flat-blue' });
+		line_cb.on('ifChecked', function(){
+			// console.log("Debug: Line-Check (True)");
+			if (iCounter==0) dataTable1.rows().deselect();
+			dataTable1.row( $(this).parents('tr') ).select();
+			iCounter++;
+			
+			if (count_rows==iCounter) { head_cb.data("clicks", true).iCheck('check'); }
+		});
+		line_cb.on('ifUnchecked', function(){
+			dataTable1.row( $(this).parents('tr') ).deselect();
+			iCounter--;
+			
+			if (count_rows!=iCounter) { head_cb.data("clicks", false).iCheck('uncheck'); }
+		});
+	} );
+
+	/* {* Don't change this code: Init for btn-check *} */
+	head_cb.on('ifClicked', function(){
+		// console.log("Debug: Head-Check (ifClicked)");
+		var clicks = head_cb.data('clicks');
+		if (clicks) {
+			dataTable1.rows().deselect();
+			/* {* tableData1.find('tr[role="row"]').removeClass("selected"); *} */
+			tableData1.find('input[type="checkbox"]').iCheck("uncheck");
+		} else {
+			dataTable1.rows().select();
+			/* {* tableData1.find('tr[role="row"]').addClass("selected"); *} */
+			tableData1.find('input[type="checkbox"]').iCheck("check");
+		}
+		head_cb.data("clicks", !clicks);
+	});
+	
+	/* {* Don't change this code: This is for (Checked & Unchecked) or (Selected & Unselected) on DataTable *} */
+	tableData1.find('tbody').on( 'click', 'tr', function () {
+		var count_rows = dataTable1.rows().data().length;
+		var count_selected = dataTable1.rows('.selected').data().length;
+		
+		if (count_selected !== count_rows) {
+			
+			if (count_selected <= 1){ 
+				tableData1.find('input[type="checkbox"]').iCheck("uncheck");
+				dataTable1.row($(this)).select();
+			}
+			
+			if (count_selected > 1) {
+				var selected = $(this).hasClass('selected');
+				if (selected)
+					tableData1.find('.selected input[type="checkbox"]').iCheck("check");
+				else
+					$(this).find('input[type="checkbox"]').iCheck("uncheck");
+			}	
+				
+			$('#btn-check').data("clicks", false).removeClass("glyphicon-check").addClass('glyphicon-unchecked');
+		} 
+		
+		if (count_selected == count_rows) {
+			$(this).find('input[type="checkbox"]').iCheck("check");
+			$('#btn-check').data("clicks", true).removeClass("glyphicon-unchecked").addClass('glyphicon-check');
+		}
+	});
+};
 
 /* ========================================= */
 /* Default init for Header									 */
 /* ========================================= */
-$( document ).ready(function() {
+// $( document ).ready(function() {
 	/* Start :: Init for Title, Breadcrumb */
-	$( document ).ready(function() {
-		$(".content").before(BSHelper.PageHeader({ 
-			title: $title, 
-			title_desc: $title_desc, 
-			bc_list:[
+	if (typeof($is_submodule) == 'undefined') $is_submodule = false;
+	if ($is_submodule) {
+		var $mainpageid = getURLParameter("mainpageid"); 
+		var $code_name = $.cookie('code_name'+$mainpageid);
+		var $maintitle = $.cookie('maintitle'+$mainpageid);
+		var breadcrumb = [
+				{ icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK },
+				{ icon:"", title: $maintitle, link:"javascript:history.back()" },
+				{ icon:"", title: $title, link:"" },
+			];
+		$title = $title + ': ' + $code_name;
+	} else {
+		var breadcrumb = [
 				{ icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK },
 				{ icon:"", title: $title, link:"" },
-			]
-		}));
-	});
+			];
+	}
+	
+	$(".content").before(BSHelper.PageHeader({ 
+		title: $title, 
+		title_desc: $title_desc, 
+		bc_list: breadcrumb
+	}));
 
 	/* Init for Toolbar Button */
 	initToolbarButton();
 
-});
+// });
 
 /* ========================================= */
 /* Default init for dataTables  */
 /* ========================================= */
-$( document ).ready(function() {
+// $( document ).ready(function() {
 	
 	/* For parsing URL Parameters */
 	var origin_url = window.location.origin+window.location.pathname;
@@ -104,13 +191,28 @@ $( document ).ready(function() {
 		history.pushState({}, '', origin_url +'?'+ $url);
 	});		
 	
-	DTHelper.initCheckList(tableData1, dataTable1);
+	// DTHelper.initCheckList(tableData1, dataTable1);
+	initCheckList(tableData1, dataTable1);
 	
 	$('div.dataTables_wrapper').find('div.row:first').insertBefore('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_filter');
 	$('div.dataTables_wrapper').find('div.row:last').insertAfter('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_paginate');
 	$('div.box').css('margin-bottom','10px');
 	
-});
+	/* For Right Button if Exists */
+	tableData1.find('tbody').on( 'click', '.aRBtn', function () {
+		var data = dataTable1.row( $(this).parents('tr') ).data();
+		
+		/* Set Main Title & code_name to Cookies */
+		$.cookie('maintitle'+$pageid, $title);
+		$.cookie('code_name'+$pageid, data.code_name);
+		
+		var pageid = $(this).data('pageid');
+		var key 	 = $(this).data('key');
+		var url = $BASE_URL+"systems/x_page?pageid="+pageid+"&mainpageid="+$pageid+"&key="+key+"&val="+data.id;
+		window.location.href = url;
+	});
+	
+// });
 
 /* ==================================== */
 /* Default action for Form CRUD Toolbar */
@@ -224,7 +326,10 @@ $(document.body).click('button', function(e){
 			});
 			break;
 		case 'btn-export':
-			window.location.href = getURLOrigin()+window.location.search+"&export=1";
+			/* Set Main Title & code_name to Cookies */
+			var $pageid = getURLParameter("pageid");
+			$.cookie('title'+$pageid, $title);
+			window.location.href = getURLOrigin()+window.location.search+"&action=exp";
 			break;
 	}
 	

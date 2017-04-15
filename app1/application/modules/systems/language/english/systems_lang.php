@@ -15,6 +15,10 @@
 */
 $lang['testing']						= 'English';
 
+// Module EXPORT
+$lang['export_failed']					= 'Export Data Failed !';
+$lang['import_failed']					= 'Import Data Failed !';
+
 //Navigation Bar
 $lang['nav_dash']		= "Dashboard";
 $lang['nav_view_site']		= "View Site";

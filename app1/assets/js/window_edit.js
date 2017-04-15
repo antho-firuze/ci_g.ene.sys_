@@ -118,7 +118,9 @@ $( document ).ready(function() {
 		
 		form.validator().on('submit', function(e) {
 			if (e.isDefaultPrevented()) { return false;	} 
-			var r_method = (act == 'new') ? 'POST' : 'PUT';
+			var r_method = (act == 'new') ? 'POST' : (act == 'cpy') ? 'POST' : 'PUT';
+			
+			form.find("[type='submit']").prop( "disabled", true );
 			
 			$.ajax({ url: $url_module, method: r_method, async: true, dataType:'json',
 				data: form.serializeJSON(),
@@ -134,6 +136,7 @@ $( document ).ready(function() {
 						var error = JSON.parse(data.responseText);
 						var message = error.message;
 					}
+					form.find("[type='submit']").prop( "disabled", false );
 					BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
 				}
 			});

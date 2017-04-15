@@ -1,22 +1,20 @@
-{var $url_module = $.php.base_url('systems/a_menu')}
-
-   <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Main content -->
-    <section class="content">
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+	<!-- Main content -->
+	<section class="content">
+	</section>
+	<!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
-	var $url_module = "{$url_module}", $title	= "{$title}";
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $title	= "{$title}";
 	{* Get Params *}
 	var id = getURLParameter("id"), act = getURLParameter("action");
-	var act_name = (act == 'new') ? "(New)" : (act == 'edt') ? "(Edit)" : (act == 'cpy') ? "(Copy)" : "(Unknown)";
+	var act_name = (act == 'new') ? "(New)" : (act == 'edt') ? "(Edit)" : (act == 'cpy') ? "(Copy)" : act;
 	{* For design form interface *}
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });	

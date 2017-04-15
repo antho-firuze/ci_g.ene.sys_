@@ -57,6 +57,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/slimScroll/jquery.slimscroll.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/fastclick/fastclick.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/autoComplete/jquery.auto-complete.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/jquery-cookie/jquery.cookie.js"></script>
 <script src="{$.const.TEMPLATE_URL}dist/js/app.min.js"></script>
 <script src="{$.const.ASSET_URL}js/common.extend.func.js"></script>
 <script src="{$.const.ASSET_URL}js/bootstrap.helper.js"></script>

@@ -1330,42 +1330,26 @@ if ( ! function_exists('getURL_Index'))
 
 
 /* Begin::Debugging  */
-if ( ! function_exists('out'))
-{
-	function out($data='')
-	{
-		$ci =& get_instance();
-		
-		if ( is_array($data) ){
-			var_dump($data);
-		} elseif ( is_object($data) ){
-			$ci->output->set_content_type('application/json');
-			$ci->output->set_output(json_encode($data));
-		} else {
-			$ci->output->set_output($data);
-		}
-	}
-}
-
-if ( ! function_exists('debug'))
+if (! function_exists('debug'))
 {
 	function debug($data='')
 	{
-		// $ci =& get_instance();
-		// $ci->load->helper('file');
-		// write_file(APPPATH.'logs/debug.txt', $data);
-		
 		echo var_dump($data); exit;
-    /* 
-		if ( ! write_file(APPPATH.'logs/debug.txt', $data))
-    {
-			echo 'Unable to write the file';
-    }
-    else
-    {
-			echo 'File written!';
-    } 
-		*/
+	}
+}
+
+if (! function_exists('debugf'))
+{
+	function debugf($data='')
+	{
+		$ci =& get_instance();
+		$ci->load->helper('file');
+		
+		$file = APPPATH.'logs/debug.txt';
+		
+		$str = read_file($file);
+		$newstr = var_dump($data)."\r\n".$str;
+		write_file($file, $newstr);
 	}
 }
 /* End::Debugging  */

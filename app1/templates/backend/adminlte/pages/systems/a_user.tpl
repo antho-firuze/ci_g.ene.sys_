@@ -1,30 +1,26 @@
-{var $url_module = $.php.base_url('systems/a_user')}
-{var $url_loginattempt = $.php.base_url('systems/a_loginattempt')}
-
-  <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Main content -->
-    <section class="content">
-      <!-- /.row -->
-			<div class="box box-body table-responsive no-padding"></div>
-			<!-- /.box -->
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/window_view.js"></script>
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+	<!-- Main content -->
+	<section class="content">
+		<!-- /.row -->
+		<div class="box box-body table-responsive no-padding"></div>
+		<!-- /.box -->
+	</section>
+	<!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
 <script>
-	var $url_module = "{$url_module}", $title = "{$title}", $title_desc = "{$title_desc}";
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $title = "{$title}", $title_desc = "{$title_desc}";
 	{* Get Params *}
-	var $q = getURLParameter("q"), $id = getURLParameter("id");
+	var $q = getURLParameter("q"), $id = getURLParameter("id"), $pageid = getURLParameter("pageid");
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		toolbar: true,
 		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process'],
 		disableBtn: ['btn-copy','btn-message','btn-print','btn-import'],
 		hiddenBtn: ['btn-copy','btn-message','btn-print','btn-import'],
-		processMenu: [{ id:"btn-process1", title:"Reset Login Attempt" }, { id:"btn-process2", title:"Process #2" }, ],
-		processMenuDisable: ['btn-process2'],
+		processMenu: [{ id:"btn-process1", title:"Reset Login Attempt" }, ],
+		processMenuDisable: [],
 	};
 	{* Defining Left Button for Datatables *}
 	var aLBtn = [];
@@ -33,14 +29,14 @@
 	aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs btn-danger glyphicon glyphicon-trash" title="Delete" name="btn-delete" />');
 	{* Defining Right Button for Datatables *}
 	var aRBtn = [];
-	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=31>Role</a></span>');
-	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=32>Org</a></span>');
-	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=33>Subs</a></span>');
+	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=31 data-key="user_id">Role</a></span>');
+	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=32 data-key="user_id">Org</a></span>');
+	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=33 data-key="user_id">Subs</a></span>');
 	{* Setup DataTables *}
 	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="width:100%; table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
 	dataTable1 = tableData1.DataTable({ "pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, 
 		"ajax": {
-			"url": '{$url_module}'+window.location.search+'&ob=id desc',
+			"url": $url_module+window.location.search+'&ob=id desc',
 			"data": function(d){ return $.extend({}, d, { "q": $q });	},
 			"dataFilter": function(data){
 				var json = jQuery.parseJSON( data );
@@ -63,15 +59,6 @@
 		"order": []
 	})
 	.search($q ? $q : '');
-	
-	{* For class aRBtn *}
-	tableData1.find('tbody').on( 'click', '.aRBtn', function () {
-		var data = dataTable1.row( $(this).parents('tr') ).data();
-		
-		var pageid = $(this).data('pageid');
-		var url = "{$.php.base_url('systems/x_page?pageid=')}"+pageid+"&user_id="+data.id;
-		window.location.href = url;
-	});
 	
 	{* btn-process1 in Toolbar *}
 	$(document.body).click('button', function(e){
@@ -96,7 +83,7 @@
 							var button = this;
 							button.spin();
 							
-							$.ajax({ url: '{$url_module}', method: "OPTIONS", async: true, dataType: 'json',
+							$.ajax({ url: '{$.php.base_url('systems/a_loginattempt')}', method: "OPTIONS", async: true, dataType: 'json',
 								data: JSON.stringify({ loginattempt:1, id:ids.join() }),
 								success: function(data) {
 									dialog.close();
@@ -130,3 +117,4 @@
 	});	
 	
 </script>
+<script src="{$.const.ASSET_URL}js/window_view.js"></script>

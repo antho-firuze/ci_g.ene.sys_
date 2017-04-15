@@ -1,40 +1,24 @@
-{var $url_module = $.php.base_url('systems/a_org')}
-
-   <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Main content -->
-    <section class="content">
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+	<!-- Main content -->
+	<section class="content">
+	</section>
+	<!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $title	= "{$title}";
 	{* Get Params *}
-	var $url_module = "{$url_module}";
-	var id = getURLParameter("id");
-	var edit = getURLParameter("edit");
-	{* Start :: Init for Title, Breadcrumb *}
-	{* Set status (new|edit|copy) to Page Title *}
-	var desc = function(edit){ if (edit==1) return "(Edit)"; else if (edit==2) return "(New)"; else return "(Copy)"; };
-	$(".content").before(BSHelper.PageHeader({ 
-		title:"{$title}", 
-		title_desc: desc(edit), 
-		bc_list:[
-			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
-			{ icon:"", title:"{$title}", link:"javascript:history.back()" },
-			{ icon:"", title: desc(edit), link:"" },
-		]
-	}));
-	
+	var id = getURLParameter("id"), act = getURLParameter("action");
+	var act_name = (act == 'new') ? "(New)" : (act == 'edt') ? "(Edit)" : (act == 'cpy') ? "(Copy)" : act;
 	{* For design form interface *}
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });	
 	var box1 = BSHelper.Box({ type:"info" });
-	var req = function(edit){ if (edit==1) return false; else if (edit==2) return true; else return true; };
 	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Code", idname:"code", required: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Name", idname:"name", required: true }));

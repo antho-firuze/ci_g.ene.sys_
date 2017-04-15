@@ -1,39 +1,29 @@
-   <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Main content -->
-    <section class="content">
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+	<!-- Main content -->
+	<section class="content">
+	</section>
+	<!-- /.content -->
+</div>
+<!-- /.content-wrapper -->
 <script src="{$.const.ASSET_URL}js/export_data.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
+	var $class = "{$class}", $method = "{$method}";
 	{* Get Params *}
-	var q = getURLParameter("q");
-	var exp = getURLParameter("export");
-	{* Start :: Init for Title, Breadcrumb *}
-	var desc = function(x){ if (x) return "Export data"; };
-	$(".content").before(BSHelper.PageHeader({ 
-		title: "{$title}", 
-		title_desc: desc(exp), 
-		bc_list:[
-			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
-			{ icon:"", title:"{$title}", link:"javascript:history.back()" },
-			{ icon:"", title: desc(exp), link:"" },
-		]
-	}));
-
+	var id = getURLParameter("id"), act = getURLParameter("action");
+	var act_name = "(Export Data...)";
 	{* For design form interface *}
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });	
 	var box1 = BSHelper.Box({ type:"info" });
-	col.push(BSHelper.Combobox({ label:"File Type", idname:"filetype", required: true, 
+	col.push(BSHelper.Combobox({ label:"File Type", idname:"filetype", required: true, value: 'xls',
 		list:[
 			{ id:"xls", name:"Excel File (.xls)" },
 			{ id:"pdf", name:"Acrobat File (.pdf)" },
 			{ id:"csv", name:"Comma Separated Values File (.csv)" },
+			{ id:"html", name:"Hyper Text Markup Language File (.html)" },
 		] 
 	}));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Compress The File (.zip)", idname:"is_compress", help:"Compress output file (xls/pdf/csv) to ZIP File (.zip)" }));
