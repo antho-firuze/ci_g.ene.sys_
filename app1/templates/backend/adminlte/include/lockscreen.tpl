@@ -52,23 +52,29 @@
 
 	function lock_the_screen(){
 		store($lockscreen, 1);
+		$.cookie('_usr_state', 2);
+
 		lockscreen.slideDown('fast');
-		$(document).idleTimer("destroy");
+		{* $(document).idleTimer("destroy"); *}
+		$(document).idleTimer({ idle:true });
 	}
 
 	function unlock_the_screen(){
 		store($lockscreen, 0);
+		$.cookie('_usr_state', 1);
+		
 		lockscreen.slideUp('fast');
 		init_screen_timeout();
 	}
 	
 	function init_screen_timeout(){
-		$(document).idleTimer("destroy");
 		$(document).idleTimer(parseInt(get($screen_timeout)));
+		$(document).idleTimer("reset");
 	}
 	
 	init_screen_timeout();
 	$(document).on("idle.idleTimer", function(event, elem, obj){ lock_the_screen(); });
+	$(document).on("active.idleTimer", function(event, elem, obj){ $(document).idleTimer("reset"); });
 	
 	form_lck.submit( function(e) {
 		e.preventDefault();

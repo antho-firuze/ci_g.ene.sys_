@@ -1348,7 +1348,9 @@ if (! function_exists('debugf'))
 		$file = APPPATH.'logs/debug.txt';
 		
 		$str = read_file($file);
-		$newstr = var_dump($data)."\r\n".$str;
+		$type = is_array($data) ? 'Array: ' : is_object($data) ? 'Object: ' : is_bool($data) ? 'Boolean: ' : 'String: ';
+		$data = is_array($data) || is_object($data) ? $type.http_build_query($data, '', ';') : $type.$data;
+		$newstr = date('Y-m-d H:i').' '.$data."\r\n".$str;
 		write_file($file, $newstr);
 	}
 }

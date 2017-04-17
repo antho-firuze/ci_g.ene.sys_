@@ -6,7 +6,6 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/export_data.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
@@ -38,3 +37,4 @@
 	$(".content").append(box1);
 
 </script>
+<script src="{$.const.ASSET_URL}js/export_data.js"></script>

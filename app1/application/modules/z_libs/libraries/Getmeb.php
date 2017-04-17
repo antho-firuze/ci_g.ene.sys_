@@ -144,6 +144,15 @@ class Getmeb extends CI_Controller
 	
 	function _clear_tmp()
 	{
+		/* Note: 60(sec) x 60(min) x 2-24(hour) x 2~(day) */
+		
+		/* Check & Execute for every 1 hour */
+		if (!empty($cookie = $this->input->cookie('_clear_tmp'))) {
+			if ((time()-$cookie) < 60*60) 
+				return;
+		}
+				
+		setcookie('_clear_tmp', time());
 		if ($handle = @opendir($this->tmp_dir)) {
 			while (false !== ($file = @readdir($handle))) {
 				if (! preg_match('/^(\.htaccess|index\.(html|htm|php)|web\.config)$/i', $file)) {
@@ -589,6 +598,8 @@ class Getmeb extends CI_Controller
 		}
 		$zip->addFile($file,$fbn);
 		$zip->close();
+		/* remove master file */
+		@unlink($file);
 		return ['filename' => $filezip, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filezip];
 	}
 	

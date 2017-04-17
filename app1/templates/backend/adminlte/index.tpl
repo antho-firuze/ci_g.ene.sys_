@@ -46,7 +46,7 @@
 	store($screen_timeout, "{$.session.screen_timeout !: 60000}");
 </script>
 <script src="{$.const.TEMPLATE_URL}plugins/jQuery/jquery-3.2.0.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/idletimer/idle-timer.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/idletimer/idle-timer.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/pace/pace.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}bootstrap/js/bootstrap.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-dialog/js/bootstrap-dialog.min.js"></script>
@@ -61,7 +61,6 @@
 <script src="{$.const.TEMPLATE_URL}dist/js/app.min.js"></script>
 <script src="{$.const.ASSET_URL}js/common.extend.func.js"></script>
 <script src="{$.const.ASSET_URL}js/bootstrap.helper.js"></script>
-<script src="{$.const.ASSET_URL}js/datatables.helper.js"></script>
 </head>
 <body class="hold-transition sidebar-mini">
 <!-- Site wrapper -->
@@ -127,5 +126,6 @@
 	});
   
 </script>
+<script src="{$.const.ASSET_URL}js/web_event.js"></script>
 </body>
 </html>

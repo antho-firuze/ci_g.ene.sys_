@@ -13,7 +13,7 @@
 /* ========================================= */
 var $pageid = getURLParameter("pageid");
 
-$( document ).ready(function() {
+// $( document ).ready(function() {
 	/* Start :: Init for Title, Breadcrumb */
 	var $title	= $.cookie('title'+$pageid)
 	$(".content").before(BSHelper.PageHeader({ 
@@ -26,7 +26,7 @@ $( document ).ready(function() {
 		]
 	}));
 
-});
+// });
 /* 
 /* ==================================== */
 /* Default action for Form Export Data */
