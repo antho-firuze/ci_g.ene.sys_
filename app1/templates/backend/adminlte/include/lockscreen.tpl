@@ -48,33 +48,32 @@
 	var lockscreen = $('.lockscreen');
 	var form_lck = $('form.lockscreen-credentials');
 
-	(get($lockscreen)==1) ? lockscreen.slideDown('fast') : lockscreen.slideUp('fast');
+	get($lockscreen) == 1 ? lockscreen.slideDown('fast') : lockscreen.slideUp('fast');
 
 	function lock_the_screen(){
 		store($lockscreen, 1);
-		$.cookie('_usr_state', 2);
 
 		lockscreen.slideDown('fast');
-		{* $(document).idleTimer("destroy"); *}
-		$(document).idleTimer({ idle:true });
+		init_screen_timeout();
 	}
 
 	function unlock_the_screen(){
 		store($lockscreen, 0);
-		$.cookie('_usr_state', 1);
 		
 		lockscreen.slideUp('fast');
 		init_screen_timeout();
 	}
 	
 	function init_screen_timeout(){
-		$(document).idleTimer(parseInt(get($screen_timeout)));
-		$(document).idleTimer("reset");
+		var is_locked = get($lockscreen) == 1 ? true : false;
+		$(document).idleTimer("destroy");
+		$(document).idleTimer({ timeout:parseInt(get($screen_timeout)), idle: is_locked });
+		if (is_locked)
+			$(document).idleTimer("pause");
 	}
 	
 	init_screen_timeout();
 	$(document).on("idle.idleTimer", function(event, elem, obj){ lock_the_screen(); });
-	$(document).on("active.idleTimer", function(event, elem, obj){ $(document).idleTimer("reset"); });
 	
 	form_lck.submit( function(e) {
 		e.preventDefault();

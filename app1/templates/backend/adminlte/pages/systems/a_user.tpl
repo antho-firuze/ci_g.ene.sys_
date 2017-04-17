@@ -10,7 +10,7 @@
 </div>
 <!-- /.content-wrapper -->
 <script>
-	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $title = "{$title}", $title_desc = "{$title_desc}";
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $title = "{$title}", $title_desc = "{$title_desc}";
 	{* Get Params *}
 	var $q = getURLParameter("q"), $id = getURLParameter("id"), $pageid = getURLParameter("pageid");
 	{* Toolbar Init *}
@@ -49,7 +49,7 @@
 		"columns": [
 			{ width:"20px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render:function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
 			{ width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render: function(data, type, row){ return aLBtn.join(""); } },
-			{ width:"130px", orderable:false, data:"name", title:"Name", render:function(data, type, row){ return data+' ('+((row[6]=='1') ? 'on' : 'off')+')'; } },
+			{ width:"130px", orderable:false, data:"name", title:"Name", render:function(data, type, row){ return ( row.is_online == '1' ? '<i class="fa fa-circle text-green"></i>' : row.is_online == '2' ? '<i class="fa fa-circle text-gray"></i>' : '<i class="fa fa-circle text-red"></i>' )+' '+data; } },
 			{ width:"150px", orderable:false, data:"email", title:"Email" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },

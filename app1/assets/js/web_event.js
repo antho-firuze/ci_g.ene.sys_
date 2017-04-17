@@ -37,13 +37,21 @@ setInterval(function(){
 	var usr_state = $(document).idleTimer("isIdle") ? 2 : 1;
 	$.ajax({ url:$BASE_URL+'z_libs/shared/sse', method: "GET", async: true, dataType: 'json',
 		data: { '_usr_state':usr_state }, 
-		success: function(data) {
-			// Set Status to Online !
-			$('.user-panel').find('a').html('').append('<i class="fa fa-circle text-green" />Online');
-		},
-		error: function(data) {
+		error: function(response) {
 			// Set Status to Offline !
 			$('.user-panel').find('a').html('').append('<i class="fa fa-circle text-red" />Offline');
+		},
+		success: function(response) {
+			// Set Status to Online !
+			$('.user-panel').find('a').html('').append('<i class="fa fa-circle text-green" />Online');
+			console.log('response');
+			console.log(response);
+			if (typeof(response.table) !== 'undefined' && response.table){
+				if ($.cookie('table') == response.table){
+					dataTable1.ajax.reload( null, false );
+					console.log('table:'+$.cookie('table')+' is reload');
+				}
+			}
 		}
 	});
 		

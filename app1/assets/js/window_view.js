@@ -174,7 +174,8 @@ function initCheckList(tableData1, dataTable1){
 
 	/* Init for Toolbar Button */
 	initToolbarButton();
-
+	
+	$.cookie('table', $table);
 // });
 
 /* ========================================= */
