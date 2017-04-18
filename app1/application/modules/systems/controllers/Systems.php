@@ -109,32 +109,40 @@ class Systems extends Getmeb
 					list($username, $password) = explode(':', base64_decode(substr($http_auth, 6)));
 				}
 			}
-
+			
+$rem = 'rememberme: '.$this->params['rememberme'];
 			/* Try to login */
-			if (! $user_id = $this->auth->login($username, $password)) {
-				/* Trapping user_agent, ip address & status */
-				$this->{$this->mdl}->_save_useragent($username, 'Login Failed/Intruder Detected');
-				
-				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+			if (isset($this->params['rememberme']) && $this->params['rememberme'])
+			{
+				$rem = 'rememberme: true';
+				/* Try to login using cookie */
+				if (! $user_id = $this->auth->login_remembered_user()) {
+					$rem .= ' - cookie not valid';
+					/* If not success try to login using username & password */
+					if (! $user_id = $this->auth->login($username, $password)) {
+						/* Trapping user_agent, ip address & status */
+						$this->{$this->mdl}->_save_useragent($username, 'Login Failed/Intruder Detected');
+						
+						$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+					}
+				}
+					$rem .= ' - cookie valid';
+			} else {
+				/* Standard login using username & password */
+				if (! $user_id = $this->auth->login($username, $password)) {
+					/* Trapping user_agent, ip address & status */
+					$this->{$this->mdl}->_save_useragent($username, 'Login Failed/Intruder Detected');
+					
+					$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+				}
 			}
-
+debugf($rem);
 			/* Trapping user_agent, ip address & status */
 			$this->{$this->mdl}->_save_useragent($username, 'Login Success');
 			
 			/* Store configuration to session */
 			$this->{$this->mdl}->_store_config($user_id);
 			
-			if (isset($this->params['rememberme']) && $this->params['rememberme'])
-			{
-				$expire = (60*60*24*365*2);
-				$salt = salt();
-				set_cookie(['name' => 'remember_user', 'value' => $username, 'expire' => $expire]);
-				set_cookie(['name' => 'remember_token', 'value' => $salt, 'expire' => $expire]);
-			} else {
-				set_cookie("remember_user", isset($_COOKIE["remember_user"]) ? '' : '');
-				set_cookie("remember_token", isset($_COOKIE["remember_token"]) ? '' : '');
-			}
-
 			$this->xresponse(TRUE);
 		}
 

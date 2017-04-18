@@ -10,7 +10,7 @@
 </div>
 <!-- /.content-wrapper -->
 <script>
-	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $title = "{$title}", $title_desc = "{$title_desc}";
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $title = "{$title}", $title_desc = "{$title_desc}";
 	{* Get Params *}
 	var $q = getURLParameter("q"), $id = getURLParameter("id"), $pageid = getURLParameter("pageid");
 	{* Toolbar Init *}

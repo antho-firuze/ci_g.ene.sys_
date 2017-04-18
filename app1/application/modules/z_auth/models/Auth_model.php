@@ -335,6 +335,23 @@ class Auth_model extends CI_Model
 	}
 
 	/**
+	 * user
+	 *
+	 * @return object
+	 * @author Ben Edmunds
+	 **/
+	public function user($id = NULL)
+	{
+		//if no id was passed use the current users id
+		$id || $id = $this->session->userdata('user_id');
+
+		$this->limit(1);
+		$this->where($this->tables['users'].'.id', $id);
+
+		return $this->db->get($this->tables['users']);
+	}
+	
+	/**
 	 * Insert a forgotten password key.
 	 *
 	 * @return bool
@@ -620,7 +637,7 @@ class Auth_model extends CI_Model
 
 				$this->clear_login_attempts($identity);
 
-				if ($remember)
+				if ($remember && $this->config->item('remember_users', 'auth'))
 				{
 					$this->remember_user($user->id);
 				}
@@ -652,6 +669,103 @@ class Auth_model extends CI_Model
 		$this->db->update($this->tables['users'], array('last_login' => time()), array('id' => $id));
 
 		return $this->db->affected_rows() == 1;
+	}
+
+	/**
+	 * remember_user
+	 *
+	 * @return bool
+	 * @author Ben Edmunds
+	 **/
+	public function remember_user($id)
+	{
+		if (!$id)
+		{
+			return FALSE;
+		}
+
+		$user = $this->user($id)->row();
+
+		$salt = sha1($user->password);
+
+		$this->db->update($this->tables['users'], array('remember_token' => $salt), array('id' => $id));
+
+		if ($this->db->affected_rows() > -1)
+		{
+			// if the user_expire is set to zero we'll set the expiration two years from now.
+			if($this->config->item('user_expire', 'auth') === 0)
+			{
+				$expire = (60*60*24*365*2);
+			}
+			// otherwise use what is set
+			else
+			{
+				$expire = $this->config->item('user_expire', 'auth');
+			}
+
+			set_cookie(array(
+			    'name'   => 'identity',
+			    'value'  => $user->{$this->identity_column},
+			    'expire' => $expire
+			));
+
+			set_cookie(array(
+			    'name'   => 'remember_token',
+			    'value'  => $salt,
+			    'expire' => $expire
+			));
+
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+
+	/**
+	 * login_remembed_user
+	 *
+	 * @return bool
+	 * @author Ben Edmunds
+	 **/
+	public function login_remembered_user()
+	{
+		//check for valid data
+		if (!get_cookie('identity') || !get_cookie('remember_token') || !$this->identity_check(get_cookie('identity')))
+		{
+			return FALSE;
+		}
+
+		//get the user
+		$query = $this->db->select($this->identity_column.', id')
+		                  ->where($this->identity_column, get_cookie('identity'))
+		                  ->where('remember_token', get_cookie('remember_token'))
+		                  ->limit(1)
+		                  ->get($this->tables['users']);
+
+		//if the user was found, sign them in
+		if ($query->num_rows() == 1)
+		{
+			$user = $query->row();
+
+			$this->update_last_login($user->id);
+
+			$session_data = array(
+			    'user_id'              => $user->id, //everyone likes to overwrite id so we'll use user_id
+			);
+
+			$this->session->set_userdata($session_data);
+
+
+			//extend the users cookies if the option is enabled
+			if ($this->config->item('user_extend_on_login', 'auth'))
+			{
+				$this->remember_user($user->id);
+			}
+
+			return $user->id;
+		}
+
+		return FALSE;
 	}
 
 	/**
