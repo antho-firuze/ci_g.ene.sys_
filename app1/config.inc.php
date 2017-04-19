@@ -21,8 +21,9 @@ define('DB_PASS', '');
 define('DB_NAME', ''); 
 
 /* Base URL */ 
-$local = in_array($_SERVER['HTTP_HOST'], ['localhost', '192.168.1.7', '192.168.0.59']) ? 'ci/app1/' : '';
-define('BASE_URL', 'http://'.$_SERVER['HTTP_HOST'].'/'.$local); 
+$http_host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+$local = in_array($http_host, ['localhost', '192.168.1.7', '192.168.0.59']) ? 'ci/app1/' : '';
+define('BASE_URL', 'http://'.$http_host.'/'.$local); 
 
 /* Email Domain */ 
 define('EMAIL_DOMAIN', 'localhost'); 
@@ -41,7 +42,7 @@ define('TEMPLATE_FCPATH', FCPATH . TEMPLATE_FOLDER);
 define('CACHE_FCPATH', FCPATH . CACHE_FOLDER);
 
 /* Default Client & Organization */
-switch ($_SERVER['HTTP_HOST'])
+switch ($http_host)
 {
 	case 'apps.hdgroup.id':
 		$client_id = 11;

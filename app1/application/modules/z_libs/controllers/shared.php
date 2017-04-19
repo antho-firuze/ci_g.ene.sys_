@@ -30,13 +30,6 @@ class Shared extends CI_Controller {
 		}
 	}
 	
-	function test()
-	{
-		$needle = $this->cache->get('online_users');
-		debug($needle);
-		// debug(isset($needle[8]));
-	}
-	
 	function _insert_needle()
 	{
 		$needle = $this->cache->get('online_users');
@@ -45,41 +38,72 @@ class Shared extends CI_Controller {
 		} else {
 			$needle[$this->session->user_id] = ['last_activity' => time()];
 		}
-		$this->cache->save('online_users', $needle, 10);
+		$this->cache->save('online_users', $needle, 25);
 	}
 	
-	function _check_innactivity()
+	function get()
 	{
-		/* while($this->cache->get('heartbeat')){
-			$online_users = $this->cache->get('online_users');
-			debugf($online_users);
+		$needle = $this->cache->get('online_users');
+		debug($needle);
+		// debugf('testinggggggg:'.time());
+	}
+	
+	function set()
+	{
+		$needle[$this->session->user_id] = ['last_activity' => time()];
+		$this->cache->save('online_users', $needle, 25);
+	}
+	
+	function _running_shell()
+	{
+		$this->_shell("d:\\xampp\\php\\php.exe d:\htdocs\ci\app1\index.php z_libs/shared check_innactivity");
+	}
+	
+	function _shell($cmd)
+	{
+		$WshShell = new COM("WScript.Shell"); 
+		$oExec = $WshShell->Run($cmd, 0, false); 
+		return $oExec == 0 ? true : false; 		
+	}
+	
+	function check_innactivity()
+	{
+		set_time_limit(0);
+		if ($already_running = $this->cache->get('already_running'))
+			exit();
+		
+		$this->cache->save('already_running', '1', 7);
+		
+		// debugf('check_innactivity running !');
+		while($online_users = $this->cache->get('online_users')){
+			// debugf('online_users true !');
 			foreach($online_users as $k => $v){
-				$user_id = $k;
 				if ($v['last_activity'] < time()-10){
+					debugf('last_activity reach !');
 					$this->db->update('a_user', ['is_online' => 0], ['id' => $k]);
 					$this->cache->save('table', 'a_user', 5);
+					// Update data on cache
+					unset($online_users[$k]);
+					$this->cache->save('online_users', $online_users, 25);
+					break;
 				}
 			}
 			sleep( 5 );
 			continue;
-		} */
-		
-		if ($needle = $this->cache->get('online_users')){
-			foreach($needle as $k => $v){
-				$user_id = $k;
-				if ($v['last_activity'] < time()-10){
-					debugf('last_activity under 10 seconds');
-					$this->db->update('a_user', ['is_online' => 0], ['id' => $k]);
-					$this->cache->save('table', 'a_user', 5);
-				}
-			}
 		}
 		
-		// debugf($this->cache->get('online_users'));
-		/* while($online_users = $this->cache->get('online_users')){
-			// debugf($online_users);
+		/* if ($needle = $this->cache->get('online_users')){
+			foreach($needle as $k => $v){
+				if ($v['last_activity'] < time()-10){
+					$this->db->update('a_user', ['is_online' => 0], ['id' => $k]);
+					unset($needle[$k]);
+					$this->cache->save('table', 'a_user', 5);
+				}
+			}
+		} */
+		/* while($this->cache->get('heartbeat')){
+			$online_users = $this->cache->get('online_users');
 			foreach($online_users as $k => $v){
-				$user_id = $k;
 				if ($v['last_activity'] < time()-10){
 					$this->db->update('a_user', ['is_online' => 0], ['id' => $k]);
 					$this->cache->save('table', 'a_user', 5);
@@ -88,6 +112,7 @@ class Shared extends CI_Controller {
 			sleep( 5 );
 			continue;
 		} */
+		
 	}
 	
 	function sse()
@@ -96,10 +121,9 @@ class Shared extends CI_Controller {
 		$this->params = $this->input->get();
 		
 		/* heartbeat */
-		$this->cache->save('heartbeat', 1, 60);		
 		
 		$this->_set_user_state();
-		$this->_check_innactivity();
+		$this->_running_shell();
 		$output['table'] = $this->cache->get('table');
 		
 		header('Content-Type: application/json');
@@ -167,6 +191,21 @@ class Shared extends CI_Controller {
 		$json = json_encode($output);
 		echo "data: $json \n\n";
 		flush();
+	}
+	
+	function exec()
+	{
+		// echo exec('whoami');
+		// exec("ping 192.168.1.3 -n 1 -w 90 && exit", $output);
+    // print_r($output);
+		exec("d:\\xampp\\php\\php.exe d:\htdocs\ci\app1\index.php z_libs/shared check_innactivity");
+		debug('exec');
+	}
+	
+	function passthru()
+	{
+		passthru("d:\\xampp\\php\\php.exe d:\htdocs\ci\app1\index.php z_libs/shared check_innactivity >> /path/to/log_file.log 2>&1 &");
+		debug('passthru');
 	}
 	
 }
