@@ -345,8 +345,8 @@ class Auth_model extends CI_Model
 		//if no id was passed use the current users id
 		$id || $id = $this->session->userdata('user_id');
 
-		$this->limit(1);
-		$this->where($this->tables['users'].'.id', $id);
+		$this->db->limit(1);
+		$this->db->where($this->tables['users'].'.id', $id);
 
 		return $this->db->get($this->tables['users']);
 	}
@@ -598,6 +598,18 @@ class Auth_model extends CI_Model
 	 **/
 	public function login($identity, $password, $remember=FALSE)
 	{
+		if ($remember && $this->config->item('remember_users', 'auth'))
+		{
+			if ($user_id = $this->login_remembered_user()){
+				$this->update_last_login($user->id);
+				$this->clear_login_attempts($identity);
+				return $user_id;
+			}
+		} else {
+			delete_cookie('identity');
+			delete_cookie('remember_token');
+		}
+		
 		if (empty($identity) || empty($password))
 		{
 			$this->set_error('login_unsuccessful');
@@ -754,7 +766,6 @@ class Auth_model extends CI_Model
 			);
 
 			$this->session->set_userdata($session_data);
-
 
 			//extend the users cookies if the option is enabled
 			if ($this->config->item('user_extend_on_login', 'auth'))

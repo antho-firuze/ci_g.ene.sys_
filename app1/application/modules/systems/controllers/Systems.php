@@ -109,34 +109,16 @@ class Systems extends Getmeb
 					list($username, $password) = explode(':', base64_decode(substr($http_auth, 6)));
 				}
 			}
-			
-$rem = 'rememberme: '.$this->params['rememberme'];
+
+			$rememberme = isset($this->params['rememberme']) && $this->params['rememberme'] ? TRUE : FALSE;
 			/* Try to login */
-			if (isset($this->params['rememberme']) && $this->params['rememberme'])
-			{
-				$rem = 'rememberme: true';
-				/* Try to login using cookie */
-				if (! $user_id = $this->auth->login_remembered_user()) {
-					$rem .= ' - cookie not valid';
-					/* If not success try to login using username & password */
-					if (! $user_id = $this->auth->login($username, $password)) {
-						/* Trapping user_agent, ip address & status */
-						$this->{$this->mdl}->_save_useragent($username, 'Login Failed/Intruder Detected');
-						
-						$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
-					}
-				}
-					$rem .= ' - cookie valid';
-			} else {
-				/* Standard login using username & password */
-				if (! $user_id = $this->auth->login($username, $password)) {
-					/* Trapping user_agent, ip address & status */
-					$this->{$this->mdl}->_save_useragent($username, 'Login Failed/Intruder Detected');
-					
-					$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
-				}
+			if (! $user_id = $this->auth->login($username, $password, $rememberme)) {
+				/* Trapping user_agent, ip address & status */
+				$this->{$this->mdl}->_save_useragent($username, 'Login Failed/Intruder Detected');
+				
+				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
-debugf($rem);
+
 			/* Trapping user_agent, ip address & status */
 			$this->{$this->mdl}->_save_useragent($username, 'Login Success');
 			
@@ -369,6 +351,9 @@ debugf($rem);
 			if (! $this->_check_menu($menu)) {
 				$this->backend_view('pages/404', ['message'=>'<b>'.$this->messages().'</b>']);
 			}
+			
+			/* For identify opened table to client (property for auto reload event) */
+			setcookie('table', $menu['table']);
 			
 			/* Check for action pages */
 			if (isset($this->params['action']) && !empty($this->params['action'])){

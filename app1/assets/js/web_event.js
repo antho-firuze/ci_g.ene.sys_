@@ -7,7 +7,15 @@
  *
  * A script to trigger client side, if received message from the server
  */
-/* var sse = new EventSource($BASE_URL+'z_libs/shared/pull');
+ 
+/* Set Status to Connecting... */
+$('.user-panel').find('a').html('');
+
+/* ======================== */
+/* Using EventSource Method */
+/* ======================== */
+/* 
+var sse = new EventSource($BASE_URL+'z_libs/shared/pull');
 sse.onerror = function(e){
 	// Set Status to Offline !
 	console.log(e.target);
@@ -29,8 +37,9 @@ sse.onmessage = function(e){
 	}
 }; */
 
-/* Set Status to Connecting... */
-$('.user-panel').find('a').html('');
+/* =================================== */
+/* Using Timer with Ajax Short Polling */
+/* =================================== */
 
 setInterval(function(){ 
 
@@ -44,7 +53,7 @@ setInterval(function(){
 		success: function(response) {
 			// Set Status to Online !
 			$('.user-panel').find('a').html('').append('<i class="fa fa-circle text-green" />Online');
-			console.log('response');
+			console.log('sse.response');
 			console.log(response);
 			if (typeof(response.table) !== 'undefined' && response.table){
 				if ($.cookie('table') == response.table){
@@ -55,22 +64,41 @@ setInterval(function(){
 		}
 	});
 		
-		/* function(response){ 
-		// Set Status to Online !
-		$('.user-panel').find('a').html('').append('<i class="fa fa-circle text-green" />Online');
-		switch(response.code) {
-		case 'sys.msg':
-			alert(response.message);
-			break;
-		case 'sys.reload':
-			alert(response.message);
-			location.reload();
-			break;
-		}
-	})
-	.fail(function() {
-		// Set Status to Offline !
-		$('.user-panel').find('a').html('').append('<i class="fa fa-circle text-red" />Offline');
-	}); */
-	
 }, 5000);
+
+/* =================================== */
+/* Using Ajax with Long Polling Method */
+/* =================================== */
+/**
+ * AJAX long-polling
+ *
+ * 1. sends a request to the server (without a timestamp parameter)
+ * 2. waits for an answer from server.php (which can take forever)
+ * 3. if server.php responds (whenever), put data_from_file into #response
+ * 4. and call the function again
+ *
+ * @param timestamp
+ */
+/*  
+function getContent(timestamp)
+{
+    var queryString = {'timestamp' : timestamp};
+
+    $.ajax({ 
+			type: 'GET',
+			url: $BASE_URL+'z_libs/shared/long_poll',
+			data: queryString,
+			success: function(response){
+				console.log('long_poll.response');
+				console.log(response);
+				
+				// call the function again, this time with the timestamp we just got from server.php
+				getContent(response.timestamp);
+			}
+		});
+}
+
+// initialize jQuery
+$(function() {
+    getContent();
+}); */

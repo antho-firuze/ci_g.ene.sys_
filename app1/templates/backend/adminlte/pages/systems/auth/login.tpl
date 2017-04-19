@@ -102,11 +102,11 @@
 	$(document).ajaxStart(function() { Pace.restart(); });
 	$("[name='remember']")
 		.iCheck({ checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue', increaseArea: '20%' })
-		.iCheck('check');
+		.iCheck('uncheck');
 	
 	form.submit( function(e) {
 		e.preventDefault();
-		var rememberme = $("[name='remember']").prop('checked');
+		var rememberme = $("[name='remember']").prop('checked') ? 1 : 0;
 		
 		$.ajax({ url:"{$.const.AUTH_LNK}?login=1", method:"GET", async:true, dataType:'json',
 			headers: { "X-AUTH": "Basic " + btoa($("[name='username']").val() + ":" + $("[name='password']").val()) },
@@ -121,13 +121,13 @@
 				}
 			},
 			error: function(data, status, errThrown) {
+				setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled"); },1000);
 				if (data.status==500){
 					var message = data.statusText;
 				} else {
 					var error = JSON.parse(data.responseText);
 					var message = error.message;
 				}
-				setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled"); },1000);
 				BootstrapDialog.alert({ type:'modal-danger', title:'Error ('+data.status+') :', message:message });
 			}
 		});

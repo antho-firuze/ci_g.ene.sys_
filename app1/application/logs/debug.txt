@@ -1,1 +1,2 @@
-2017-04-18 07:37 String: rememberme: true - cookie not valid - cookie valid
+2017-04-19 06:15 String: table: dashboard1
+2017-04-19 06:13 String: table: dashboard1
