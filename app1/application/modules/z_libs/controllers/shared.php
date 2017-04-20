@@ -22,7 +22,11 @@ class Shared extends CI_Controller {
 			if ($user_state == $this->session->user_state)
 				return;
 			
+			if ($this->session->last_activity < (time()-30))
+				return;
+			
 			$this->session->set_userdata(['user_state' => $user_state]);
+			$this->session->set_userdata(['last_activity' => time()]);
 			$this->db->update('a_user', ['is_online' => $user_state], ['id' => $this->session->user_id]);
 			
 			/* For announced to another logged session */
@@ -41,22 +45,21 @@ class Shared extends CI_Controller {
 		$this->cache->save('online_users', $needle, 25);
 	}
 	
-	function get()
+	function sse()
 	{
-		$needle = $this->cache->get('online_users');
-		debug($needle);
-		// debugf('testinggggggg:'.time());
-	}
-	
-	function set()
-	{
-		$needle[$this->session->user_id] = ['last_activity' => time()];
-		$this->cache->save('online_users', $needle, 25);
-	}
-	
-	function _running_shell()
-	{
-		$this->_shell("d:\\xampp\\php\\php.exe d:\htdocs\ci\app1\index.php z_libs/shared check_innactivity");
+		$output = [];
+		$this->params = $this->input->get();
+		
+		/* heartbeat */
+		
+		$this->_set_user_state();
+		$this->_running_shell();
+		$output['table'] = $this->cache->get('table');
+		
+		header('Content-Type: application/json');
+		header('Cache-Control: no-cache'); // recommended to prevent caching of event data.
+		echo json_encode($output);
+		exit();
 	}
 	
 	function _shell($cmd)
@@ -64,6 +67,13 @@ class Shared extends CI_Controller {
 		$WshShell = new COM("WScript.Shell"); 
 		$oExec = $WshShell->Run($cmd, 0, false); 
 		return $oExec == 0 ? true : false; 		
+	}
+	
+	function _running_shell()
+	{
+		$php = getPHPExecutableFromPath();
+		$_ci = FCPATH.SELF;
+		$this->_shell("$php $_ci z_libs/shared check_innactivity");
 	}
 	
 	function check_innactivity()
@@ -79,7 +89,7 @@ class Shared extends CI_Controller {
 			// debugf('online_users true !');
 			foreach($online_users as $k => $v){
 				if ($v['last_activity'] < time()-10){
-					debugf('last_activity reach !');
+					// debugf('last_activity reach !');
 					$this->db->update('a_user', ['is_online' => 0], ['id' => $k]);
 					$this->cache->save('table', 'a_user', 5);
 					// Update data on cache
@@ -115,21 +125,17 @@ class Shared extends CI_Controller {
 		
 	}
 	
-	function sse()
+	function get()
 	{
-		$output = [];
-		$this->params = $this->input->get();
-		
-		/* heartbeat */
-		
-		$this->_set_user_state();
-		$this->_running_shell();
-		$output['table'] = $this->cache->get('table');
-		
-		header('Content-Type: application/json');
-		header('Cache-Control: no-cache'); // recommended to prevent caching of event data.
-		echo json_encode($output);
-		exit();
+		debug(FCPATH.SELF);
+		$needle = $this->cache->get('online_users');
+		debug($needle);
+	}
+	
+	function set()
+	{
+		$needle[$this->session->user_id] = ['last_activity' => time()];
+		$this->cache->save('online_users', $needle, 25);
 	}
 	
 	function long_poll()

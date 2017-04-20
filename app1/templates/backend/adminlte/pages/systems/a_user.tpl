@@ -35,6 +35,7 @@
 	{* Setup DataTables *}
 	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="width:100%; table-layout:fixed; word-wrap:break-word; margin:0px !important;" />').appendTo( $('.box-body') ),
 	dataTable1 = tableData1.DataTable({ "pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, 
+		"scrollX": true,
 		"ajax": {
 			"url": $url_module+window.location.search+'&ob=id desc',
 			"data": function(d){ return $.extend({}, d, { "q": $q });	},

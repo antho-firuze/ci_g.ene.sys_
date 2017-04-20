@@ -53,12 +53,12 @@ setInterval(function(){
 		success: function(response) {
 			// Set Status to Online !
 			$('.user-panel').find('a').html('').append('<i class="fa fa-circle text-green" />Online');
-			console.log('sse.response');
-			console.log(response);
+			// console.log('sse.response');
+			// console.log(response);
 			if (typeof(response.table) !== 'undefined' && response.table){
 				if ($.cookie('table') == response.table){
 					dataTable1.ajax.reload( null, false );
-					console.log('table:'+$.cookie('table')+' is reload');
+					// console.log('table:'+$.cookie('table')+' is reload');
 				}
 			}
 		}

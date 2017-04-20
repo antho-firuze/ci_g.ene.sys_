@@ -71,7 +71,7 @@ function initToolbarButton()
 	}
 }
 
-function initCheckList(tableData1, dataTable1){
+function initCheckList_iCheck(tableData1, dataTable1){
 	/* {* Don't change this code: Init for iCheck Plugin *} */
 	var iCounter=0;
 	var head_cb = tableData1.find('input[type="checkbox"].head-check');
@@ -143,6 +143,72 @@ function initCheckList(tableData1, dataTable1){
 	});
 };
 
+function initCheckList(tableData1, dataTable1){
+	/* {* Don't change this code: Init for iCheck Plugin *} */
+	var iCounter=0;
+	var head_cb = tableData1.find('input[type="checkbox"].head-check');
+	// head_cbq.iCheck({ checkboxClass: 'icheckbox_flat-blue', radioClass: 'iradio_flat-blue' });
+	
+	
+	dataTable1.on( 'draw.dt', function () {
+		var head_cb = tableData1.find('.head-check');
+		head_cb.on('click', function(){
+			console.log('this.checked');
+		});
+		
+		var count_rows = dataTable1.rows().data().length;
+		var line_cb = tableData1.find('input[type="checkbox"].line-check');
+		// line_cb.iCheck({ checkboxClass: 'icheckbox_flat-blue', radioClass: 'iradio_flat-blue' });
+		line_cb.on('ifChecked', function(){
+			// console.log("Debug: Line-Check (True)");
+			if (iCounter==0) dataTable1.rows().deselect();
+			dataTable1.row( $(this).parents('tr') ).select();
+			iCounter++;
+			
+			if (count_rows==iCounter) { head_cb.data("clicks", true).iCheck('check'); }
+		});
+		line_cb.on('ifUnchecked', function(){
+			dataTable1.row( $(this).parents('tr') ).deselect();
+			iCounter--;
+			
+			if (count_rows!=iCounter) { head_cb.data("clicks", false).iCheck('uncheck'); }
+		});
+	} );
+
+	/* {* Don't change this code: This is for (Checked & Unchecked) or (Selected & Unselected) on DataTable *} */
+	tableData1.find('tbody').on( 'click', 'tr', function () {
+		var count_rows = dataTable1.rows().data().length;
+		var count_selected = dataTable1.rows('.selected').data().length;
+		
+		if (count_selected !== count_rows) {
+			
+			if (count_selected <= 1){ 
+				// tableData1.find('input[type="checkbox"]').iCheck("uncheck");
+				tableData1.find('input[type="checkbox"]').prop("checked", false);
+				dataTable1.row($(this)).select();
+			}
+			
+			if (count_selected > 1) {
+				var selected = $(this).hasClass('selected');
+				if (selected)
+					// tableData1.find('.selected input[type="checkbox"]').iCheck("check");
+					tableData1.find('input[type="checkbox"]').prop("checked", true);
+				else
+					// $(this).find('input[type="checkbox"]').iCheck("uncheck");
+					$(this).find('input[type="checkbox"]').prop("checked", false);
+			}	
+				
+			$('#btn-check').data("clicks", false).removeClass("glyphicon-check").addClass('glyphicon-unchecked');
+		} 
+		
+		if (count_selected == count_rows) {
+			// $(this).find('input[type="checkbox"]').iCheck("check");
+			$(this).find('input[type="checkbox"]').prop("checked", true);
+			$('#btn-check').data("clicks", true).removeClass("glyphicon-unchecked").addClass('glyphicon-check');
+		}
+	});
+};
+
 /* ========================================= */
 /* Default init for Header									 */
 /* ========================================= */
@@ -191,9 +257,6 @@ function initCheckList(tableData1, dataTable1){
 		history.pushState({}, '', origin_url +'?'+ $url);
 	});		
 	
-	// DTHelper.initCheckList(tableData1, dataTable1);
-	initCheckList(tableData1, dataTable1);
-	
 	$('div.dataTables_wrapper').find('div.row:first').insertBefore('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_filter');
 	$('div.dataTables_wrapper').find('div.row:last').insertAfter('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_paginate');
 	$('div.box').css('margin-bottom','10px');
@@ -214,6 +277,10 @@ function initCheckList(tableData1, dataTable1){
 	
 // });
 
+	// DTHelper.initCheckList_iCheck(tableData1, dataTable1);
+	// initCheckList_iCheck(tableData1, dataTable1);
+	initCheckList(tableData1, dataTable1);
+	
 /* ==================================== */
 /* Default action for Form CRUD Toolbar */
 /* ==================================== */

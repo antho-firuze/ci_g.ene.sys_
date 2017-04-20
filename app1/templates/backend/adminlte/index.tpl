@@ -126,6 +126,6 @@
 	});
   
 </script>
-<script src="{$.const.ASSET_URL}js/web_event.js"></script>
+{* <script src="{$.const.ASSET_URL}js/web_event.js"></script> *}
 </body>
 </html>

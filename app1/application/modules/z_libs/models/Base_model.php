@@ -278,7 +278,7 @@ class Base_Model extends CI_Model
 		if($where_field || $where_val){
 				if (is_array($where_field) && is_array($where_val)) {
 						for ($i = 0; $i < count($where_field); $i++) {
-								$this->db->where($where_field[$i], $where_val[$i]);
+							$this->db->where($where_field[$i], $where_val[$i]);
 						}
 				} else {
 						$this->db->where($where_field, $where_val);
