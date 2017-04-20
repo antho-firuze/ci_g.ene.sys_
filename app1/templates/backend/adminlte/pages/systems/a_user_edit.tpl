@@ -1,6 +1,6 @@
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-	 <!-- Main content -->
+	<!-- Main content -->
 	<section class="content">
 	</section>
 	<!-- /.content -->
@@ -9,8 +9,8 @@
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/plupload/js/plupload.full.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/plupload/js/plupload.full.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $title	= "{$title}", auto_populate = false;
 	{* Get Params *}
@@ -78,7 +78,7 @@
 	});
 	
 	{* Init data for custom element (combogrid, button etc.) *}
-	var uploader = new plupload.Uploader({ url:"{$url_module}", runtimes:"html5",
+	var uploader = new plupload.Uploader({ url: $url_module, runtimes:"html5",
 		filters: { max_file_size: "{$.session.max_file_upload}", mime_types: [{ title:"Image files", extensions:"jpg,gif,png" }] },
 		browse_button: "btn_uploadphoto", 
 		multi_selection: false,

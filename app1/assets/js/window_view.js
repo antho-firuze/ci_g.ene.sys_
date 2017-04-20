@@ -71,141 +71,61 @@ function initToolbarButton()
 	}
 }
 
-function initCheckList_iCheck(tableData1, dataTable1){
-	/* {* Don't change this code: Init for iCheck Plugin *} */
-	var iCounter=0;
-	var head_cb = tableData1.find('input[type="checkbox"].head-check');
-	head_cb.iCheck({ checkboxClass: 'icheckbox_flat-blue', radioClass: 'iradio_flat-blue' });
-	
-	dataTable1.on( 'draw.dt', function () {
-		var count_rows = dataTable1.rows().data().length;
-		var line_cb = tableData1.find('input[type="checkbox"].line-check');
-		line_cb.iCheck({ checkboxClass: 'icheckbox_flat-blue', radioClass: 'iradio_flat-blue' });
-		line_cb.on('ifChecked', function(){
-			// console.log("Debug: Line-Check (True)");
-			if (iCounter==0) dataTable1.rows().deselect();
-			dataTable1.row( $(this).parents('tr') ).select();
-			iCounter++;
-			
-			if (count_rows==iCounter) { head_cb.data("clicks", true).iCheck('check'); }
-		});
-		line_cb.on('ifUnchecked', function(){
-			dataTable1.row( $(this).parents('tr') ).deselect();
-			iCounter--;
-			
-			if (count_rows!=iCounter) { head_cb.data("clicks", false).iCheck('uncheck'); }
-		});
-	} );
-
-	/* {* Don't change this code: Init for btn-check *} */
-	head_cb.on('ifClicked', function(){
-		// console.log("Debug: Head-Check (ifClicked)");
-		var clicks = head_cb.data('clicks');
-		if (clicks) {
-			dataTable1.rows().deselect();
-			/* {* tableData1.find('tr[role="row"]').removeClass("selected"); *} */
-			tableData1.find('input[type="checkbox"]').iCheck("uncheck");
-		} else {
-			dataTable1.rows().select();
-			/* {* tableData1.find('tr[role="row"]').addClass("selected"); *} */
-			tableData1.find('input[type="checkbox"]').iCheck("check");
-		}
-		head_cb.data("clicks", !clicks);
-	});
-	
-	/* {* Don't change this code: This is for (Checked & Unchecked) or (Selected & Unselected) on DataTable *} */
-	tableData1.find('tbody').on( 'click', 'tr', function () {
-		var count_rows = dataTable1.rows().data().length;
-		var count_selected = dataTable1.rows('.selected').data().length;
-		
-		if (count_selected !== count_rows) {
-			
-			if (count_selected <= 1){ 
-				tableData1.find('input[type="checkbox"]').iCheck("uncheck");
-				dataTable1.row($(this)).select();
-			}
-			
-			if (count_selected > 1) {
-				var selected = $(this).hasClass('selected');
-				if (selected)
-					tableData1.find('.selected input[type="checkbox"]').iCheck("check");
-				else
-					$(this).find('input[type="checkbox"]').iCheck("uncheck");
-			}	
-				
-			$('#btn-check').data("clicks", false).removeClass("glyphicon-check").addClass('glyphicon-unchecked');
-		} 
-		
-		if (count_selected == count_rows) {
-			$(this).find('input[type="checkbox"]').iCheck("check");
-			$('#btn-check').data("clicks", true).removeClass("glyphicon-unchecked").addClass('glyphicon-check');
-		}
-	});
-};
-
+/* {* Don't change this code: Init for datatables checklist *} */
 function initCheckList(tableData1, dataTable1){
-	/* {* Don't change this code: Init for iCheck Plugin *} */
-	var iCounter=0;
-	var head_cb = tableData1.find('input[type="checkbox"].head-check');
-	// head_cbq.iCheck({ checkboxClass: 'icheckbox_flat-blue', radioClass: 'iradio_flat-blue' });
+	var datatables_scroll = $('.dataTables_wrapper').has('.dataTables_scroll');
+	tableDataHead = datatables_scroll.length ? $('.dataTables_scrollHead') : tableData1;
+	var head_cb = tableDataHead.find('thead input[type="checkbox"].head-check');
 	
-	
-	dataTable1.on( 'draw.dt', function () {
-		var head_cb = tableData1.find('.head-check');
-		head_cb.on('click', function(){
-			console.log('this.checked');
-		});
-		
+	dataTable1.on('draw.dt', function(){
+		// console.log('draw.dt3');
 		var count_rows = dataTable1.rows().data().length;
-		var line_cb = tableData1.find('input[type="checkbox"].line-check');
-		// line_cb.iCheck({ checkboxClass: 'icheckbox_flat-blue', radioClass: 'iradio_flat-blue' });
-		line_cb.on('ifChecked', function(){
-			// console.log("Debug: Line-Check (True)");
-			if (iCounter==0) dataTable1.rows().deselect();
-			dataTable1.row( $(this).parents('tr') ).select();
-			iCounter++;
-			
-			if (count_rows==iCounter) { head_cb.data("clicks", true).iCheck('check'); }
-		});
-		line_cb.on('ifUnchecked', function(){
-			dataTable1.row( $(this).parents('tr') ).deselect();
-			iCounter--;
-			
-			if (count_rows!=iCounter) { head_cb.data("clicks", false).iCheck('uncheck'); }
-		});
-	} );
+		var line_cb = tableData1.find('tbody input[type="checkbox"].line-check');
 
-	/* {* Don't change this code: This is for (Checked & Unchecked) or (Selected & Unselected) on DataTable *} */
-	tableData1.find('tbody').on( 'click', 'tr', function () {
-		var count_rows = dataTable1.rows().data().length;
-		var count_selected = dataTable1.rows('.selected').data().length;
-		
-		if (count_selected !== count_rows) {
-			
-			if (count_selected <= 1){ 
-				// tableData1.find('input[type="checkbox"]').iCheck("uncheck");
-				tableData1.find('input[type="checkbox"]').prop("checked", false);
-				dataTable1.row($(this)).select();
+		tableDataHead.find('thead').on('click', 'tr', function(e){
+			if ($(e.target).is("input[type='checkbox']")) {
+				// console.log("Debug: Head-Check Clicked");
+				var clicked = head_cb.prop('checked');
+				line_cb.prop("checked", clicked);
+				if (clicked) 
+					dataTable1.rows().select();
+				else
+					dataTable1.rows().deselect();
+			} else {
+				// console.log("Debug: Head Clicked");
+				/* Prepare for sorting datatables */
 			}
+		});
+		
+		line_cb.on('click', function(e){
+			// console.log("Debug: Line-Check Clicked");
+			var clicked = $(this).prop('checked');
+			if (clicked) 
+				dataTable1.row( $(this).parent().parent() ).select();
+			else
+				dataTable1.row( $(this).parent().parent() ).deselect();
 			
-			if (count_selected > 1) {
+			var count_selected = dataTable1.rows('.selected').data().length;
+			head_cb.prop("checked", count_selected == count_rows ? true : false);
+			e.stopPropagation();
+		});
+		
+		tableData1.find('tbody').on('click', 'tr', function (e) {
+			// console.log("Debug: table->tr clicked");
+			var count_selected = dataTable1.rows('.selected').data().length;
+			if (count_selected > 1){
 				var selected = $(this).hasClass('selected');
 				if (selected)
-					// tableData1.find('.selected input[type="checkbox"]').iCheck("check");
-					tableData1.find('input[type="checkbox"]').prop("checked", true);
-				else
-					// $(this).find('input[type="checkbox"]').iCheck("uncheck");
+					$(this).parent().find('.selected input[type="checkbox"]').prop("checked", true);
+				else 
 					$(this).find('input[type="checkbox"]').prop("checked", false);
-			}	
 				
-			$('#btn-check').data("clicks", false).removeClass("glyphicon-check").addClass('glyphicon-unchecked');
-		} 
-		
-		if (count_selected == count_rows) {
-			// $(this).find('input[type="checkbox"]').iCheck("check");
-			$(this).find('input[type="checkbox"]').prop("checked", true);
-			$('#btn-check').data("clicks", true).removeClass("glyphicon-unchecked").addClass('glyphicon-check');
-		}
+				head_cb.prop("checked", count_selected == count_rows ? true : false);
+			} else {
+				$(this).parent().find('input[type="checkbox"]').prop("checked", false);
+				head_cb.prop("checked", false);
+			}
+		});
 	});
 };
 
@@ -261,6 +181,44 @@ function initCheckList(tableData1, dataTable1){
 	$('div.dataTables_wrapper').find('div.row:last').insertAfter('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_paginate');
 	$('div.box').css('margin-bottom','10px');
 	
+	/* For Left Button if Exists */
+	tableData1.find('tbody').on( 'click', '.aLBtn', function (e) {
+		/* get selscted record from datatable */
+		var data = dataTable1.row( $(e.target).closest('tr') ).data();
+		
+		switch($(e.target).attr('name')){
+			case 'btn-copy':
+				if (!confirm("Copy this data ?")) {
+					return false;
+				}
+				window.location.href = getURLOrigin()+window.location.search+"&action=cpy&id="+data.id;
+				break;
+			case 'btn-edit':
+				window.location.href = getURLOrigin()+window.location.search+"&action=edt&id="+data.id;
+				break;
+			case 'btn-delete':
+				if (!confirm("Are you sure want to delete this record ?")) {
+					return false;
+				}
+				$.ajax({ url: $url_module+"?id="+data.id, method: "DELETE", async: true, dataType: 'json',
+					success: function(data) {
+						dataTable1.ajax.reload( null, false );
+						BootstrapDialog.alert(data.message);
+					},
+					error: function(data) {
+						if (data.status==500){
+							var message = data.statusText;
+						} else {
+							var error = JSON.parse(data.responseText);
+							var message = error.message;
+						}
+						BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+					}
+				});
+				break;
+		}
+	});
+	
 	/* For Right Button if Exists */
 	tableData1.find('tbody').on( 'click', '.aRBtn', function () {
 		var data = dataTable1.row( $(this).parents('tr') ).data();
@@ -284,7 +242,8 @@ function initCheckList(tableData1, dataTable1){
 /* ==================================== */
 /* Default action for Form CRUD Toolbar */
 /* ==================================== */
-$(document.body).click('button', function(e){
+// $(document.body).click('button', function(e){
+$('.toolbar_container').click('button', function(e){
 	// console.log($(e.target).attr('id'));
 	switch($(e.target).attr('id')){
 		case 'btn-new':
@@ -399,48 +358,5 @@ $(document.body).click('button', function(e){
 			window.location.href = getURLOrigin()+window.location.search+"&action=exp";
 			break;
 	}
-	
 });
 
-/* ==================================== */
-/* Default action for Button Action Table */
-/* ==================================== */
-$(document.body).click('button', function(e){
-	/* get selscted record from datatable */
-	var data = dataTable1.row( $(e.target).closest('tr') ).data();
-	
-	switch($(e.target).attr('name')){
-		case 'btn-copy':
-			if (!confirm("Copy this data ?")) {
-				return false;
-			}
-			window.location.href = getURLOrigin()+window.location.search+"&action=cpy&id="+data.id;
-			break;
-			
-		case 'btn-edit':
-			window.location.href = getURLOrigin()+window.location.search+"&action=edt&id="+data.id;
-			break;
-			
-		case 'btn-delete':
-			if (!confirm("Are you sure want to delete this record ?")) {
-				return false;
-			}
-			$.ajax({ url: $url_module+"?id="+data.id, method: "DELETE", async: true, dataType: 'json',
-				success: function(data) {
-					dataTable1.ajax.reload( null, false );
-					BootstrapDialog.alert(data.message);
-				},
-				error: function(data) {
-					if (data.status==500){
-						var message = data.statusText;
-					} else {
-						var error = JSON.parse(data.responseText);
-						var message = error.message;
-					}
-					BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
-				}
-			});
-			break;
-	}
-});
-	

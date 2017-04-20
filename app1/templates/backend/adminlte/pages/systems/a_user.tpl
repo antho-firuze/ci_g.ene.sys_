@@ -24,9 +24,9 @@
 	};
 	{* Defining Left Button for Datatables *}
 	var aLBtn = [];
-	aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs btn-info glyphicon glyphicon-duplicate" title="Copy" name="btn-copy" />');
-	aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />');
-	aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs btn-danger glyphicon glyphicon-trash" title="Delete" name="btn-delete" />');
+	aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs aLBtn btn-info glyphicon glyphicon-duplicate" title="Copy" name="btn-copy" />');
+	aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs aLBtn btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />');
+	aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs aLBtn btn-danger glyphicon glyphicon-trash" title="Delete" name="btn-delete" />');
 	{* Defining Right Button for Datatables *}
 	var aRBtn = [];
 	aRBtn.push('<span><a href="#" class="aRBtn" data-pageid=31 data-key="user_id">Role</a></span>');
@@ -116,6 +116,6 @@
 				break;
 		}
 	});	
-	
+
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>
