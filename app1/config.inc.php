@@ -3,6 +3,7 @@
 
 /* Database DSN */ 
 define('DB_DSN', 'pgsql:host=103.20.189.26;port=4111;dbname=db_genesys;user=postgres;password=admin123'); 
+// define('DB_DSN', 'pgsql:host=localhost;port=5432;dbname=db_genesys;user=postgres;password=admin123'); 
 define('DB_DSN_SQLSVR', 'sqlsrv://sa:admin123@115.85.74.130,8795/PURCHASING'); 
 
 /* Database Driver */ 
@@ -22,6 +23,22 @@ define('DB_NAME', '');
 
 /* Base URL */ 
 $http_host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+$http_host = 'localhost';
+$http_host = 'apps.trigraha.com';
+$dbh = new PDO(DB_DSN);
+$result = $dbh->query("select * from a_org where website='$http_host'");
+if ($result){
+	$row = $result->fetch(PDO::FETCH_ASSOC);
+	$client_id = $row['client_id'];
+	$org_id 	 = $row['id'];
+} else {
+	$client_id = 11;
+	$org_id = 16;
+}
+echo $client_id;
+echo $org_id;
+exit();
+
 $local = in_array($http_host, ['localhost', '192.168.1.7', '192.168.0.59']) ? 'ci/app1/' : '';
 define('BASE_URL', 'http://'.$http_host.'/'.$local); 
 

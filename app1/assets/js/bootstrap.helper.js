@@ -291,7 +291,7 @@
 		var o = $.extend( {}, BSHelper.defaults, options );
 		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input checkbox"></div></div>');
-		var input = $('<input>', {id:o.idname, name:o.idname, type:"checkbox"}); 
+		var input = $('<input>', {id:o.idname, name:o.idname, type:"checkbox", class:"checkbox"}); 
 		var input2 = $('<input>', {id:o.idname, name:o.idname, type:"hidden", class:"checkbox", value:0}); 
 		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
 
@@ -302,7 +302,7 @@
 		if (parseInt(o.value)) input.prop("checked", true);
 		
 		container.find('.control-input').append( input.append(input2) ).append(help);
-		input.iCheck({ checkboxClass: 'icheckbox_flat-orange', radioClass: 'iradio_flat-orange'	});
+		// input.iCheck({ checkboxClass: 'icheckbox_flat-orange', radioClass: 'iradio_flat-orange'	});
 		return container;
 	};
 

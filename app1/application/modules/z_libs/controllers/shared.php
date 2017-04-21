@@ -7,7 +7,6 @@ class Shared extends CI_Controller {
 	function __construct() {
 		parent::__construct();
 		
-		// $this->load->driver('cache', array('adapter' => 'apc', 'backup' => 'file', 'key_prefix' => DEFAULT_CLIENT_ID.'_'));
 		$this->load->driver('cache', array('adapter' => 'memcached', 'backup' => 'file', 'key_prefix' => DEFAULT_CLIENT_ID.'_'));
 	}
 

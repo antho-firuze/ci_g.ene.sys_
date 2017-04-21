@@ -99,13 +99,18 @@ function initCheckList(tableData1, dataTable1){
 		
 		line_cb.on('click', function(e){
 			// console.log("Debug: Line-Check Clicked");
+			var count_selected = dataTable1.rows('.selected').data().length;
+			var count_checked = tableData1.find('tbody input[type="checkbox"]:checked').length;
+			if (count_checked == 1 && count_selected == 1)
+				dataTable1.rows().deselect();
+			
 			var clicked = $(this).prop('checked');
 			if (clicked) 
 				dataTable1.row( $(this).parent().parent() ).select();
 			else
 				dataTable1.row( $(this).parent().parent() ).deselect();
 			
-			var count_selected = dataTable1.rows('.selected').data().length;
+			count_selected = dataTable1.rows('.selected').data().length;
 			head_cb.prop("checked", count_selected == count_rows ? true : false);
 			e.stopPropagation();
 		});
