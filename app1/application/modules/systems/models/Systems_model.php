@@ -159,7 +159,7 @@ class Systems_Model extends CI_model
 	function get_a_menu($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= "a_menu as t1";
+		$params['table'] 	= "(select id as grp, * from a_menu where is_parent = '1' union all	select parent_id as grp, * from a_menu where is_parent = '0') as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec($params);

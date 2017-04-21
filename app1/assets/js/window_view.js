@@ -7,6 +7,16 @@
  *
  * A functions for build Form to View Data
  */
+/* Get Params */
+var $q = getURLParameter("q"), 
+	$id = getURLParameter("id"), 
+	$pageid = getURLParameter("pageid"), 
+	$pageid = getURLParameter("pageid"), 
+	$key = getURLParameter("key"), 
+	$val = getURLParameter("val");
+var origin_url = window.location.origin+window.location.pathname;
+var dataTable1;
+
 function setToolbarBtn(btnList)
 {
 	var container = $('<div class="row toolbar_container">'+
@@ -26,8 +36,8 @@ function setToolbarBtn(btnList)
 		"btn-refresh": 	{group:1, id:"btn-refresh", title:"Refresh", bstyle:"btn-success", icon:"glyphicon glyphicon-refresh"},
 		"btn-delete": 	{group:1, id:"btn-delete", title:"Delete", bstyle:"btn-danger", icon:"glyphicon glyphicon-trash"},
 		"btn-message": 	{group:2, id:"btn-message", title:"Chat/Message/Attach", bstyle:"btn-info", icon:"glyphicon glyphicon-comment"},
-		"btn-print": 		{group:3, id:"btn-print", title:"Print", bstyle:"bg-purple", icon:"glyphicon glyphicon-print"},
 		"btn-export": 	{group:3, id:"btn-export", title:"Export", bstyle:"btn-warning", icon:"glyphicon glyphicon-save"},
+		"btn-print": 		{group:3, id:"btn-print", title:"Print", bstyle:"bg-purple", icon:"glyphicon glyphicon-print"},
 		"btn-import": 	{group:3, id:"btn-import", title:"Import", bstyle:"btn-warning", icon:"glyphicon glyphicon-open"},
 		"btn-viewlog": 	{group:4, id:"btn-viewlog", title:"Record Info", bstyle:"btn-default", icon:"fa fa-info fa-lg", style:"width:35px; height:35px;"},
 		"btn-process": 	{group:5, id:"btn-process", title:"Process", bstyle:"bg-purple", icon:"glyphicon glyphicon-cog dropdown-toggle", data_toggle:"dropdown"},
@@ -42,7 +52,8 @@ function setToolbarBtn(btnList)
 
 function initToolbarButton()
 {
-	if (!Toolbar_Init.toolbar)
+	/* Get variable Toolbar_Init */
+	if (!Toolbar_Init.enable)
 		return false;
 	
 	var toolbarBtn = setToolbarBtn(Toolbar_Init.toolbarBtn);
@@ -69,6 +80,131 @@ function initToolbarButton()
 			$('#'+v).css( "display", "none" );
 		});
 	}
+}
+
+function initDataTable()
+{
+	/* Get variable DataTable_Init */
+	if (!DataTable_Init.enable)
+		return false;
+	
+	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="width:100%; table-layout:fixed; word-wrap:break-word; margin:0px !important;" />');
+	
+	$('.box-body').append( tableData1 );
+	
+	/* Defining Left Button for Datatables */
+	var aLBtn = [];
+	if (DataTable_Init.aLBtn.copy) aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs aLBtn btn-info glyphicon glyphicon-duplicate" title="Copy" name="btn-copy" />');
+	if (DataTable_Init.aLBtn.edit) aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs aLBtn btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />');
+	if (DataTable_Init.aLBtn.delete) aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs aLBtn btn-danger glyphicon glyphicon-trash" title="Delete" name="btn-delete" />');
+	/* Defining Right Button for Datatables */
+	var aRBtn = [];
+	$.each(DataTable_Init.aRBtn, function(i){
+		v = DataTable_Init.aRBtn[i];
+		aRBtn.push('<span><a href="#" class="aRBtn" data-pageid='+v.pageid+' data-key="'+v.key+'">'+v.title+'</a></span>');
+	});
+	/* Setup DataTables */
+	var right_column = [];
+	var left_column = [
+			{ width:"20px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render:function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
+			{ width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render: function(data, type, row){ return aLBtn.join(""); } },
+	];
+	if (aRBtn.length > 0) {
+		right_column = [
+				{ width: DataTable_Init.aRBtn_width, orderable:false, className:"dt-head-center dt-body-center", title:"Sub Menu", render:function(data, type, row){ return aRBtn.join("&nbsp;-&nbsp;"); } }
+		];
+	}
+	/* Create order params */
+	var $ob = '';
+	if (DataTable_Init.order.length > 0)
+		$ob = '&ob='+DataTable_Init.order.join();
+	/* Switching url on submodule is true */
+	var url = DataTable_Init.submodule ? 
+		$url_module+window.location.search+"&"+$key+"="+$val+$ob :
+		$url_module+window.location.search+$ob;
+	dataTable1 = tableData1.DataTable({ "pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, "scrollX": true,
+		"ajax": {
+			"url": url,
+			"data": function(d){ return $.extend({}, d, { "q": $q });	},
+			"dataFilter": function(data){
+				var json = jQuery.parseJSON( data );
+				json.recordsTotal = json.data.total;
+				json.recordsFiltered = json.data.total;
+				json.data = json.data.rows;
+				return JSON.stringify( json ); 
+			}
+		},
+		"columns": left_column.concat(DataTable_Init.columns).concat(right_column),
+		"order": []
+	})
+	.search($q ? $q : '');
+
+	/* For parsing URL Parameters */
+	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
+		$q = $(this).val();
+		$url = insertParam('q', $q);
+		dataTable1.ajax.reload( null, false );
+		history.pushState({}, '', origin_url +'?'+ $url);
+	});		
+	
+	$('div.dataTables_wrapper').find('div.row:first').insertBefore('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_filter');
+	$('div.dataTables_wrapper').find('div.row:last').insertAfter('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_paginate');
+	$('div.box').css('margin-bottom','10px');
+	
+	/* Init Checklist for DataTable */
+	initCheckList(tableData1, dataTable1);
+	/* For Left Button if Exists */
+	tableData1.find('tbody').on( 'click', '.aLBtn', function (e) {
+		/* get selscted record from datatable */
+		var data = dataTable1.row( $(e.target).closest('tr') ).data();
+		
+		switch($(e.target).attr('name')){
+			case 'btn-copy':
+				if (!confirm("Copy this data ?")) {
+					return false;
+				}
+				window.location.href = getURLOrigin()+window.location.search+"&action=cpy&id="+data.id;
+				break;
+			case 'btn-edit':
+				window.location.href = getURLOrigin()+window.location.search+"&action=edt&id="+data.id;
+				break;
+			case 'btn-delete':
+				if (!confirm("Are you sure want to delete this record ?")) {
+					return false;
+				}
+				$.ajax({ url: $url_module+"?id="+data.id, method: "DELETE", async: true, dataType: 'json',
+					success: function(data) {
+						dataTable1.ajax.reload( null, false );
+						BootstrapDialog.alert(data.message);
+					},
+					error: function(data) {
+						if (data.status==500){
+							var message = data.statusText;
+						} else {
+							var error = JSON.parse(data.responseText);
+							var message = error.message;
+						}
+						BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+					}
+				});
+				break;
+		}
+	});
+	
+	/* For Right Button if Exists */
+	tableData1.find('tbody').on( 'click', '.aRBtn', function () {
+		var data = dataTable1.row( $(this).parents('tr') ).data();
+		
+		/* Set Main Title & code_name to Cookies */
+		$.cookie('maintitle'+$pageid, $title);
+		$.cookie('code_name'+$pageid, data.code_name);
+		
+		var pageid = $(this).data('pageid');
+		var key 	 = $(this).data('key');
+		var url = $BASE_URL+"systems/x_page?pageid="+pageid+"&mainpageid="+$pageid+"&key="+key+"&val="+data.id;
+		window.location.href = url;
+	});
+		
 }
 
 /* {* Don't change this code: Init for datatables checklist *} */
@@ -163,9 +299,10 @@ function initCheckList(tableData1, dataTable1){
 		bc_list: breadcrumb
 	}));
 
-	/* Init for Toolbar Button */
+	/* Init for Toolbar */
 	initToolbarButton();
-
+	/* Init for DataTable */
+	initDataTable();
 // });
 
 /* ========================================= */
@@ -173,76 +310,11 @@ function initCheckList(tableData1, dataTable1){
 /* ========================================= */
 // $( document ).ready(function() {
 	
-	/* For parsing URL Parameters */
-	var origin_url = window.location.origin+window.location.pathname;
-	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
-		$q = $(this).val();
-		$url = insertParam('q', $q);
-		dataTable1.ajax.reload( null, false );
-		history.pushState({}, '', origin_url +'?'+ $url);
-	});		
-	
-	$('div.dataTables_wrapper').find('div.row:first').insertBefore('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_filter');
-	$('div.dataTables_wrapper').find('div.row:last').insertAfter('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_paginate');
-	$('div.box').css('margin-bottom','10px');
-	
-	/* For Left Button if Exists */
-	tableData1.find('tbody').on( 'click', '.aLBtn', function (e) {
-		/* get selscted record from datatable */
-		var data = dataTable1.row( $(e.target).closest('tr') ).data();
-		
-		switch($(e.target).attr('name')){
-			case 'btn-copy':
-				if (!confirm("Copy this data ?")) {
-					return false;
-				}
-				window.location.href = getURLOrigin()+window.location.search+"&action=cpy&id="+data.id;
-				break;
-			case 'btn-edit':
-				window.location.href = getURLOrigin()+window.location.search+"&action=edt&id="+data.id;
-				break;
-			case 'btn-delete':
-				if (!confirm("Are you sure want to delete this record ?")) {
-					return false;
-				}
-				$.ajax({ url: $url_module+"?id="+data.id, method: "DELETE", async: true, dataType: 'json',
-					success: function(data) {
-						dataTable1.ajax.reload( null, false );
-						BootstrapDialog.alert(data.message);
-					},
-					error: function(data) {
-						if (data.status==500){
-							var message = data.statusText;
-						} else {
-							var error = JSON.parse(data.responseText);
-							var message = error.message;
-						}
-						BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
-					}
-				});
-				break;
-		}
-	});
-	
-	/* For Right Button if Exists */
-	tableData1.find('tbody').on( 'click', '.aRBtn', function () {
-		var data = dataTable1.row( $(this).parents('tr') ).data();
-		
-		/* Set Main Title & code_name to Cookies */
-		$.cookie('maintitle'+$pageid, $title);
-		$.cookie('code_name'+$pageid, data.code_name);
-		
-		var pageid = $(this).data('pageid');
-		var key 	 = $(this).data('key');
-		var url = $BASE_URL+"systems/x_page?pageid="+pageid+"&mainpageid="+$pageid+"&key="+key+"&val="+data.id;
-		window.location.href = url;
-	});
 	
 // });
 
 	// DTHelper.initCheckList_iCheck(tableData1, dataTable1);
 	// initCheckList_iCheck(tableData1, dataTable1);
-	initCheckList(tableData1, dataTable1);
 	
 /* ==================================== */
 /* Default action for Form CRUD Toolbar */
