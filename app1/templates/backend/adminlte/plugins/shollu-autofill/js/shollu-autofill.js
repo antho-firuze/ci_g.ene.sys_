@@ -67,7 +67,7 @@
 										$(form[i]).iCheck('uncheck') 
 									}
 								} else {
-									form[i].checked = (v)?true:false;
+									form[i].checked = parseInt(v) ? true : false;
 								}
 								break;
 							case "select-one":

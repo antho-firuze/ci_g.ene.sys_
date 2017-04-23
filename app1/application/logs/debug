@@ -1,0 +1,24 @@
+2017-04-23 05:55 String: update table [a_user] where [id=11] => success !
+2017-04-23 05:55 String: unset user_id: 11
+2017-04-23 05:54 String: update table [a_user] where [id=15] => success !
+2017-04-23 05:54 String: unset user_id: 15
+2017-04-23 05:53 String: update table [a_user] where [id=12] => success !
+2017-04-23 05:53 String: unset user_id: 12
+2017-04-23 05:53 String: update table [a_user] where [id=8] => success !
+2017-04-23 05:53 String: unset user_id: 8
+2017-04-23 05:51 String: update table [a_user] where [id=12] => success !
+2017-04-23 05:51 String: unset user_id: 12
+2017-04-23 05:51 String: update table [a_user] where [id=8] => success !
+2017-04-23 05:51 String: unset user_id: 8
+2017-04-23 05:50 String: update table [a_user] where [id=8] => success !
+2017-04-23 05:50 String: unset user_id: 8
+2017-04-23 05:50 String: update table [a_user] where [id=12] => success !
+2017-04-23 05:50 String: unset user_id: 12
+2017-04-23 05:47 String: update table [a_user] where [id=14] => success !
+2017-04-23 05:47 String: unset user_id: 14
+2017-04-23 05:46 String: update table [a_user] where [id=8] => success !
+2017-04-23 05:46 String: unset user_id: 8
+2017-04-23 05:45 String: update table [a_user] where [id=8] => success !
+2017-04-23 05:45 String: unset user_id: 8
+2017-04-23 05:45 String: update table [a_user] where [id=15] => success !
+2017-04-23 05:45 String: unset user_id: 15

@@ -37,8 +37,8 @@
 		] 
 	}));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Path", idname:"path" }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Class", idname:"class" }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Method", idname:"method" }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Class/Controller", idname:"class" }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Method/File", idname:"method" }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Table", idname:"table" }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Title", idname:"title" }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Title Description", idname:"title_desc" }));

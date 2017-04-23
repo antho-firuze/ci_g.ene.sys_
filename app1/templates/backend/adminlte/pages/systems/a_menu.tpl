@@ -28,15 +28,16 @@
 		aLBtn: { copy: true, edit: true, delete: true },
 		aRBtn: [],
 		aRBtn_width: '100px',
-		order: ['grp', 'is_parent desc', 'line_no'],
+		order: ['grp', 'is_parent desc', 'is_submodule', 'line_no'],
 		columns: [
 			{ width:"150px", orderable:false, data:"name", title:"Name" },
-			{ width:"150px", orderable:false, data:"title", title:"Title" },
+			{* { width:"150px", orderable:false, data:"title", title:"Title" }, *}
 			{ width:"200px", orderable:false, data:"title_desc", title:"Description" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"is_parent", title:"Parent", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"line_no", title:"Line", render:function(data, type, row){ return '<input type="number" class="line_no" style="width:50px; text-align:center;" value="'+data+'">'; } },
-			{ width:"100px", orderable:false, data:"icon", title:"Icon" },
+			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"is_submodule", title:"Sub", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{* { width:"100px", orderable:false, data:"icon", title:"Icon" }, *}
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Type", render:function(data, type, row){ return (data=='F') ? 'FORM' : (data=='P') ? 'PROCESS' : (data=='W') ? 'WINDOW' : 'GROUP'; } },
 			{ width:"125px", orderable:false, data:"path", title:"Path" },
 			{ width:"100px", orderable:false, data:"class", title:"Class" },
@@ -49,10 +50,45 @@
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>
 <script>
 
-	$('.dataTables_wrapper').find('tbody').on('keypress', '.line_no', function () {
+	$('.dataTables_wrapper').find('tbody').on('keypress keyup', '.line_no', function (e) {
 		var data = dataTable1.row( $(this).parents('tr') ).data();
-	{* $('.line_no').on('keypress', function(e){ *}
-		console.log($(this).val());
+		var newLine = parseInt($(this).val());
+		
+		{* console.log(e); *}
+		{* TAB || ESC *}
+		if (e.keyCode == 9 || e.keyCode == 27){	
+			console.log(data.line_no);
+			$(this).val(data.line_no);
+			return false;
+		}
+		
+		if (e.keyCode == 13 && e.type == 'keypress'){
+			if (data.line_no == newLine)
+				return false;
+				
+			$.extend(data, { 'newline':newLine });
+			$.ajax({ url: $url_module, data: JSON.stringify(data), method: 'PUT', dataType: 'json',
+				success: function(data){
+					dataTable1.ajax.reload( null, false );
+				},
+				error: function(data) {
+					if (data.status==500){
+						var message = data.statusText;
+					} else {
+						var error = JSON.parse(data.responseText);
+						var message = error.message;
+					}
+					BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+				}
+			});
+			{* console.log(data); *}
+			{* console.log(row); *}
+			{* console.log(newLine); *}
+			{* console.log(data.line_no); *}
+			{* row.concat({ 'newline':newLine }); *}
+			{* console.log(row); *}
+			{* console.log('process dah !'); *}
+		}
 	});
 	
 </script>

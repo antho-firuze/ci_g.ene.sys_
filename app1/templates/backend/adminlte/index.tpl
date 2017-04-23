@@ -90,7 +90,7 @@
 <script src="{$.const.TEMPLATE_URL}js/custom.js"></script>
 <script>
 	{* init for pace option *}
-	paceOptions = {	elements: false, restartOnRequestAfter: false	};
+	paceOptions = {	ajax: false, elements: false, restartOnRequestAfter: false	};
 	{* init for skin & sidebar *}
 	$(document.body).addClass(get($sidebar)).addClass(get($skin)).addClass("{$.session.layout}");
 	
@@ -126,6 +126,6 @@
 	});
   
 </script>
-{* <script src="{$.const.ASSET_URL}js/web_event.js"></script> *}
+<script src="{$.const.ASSET_URL}js/web_event.js"></script>
 </body>
 </html>

@@ -19,12 +19,9 @@ class Test extends CI_Controller {
 	{
 		$strq = "select t1.* 
 			from(select id as grp, * from a_menu where is_parent = '1' union all select parent_id as grp, * from a_menu where is_parent = '0') as t1
-			where is_deleted = '0' and type != 'P' order by grp, is_parent desc, line_no";
+			where is_deleted = '0' and type != 'P' order by grp, is_parent desc, is_submodule, line_no";
 		$fetch = $this->db->query($strq);
-		// echo $fetch->num_rows();
-		$grp = '';
-		$line = 1;
-		$lineh = 1;
+		$grp = ''; $line = 1; $lineh = 1;
 		foreach($fetch->result() as $k => $v){
 			if ($v->is_parent == 1){
 				$grp = $v->grp;

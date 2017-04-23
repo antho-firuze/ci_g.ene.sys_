@@ -5,6 +5,17 @@ include 'email_helper.php';
 include 'sequence_helper.php';
 include 'spelled_out_helper.php';
 
+if ( ! function_exists('run_shell'))
+{
+	function run_shell($cmd)
+	{
+		$WshShell = new COM("WScript.Shell"); 
+		$oExec = $WshShell->Run($cmd, 0, false); 
+		return $oExec == 0 ? true : false; 		
+		// $pid 	=  $WshShell->Exec($cmd);
+		// return $pid;
+	}
+}
 
 if ( ! function_exists('getPHPExecutableFromPath'))
 {
@@ -662,16 +673,13 @@ if (! function_exists('debugf'))
 {
 	function debugf($data='')
 	{
-		$ci =& get_instance();
-		$ci->load->helper('file');
+		$file = APPPATH.'logs/debug';
 		
-		$file = APPPATH.'logs/debug.txt';
-		
-		$str = read_file($file);
+		$str = file_get_contents($file);
 		$type = is_array($data) ? 'Array: ' : is_object($data) ? 'Object: ' : is_bool($data) ? 'Boolean: ' : 'String: ';
-		$data = is_array($data) || is_object($data) ? $type.http_build_query($data, '', ';') : $type.$data;
+		$data = is_array($data) || is_object($data) ? $type.http_build_query($data, '', ';') : is_bool($data) && $data ? $type.'TRUE' : is_bool($data) && !$data ? $type.'FALSE' : $type.$data;
 		$newstr = date('Y-m-d H:i').' '.$data."\r\n".$str;
-		write_file($file, $newstr);
+		file_put_contents($file, $newstr);
 	}
 }
 /* End::Debugging  */

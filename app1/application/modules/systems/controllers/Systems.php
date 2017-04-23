@@ -846,7 +846,14 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			
+			if (isset($this->params->newline) && $this->params->newline != ''){
+				if (!$result = $this->updateRecord($this->c_method, ['line_no' => $this->params->newline], ['id' => $this->params->id], FALSE))
+					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+				else {
+					$this->_reorder_menu();
+					$this->xresponse(TRUE, ['message' => $this->messages()]);
+				}
+			}
 			$this->_pre_update_records();
 		}
 	}

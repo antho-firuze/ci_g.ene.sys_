@@ -367,7 +367,7 @@ class Getmeb extends CI_Controller
 		$this->xresponse(TRUE, ['data' => $result]);
 	}
 	
-	function _pre_update_records($return_data = FALSE)
+	function _pre_update_records($return = FALSE)
 	{
 		$datas = [];
 		$fields = $this->db->list_fields($this->c_method);
@@ -389,7 +389,8 @@ class Getmeb extends CI_Controller
 			}
 		}
 		
-		if ($return_data) return $datas;
+		if ($return) 
+			return $datas;
 			
 		if ($this->r_method == 'POST')
 			$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
@@ -603,6 +604,25 @@ class Getmeb extends CI_Controller
 		return ['filename' => $filezip, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filezip];
 	}
 	
+	function _reorder_menu()
+	{
+		$strq = "select t1.* 
+			from(select id as grp, * from a_menu where is_parent = '1' union all select parent_id as grp, * from a_menu where is_parent = '0') as t1
+			where is_deleted = '0' and type != 'P' order by grp, is_parent desc, is_submodule, line_no";
+		$fetch = $this->db->query($strq);
+		$line = 1; $lineh = 1;
+		foreach($fetch->result() as $k => $v){
+			if ($v->is_parent == 1){
+				$line = 1;
+				$this->db->update('a_menu', ['line_no' => $lineh], ['id' => $v->id]);
+				$lineh++;
+				continue;
+			}
+			$this->db->update('a_menu', ['line_no' => $line], ['id' => $v->id]);
+			$line++;
+		}
+	}
+
 	function import_data()
 	{
 		$this->load->library('Excel');
@@ -661,10 +681,8 @@ class Getmeb extends CI_Controller
 		
 		$cond = is_object($cond) ? (array) $cond : $cond;
 
-		// if (!key_exists('id', $cond) && empty($cond['id'])) {
-			// $this->set_message('update_data_unsuccessful');
-			// return false;
-		// }
+		if (isset($data['id'])) 
+			unset($data['id']);
 		
 		if (!$return = $this->db->update($table, $data, $cond)) {
 			$this->set_message($this->db->error()['message']);

@@ -82,10 +82,14 @@ class Systems_Model extends CI_model
 		$role = $this->base_model->getValueArray('name as role_name, supervisor_id as role_supervisor_id, amt_approval, is_canexport, is_canreport, is_canapproveowndoc, is_accessallorgs, is_useuserorgaccess', 'a_role', 'id', $user_role['role_id']);
 		$system = $this->base_model->getValueArray('api_token, head_title, page_title, logo_text_mn, logo_text_lg, date_format, time_format, datetime_format, user_photo_path, max_file_upload', 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID]);
 		$user_config = $this->base_model->getValue('attribute, value', 'a_user_config', 'user_id', $user_id);
+		$userconfig = [];
 		if ($user_config) {
-			$userconfig = [];
-			foreach($user_config as $k => $v) {
-				$userconfig[$v->attribute] = $v->value;
+			if (count($user_config) == 1) {
+				$userconfig[$user_config->attribute] = $user_config->value;
+			} else {
+				foreach($user_config as $k => $v) {
+					$userconfig[$v->attribute] = $v->value;
+				}
 			}
 		}
 		$user 			= ($user===FALSE) ? [] : $user;

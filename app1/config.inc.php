@@ -31,6 +31,7 @@ try{
 	if($conn){
 		// echo "Connected to the database successfully!";
 		$result = $conn->query("select * from a_domain where name='$http_host'");
+		$conn = null;
 		$row = $result->fetch(PDO::FETCH_ASSOC);
 		if (!$row){
 			echo "Domain name <strong>$http_host</strong> is not exist in table [a_domain] !";

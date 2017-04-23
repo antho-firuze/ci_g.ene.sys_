@@ -116,8 +116,9 @@ function initDataTable()
 	}
 	/* Create order params */
 	var $ob = '';
-	if (DataTable_Init.order.length > 0)
-		$ob = '&ob='+DataTable_Init.order.join();
+	if (DataTable_Init.order)
+		if (DataTable_Init.order.length > 0)
+			$ob = '&ob='+DataTable_Init.order.join();
 	/* Switching url on submodule is true */
 	var url = DataTable_Init.submodule ? 
 		$url_module+window.location.search+"&"+$key+"="+$val+$ob :
@@ -127,11 +128,13 @@ function initDataTable()
 			"url": url,
 			"data": function(d){ return $.extend({}, d, { "q": $q });	},
 			"dataFilter": function(data){
-				var json = jQuery.parseJSON( data );
-				json.recordsTotal = json.data.total;
-				json.recordsFiltered = json.data.total;
-				json.data = json.data.rows;
-				return JSON.stringify( json ); 
+				if (data) {
+					var json = jQuery.parseJSON( data );
+					json.recordsTotal = json.data.total;
+					json.recordsFiltered = json.data.total;
+					json.data = json.data.rows;
+					return JSON.stringify( json ); 
+				}
 			}
 		},
 		"columns": left_column.concat(DataTable_Init.columns).concat(right_column),

@@ -11,6 +11,32 @@
 /* Set Status to Connecting... */
 $('.user-panel').find('a').html('');
 
+function requery()
+{
+	var usr_state = $(document).idleTimer("isIdle") ? 2 : 1;
+	$.ajax({ url:$BASE_URL+'z_libs/sse', method: "GET", async: true, dataType: 'json',
+		data: { '_usr_state':usr_state }, 
+		error: function(response) {
+			// Set Status to Offline !
+			$('.user-panel').find('a').html('').append('<i class="fa fa-circle text-red" />Offline');
+		},
+		success: function(response) {
+			// Set Status to Online !
+			$('.user-panel').find('a').html('').append('<i class="fa fa-circle text-green" />Online');
+			// console.log('sse.response');
+			// console.log(response);
+			if (response.reload)
+				location.reload();
+			if (typeof(response.table) !== 'undefined' && response.table){
+				if ($.cookie('table') == response.table){
+					dataTable1.ajax.reload( null, false );
+					// console.log('table:'+$.cookie('table')+' is reload');
+				}
+			}
+		}
+	});
+}
+
 /* ======================== */
 /* Using EventSource Method */
 /* ======================== */
@@ -41,30 +67,9 @@ sse.onmessage = function(e){
 /* Using Timer with Ajax Short Polling */
 /* =================================== */
 
-setInterval(function(){ 
+requery();
 
-	var usr_state = $(document).idleTimer("isIdle") ? 2 : 1;
-	$.ajax({ url:$BASE_URL+'z_libs/shared/sse', method: "GET", async: true, dataType: 'json',
-		data: { '_usr_state':usr_state }, 
-		error: function(response) {
-			// Set Status to Offline !
-			$('.user-panel').find('a').html('').append('<i class="fa fa-circle text-red" />Offline');
-		},
-		success: function(response) {
-			// Set Status to Online !
-			$('.user-panel').find('a').html('').append('<i class="fa fa-circle text-green" />Online');
-			// console.log('sse.response');
-			// console.log(response);
-			if (typeof(response.table) !== 'undefined' && response.table){
-				if ($.cookie('table') == response.table){
-					dataTable1.ajax.reload( null, false );
-					// console.log('table:'+$.cookie('table')+' is reload');
-				}
-			}
-		}
-	});
-		
-}, 5000);
+setInterval(function(){ requery(); }, 10000);
 
 /* =================================== */
 /* Using Ajax with Long Polling Method */
