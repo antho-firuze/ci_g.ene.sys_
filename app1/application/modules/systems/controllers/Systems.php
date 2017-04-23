@@ -489,8 +489,6 @@ class Systems extends Getmeb
 				$this->auth->reset_password($this->params->name, $this->params->password);
 				unset($this->params->password);
 			}
-			$this->boolfields = ['is_active','is_fullbpaccess'];
-			$this->nullfields = ['supervisor_id','user_role_id','user_org_id'];
 			$this->_pre_update_records();
 		}
 	}
@@ -819,6 +817,42 @@ class Systems extends Getmeb
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$this->_pre_update_records();
+		}
+	}
+	
+	function a_domain()
+	{
+		if ($this->r_method == 'GET') {
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (isset($this->params['q']) && !empty($this->params['q']))
+				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
+
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$datas = $this->_pre_update_records(TRUE);
+			
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, $datas, FALSE, TRUE);
+			else
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);				
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
 	

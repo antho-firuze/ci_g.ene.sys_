@@ -39,9 +39,18 @@ $( document ).ready(function() {
 		});
 	}
 	
+	/* For summernote editor */
+	if (jQuery().summernote) {
+		var strVal = $('.summernote').val();
+		$('.summernote')
+			.summernote({ height: 300, minHeight: null, maxHeight: null })
+			.summernote('code', strVal);
+	}
+	
+	/* For tinymce editor */
 	if (typeof(tinyMCE) !== 'undefined') {
 		tinymce.init({ 
-			selector:'.editor-tinymce', 
+			selector:'.tinymce', 
 			height: '500px', 
 			content_css: [
 					$TEMPLATE_URL+'bootstrap/css/bootstrap.min.css',
