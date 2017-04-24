@@ -14,6 +14,9 @@
 *
 */
 
+/* PERMISSION */
+$lang['permission_failed_menu'] = 'You don\'t have permission to access this menu !';
+$lang['permission_failed_crud'] = 'You don\'t have permission to do this action !';
 /* CRUD */
 $lang['confirm_delete'] 		= 'Are you sure you want to delete this record ?';
 $lang['success_delete'] 		= 'Deleting Data Successfully !';
@@ -41,29 +44,20 @@ $lang['nav_gel_settings']	= "General Menu";
 $lang['nav_analytics']		= "Analytics";
 
 //CONFIRMATION
-$lang['confirm_new_status'] 	= 'Please choose a new status below ?';
-$lang['confirm_deal'] 			= 'Please choose a customer respond/feedback ?';
-$lang['confirm_reason'] 		= 'Please, give a reason ?';
-$lang['confirm_reorder'] 		= 'Are you sure want to RE-ORDER this table ?';
 $lang['confirm_rst_pwd'] 		= 'Are you sure want to RESET PASSWORD this user ?';
 $lang['confirm_export'] 		= 'Are you sure want to EXPORT this data ?';
 
 //SUCCESS NOTIFICATION 
-$lang['success_dealing'] 		= 'Good job...! :)';
 $lang['success_chg_pwd'] 		= 'New Password has been activated, and after this you will logout !';
 $lang['success_rst_pwd'] 		= 'Password has been reset successfully !';
-
-//ERROR NOTIFICATION
-$lang['permission_failed_menu'] = 'You don\'t have permission to access this menu !';
-$lang['permission_failed_crud'] = 'You don\'t have permission to do this action !';
 
 /* Upload */
 $lang['err_generate_photo'] = 'Generate Photo Failed !';
 $lang['err_upload_photo'] = 'Upload Photo Failed !';
 
-$lang['error_no_detail']		= 'ERROR: This data has no detail(s) !';
+$lang['error_no_detail']		= 'This data has no detail(s) !';
 $lang['error_filter_date'] 		= '(Date From) must be smaller than (Date To) !';
-$lang['error_exists_data'] 		= 'Error: This data has already exists !';
+$lang['error_identity_keys'] 		= 'This data has already exists !';
 $lang['error_data_transaction'] = 'Error: This data has already have TRANSACTIONS !';
 $lang['error_delete_auth'] 		= 'Error: Only user who entry that, can remove it !';
 $lang['error_old_password']  	= 'Error: Wrong Old Password !';
