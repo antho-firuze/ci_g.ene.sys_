@@ -6,7 +6,6 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
@@ -21,7 +20,6 @@
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info" });
 	var req = (act == 'new') ? true : (act == 'edt') ? false : true;
-	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
 	col.push(BSHelper.Input({ type:"hidden", idname:"photo_file" }));
 	col.push( $('<div style="text-align:center;width:100%;" />')
 		.append( $('<img class="profile-user-img img-responsive img-circle" style="width:150px; margin-bottom:13px;" alt="User Picture" />') )
@@ -30,7 +28,7 @@
 		.append( BSHelper.Button({ type:"button", label:"Generate Image", idname:"btn_generatephoto", 
 			onclick:"$.ajax({ 
 				url:$url_module,
-				data: JSON.stringify({ genphoto:1, id:$('#id').val(), name:$('#name').val(), photo_file:$('#photo_file').val() }),
+				data: JSON.stringify({ genphoto:1, id:id, name:$('#name').val(), photo_file:$('#photo_file').val() }),
 				method:'PUT', async: true, dataType:'json', 
 				success: function(data){	
 					if (data.status) { 
@@ -106,3 +104,4 @@
 	uploader.init();
 
 </script>
+<script src="{$.const.ASSET_URL}js/window_edit.js"></script>

@@ -59,7 +59,7 @@ class Sales_Model extends CI_Model
 	
 	function get_m_pricelist_version($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, to_char(t1.validfrom, '".$this->session->date_format."') as validfrom";
 		$params['table'] 	= "m_pricelist_version as t1";
 		$params['join'][] = ['m_pricelist as t2', 't1.pricelist_id = t2.id', 'left'];
 		$params['where']['t1.is_deleted'] 	= '0';

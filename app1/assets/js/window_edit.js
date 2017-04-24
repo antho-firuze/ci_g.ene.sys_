@@ -7,11 +7,14 @@
  *
  * A functions for build Form to Add/Edit/Copy Data
  */
+/* Get Params */
+var id = getURLParameter("id"), act = getURLParameter("action"), key = getURLParameter("key"), val = getURLParameter("val");
+var act_name = (act == 'new') ? "(New)" : (act == 'edt') ? "(Edit)" : (act == 'cpy') ? "(Copy)" : act;
 /* 
 /* ========================================= */
 /* Default init for Header									 */
 /* ========================================= */
-$( document ).ready(function() {
+// $( document ).ready(function() {
 	/* Start :: Init for Title, Breadcrumb */
 	$(".content").before(BSHelper.PageHeader({ 
 		title: $title, 
@@ -23,7 +26,7 @@ $( document ).ready(function() {
 		]
 	}));
 
-});
+// });
 /* ==================================== */
 /* Default action for Form Edit */
 /* ==================================== */
@@ -136,6 +139,12 @@ $( document ).ready(function() {
 		form.validator().on('submit', function(e) {
 			if (e.isDefaultPrevented()) { return false;	} 
 			var r_method = (act == 'new') ? 'POST' : (act == 'cpy') ? 'POST' : 'PUT';
+			
+			form.append(BSHelper.Input({ type:"hidden", idname:"id", value:id }));
+			if (key){
+				form.append(BSHelper.Input({ type:"hidden", idname:key, value:val }));
+			}
+			// console.log(form.serializeJSON()); return false;
 			
 			form.find("[type='submit']").prop( "disabled", true );
 			

@@ -6,23 +6,15 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $title	= "{$title}";
-	{* Get Params *}
-	var id = getURLParameter("id"), act = getURLParameter("action"), key = getURLParameter("key"), val = getURLParameter("val");
-	var act_name = (act == 'new') ? "(New)" : (act == 'edt') ? "(Edit)" : (act == 'cpy') ? "(Copy)" : act;
 	{* For design form interface *}
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });	
 	var box1 = BSHelper.Box({ type:"info" });
-	{* adding master key id & value *}
-	col.push(BSHelper.Input({ type:"hidden", idname: key, value: val }));
-	{* Start here to custom *}
-	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Menu", idname:"menu_id", url:"{$.php.base_url('systems/a_menu')}?filter=is_active='1',type<>'G'&ob=name", remote: true }));
 	col.push(BSHelper.Combobox({ label:"Type", idname:"type", disabled: true, 
 		list:[
@@ -54,7 +46,9 @@
 			{ id:"1", name:"Execute" },
 		] 
 	}));
-	form1.append(subRow(subCol(6, col)));
+	row.push(subCol(6, col)); col = [];
+	row.push(subCol(6, col));
+	form1.append(subRow(row));
 	form1.append(subRow(subCol()));
 	col = [];
 	col.push( BSHelper.Button({ type:"submit", label:"Submit", idname:"submit_btn" }) );
@@ -99,3 +93,4 @@
 	});
 	
 </script>
+<script src="{$.const.ASSET_URL}js/window_edit.js"></script>

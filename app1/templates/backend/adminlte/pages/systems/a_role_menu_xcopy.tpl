@@ -8,7 +8,6 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
@@ -20,14 +19,10 @@
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });	
 	var box1 = BSHelper.Box({ type:"info" });
-	{* adding master key id & value *}
-	col.push(BSHelper.Input({ type:"hidden", idname: key, value: val }));
-	{* Start here to custom *}
-	col.push(BSHelper.Input({ type:"hidden", idname:"action", value: act }));
-	{* standard fields table *}
-	col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Please Choose Role to be copied !", idname:"copy_role_id", required:true, url:"{$.php.base_url('systems/a_role')}?filter=t1.id<>"+val, remote: true }));
-	form1.append(subRow(subCol(6, col)));
+	row.push(subCol(6, col)); col = [];
+	row.push(subCol(6, col));
+	form1.append(subRow(row));
 	form1.append(subRow(subCol()));
 	col = [];
 	col.push( BSHelper.Button({ type:"submit", label:"Submit", idname:"submit_btn" }) );
@@ -41,6 +36,10 @@
 	form1.validator().on('submit', function (e) {
 		{* e.stopPropagation; *}
 		if (e.isDefaultPrevented()) { return false;	} 
+		
+		form1.append(BSHelper.Input({ type:"hidden", idname:"id", value:id }));
+		form1.append(BSHelper.Input({ type:"hidden", idname:"action", value:act }));
+		form1.append(BSHelper.Input({ type:"hidden", idname:key, value:val }));
 		
 		form1.find("[type='submit']").prop( "disabled", true );
 		
@@ -67,3 +66,4 @@
 		return false;
 	});
 </script>
+<script src="{$.const.ASSET_URL}js/window_edit.js"></script>
