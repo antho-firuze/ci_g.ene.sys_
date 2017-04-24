@@ -9,8 +9,8 @@ class Sales extends Getmeb
 		$this->exception_method = [];
 		parent::__construct();
 		
-		$class = strtolower(get_class($this));
-		$this->load->model($class.'_model');
+		$this->mdl = strtolower(get_class($this)).'_model';
+		$this->load->model($this->mdl);
 	}
 	
 	function a_user_org()
@@ -48,7 +48,7 @@ class Sales extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->sales_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -57,36 +57,7 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active'];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -99,7 +70,7 @@ class Sales extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->sales_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -108,36 +79,7 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active'];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -150,7 +92,7 @@ class Sales extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->sales_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -159,36 +101,7 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active'];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -201,7 +114,7 @@ class Sales extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->sales_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -210,36 +123,7 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active'];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -252,7 +136,7 @@ class Sales extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->sales_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -261,36 +145,7 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active'];
-			$nullfields = ['description'];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -303,7 +158,7 @@ class Sales extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->sales_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -312,36 +167,7 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active'];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -354,7 +180,7 @@ class Sales extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 	
-			if (($result['data'] = $this->sales_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -363,36 +189,7 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = ['is_active'];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->_pre_update_records();
 		}
 	}
 	
@@ -405,7 +202,7 @@ class Sales extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.attribute, t1.description', $this->params['q']);
 	
-			if (($result['data'] = $this->sales_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -414,36 +211,7 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$fields = $this->db->list_fields($this->c_method);
-			$boolfields = [];
-			$nullfields = [];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					if (in_array($f, $boolfields)){
-						$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-					} 
-					elseif (in_array($f, $nullfields)){
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-					} else {
-						$datas[$f] = $this->params->{$f};
-					}
-				}
-			}
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
-		}
-		if ($this->r_method == 'DELETE') {
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->_pre_update_records();
 		}
 	}
 	

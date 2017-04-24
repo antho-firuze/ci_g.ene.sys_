@@ -28,9 +28,11 @@ class Getmeb extends CI_Controller
 	/* This variable for INSERT & UPDATE records */
 	/* ========================================= */
 	/* FOR DEFINED BOOLEAN FIELDS */
-	public $boolfields = [];
+	// public $boolfields = [];
 	/* FOR DEFINED ALLOW NULL FIELDS */
-	public $nullfields = [];
+	// public $nullfields = [];
+	/* FOR DEFINED IDENTITY FIELD WHICH CANNOT NE DUPLICATE */
+	public $identity_keys = ['name'];
 	
 	/* ========================================= */
 	/* This variable for UPLOAD & DOWNLOAD files */
@@ -636,10 +638,17 @@ class Getmeb extends CI_Controller
 		$objPHPExcel = $objReader->load("sample.csv");
 	}
 	
-	function set_message($message)
+	function set_message($message, $args=NULL)
 	{
-		$this->messages[] = $message;
-
+		$msg = $this->lang->line($message) ? $this->lang->line($message) : '##' . $message . '##';
+		
+		if (!empty($args)){
+			$args = is_array($args) ? http_build_query($args,'',', ') : $args;
+			$args = sprintf('[%s]: ', $args);
+			$msg = sprintf('%s%s', $args, $msg);
+		}
+		
+		$this->messages[] = $msg;
 		return $message;
 	}
 
@@ -648,8 +657,7 @@ class Getmeb extends CI_Controller
 		$_output = '';
 		foreach ($this->messages as $message)
 		{
-			$messageLang = $this->lang->line($message) ? $this->lang->line($message) : '##' . $message . '##';
-			$_output .= '<p>' . $messageLang . '</p>';
+			$_output .= '<p>' . $message . '</p>';
 		}
 
 		return $_output;
@@ -664,7 +672,19 @@ class Getmeb extends CI_Controller
 		if (key_exists('id', $data)) 
 			unset($data['id']);
 
-		// debug(var_dump($data));
+		if ($this->identity_keys){
+			foreach($this->identity_keys as $k => $v){
+				$val[] = $data[$v];
+				$msg[$v] = $data[$v];
+			}
+			
+			$fk = $this->base_model->getValue('id', $table, $this->identity_keys, $val);
+			if (count($fk) > 0){
+				$this->set_message('error_exists_data', $msg);
+				return false;
+			}
+		}
+
 		if (!$return = $this->db->insert($table, $data)) {
 			$this->set_message($this->db->error()['message']);
 			return false;

@@ -29,6 +29,7 @@
 		aLBtn: { copy: false, edit: true, delete: true },
 		aRBtn: [],
 		aRBtn_width: '100px',
+		order: ['id desc'],
 		columns: [
 			{ width:"150px", orderable:false, data:"code_name", title:"Menu" },
 			{ width:"55px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Type", render:function(data, type, row){ return (data=='F') ? 'FORM' : (data=='P') ? 'PROCESS' : (data=='W') ? 'WINDOW' : 'GROUP'; } },

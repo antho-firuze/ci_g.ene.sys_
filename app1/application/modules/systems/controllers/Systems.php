@@ -688,6 +688,8 @@ class Systems extends Getmeb
 	
 	function a_role_menu()
 	{
+		$this->identity_keys = ['role_id', 'menu_id'];
+		
 		if ($this->r_method == 'GET') {
 			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];

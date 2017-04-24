@@ -15,6 +15,19 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
+	function prnf(){
+		// $args = NULL;
+		// $args = '';
+		// $args = [];
+		$args = ['test'];
+		// $args = 'test';
+		if (!empty($args)){
+			$args = is_array($args) ? implode(', ', $args) : $args;
+			$msg = sprintf('[%s]', $args);
+			echo $msg;
+		}
+	}
+	
 	function reorder_menu()
 	{
 		$strq = "select t1.* 
