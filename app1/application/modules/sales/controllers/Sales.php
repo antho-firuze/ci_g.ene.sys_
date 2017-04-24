@@ -114,6 +114,10 @@ class Sales extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -136,6 +140,10 @@ class Sales extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -157,6 +165,10 @@ class Sales extends Getmeb
 			
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
+
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
 
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
