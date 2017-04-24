@@ -676,14 +676,13 @@ class Getmeb extends CI_Controller
 			$val = [];
 			foreach($this->identity_keys as $k => $v){
 				if (isset($data[$v])){
-					$val[] = $data[$v];
-					$msg[$v] = $data[$v];
+					$val[$v] = $data[$v];
 				}
 			}
 			if (count($val) > 0) {
-				$fk = $this->base_model->getValue('id', $table, $this->identity_keys, $val);
-				if (count($fk) > 0){
-					$this->set_message('error_identity_keys', __FUNCTION__, $msg);
+				$fk = $this->db->get_where($table, array_merge($val, ['is_active' => '1', 'is_deleted' => '0']), 1);
+				if ($fk->num_rows() > 0){
+					$this->set_message('error_identity_keys', __FUNCTION__, $val);
 					return false;
 				}
 			}

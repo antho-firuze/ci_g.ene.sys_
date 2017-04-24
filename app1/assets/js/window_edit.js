@@ -29,6 +29,11 @@ $( document ).ready(function() {
 /* ==================================== */
 $( document ).ready(function() {
 	
+	/* This class is for auto conversion from dmy to ymd */
+	$(".auto_ymd").on('change', function(){
+		$('input[name="'+$(this).attr('id')+'"]').val( datetime_db_format($(this).val(), $(this).attr('data-format')) );
+	});
+	
 	/* Begin: Populate data to form */
 	if(typeof(auto_populate)==='undefined') auto_populate = true;
 	if (auto_populate){
@@ -36,6 +41,9 @@ $( document ).ready(function() {
 			if (!isempty_obj(result.data.rows)) 
 				$('form').shollu_autofill('load', result.data.rows[0]);  
 				$('form').validator('update');
+				
+				/* Trigger auto conversion */
+				$(".auto_ymd").trigger('change');
 		});
 	}
 	

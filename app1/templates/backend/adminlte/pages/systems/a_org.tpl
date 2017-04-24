@@ -31,8 +31,8 @@
 		columns: [
 			{ width:"200px", orderable: false, data:"code_name", 	 title:"Name" },
 			{ width:"250px", orderable: false, data:"description", title:"Description" },
-			{ width:"250px", orderable: false, data:"orgtype_name", title:"Type" },
-			{ width:"250px", orderable: false, data:"parent_name", title:"Parent" },
+			{ width:"125px", orderable: false, data:"orgtype_name", title:"Type" },
+			{ width:"125px", orderable: false, data:"parent_name", title:"Parent" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 	};

@@ -495,6 +495,8 @@ class Systems extends Getmeb
 	
 	function a_user_org()
 	{
+		$this->identity_keys = ['user_id', 'org_id'];
+		
 		if ($this->r_method == 'GET') {
 			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
@@ -533,6 +535,8 @@ class Systems extends Getmeb
 	
 	function a_user_role()
 	{
+		$this->identity_keys = ['user_id', 'role_id'];
+		
 		if ($this->r_method == 'GET') {
 			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
@@ -563,6 +567,8 @@ class Systems extends Getmeb
 	
 	function a_user_substitute()
 	{
+		$this->identity_keys = ['user_id', 'substitute_id'];
+		
 		if ($this->r_method == 'GET') {
 			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
 				$this->params['where']['t1.id'] = $this->params['id'];
@@ -582,18 +588,7 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datefields = [];
-			$timefields = [];
-			$datetimefields = ['valid_from','valid_to'];
-			foreach($fields as $f){
-				if (key_exists($f, $this->params)){
-					/* Check if any exists allow null fields */
-					$datas[$f] = ($this->params->{$f} == '') ? NULL : $this->params->{$f}; 
-					
-					if (in_array($f, $datetimefields))
-						$datas[$f] = ($this->params->{$f}=='') ? NULL : datetime_db_format($this->params->{$f}, $this->session->date_format); 
-				}
-			}
+			$this->_pre_update_records();
 		}
 	}
 	

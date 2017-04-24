@@ -29,6 +29,7 @@
 		aLBtn: { copy: false, edit: true, delete: true },
 		aRBtn: [],
 		aRBtn_width: '100px',
+		order: ['id desc'],
 		columns: [
 			{ width:"250px", orderable:false, data:"code_name", title:"Role" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },

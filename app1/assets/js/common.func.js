@@ -162,6 +162,43 @@ function format_ymd(tdate){
 	return (y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d));
 }
 
+function datetime_db_format(datetime, this_format, is_datetime){
+	if(typeof(datetime)==='undefined' || datetime == '') return '';
+	if(typeof(this_format)==='undefined') return '';
+	if(typeof(is_datetime)==='undefined') is_datetime = false;
+	
+	if ($.inArray(this_format, ['dd/mm/yyyy', 'mm/dd/yyyy', 'dd-mm-yyyy', 'mm-dd-yyyy', 'dd/mm/yyyy hh:mm', 'mm/dd/yyyy hh:mm', 'dd-mm-yyyy hh:mm', 'mm-dd-yyyy hh:mm']) < 0)
+		return '';
+	
+	/* seperate between date & time */
+	var dt = [], dt_format = [];
+	dt = datetime.split(' ');
+	dt_format = this_format.split(' ');
+
+	var date, time;
+	date = (dt.length > 1) ? dt[0] : dt[0];
+	time = (dt.length > 1) ? dt[1]+':00' : false;
+	var date_format, time_format;
+	date_format = (dt_format.length > 1) ? dt_format[0] : dt_format[0];
+	time_format = (dt_format.length > 1) ? dt_format[1] : false;
+
+	/* time */
+	var time_result;
+	time_result = (time !== false) ? time : '00:00:00';
+	
+	/* date */
+	if (date_format.indexOf('-') < 0) {
+		var f = date_format.split('/');
+		var d = date.split('/');
+	} else {
+		var f = date_format.split('-');
+		var d = date.split('-');
+	}
+	var date_result;
+	date_result = [d[$.inArray('yyyy',f)], d[$.inArray('mm',f)], d[$.inArray('dd',f)]].join('-');
+	return time_format ? [date_result, time_result].join(' ') : date_result;
+}
+
 function format_to_datetime(unix_timestamp){
 	if(typeof(unix_timestamp)==='undefined') unix_timestamp = 0;
 	if (unix_timestamp!=0)

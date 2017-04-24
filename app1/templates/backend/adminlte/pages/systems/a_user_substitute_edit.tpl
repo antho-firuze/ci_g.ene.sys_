@@ -29,8 +29,8 @@
 	col.push(BSHelper.Combobox({ horz:false, label:"User Substitute", idname:"substitute_id", url:"{$.php.base_url('systems/a_user')}", remote: true }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", placeholder:"string(2000)" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
-	col.push(BSHelper.Input({ type:"date", label:"Valid From", idname:"valid_from", inputmask:"'alias':'{$.session.date_format}'" }));
-	col.push(BSHelper.Input({ type:"date", label:"Valid To", idname:"valid_to", inputmask:"'alias':'{$.session.date_format}'" }));
+	col.push(BSHelper.Input({ type:"date", label:"Valid From", idname:"valid_from", cls:"auto_ymd", format:"{$.session.date_format}" }));
+	col.push(BSHelper.Input({ type:"date", label:"Valid To", idname:"valid_to", cls:"auto_ymd", format:"{$.session.date_format}" }));
 	form1.append(subRow(subCol(6, col)));
 	form1.append(subRow(subCol()));
 	col = [];
@@ -41,4 +41,6 @@
 	box1.find('.box-body').append(form1);
 	$(".content").append(box1);
 
+	$("[data-mask]").inputmask();
+	
 </script>

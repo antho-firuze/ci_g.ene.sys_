@@ -245,10 +245,17 @@
 				input.attr('type',o.type);
 				break;
 			case 'date':
+				var input2 = $('<'+el+' />', {id:o.idname, name:o.idname, value:o.value}); 
+				input2.attr('type','hidden');
+				
 				input.attr('type','text');
+				input.removeAttr('name');
 				if (o.min) input.attr('min',o.min);		// format yyyy-mm-dd
 				if (o.max) input.attr('max',o.max);		// format yyyy-mm-dd
-				if (o.inputmask) input.attr('data-inputmask',o.inputmask);
+				if (o.format) {
+					input.attr('data-format',o.format);
+					input.attr('data-inputmask',"'alias':'"+o.format+"'");
+				}
 				input.attr('data-mask','');
 				break;
 			case 'textarea':
@@ -270,7 +277,11 @@
 		if (o.idmatch) input.attr('data-match','#'+o.idmatch);
 		if (o.errormatch) input.attr('data-match-error',o.errormatch);
 		if (o.cls) input.addClass(o.cls);
-		container.find('.control-input').append(input).append(help);
+		
+		if (thetype.toLowerCase() == 'date') 
+			container.find('.control-input').append(input).append(input2).append(help);
+		else
+			container.find('.control-input').append(input).append(help);
 		return container;
 	};
 	
@@ -298,7 +309,7 @@
 		if (o.readonly) input.attr('readonly','');
 		if (parseInt(o.value)) input.prop("checked", true);
 		
-		container.find('.control-input').append( input.append(input2) ).append(help);
+		container.find('.control-input').append(input).append(input2).append(help);
 		// input.iCheck({ checkboxClass: 'icheckbox_flat-orange', radioClass: 'iradio_flat-orange'	});
 		return container;
 	};
