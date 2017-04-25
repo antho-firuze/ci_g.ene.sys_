@@ -11,8 +11,6 @@
 <!-- /.content-wrapper -->
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $title = "{$title}", $title_desc = "{$title_desc}";
-	{* Get Params *}
-	var $q = getURLParameter("q"), $id = getURLParameter("id");
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		enable: true,
@@ -54,7 +52,6 @@
 		var data = dataTable1.row( $(this).parents('tr') ).data();
 		var newLine = parseInt($(this).val());
 		
-		{* console.log(e); *}
 		{* TAB || ESC *}
 		if (e.keyCode == 9 || e.keyCode == 27){	
 			console.log(data.line_no);
@@ -81,13 +78,6 @@
 					BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
 				}
 			});
-			{* console.log(data); *}
-			{* console.log(row); *}
-			{* console.log(newLine); *}
-			{* console.log(data.line_no); *}
-			{* row.concat({ 'newline':newLine }); *}
-			{* console.log(row); *}
-			{* console.log('process dah !'); *}
 		}
 	});
 	

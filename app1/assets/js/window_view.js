@@ -11,7 +11,6 @@
 var $q = getURLParameter("q"), 
 	$id = getURLParameter("id"), 
 	$pageid = getURLParameter("pageid"), 
-	$pageid = getURLParameter("pageid"), 
 	$key = getURLParameter("key"), 
 	$val = getURLParameter("val");
 var origin_url = window.location.origin+window.location.pathname;

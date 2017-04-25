@@ -11,8 +11,6 @@
 <!-- /.content-wrapper -->
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $title = "{$title}", $title_desc = "{$title_desc}", $is_submodule = "{$is_submodule}";
-	{* Get Params *}
-	var $q = getURLParameter("q"), $id = getURLParameter("id"), $pageid = getURLParameter("pageid"), $key = getURLParameter("key"), $val = getURLParameter("val");
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		enable: true,
