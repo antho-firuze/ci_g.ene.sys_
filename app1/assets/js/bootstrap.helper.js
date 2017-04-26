@@ -61,7 +61,7 @@
 				if (j == (countlist-1)) {
 					li.addClass('active').html(title);
 				} else {
-					li.append( $('<a href="'+link+'" />').html(title) );
+					li.append( $('<a href="#" onclick="'+link+'; return false;" />').html(title) );
 				}
 				ol.append(li);
 			});

@@ -346,14 +346,32 @@ class Systems extends Getmeb
 	function x_page()
 	{
 		if (isset($this->params['pageid']) && !empty($this->params['pageid'])) {
+			$this->pageid = explode(',', $this->params['pageid']);
+			
+			/* For getting breadcrumb */
+			$menu = $this->db->where_in('id', $this->pageid)->order_by('id')->get('a_menu')->result();
+			for($i = 0; $i < count($menu); $i++){
+				$link = 'javascript:history.go(-'.(count($menu)-$i).')';
+				// $link = 'window.history.go(-'.(count($menu)-$i).')';
+				if (count($menu) == 1 && $i+1 == 1) $link = '';
+				if (count($menu) == $i+1) $link = ''; 
+				// $bc[$menu[$i]->id] = ['icon' => $menu[$i]->icon, 'title' => $menu[$i]->title, 'title_desc' => $menu[$i]->title_desc, 'link' => $link];
+				$bc[] = ['pageid' => $menu[$i]->id, 'icon' => $menu[$i]->icon, 'title' => $menu[$i]->title, 'title_desc' => $menu[$i]->title_desc, 'link' => $link];
+			}
+			$this->params['bread'] = $bc;
+			
+			$this->pageid = end($this->pageid);
 			/* Checking standard page for existance */
-			$menu = $this->base_model->getValueArray('*', 'a_menu', ['client_id','id'], [DEFAULT_CLIENT_ID, $this->params['pageid']]);
+			$menu = $this->base_model->getValueArray('*', 'a_menu', ['client_id','id'], [DEFAULT_CLIENT_ID, $this->pageid]);
 			if (! $this->_check_menu($menu)) {
 				$this->backend_view('pages/404', ['message'=>'<b>'.$this->messages().'</b>']);
 			}
 			
 			/* For identify opened table to client (property for auto reload event) */
 			setcookie('table', $menu['table']);
+			
+			if (isset($this->params['bread']) && count($this->params['bread']) >= 0)
+				$menu = array_merge($menu, ['bread' => $this->params['bread']]);
 			
 			/* Check for action pages */
 			if (isset($this->params['action']) && !empty($this->params['action'])){
@@ -364,7 +382,7 @@ class Systems extends Getmeb
 						$this->backend_view($menu['path'].$menu['table'].'_edit', $menu);
 						break;
 					case 'exp':
-						$this->backend_view('include/export_data', $menu);
+						$this->backend_view('include/export_data',$menu);
 						break;
 					case 'imp':
 						$this->backend_view('include/import_data', $menu);

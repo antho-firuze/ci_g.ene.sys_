@@ -15,6 +15,12 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
+	function HTTP_Params()
+	{
+		// $this->load->view('flotr2');
+		$this->fenomx->view('test/params');
+	}
+	
 	function prnf(){
 		// $args = NULL;
 		// $args = '';

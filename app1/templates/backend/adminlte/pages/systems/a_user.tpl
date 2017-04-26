@@ -25,9 +25,9 @@
 		enable: true,
 		aLBtn: { copy: true, edit: true, delete: true },
 		aRBtn: [
-			{ pageid: 31, key: 'user_id', title: 'Role', },
-			{ pageid: 32, key: 'user_id', title: 'Org' },
-			{ pageid: 33, key: 'user_id', title: 'Subs' },
+			{ pageid: 31, subKey: 'user_id', title: 'Role', },
+			{ pageid: 32, subKey: 'user_id', title: 'Org' },
+			{ pageid: 33, subKey: 'user_id', title: 'Subs' },
 		],
 		aRBtn_width: '100px',
 		order: ['is_online desc'],

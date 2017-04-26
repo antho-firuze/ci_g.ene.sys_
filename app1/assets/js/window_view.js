@@ -11,8 +11,8 @@
 var $q = getURLParameter("q"), 
 	$id = getURLParameter("id"), 
 	$pageid = getURLParameter("pageid"), 
-	$key = getURLParameter("key"), 
-	$val = getURLParameter("val");
+	$filter = getURLParameter("filter");
+
 var origin_url = window.location.origin+window.location.pathname;
 var dataTable1;
 
@@ -100,7 +100,7 @@ function initDataTable()
 	var aRBtn = [];
 	$.each(DataTable_Init.aRBtn, function(i){
 		v = DataTable_Init.aRBtn[i];
-		aRBtn.push('<span><a href="#" class="aRBtn" data-pageid='+v.pageid+' data-key="'+v.key+'">'+v.title+'</a></span>');
+		aRBtn.push('<span><a href="#" class="aRBtn" data-pageid='+v.pageid+' data-subKey="'+v.subKey+'">'+v.title+'</a></span>');
 	});
 	/* Setup DataTables */
 	var right_column = [];
@@ -119,9 +119,7 @@ function initDataTable()
 		if (DataTable_Init.order.length > 0)
 			$ob = '&ob='+DataTable_Init.order.join();
 	/* Switching url on submodule is true */
-	var url = DataTable_Init.submodule ? 
-		$url_module+window.location.search+"&"+$key+"="+$val+$ob :
-		$url_module+window.location.search+$ob;
+	var url = $url_module+window.location.search+$ob;
 	dataTable1 = tableData1.DataTable({ "pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, "scrollX": true,
 		"ajax": {
 			"url": url,
@@ -137,7 +135,22 @@ function initDataTable()
 			}
 		},
 		"columns": left_column.concat(DataTable_Init.columns).concat(right_column),
-		"order": []
+		"order": [],
+		"fnDrawCallback": function( oSettings ) {
+			/* For Adding Tooltip to the "tr body datatables" */
+			$.each(tableData1.find('tbody').children('tr'), function(i){
+				var data = dataTable1.row( $(this) ).data();
+				var title = '';
+				$.each(DataTable_Init.columns, function(i, val){
+					if (val.render)
+						var t = val.render(data[val.data]);
+					else 
+						var t = data[val.data];
+					title += val.title +' : '+ (t ? t : '') +'\n';
+				});
+				$(this).attr('title', title);
+			});
+		},
 	})
 	.search($q ? $q : '');
 
@@ -198,12 +211,13 @@ function initDataTable()
 		var data = dataTable1.row( $(this).parents('tr') ).data();
 		
 		/* Set Main Title & code_name to Cookies */
-		$.cookie('maintitle'+$pageid, $title);
-		$.cookie('code_name'+$pageid, data.code_name);
-		
-		var pageid = $(this).data('pageid');
-		var key 	 = $(this).data('key');
-		var url = $BASE_URL+"systems/x_page?pageid="+pageid+"&mainpageid="+$pageid+"&key="+key+"&val="+data.id;
+		$pageid = '?pageid='+$pageid+','+$(this).attr('data-pageid');
+		if ($filter){
+			$filter = '&filter='+$filter+','+$(this).attr('data-subKey') + '=' + data.id;
+		} else {
+			$filter = '&filter='+$(this).attr('data-subKey') + '=' + data.id;
+		}
+		var url = $BASE_URL+"systems/x_page"+$pageid+$filter;
 		window.location.href = url;
 	});
 		
@@ -277,28 +291,61 @@ function initCheckList(tableData1, dataTable1){
 /* ========================================= */
 // $( document ).ready(function() {
 	/* Start :: Init for Title, Breadcrumb */
-	if (typeof($is_submodule) == 'undefined') $is_submodule = false;
-	if ($is_submodule) {
-		var $mainpageid = getURLParameter("mainpageid"); 
-		var $code_name = $.cookie('code_name'+$mainpageid);
-		var $maintitle = $.cookie('maintitle'+$mainpageid);
-		var breadcrumb = [
-				{ icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK },
-				{ icon:"", title: $maintitle, link:"javascript:history.back()" },
-				{ icon:"", title: $title, link:"" },
-			];
-		$title = $title + ': ' + $code_name;
+	// if (typeof($is_submodule) == 'undefined') $is_submodule = false;
+	// var $titles = {};
+	// $pages = $pageid.split(',');
+	// if (title_tmp)
+		// $titles.push(title_tmp);
+	// $titles.push($title)
+	// $.cookie('title', $titles);
+	// console.log($titles);
+
+	// console.log($bread);
+	// console.log($bread.length);
+	// var breadcrumb = [];
+	// $.each($bread, function(k, v){
+		// console.log(v);
+	// });
+	/* if ($pages.length == 1) {
+		breadcrumb.push({ icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK });
+		breadcrumb.push({ icon:"", title:$title, link:"" });
 	} else {
-		var breadcrumb = [
-				{ icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK },
-				{ icon:"", title: $title, link:"" },
-			];
-	}
+		for (i = 1; i < $pages.length; i++) { 
+			if (i == 1) {
+				breadcrumb.push({ icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK });
+				breadcrumb.push({ icon:"", title:$title, link: "javascript:history.back(-"+($pages.length-i)+")" });
+			} else if (i == $pages.length){
+				breadcrumb.push({ icon:"", title:$titles[i], link: "" });
+			} else {
+				breadcrumb.push({ icon:"", title:$titles[i], link:"javascript:history.back(-"+($pages.length-i)+")" });
+			}
+		}
+	} */
+	//console.log($pageid.join(','));
+	// if ($is_submodule) {
+		// var $mainpageid = getURLParameter("mainpageid"); 
+		// var $code_name = $.cookie('code_name'+$mainpageid);
+		// var $maintitle = $.cookie('maintitle'+$mainpageid);
+		// var breadcrumb = [
+				// { icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK },
+				// { icon:"", title: $maintitle, link:"javascript:history.back()" },
+				// { icon:"", title: $title, link:"" },
+			// ];
+		// $title = $title + ': ' + $code_name;
+	// } else {
+		// var breadcrumb = [
+				// { icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK },
+				// { icon:"", title: $title, link:"" },
+			// ];
+	// }
+	
+	$bread.unshift({ icon:"fa fa-dashboard", title:"Dashboard", link: "window.location.href = '"+$APPS_LNK+"'" });
+	// var $code_name = $.cookie('code_name'+$mainpageid);
 	
 	$(".content").before(BSHelper.PageHeader({ 
 		title: $title, 
 		title_desc: $title_desc, 
-		bc_list: breadcrumb
+		bc_list: $bread
 	}));
 
 	/* Init for Toolbar */

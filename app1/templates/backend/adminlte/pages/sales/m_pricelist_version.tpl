@@ -10,9 +10,8 @@
 </div>
 <!-- /.content-wrapper -->
 <script>
+	var $bread = {$.php.json_encode($bread)};
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $title = "{$title}", $title_desc = "{$title_desc}", $is_submodule = "{$is_submodule}";
-	{* Get Params *}
-	var $q = getURLParameter("q"), $id = getURLParameter("id"), $pageid = getURLParameter("pageid"), $key = getURLParameter("key"), $val = getURLParameter("val");
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		enable: true,
@@ -28,13 +27,14 @@
 		submodule: true,
 		aLBtn: { copy: true, edit: true, delete: true },
 		aRBtn: [
-			{ pageid: 52, key: 'pricelist_version_id', title: 'View Items', },
+			{ pageid: 52, subKey: 'pricelist_version_id', title: 'View Items', },
 		],
 		aRBtn_width: '100px',
 		order: ['id desc'],
 		columns: [
+			{ width:"150px", orderable:false, data:"pricelist_name", title:"Price List" },
 			{ width:"150px", orderable:false, data:"code_name", title:"Name" },
-			{ width:"250px", orderable:false, data:"description", title:"Description" },
+			{ width:"200px", orderable:false, data:"description", title:"Description" },
 			{ width:"75px", orderable:false, className:"dt-head-center dt-body-center", data:"validfrom", title:"Valid From" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],

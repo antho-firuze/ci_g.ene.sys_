@@ -10,7 +10,9 @@
 </div>
 <!-- /.content-wrapper -->
 <script>
+	var $bread = {$.php.json_encode($bread)};
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $title = "{$title}", $title_desc = "{$title_desc}";
+	{* $bread = {$bread}; *}
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		enable: true,
@@ -25,7 +27,7 @@
 		enable: true,
 		aLBtn: { copy: true, edit: true, delete: true },
 		aRBtn: [
-			{ pageid: 51, key: 'pricelist_id', title: 'Version', },
+			{ pageid: 51, subKey: 'pricelist_id', title: 'Version', },
 		],
 		aRBtn_width: '100px',
 		order: ['id desc'],

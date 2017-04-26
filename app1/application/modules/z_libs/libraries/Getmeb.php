@@ -25,6 +25,10 @@ class Getmeb extends CI_Controller
 	public $messages = array();
 	
 	/* ========================================= */
+	/* This variable for dynamic page lookup		 */
+	/* ========================================= */
+	public $pageid;
+	/* ========================================= */
 	/* This variable for INSERT & UPDATE records */
 	/* ========================================= */
 	/* FOR DEFINED BOOLEAN FIELDS */
@@ -858,11 +862,13 @@ class Getmeb extends CI_Controller
 	function single_view($content, $data=[])
 	{
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
+		
 		$select = 'head_title, page_title, logo_text_mn, logo_text_lg';
 		$system = ($result = $this->base_model->getValueArray($select, 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID])) ? $result : [];
+		
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);
-		$this->fenomx->view(TEMPLATE_PATH.$content, array_merge($default, $system, $data));
+		$this->fenomx->view(TEMPLATE_PATH.$content, array_merge($default, $data, $system));
 		exit;
 	}
 	
@@ -871,14 +877,12 @@ class Getmeb extends CI_Controller
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
 		
 		$default['content'] 	= TEMPLATE_PATH.$content.'.tpl';
+		$default['menus'] 		= $this->getMenuStructure($this->pageid);
 		
-		$select = 'head_title, page_title, logo_text_mn, logo_text_lg, date_format, time_format, datetime_format, user_photo_path';
-		// $system = ($result = $this->base_model->getValueArray($select, 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID])) ? $result : [];
-		$pageid = (key_exists('pageid', $this->params) && !empty($this->params['pageid'])) ? $this->params['pageid'] : 0;
-		$default['menus'] 		= $this->getMenuStructure($pageid);
+		// $default['bread'] 		= $this->params['bread']; 
+		
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);
-		// $this->fenomx->view(TEMPLATE_PATH.'index', array_merge($default, $system, $data));
 		$this->fenomx->view(TEMPLATE_PATH.'index', array_merge($default, $data));
 		exit;
 	}
