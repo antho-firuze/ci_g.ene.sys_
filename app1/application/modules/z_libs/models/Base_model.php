@@ -162,7 +162,7 @@ class Base_Model extends CI_Model
 			$this->set_error($this->db->error()['message']);
 			return FALSE;
 		} 
-		
+		// debug($this->db->last_query());
 		if (key_exists('export', $params) && ($params['export'])) {
 
 			return $query;

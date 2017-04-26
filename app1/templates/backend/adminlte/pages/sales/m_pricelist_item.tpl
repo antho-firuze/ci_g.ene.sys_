@@ -10,8 +10,7 @@
 </div>
 <!-- /.content-wrapper -->
 <script>
-	var $bread = {$.php.json_encode($bread)};
-	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $title = "{$title}", $title_desc = "{$title_desc}", $is_submodule = "{$is_submodule}";
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)}, $is_submodule = "{$is_submodule}";
 	{* Get Params *}
 	var $q = getURLParameter("q"), $id = getURLParameter("id"), $pageid = getURLParameter("pageid"), $key = getURLParameter("key"), $val = getURLParameter("val");
 	{* Toolbar Init *}
@@ -26,7 +25,7 @@
 	{* DataTable Init *}
 	var DataTable_Init = {
 		enable: true,
-		submodule: true,
+		tooltips: true,
 		aLBtn: { copy: true, edit: true, delete: true },
 		aRBtn: [],
 		aRBtn_width: '100px',

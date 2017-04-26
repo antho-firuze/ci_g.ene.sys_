@@ -118,7 +118,6 @@ function initDataTable()
 	if (DataTable_Init.order)
 		if (DataTable_Init.order.length > 0)
 			$ob = '&ob='+DataTable_Init.order.join();
-	/* Switching url on submodule is true */
 	var url = $url_module+window.location.search+$ob;
 	dataTable1 = tableData1.DataTable({ "pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, "scrollX": true,
 		"ajax": {
@@ -138,12 +137,18 @@ function initDataTable()
 		"order": [],
 		"fnDrawCallback": function( oSettings ) {
 			/* For Adding Tooltip to the "tr body datatables" */
+			if (oSettings.aoData.length < 1)
+				return;
+			
+			if (!DataTable_Init.tooltips)
+				return;
+			
 			$.each(tableData1.find('tbody').children('tr'), function(i){
 				var data = dataTable1.row( $(this) ).data();
 				var title = '';
 				$.each(DataTable_Init.columns, function(i, val){
 					if (val.render)
-						var t = val.render(data[val.data]);
+						var t = val.render(data[val.data], '', data);
 					else 
 						var t = data[val.data];
 					title += val.title +' : '+ (t ? t : '') +'\n';
@@ -291,60 +296,8 @@ function initCheckList(tableData1, dataTable1){
 /* ========================================= */
 // $( document ).ready(function() {
 	/* Start :: Init for Title, Breadcrumb */
-	// if (typeof($is_submodule) == 'undefined') $is_submodule = false;
-	// var $titles = {};
-	// $pages = $pageid.split(',');
-	// if (title_tmp)
-		// $titles.push(title_tmp);
-	// $titles.push($title)
-	// $.cookie('title', $titles);
-	// console.log($titles);
-
-	// console.log($bread);
-	// console.log($bread.length);
-	// var breadcrumb = [];
-	// $.each($bread, function(k, v){
-		// console.log(v);
-	// });
-	/* if ($pages.length == 1) {
-		breadcrumb.push({ icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK });
-		breadcrumb.push({ icon:"", title:$title, link:"" });
-	} else {
-		for (i = 1; i < $pages.length; i++) { 
-			if (i == 1) {
-				breadcrumb.push({ icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK });
-				breadcrumb.push({ icon:"", title:$title, link: "javascript:history.back(-"+($pages.length-i)+")" });
-			} else if (i == $pages.length){
-				breadcrumb.push({ icon:"", title:$titles[i], link: "" });
-			} else {
-				breadcrumb.push({ icon:"", title:$titles[i], link:"javascript:history.back(-"+($pages.length-i)+")" });
-			}
-		}
-	} */
-	//console.log($pageid.join(','));
-	// if ($is_submodule) {
-		// var $mainpageid = getURLParameter("mainpageid"); 
-		// var $code_name = $.cookie('code_name'+$mainpageid);
-		// var $maintitle = $.cookie('maintitle'+$mainpageid);
-		// var breadcrumb = [
-				// { icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK },
-				// { icon:"", title: $maintitle, link:"javascript:history.back()" },
-				// { icon:"", title: $title, link:"" },
-			// ];
-		// $title = $title + ': ' + $code_name;
-	// } else {
-		// var breadcrumb = [
-				// { icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK },
-				// { icon:"", title: $title, link:"" },
-			// ];
-	// }
-	
 	$bread.unshift({ icon:"fa fa-dashboard", title:"Dashboard", link: "window.location.href = '"+$APPS_LNK+"'" });
-	// var $code_name = $.cookie('code_name'+$mainpageid);
-	
 	$(".content").before(BSHelper.PageHeader({ 
-		title: $title, 
-		title_desc: $title_desc, 
 		bc_list: $bread
 	}));
 
@@ -354,17 +307,6 @@ function initCheckList(tableData1, dataTable1){
 	initDataTable();
 // });
 
-/* ========================================= */
-/* Default init for dataTables  */
-/* ========================================= */
-// $( document ).ready(function() {
-	
-	
-// });
-
-	// DTHelper.initCheckList_iCheck(tableData1, dataTable1);
-	// initCheckList_iCheck(tableData1, dataTable1);
-	
 /* ==================================== */
 /* Default action for Form CRUD Toolbar */
 /* ==================================== */
@@ -480,7 +422,7 @@ $('.toolbar_container').click('button', function(e){
 		case 'btn-export':
 			/* Set Main Title & code_name to Cookies */
 			var $pageid = getURLParameter("pageid");
-			$.cookie('title'+$pageid, $title);
+			// $.cookie('title'+$pageid, $title);
 			window.location.href = getURLOrigin()+window.location.search+"&action=exp";
 			break;
 	}

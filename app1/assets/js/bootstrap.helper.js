@@ -40,15 +40,15 @@
 	BSHelper.PageHeader = function(options){
 		var default_opts = {
 			cls: '',
-			title: '',
-			title_desc: '',
 			bc_list: [],	// [{icon:"", title:"", link:""}, {icon:"", title:"", link:""}]
 		}
 		var o = $.extend( {}, default_opts, options );
 		var header = $('<section class="content-header" />');
 		
-		var title_desc = o.title_desc ? $('<small />').html(o.title_desc) : $('<small />');
-		header.append( $('<h1 />').html(o.title).append(title_desc) );
+		var t = o.bc_list[o.bc_list.length-1];
+		
+		var title_desc = t.title_desc ? $('<small />').html(t.title_desc) : $('<small />');
+		header.append( $('<h1 />').html(t.title).append(title_desc) );
 		
 		var countlist = o.bc_list.length;
 		if (countlist > 0) {

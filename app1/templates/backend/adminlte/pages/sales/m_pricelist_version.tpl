@@ -10,8 +10,7 @@
 </div>
 <!-- /.content-wrapper -->
 <script>
-	var $bread = {$.php.json_encode($bread)};
-	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $title = "{$title}", $title_desc = "{$title_desc}", $is_submodule = "{$is_submodule}";
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)}, $is_submodule = "{$is_submodule}";
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		enable: true,
@@ -24,7 +23,7 @@
 	{* DataTable Init *}
 	var DataTable_Init = {
 		enable: true,
-		submodule: true,
+		tooltips: true,
 		aLBtn: { copy: true, edit: true, delete: true },
 		aRBtn: [
 			{ pageid: 52, subKey: 'pricelist_version_id', title: 'View Items', },

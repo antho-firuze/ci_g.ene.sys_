@@ -10,7 +10,7 @@
 </div>
 <!-- /.content-wrapper -->
 <script>
-	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $title = "{$title}", $title_desc = "{$title_desc}";
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		enable: true,
@@ -32,11 +32,11 @@
 		aRBtn_width: '100px',
 		order: ['is_online desc'],
 		columns: [
-			{ width:"130px", orderable:false, data:"name", title:"Name", render:function(data, type, row){ return ( row.is_online == '1' ? '<i class="fa fa-circle text-green" title="Online"></i>' : row.is_online == '2' ? '<i class="fa fa-circle text-gray" title="Idle"></i>' : '<i class="fa fa-circle text-red" title="Offline"></i>' )+' '+data; } },
+			{* { width:"130px", orderable:false, data:"name", title:"Name", render:function(data, type, row){ return ( row.is_online == '1' ? '<i class="fa fa-circle text-green" title="Online"></i>' : row.is_online == '2' ? '<i class="fa fa-circle text-gray" title="Idle"></i>' : '<i class="fa fa-circle text-red" title="Offline"></i>' )+' '+data; } }, *}
+			{ width:"130px", orderable:false, data:"name", title:"Name" },
 			{ width:"150px", orderable:false, data:"email", title:"Email" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{ data:"is_online", "visible":false },
 		],
 	};
 	

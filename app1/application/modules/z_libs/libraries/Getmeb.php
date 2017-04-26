@@ -443,13 +443,17 @@ class Getmeb extends CI_Controller
 	
 	function _pre_export_data($return = FALSE)
 	{
+		/* Parsing pageid, if on sub module */
+		$this->pageid = explode(',', $this->params['pageid']);
+		$this->pageid = end($this->pageid);
+		
 		/* Get the Table */
-		$menu = $this->base_model->getValue('*', 'a_menu', ['client_id','id'], [DEFAULT_CLIENT_ID, $this->params['pageid']]);
+		$menu = $this->base_model->getValue('*', 'a_menu', ['client_id','id'], [DEFAULT_CLIENT_ID, $this->pageid]);
 		if (!$menu)
-			$this->xresponse(FALSE, ['message' => $this->lang->line('export_failed'), 'note' => '[pageid='.$this->params['pageid'].'] is not exists on [a_menu]'], 401);
+			$this->xresponse(FALSE, ['message' => $this->lang->line('export_failed'), 'note' => '[pageid='.$this->pageid.'] is not exists on [a_menu]'], 401);
 
 		if (!$this->db->table_exists($menu->table))
-			$this->xresponse(FALSE, ['message' => $this->lang->line('export_failed'), 'note' => '[pageid='.$this->params['pageid'].'][table='.$menu->table.'] does not exists'], 401);
+			$this->xresponse(FALSE, ['message' => $this->lang->line('export_failed'), 'note' => '[pageid='.$this->pageid.'][table='.$menu->table.'] does not exists'], 401);
 
 		$protected_fields = ['id','client_id','org_id','is_deleted','created_by','updated_by','deleted_by','created_at','updated_at','deleted_at'];
 		$fields = $this->db->list_fields($menu->table);
@@ -878,8 +882,6 @@ class Getmeb extends CI_Controller
 		
 		$default['content'] 	= TEMPLATE_PATH.$content.'.tpl';
 		$default['menus'] 		= $this->getMenuStructure($this->pageid);
-		
-		// $default['bread'] 		= $this->params['bread']; 
 		
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);

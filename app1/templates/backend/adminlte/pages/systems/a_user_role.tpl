@@ -10,7 +10,7 @@
 </div>
 <!-- /.content-wrapper -->
 <script>
-	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $title = "{$title}", $title_desc = "{$title_desc}", $is_submodule = "{$is_submodule}";
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)}, $is_submodule = "{$is_submodule}";
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		enable: true,
@@ -23,7 +23,6 @@
 	{* DataTable Init *}
 	var DataTable_Init = {
 		enable: true,
-		submodule: true,
 		aLBtn: { copy: false, edit: true, delete: true },
 		aRBtn: [],
 		aRBtn_width: '100px',

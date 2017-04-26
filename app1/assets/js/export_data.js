@@ -7,25 +7,25 @@
  *
  * A script file to support export_data.tpl
  */
+/* Get Params */
+var id = getURLParameter("id"), 
+	$pageid = getURLParameter("pageid"),
+	$filter = getURLParameter("filter"),
+	$ob = getURLParameter("ob"),
+	act = getURLParameter("action"),
+	act_name = "(Export Data...)";
 /* 
 /* ========================================= */
 /* Default init for Header									 */
 /* ========================================= */
-var $pageid = getURLParameter("pageid");
 
 // $( document ).ready(function() {
 	/* Start :: Init for Title, Breadcrumb */
-	var $title	= $.cookie('title'+$pageid)
 	$(".content").before(BSHelper.PageHeader({ 
-		title: $title, 
-		title_desc: act_name, 
-		bc_list:[
-			{ icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK },
-			{ icon:"", title: $title, link:"javascript:history.back()" },
-			{ icon:"", title: act_name, link:"" },
-		]
+		bc_list: $bread
 	}));
-
+	
+	$(".content-header small").html(act_name);
 // });
 /* 
 /* ==================================== */
@@ -44,7 +44,7 @@ $( document ).ready(function() {
 			
 			var data = form.serializeOBJ();
 			
-			$.getJSON( $BASE_URL+$class+'/'+$method, { export:1, pageid:$pageid, filetype:data.filetype, is_compress:data.is_compress }, function(result){ 
+			$.getJSON( $BASE_URL+$class+'/'+$method, { export:1, pageid:$pageid, filter:$filter, ob:$ob, filetype:data.filetype, is_compress:data.is_compress }, function(result){ 
 				if (!result.status) {
 					BootstrapDialog.alert(result.message);
 					form.find("[type='submit']").prop( "disabled", false );

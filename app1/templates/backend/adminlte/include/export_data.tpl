@@ -9,10 +9,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
-	var $class = "{$class}", $method = "{$method}";
-	{* Get Params *}
-	var id = getURLParameter("id"), act = getURLParameter("action");
-	var act_name = "(Export Data...)";
+	var $class = "{$class}", $method = "{$method}", $bread = {$.php.json_encode($bread)};
 	{* For design form interface *}
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });	
