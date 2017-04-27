@@ -23,7 +23,9 @@
 		] 
 	}));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Compress The File (.zip)", idname:"is_compress", help:"Compress output file (xls/pdf/csv) to ZIP File (.zip)" }));
-	form1.append(subRow(subCol(6, col)));
+	row.push(subCol(6, col)); col = [];
+	row.push(subCol(6, col)); col = [];
+	form1.append(subRow(row));
 	form1.append(subRow(subCol()));
 	col = [];
 	col.push( BSHelper.Button({ type:"submit", label:"Submit", idname:"submit_btn" }) );

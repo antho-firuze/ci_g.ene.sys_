@@ -420,10 +420,10 @@ $('.toolbar_container').click('button', function(e){
 			});
 			break;
 		case 'btn-export':
-			/* Set Main Title & code_name to Cookies */
-			var $pageid = getURLParameter("pageid");
-			// $.cookie('title'+$pageid, $title);
 			window.location.href = getURLOrigin()+window.location.search+"&action=exp";
+			break;
+		case 'btn-import':
+			window.location.href = getURLOrigin()+window.location.search+"&action=imp";
 			break;
 	}
 });
