@@ -43,7 +43,7 @@ class Getmeb extends CI_Controller
 	/* ========================================= */
 	// public $tmp_dir = APPPATH.'../var/tmp/';
 	public $tmp_dir = FCPATH.'var/tmp/';
-	public $allow_ext = 'jpg,jpeg,png,gif,xls,xlsx,doc,docx,ppt,pptx,pdf,zip,rar';
+	public $allow_ext = 'jpg,jpeg,png,gif,xls,xlsx,csv,doc,docx,ppt,pptx,pdf,zip,rar';
 	public $max_file_upload = '2mb';
 	
 	/* ========================================= */
@@ -86,6 +86,13 @@ class Getmeb extends CI_Controller
 
 		$this->_clear_tmp();
 		
+		/* This process is a special case, because using multiple r_method (POST and OPTIONS). Request for Import Data */
+		// if (isset($this->params['import']) && !empty($this->params['import'])) {
+			// /* Check permission in the role */
+			// $this->_check_is_allow_inrole('canexport');
+		// }
+
+
 		/* This process is running before checking request method */
 		$this->_check_is_login();
 		/* This Request for GETTING/VIEWING Data */
@@ -115,6 +122,11 @@ class Getmeb extends CI_Controller
 			/* Become Object */
 			$this->params = json_decode($this->input->raw_input_stream);
 			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
+			
+			if (isset($this->params->import) && !empty($this->params->import)) {
+				/* Check permission in the role */
+				$this->_import_data();
+			}
 		}
 		
 		/* This Request for DELETE Data */
@@ -148,6 +160,7 @@ class Getmeb extends CI_Controller
 		}
 	}
 	
+	/* This procedure is for cleaning a tmp file */
 	function _clear_tmp()
 	{
 		/* Note: 60(sec) x 60(min) x 2-24(hour) x 2~(day) */
@@ -633,17 +646,54 @@ class Getmeb extends CI_Controller
 		}
 	}
 
-	function import_data()
+	function _import_data()
 	{
-		$this->load->library('Excel');
-		$objReader = new PHPExcel_Reader_CSV();
-		$objReader->setInputEncoding('CP1252');
-		$objReader->setDelimiter(';');
-		$objReader->setEnclosure('');
-		$objReader->setLineEnding("\r\n");
-		$objReader->setSheetIndex(0);
-
-		$objPHPExcel = $objReader->load("sample.csv");
+		if (isset($this->params->step) && $this->params->step == '1') {
+			if (!$result = $this->_upload_file()){
+				$this->xresponse(FALSE, ['message' => $this->messages()]);
+			}
+			
+			/* If Success */
+			if ($this->params->filetype == 'csv'){
+				$this->load->library('z_libs/Excel');
+				$objReader = new PHPExcel_Reader_CSV();
+				$objReader->setInputEncoding('CP1252');
+				$objReader->setDelimiter(';');
+				$objReader->setEnclosure('');
+				// $objReader->setLineEnding("\r\n");
+				$objReader->setSheetIndex(0);
+				$objPHPExcel = $objReader->load($result["path"]);
+				
+				$sheetData = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
+				
+				foreach($sheetData as $k => $v){
+					if ($k == 1){
+						foreach(explode(',', $v['A'] as $k => $title) {
+							$fields[$title] = ['type' => 'VARCHAR', 'constraint' => '100'];
+						}
+							
+						// $title = $v['A'];
+					}
+				}
+				
+			}
+			
+			/* Insert into Table  */
+			if (!$tmp_table = $this->session->tmp_table) {
+				/* Create random filename */
+				$this->load->helper('string');
+				$tmp_table = "z_".random_string('alnum', 5);
+				$this->session->set_userdata(['tmp_table' => $tmp_table]);
+			} 
+			
+// debug($tmp_table);			
+			$this->load->dbforge();
+			$this->dbforge->drop_table($tmp_table,TRUE);
+			$this->dbforge->add_field($fields);
+			$this->dbforge->create_table($tmp_table);
+			$fields = $this->db->list_fields($tmp_table);
+			debug($fields);
+		}
 	}
 	
 	function set_message($message, $func=NULL, $args=NULL)

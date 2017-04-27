@@ -140,6 +140,35 @@
 	*	BSHelper.Tabs({dataList:[ title:"", idname:"", content:function(){ return ""; } ]}); 
 	*					 
 	*/
+	BSHelper.SmartWizard = function(options){
+		var default_opts = {
+			cls: '',
+			bc_list: [],	// [{icon:"", title:"", link:""}, {icon:"", title:"", link:""}]
+		}
+		var o = $.extend( {}, default_opts, options );
+		var container = $('<div class="smartwizard"><ul></ul><div></div></div>');
+		var header = container.find('ul');
+		var body = container.find('div');
+
+		var n = 1;
+		$.each(o.dataList, function(i) {
+			var idname = o.dataList[i]['idname'];
+			var step = 'Step '+n;
+			var title = '<br /><small>'+o.dataList[i]['title']+'</small>';
+			var content = o.dataList[i]['content'];
+			header.append( $('<li><a href="#'+idname+'">'+step+title+'</a></li>') );
+			body.append( $('<div id="'+idname+'" />').html(content) );
+			n++;
+		});
+		
+		return container;
+	};
+	
+	/* 
+	*	BSHelper.Tabs({dataList:[ title:"", idname:"", content:"" ]}); 
+	*	BSHelper.Tabs({dataList:[ title:"", idname:"", content:function(){ return ""; } ]}); 
+	*					 
+	*/
 	BSHelper.Tabs = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
 		var container = $('<div class="nav-tabs-custom"><ul class="nav nav-tabs"></ul><div class="tab-content"></div></div>');

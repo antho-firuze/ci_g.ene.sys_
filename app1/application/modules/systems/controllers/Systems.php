@@ -257,7 +257,7 @@ class Systems extends Getmeb
 				$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 			}
 			
-			/* This line is for udpate user config */
+			/* This line is for update user config */
 			if (isset($this->params->table) && ($this->params->table == 'a_user_config')) {
 				$result = [];
 				foreach($this->params as $k => $v) {
