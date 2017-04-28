@@ -133,6 +133,8 @@ class Sales extends Getmeb
 	
 	function m_pricelist_version()
 	{
+		$this->identity_keys = ['pricelist_id','code','name'];
+		
 		if ($this->r_method == 'GET') {
 			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
@@ -159,6 +161,10 @@ class Sales extends Getmeb
 	
 	function m_pricelist_item()
 	{
+		$this->identity_keys = ['pricelist_id','pricelist_version_id','item_id'];
+		$this->protected_fields = ['item_id','itemtype_id','itemcat_id','measure_id'];
+		$this->imported_fields = ['is_active','pricelist_id','pricelist_version_id','code','name','size','description','price'];
+		
 		if ($this->r_method == 'GET') {
 			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['t1.id'] = $this->params['id'];
@@ -179,6 +185,23 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if (isset($this->params->import) && !empty($this->params->import)) {
+				/* Step #1:  */
+				if (isset($this->params->step) && $this->params->step == '1') {
+					/* Check permission in the role */
+					$this->_import_data();
+					$this->xresponse(TRUE, [$this->c_method => $this->imported_fields, 'tmp_fields' => $this->tmp_fields]);
+				}
+				/* Step #2:  */
+				if (isset($this->params->step) && $this->params->step == '2') {
+					/* Check permission in the role */
+					$this->_import_data();
+					$this->xresponse(TRUE, [$this->c_method => $this->imported_fields, 'tmp_fields' => $this->tmp_fields]);
+				}
+				
+			}
+				
+				
 			$this->_pre_update_records();
 		}
 	}

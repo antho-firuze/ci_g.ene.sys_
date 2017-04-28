@@ -53,6 +53,8 @@ class Getmeb extends CI_Controller
 	public $rel_tmp_dir = 'var/tmp/';
 	public $filetype = 'xls';	// xls, csv, pdf, html
 	public $is_compress = false;	
+	public $imported_fields = [];
+	public $tmp_fields = [];
 	
 	function __construct() {
 		parent::__construct();
@@ -123,10 +125,6 @@ class Getmeb extends CI_Controller
 			$this->params = json_decode($this->input->raw_input_stream);
 			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
 			
-			if (isset($this->params->import) && !empty($this->params->import)) {
-				/* Check permission in the role */
-				$this->_import_data();
-			}
 		}
 		
 		/* This Request for DELETE Data */
@@ -660,39 +658,38 @@ class Getmeb extends CI_Controller
 				$objReader->setInputEncoding('CP1252');
 				$objReader->setDelimiter(';');
 				$objReader->setEnclosure('');
-				// $objReader->setLineEnding("\r\n");
 				$objReader->setSheetIndex(0);
 				$objPHPExcel = $objReader->load($result["path"]);
-				
 				$sheetData = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
-				
-				foreach($sheetData as $k => $v){
-					if ($k == 1){
-						foreach(explode(',', $v['A'] as $k => $title) {
-							$fields[$title] = ['type' => 'VARCHAR', 'constraint' => '100'];
-						}
-							
-						// $title = $v['A'];
-					}
-				}
-				
 			}
 			
-			/* Insert into Table  */
 			if (!$tmp_table = $this->session->tmp_table) {
-				/* Create random filename */
+				/* Create random filename for tmp_table */
 				$this->load->helper('string');
 				$tmp_table = "z_".random_string('alnum', 5);
 				$this->session->set_userdata(['tmp_table' => $tmp_table]);
 			} 
 			
-// debug($tmp_table);			
+			/* Insert into Table  */
 			$this->load->dbforge();
 			$this->dbforge->drop_table($tmp_table,TRUE);
-			$this->dbforge->add_field($fields);
-			$this->dbforge->create_table($tmp_table);
-			$fields = $this->db->list_fields($tmp_table);
-			debug($fields);
+			foreach($sheetData as $k => $v){
+				if ($k == 1){
+					$title = explode(',', $v['A']);
+					foreach(explode(',', $v['A']) as $k => $name) {
+						$fields[$name] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE];
+					}
+					$this->dbforge->add_field($fields);
+					$this->dbforge->create_table($tmp_table);
+				} else {
+					foreach(explode(',', $v['A']) as $k => $v) {
+						$val[$title[$k]] = !empty($v) && $v && $v != '' ? $v : NULL;
+					}
+					
+					$this->db->insert($tmp_table, $val);
+				}
+			}
+			$this->tmp_fields = $this->db->list_fields($tmp_table);
 		}
 	}
 	

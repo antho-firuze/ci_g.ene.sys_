@@ -22,7 +22,7 @@
 	
 	var SWContent = BSHelper.SmartWizard({
 		dataList: [
-			{	title:"Select File", idname:"step-1", content: function(){
+			{	title:"Select & Upload File", idname:"step-1", content: function(){
 				row = [];
 				col.push(BSHelper.Combobox({ label:"File Type", idname:"filetype", required: true, value: 'csv',
 					list:[
@@ -30,8 +30,10 @@
 						{ id:"csv", name:"Comma Separated Values File (.csv)" },
 					] 
 				}));
-				col.push(BSHelper.Input({ type:"text", label:"Filename", idname:"txt_file", disabled: true, required: true, placeholder: " " }));
+				col.push(BSHelper.Input({ type:"text", label:"Filename", idname:"filename", disabled: true, required: true, placeholder: " " }));
 				col.push(BSHelper.Button({ type:"button", label:"Select File", idname:"btn_selectfile" }));
+				col.push("&nbsp;&nbsp;");
+				col.push(BSHelper.Button({ type:"button", label:"Upload File", idname:"btn_uploadfile" }));
 				row.push(subCol(6, col)); col = [];
 				row.push(subCol(6, col)); col = [];
 				return subRow(row);
@@ -67,6 +69,19 @@
 		}
 	});
 	
+	$("#btn_uploadfile").click(function(e){
+		e.stopPropagation();
+		if ($("#filename").val() == ''){
+			alert("Please select the file to be import...");
+			return false;
+		}
+			
+		console.log('Uploading the file...');
+		paceOptions = {	ajax: true };
+		Pace.restart();
+		uploader.start();
+	});
+	
 	{* Explanation this plupload how to become function is 
 	*	 because there is still any bug when changed mime_types with API, the mime_types is still the same.
 	*
@@ -88,17 +103,22 @@
 			init: {
 				FilesAdded: function(up, files) {
 					{* console.log(files); *}
-					$("#txt_file").val(files[0].name);
+					$("#filename").val(files[0].name);
+					$("#filename").parent().find("small").html("");
+					$("#btn_uploadfile").prop("disabled", false);
 				},
 				FileUploaded: function(up, file, info) {
 					var response = $.parseJSON(info.response);
-					console.log(response.file_url);
+					console.log(response);
 					if (response.status) { 
-						$('img.profile-user-img').attr('src', response.file_url);
-						$('#photo_file').val(response.photo_file);
+						$("#filename").parent().find("small").html("File Uploaded !");
+						$("#btn_uploadfile").prop("disabled", true);
+						$(".sw-btn-next").prop('disabled', false);
+						paceOptions = {	ajax: false	};
 					}
 				},
 				Error: function(up, err) {
+					console.log('Plupload Error');
 					$(".smartwizard").smartWizard("reset");
 					document.getElementById('console').appendChild(document.createTextNode("\nError #" + err.code + ": " + err.message));
 				}
@@ -109,25 +129,6 @@
 	restart_plupload();
 	
 	$(document).ready(function(){
-		{* // Step show event  *}
-		$(".smartwizard").on("showStep", function(e, anchorObject, stepNumber, stepDirection, stepPosition) {
-			 {* //alert("You are on step "+stepNumber+" now"); *}
-			if(stepPosition === 'first'){
-				$("#prev-btn").addClass('disabled');
-			}else if(stepPosition === 'final'){
-				$("#next-btn").addClass('disabled');
-			}else{
-				$("#prev-btn").removeClass('disabled');
-				$("#next-btn").removeClass('disabled');
-			}
-			
-			{* console.log(stepNumber); *}
-			if (stepDirection == "forward" && stepNumber == 1){
-				console.log('Uploading the file...');
-				uploader.start();
-			}
-		});
-		
 		{* // Toolbar extra buttons *}
 		var btnFinish = $('<button></button>').text('Finish')
 			.addClass('btn btn-info')
@@ -147,6 +148,25 @@
 				{* toolbarExtraButtons: [btnFinish, btnCancel] *}
 			}
 		});
+		$(".sw-btn-next").prop('disabled', true);
+		
+		{* // Step show event  *}
+		$(".smartwizard").on("showStep", function(e, anchorObject, stepNumber, stepDirection, stepPosition) {
+			 {* //alert("You are on step "+stepNumber+" now"); *}
+			{* if(stepPosition === 'first'){
+				$("#prev-btn").addClass('disabled');
+			}else if(stepPosition === 'final'){
+				$("#next-btn").addClass('disabled');
+			}else{
+				$("#prev-btn").removeClass('disabled');
+				$("#next-btn").removeClass('disabled');
+			} *}
+
+			{* console.log(stepNumber); *}
+			{* if (stepDirection == "forward" && stepNumber == 1){
+			} *}
+		});
+		
 	});
 	
 </script>
