@@ -15,6 +15,21 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
+	function drop_table()
+	{
+		$qry = $this->db->get_where('a_tmp_tables', ['time <' => time()-60]);
+		if ($qry->num_rows() > 0){
+			$this->load->dbforge();
+			foreach($qry->result() as $k => $v){
+				$this->dbforge->drop_table($v->name,TRUE);
+			}
+			$this->db->where('time <', time()-60, FALSE);
+			$this->db->delete('a_tmp_tables');
+			debug('oke');
+		}
+		echo "drop";
+	}
+	
 	function HTTP_Params()
 	{
 		// $this->load->view('flotr2');

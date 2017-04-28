@@ -158,7 +158,7 @@ class Getmeb extends CI_Controller
 		}
 	}
 	
-	/* This procedure is for cleaning a tmp file */
+	/* This procedure is for cleaning a tmp file & tmp_tables */
 	function _clear_tmp()
 	{
 		/* Note: 60(sec) x 60(min) x 2-24(hour) x 2~(day) */
@@ -178,6 +178,17 @@ class Getmeb extends CI_Controller
 					}
 				}
 			}
+		}
+		
+		/* Cleaning tmp_tables */
+		$qry = $this->db->get_where('a_tmp_tables', ['time <' => time()-60*60]);
+		if ($qry->num_rows() > 0){
+			$this->load->dbforge();
+			foreach($qry->result() as $k => $v){
+				$this->dbforge->drop_table($v->name,TRUE);
+			}
+			$this->db->where('time <', time()-60*60, FALSE);
+			$this->db->delete('a_tmp_tables');
 		}
 	}
 	
@@ -682,6 +693,10 @@ class Getmeb extends CI_Controller
 					}
 					$this->dbforge->add_field($fields);
 					$this->dbforge->create_table($tmp_table);
+					
+					/* Adding table name to a_tmp_tables */
+					$this->db->delete('a_tmp_tables', ['name' => $tmp_table]);
+					$this->db->insert('a_tmp_tables', ['name' => $tmp_table, 'created_at' => date('Y-m-d H:i:s'), 'time' => time()]);
 				} else {
 					foreach(explode(',', $v['A']) as $k => $v) {
 						$val[$title[$k]] = !empty($v) && $v && $v != '' ? str_replace('"','',$v) : NULL;
@@ -707,6 +722,7 @@ class Getmeb extends CI_Controller
 					unset($values['status']);
 					// debug($values);
 					if ($this->import_type == 'insert') {
+						
 						if (!$result = $this->insertRecord($this->c_method, $values, TRUE, TRUE)) {
 							$this->db->update($this->session->tmp_table, ['status' => $this->messages(FALSE)], $id);
 						}
