@@ -40,14 +40,16 @@
 			} },
 			{	title:"Mapping Fields", idname:"step-2", content: function(){
 				row = [];
-				col.push(BSHelper.Button({ type:"button", label:"Select File", idname:"btn_selectfile" }));
+				col.push("Session Failed !<br><br>");
+				col.push(BSHelper.Button({ type:"button", label:"Reset Process", idname:"btn_reset" }));
 				row.push(subCol(6, col)); col = [];
 				row.push(subCol(6, col)); col = [];
 				return subRow(row);
 			} },
 			{	title:"Import Data", idname:"step-3", content: function(){
 				row = [];
-				col.push(BSHelper.Button({ type:"button", label:"Select File", idname:"btn_selectfile" }));
+				col.push("Session Failed !<br><br>");
+				col.push(BSHelper.Button({ type:"button", label:"Reset Process", idname:"btn_reset" }));
 				row.push(subCol(6, col)); col = [];
 				row.push(subCol(6, col)); col = [];
 				return subRow(row);
@@ -82,6 +84,9 @@
 		uploader.start();
 	});
 	
+	$("button[name='btn_reset']").click(function(e){ $(".smartwizard").smartWizard("reset"); });
+	
+	
 	{* Explanation this plupload how to become function is 
 	*	 because there is still any bug when changed mime_types with API, the mime_types is still the same.
 	*
@@ -109,12 +114,17 @@
 				},
 				FileUploaded: function(up, file, info) {
 					var response = $.parseJSON(info.response);
-					console.log(response);
+					{* console.log(response); *}
 					if (response.status) { 
 						$("#filename").parent().find("small").html("File Uploaded !");
-						$("#btn_uploadfile").prop("disabled", true);
-						$(".sw-btn-next").prop('disabled', false);
-						paceOptions = {	ajax: false	};
+						
+						set_step2(response.table_fields, response.tmp_fields);
+						
+						setTimeout(function(){
+							$("#btn_uploadfile").prop("disabled", true);
+							$(".smartwizard").smartWizard("next");
+							paceOptions = {	ajax: false	};
+						}, 500);
 					}
 				},
 				Error: function(up, err) {
@@ -129,45 +139,94 @@
 	restart_plupload();
 	
 	$(document).ready(function(){
-		{* // Toolbar extra buttons *}
-		var btnFinish = $('<button></button>').text('Finish')
-			.addClass('btn btn-info')
-			.on('click', function(){ alert('Finish Clicked'); });
-		var btnCancel = $('<button></button>').text('Cancel')
-			.addClass('btn btn-danger')
-			.on('click', function(){ $(".smartwizard").smartWizard("reset"); });                         
 		
 		{* // Smart Wizard *}
 		$(".smartwizard").smartWizard({ 
 			selected: 0, 
 			theme: 'arrows',
 			transitionEffect:'fade',
-			showStepURLhash: true,
+			keyNavigation: false,
+			showStepURLhash: false,
 			toolbarSettings: { 
-				{* toolbarPosition: 'both', *}
-				{* toolbarExtraButtons: [btnFinish, btnCancel] *}
+				toolbarPosition: 'none',
 			}
-		});
-		$(".sw-btn-next").prop('disabled', true);
-		
-		{* // Step show event  *}
-		$(".smartwizard").on("showStep", function(e, anchorObject, stepNumber, stepDirection, stepPosition) {
-			 {* //alert("You are on step "+stepNumber+" now"); *}
-			{* if(stepPosition === 'first'){
-				$("#prev-btn").addClass('disabled');
-			}else if(stepPosition === 'final'){
-				$("#next-btn").addClass('disabled');
-			}else{
-				$("#prev-btn").removeClass('disabled');
-				$("#next-btn").removeClass('disabled');
-			} *}
-
-			{* console.log(stepNumber); *}
-			{* if (stepDirection == "forward" && stepNumber == 1){
-			} *}
 		});
 		
 	});
+	
+	function set_step2(fields, tmp_fields){
+		var form2 = BSHelper.Form({ autocomplete:"off", idname:"form-2" });	
+		var tmp_list = [];
+		$.each(tmp_fields, function(i, val){
+			tmp_list[i] = { id:val, name:val };
+		});
+		{* console.log(tmp_list); return false; *}
+		row = []; col = [];
+		$.each(fields, function(i, val){
+			col.push(BSHelper.Combobox({ label:val, idname:val, required: true, value:val, list:tmp_list }));
+			if (i >= 4) {
+				row.push(subCol(6, col)); col = [];
+			}
+		});
+		row.push(subRow()); col = [];
+		col.push(BSHelper.Button({ type:"submit", label:"Submit" }));
+		row.push(subCol(6, col)); col = [];
+		$("#step-2").empty();
+		$("#step-2").append(form2.append(subRow(row)));
+		
+		form2.validator().on('submit', function(e) {
+			if (e.isDefaultPrevented()) { return false;	} 
+			
+			$(".smartwizard").smartWizard("next");
+			set_step3();
+			return false;
+		});
+	}
+	
+	function set_step3(){
+		row = []; col = [];
+		col.push(BSHelper.Button({ type:"submit", label:"Start Import", idname:"btn_startimport" }));
+		row.push(subCol(6, col)); col = [];
+		$("#step-3").empty();
+		$("#step-3").append(subRow(row));
+		
+		$("#btn_startimport").click(function(e){
+			var data = $("#form-2").serializeOBJ();
+			{* { import:2, pageid:$pageid, filter:$filter, ob:$ob, filetype:data.filetype } *}
+			data = { import:1, step:2, pageid:$pageid, filter:$filter, ob:$ob, filetype:data.filetype, fields:data };
+			{* console.log(data); return false; *}
+			
+			$(this).prop('disabled', true);
+			
+			$.ajax({
+				url: $url_module, 
+				method: "POST",
+				data: data, 
+				{* data: JSON.stringify(data),  *}
+				success: function(result){ 
+					if (!result.status) {
+						BootstrapDialog.alert(result.message);
+						$(this).prop('disabled', false);
+					} else {
+						BootstrapDialog.alert(result.message, function(){
+							window.history.back();
+						});
+					}
+				},
+				error: function(data) {
+					if (data.status==500){
+						var message = data.statusText;
+					} else {
+						var error = JSON.parse(data.responseText);
+						var message = error.message;
+					}
+					$(this).prop('disabled', false);
+					BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+				}
+			});
+			
+		});
+	}
 	
 </script>
 <script src="{$.const.TEMPLATE_URL}plugins/SmartWizard/js/jquery.smartWizard.min.js"></script>

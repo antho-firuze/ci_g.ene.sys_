@@ -190,15 +190,17 @@ class Sales extends Getmeb
 				if (isset($this->params->step) && $this->params->step == '1') {
 					/* Check permission in the role */
 					$this->_import_data();
-					$this->xresponse(TRUE, [$this->c_method => $this->imported_fields, 'tmp_fields' => $this->tmp_fields]);
+					$this->xresponse(TRUE, ['table_fields' => $this->imported_fields, 'tmp_fields' => $this->tmp_fields]);
 				}
 				/* Step #2:  */
 				if (isset($this->params->step) && $this->params->step == '2') {
 					/* Check permission in the role */
-					$this->_import_data();
-					$this->xresponse(TRUE, [$this->c_method => $this->imported_fields, 'tmp_fields' => $this->tmp_fields]);
+					debug($this->params);
+					// $this->_import_data();
+					// $this->xresponse(TRUE, [$this->c_method => $this->imported_fields, 'tmp_fields' => $this->tmp_fields]);
 				}
-				
+				// debug($this->params);
+				debug('trapping on m_pricelist_item');
 			}
 				
 				

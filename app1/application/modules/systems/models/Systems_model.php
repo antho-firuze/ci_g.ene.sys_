@@ -263,22 +263,6 @@ class Systems_Model extends CI_model
 		return FALSE;
 	}
 	
-	function getParentMenu($menu_id)
-	{
-		$query = "select lvl0.id as lvl0_id, lvl1.id as lvl1_id, lvl2.id as lvl2_id
-		from a_menu lvl0
-		left join (
-		 select * from a_menu 
-		) lvl1 on lvl1.id = lvl0.parent_id
-		left join (
-		 select * from a_menu 
-		) lvl2 on lvl2.id = lvl1.parent_id
-		where lvl0.id = $menu_id";
-		
-		$row = $this->db->query($query);
-		return ($row->num_rows() > 0) ? $row->result() : FALSE;
-	}
-	
 	function getDashboardByRoleId($role_id)
 	{
 		$params['select']	= "t2.*, t1.role_id, t1.is_readwrite";

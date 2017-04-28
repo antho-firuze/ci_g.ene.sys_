@@ -691,6 +691,9 @@ class Getmeb extends CI_Controller
 			}
 			$this->tmp_fields = $this->db->list_fields($tmp_table);
 		}
+		if (isset($this->params->step) && $this->params->step == '2') {
+			
+		}
 	}
 	
 	function set_message($message, $func=NULL, $args=NULL)
@@ -859,12 +862,28 @@ class Getmeb extends CI_Controller
 		return $html;
 	}
 	
+	function getParentMenu($menu_id)
+	{
+		$query = "select lvl0.id as lvl0_id, lvl1.id as lvl1_id, lvl2.id as lvl2_id
+		from a_menu lvl0
+		left join (
+		 select * from a_menu 
+		) lvl1 on lvl1.id = lvl0.parent_id
+		left join (
+		 select * from a_menu 
+		) lvl2 on lvl2.id = lvl1.parent_id
+		where lvl0.id = $menu_id";
+		// debug($query);
+		$row = $this->db->query($query);
+		return ($row->num_rows() > 0) ? $row->result() : FALSE;
+	}
+	
 	function getMenuStructure($cur_page)
 	{
 		/* Start Treeview Menu */
 		$html = ''; $li1_closed = false; $li2_closed = false; $menu_id1 = 0; $menu_id2 = 0; $menu_id3 = 0; $parent_id = 0;
 		$html.= $this->li($cur_page, 1, 'systems/x_page?pageid=1', 'Dashboard', 'fa fa-dashboard');
-		$rowParentMenu = ($result = $this->systems_model->getParentMenu($cur_page)) ? $result[0] : (object)['lvl1_id'=>0, 'lvl2_id'=>0];
+		$rowParentMenu = ($result = $this->getParentMenu($cur_page)) ? $result[0] : (object)['lvl1_id'=>0, 'lvl2_id'=>0];
 		$rowMenus = $this->systems_model->getMenuByRoleId($this->session->role_id);
 		if ($rowMenus) {
 			foreach ($rowMenus as $menu){
@@ -928,7 +947,7 @@ class Getmeb extends CI_Controller
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
 		
 		$default['content'] 	= TEMPLATE_PATH.$content.'.tpl';
-		$default['menus'] 		= $this->getMenuStructure($this->pageid);
+		$default['menus'] 		= $this->getMenuStructure($this->pageid ? $this->pageid : 0);
 		
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);

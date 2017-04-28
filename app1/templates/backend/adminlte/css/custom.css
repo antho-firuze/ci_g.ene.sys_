@@ -8,6 +8,7 @@
 /* } */
 .sw-theme-arrows .step-content {
 	padding-top: 10px !important;
+	padding-bottom: 10px !important;
 }
 input[type="radio"],
 input[type="checkbox"] {
