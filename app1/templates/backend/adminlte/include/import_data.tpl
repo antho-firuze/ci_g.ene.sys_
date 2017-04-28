@@ -185,32 +185,38 @@
 	
 	function set_step3(){
 		row = []; col = [];
-		col.push(BSHelper.Button({ type:"submit", label:"Start Import", idname:"btn_startimport" }));
-		row.push(subCol(6, col)); col = [];
+		col.push(BSHelper.Button({ type:"button", label:"Start Import", idname:"btn_startimport" }));
+		row.push(subCol(12, col)); col = [];
 		$("#step-3").empty();
 		$("#step-3").append(subRow(row));
 		
 		$("#btn_startimport").click(function(e){
+			e.stopPropagation();
+			
 			var data = $("#form-2").serializeOBJ();
-			{* { import:2, pageid:$pageid, filter:$filter, ob:$ob, filetype:data.filetype } *}
 			data = { import:1, step:2, pageid:$pageid, filter:$filter, ob:$ob, filetype:data.filetype, fields:data };
-			{* console.log(data); return false; *}
 			
-			$(this).prop('disabled', true);
+			{* $(this).prop('disabled', true); *}
 			
-			$.ajax({
-				url: $url_module, 
-				method: "POST",
-				data: data, 
-				{* data: JSON.stringify(data),  *}
+			console.log('Importing on progress...');
+			paceOptions = {	ajax: true };
+			Pace.restart();
+			
+			$.ajax({ url: $url_module, method: "POST", data: data, 
 				success: function(result){ 
 					if (!result.status) {
 						BootstrapDialog.alert(result.message);
 						$(this).prop('disabled', false);
 					} else {
-						BootstrapDialog.alert(result.message, function(){
-							window.history.back();
-						});
+
+						setTimeout(function(){
+							col.push("<br><br>");
+							col.push(result.message);
+							col.push("<br><br>");
+							col.push(BSHelper.Button({ type:"button", label:"Close", onclick:"window.history.back();" }));
+							row.push(subCol(12, col)); col = [];
+							$("#step-3").append(subRow(row).hide().fadeIn(1000));
+						}, 1000);
 					}
 				},
 				error: function(data) {
@@ -224,7 +230,8 @@
 					BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
 				}
 			});
-			
+			paceOptions = {	ajax: false };
+
 		});
 	}
 	

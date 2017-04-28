@@ -29,6 +29,7 @@ $lang['error_saving'] 			= 'Error: Saving data !';
 /* EXPORT/IMPORT */
 $lang['export_failed']					= 'Export Data Failed !';
 $lang['import_failed']					= 'Import Data Failed !';
+$lang['import_finish']					= 'Import Data Finish !';
 
 /* Navigation Bar */
 $lang['nav_dash']		= "Dashboard";

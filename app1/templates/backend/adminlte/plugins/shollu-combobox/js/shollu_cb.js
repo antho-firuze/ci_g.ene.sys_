@@ -433,6 +433,14 @@
 						$target.val(id).trigger('change');
 						o.selected = true;
 						o.onChange.call(this, o.rowData[id]);
+					} else {
+						$element
+							.attr('value', '')
+							.attr('data-'+o.idField, '')
+							.attr('data-'+o.textField, '')
+							.val('').trigger('change');
+						$target.val('').trigger('change');
+						o.onChange.call(this, {});
 					}
 				}
 			}

@@ -162,8 +162,8 @@ class Sales extends Getmeb
 	function m_pricelist_item()
 	{
 		$this->identity_keys = ['pricelist_id','pricelist_version_id','item_id'];
-		$this->protected_fields = ['item_id','itemtype_id','itemcat_id','measure_id'];
-		$this->imported_fields = ['is_active','pricelist_id','pricelist_version_id','code','name','size','description','price'];
+		$this->protected_fields = [];
+		$this->imported_fields = ['is_active','pricelist_id','pricelist_version_id','item_id','itemtype_id','itemcat_id','measure_id','code','name','size','description','price'];
 		
 		if ($this->r_method == 'GET') {
 			if (isset($this->params['id']) && !empty($this->params['id'])) 
@@ -195,9 +195,11 @@ class Sales extends Getmeb
 				/* Step #2:  */
 				if (isset($this->params->step) && $this->params->step == '2') {
 					/* Check permission in the role */
-					debug($this->params);
-					// $this->_import_data();
-					// $this->xresponse(TRUE, [$this->c_method => $this->imported_fields, 'tmp_fields' => $this->tmp_fields]);
+					// debug($this->params);
+					if ($this->_import_data() !== TRUE)
+						$this->xresponse(FALSE, ['message' => $this->message()]);
+					else
+						$this->xresponse(TRUE, ['message' => $this->lang->line('import_finish')]);
 				}
 				// debug($this->params);
 				debug('trapping on m_pricelist_item');

@@ -676,6 +676,7 @@ class Getmeb extends CI_Controller
 			foreach($sheetData as $k => $v){
 				if ($k == 1){
 					$title = explode(',', $v['A']);
+					$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
 					foreach(explode(',', $v['A']) as $k => $name) {
 						$fields[$name] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE];
 					}
@@ -683,7 +684,7 @@ class Getmeb extends CI_Controller
 					$this->dbforge->create_table($tmp_table);
 				} else {
 					foreach(explode(',', $v['A']) as $k => $v) {
-						$val[$title[$k]] = !empty($v) && $v && $v != '' ? $v : NULL;
+						$val[$title[$k]] = !empty($v) && $v && $v != '' ? str_replace('"','',$v) : NULL;
 					}
 					
 					$this->db->insert($tmp_table, $val);
@@ -692,7 +693,53 @@ class Getmeb extends CI_Controller
 			$this->tmp_fields = $this->db->list_fields($tmp_table);
 		}
 		if (isset($this->params->step) && $this->params->step == '2') {
+			/* Add column status to tmp_table */
+			$fields['status'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE];
+			$this->load->dbforge();
+			$this->dbforge->add_column($this->session->tmp_table, $fields);
 			
+			/* Insert into target table */
+			$qry = $this->db->get($this->session->tmp_table);
+			if($qry->num_rows() > 0){
+				foreach($qry->result_array() as $k => $values){
+					$id = ['id' => $values['id']];
+					unset($values['id']);
+					unset($values['status']);
+					// debug($values);
+					if ($this->import_type == 'insert') {
+						if (!$result = $this->insertRecord($this->c_method, $values, TRUE, TRUE)) {
+							$this->db->update($this->session->tmp_table, ['status' => $this->messages(FALSE)], $id);
+						}
+						
+					} elseif ($this->import_type == 'update') {
+						
+						/* Setup identity_keys */
+						if ($this->identity_keys){
+							$val = [];
+							foreach($this->identity_keys as $k => $v){
+								if (isset($values[$v])){
+									$val[$v] = $values[$v];
+								}
+							}
+
+							if (count($val) > 0) {
+								$fk = $this->db->get_where($this->c_method, array_merge($val, ['is_active' => '1', 'is_deleted' => '0']), 1);
+								// debugf($this->db->last_query());
+								if ($fk->num_rows() < 1){
+									$this->db->update($this->session->tmp_table, ['status' => 'This line is not exist !'], $id);
+								} else {
+									if (!$result = $this->updateRecord($this->c_method, $values, array_merge($val, ['is_active' => '1', 'is_deleted' => '0']), TRUE)) {
+										$this->db->update($this->session->tmp_table, ['status' => $this->messages(FALSE)], $id);
+									}
+								}
+							}
+						} else {
+							$this->set_message('Failed: Method ['.$this->c_method.'] the identity_keys was not set !');
+							return FALSE;
+						}
+					}
+				}
+			}
 		}
 	}
 	
@@ -711,13 +758,17 @@ class Getmeb extends CI_Controller
 		return $message;
 	}
 
-	function messages()
+	function messages($use_p = TRUE)
 	{
 		$_output = '';
 		foreach ($this->messages as $message)
 		{
-			$_output .= '<p>' . $message . '</p>';
+			if ($use_p)
+				$_output .= '<p>' . $message . '</p>';
+			else
+				$_output .= $message.' ';
 		}
+		$this->messages = [];
 		return $_output;
 	}
 
@@ -737,10 +788,13 @@ class Getmeb extends CI_Controller
 					$val[$v] = $data[$v];
 				}
 			}
+
 			if (count($val) > 0) {
 				$fk = $this->db->get_where($table, array_merge($val, ['is_active' => '1', 'is_deleted' => '0']), 1);
+				// debugf($this->db->last_query());
 				if ($fk->num_rows() > 0){
-					$this->set_message('error_identity_keys', __FUNCTION__, $val);
+					// $this->set_message('error_identity_keys', __FUNCTION__, $val);
+					$this->set_message('error_identity_keys');
 					return false;
 				}
 			}
