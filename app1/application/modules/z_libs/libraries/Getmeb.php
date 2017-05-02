@@ -52,6 +52,7 @@ class Getmeb extends CI_Controller
 	public $protected_fields = [];
 	public $rel_tmp_dir = 'var/tmp/';
 	public $filetype = 'xls';	// xls, csv, pdf, html
+	public $importtype;	// insert, update
 	public $is_compress = false;	
 	public $imported_fields = [];
 	public $tmp_fields = [];
@@ -465,6 +466,9 @@ class Getmeb extends CI_Controller
 	
 	function _pre_export_data($return = FALSE)
 	{
+		$filetype = $this->params['filetype'];
+		$filename = $this->c_method.'_'.date('YmdHi').'.'.$filetype;
+		$is_compress = $this->params['is_compress'];
 		/* Parsing pageid, if on sub module */
 		$this->pageid = explode(',', $this->params['pageid']);
 		$this->pageid = end($this->pageid);
@@ -493,15 +497,17 @@ class Getmeb extends CI_Controller
 		if ($return)
 			return $result;
 		
-		$this->filetype = $this->params['filetype'];
-		$this->is_compress = $this->params['is_compress'];
+		if (! $result = $this->_export_data($result, $filename, $filetype, TRUE))
+			$this->xresponse(FALSE, ['message' => 'export_data_failed']);
 		
-		// $this->_export_data($result);
-		$result = $this->_export_data($result, TRUE);
+		if ($is_compress) 
+			if(! $result = $this->_compress_file($result['filepath']))
+				$this->xresponse(FALSE, ['message' => 'compress_file_failed']);
+			
 		$this->xresponse(TRUE, $result);
 	}
 	
-	function _export_data($qry, $return = FALSE)
+	function _export_data($qry, $filename, $filetype, $return = FALSE)
 	{
 		ini_set('memory_limit', '-1');
 		$this->load->library('z_libs/Excel');
@@ -535,45 +541,31 @@ class Getmeb extends CI_Controller
 			$objPHPExcel->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
 		}
 		
-		$filename = $this->c_method.'_'.date('YmdHi').'.'.$this->filetype;
-		
-		if ($this->filetype == 'xls') {
+		if ($filetype == 'xls') {
 			if ($return){
 				$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
 				$objWriter->save($this->tmp_dir.$filename);
-				if ($this->is_compress) {
-					if(! $result = $this->_compress_file($this->tmp_dir.$filename))
-						return FALSE;
-					
-					return $result;
-				}
-				return ['filename' => $filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
+				return ['filename' => $filename, 'filepath' => $this->tmp_dir.$filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
 			}
 
 			$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
 			$objWriter->save('php://output');
 		}
-		if ($this->filetype == 'csv'){
+		if ($filetype == 'csv'){
 			PHPExcel_Shared_String::setDecimalSeparator('.');
 			PHPExcel_Shared_String::setThousandsSeparator(',');
 
 			if ($return){
 				$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);
 				$objWriter->save($this->tmp_dir.$filename);
-				if ($this->is_compress) {
-					if(! $result = $this->_compress_file($this->tmp_dir.$filename))
-						return FALSE;
-					
-					return $result;
-				}
-				return ['filename' => $filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
+				return ['filename' => $filename, 'filepath' => $this->tmp_dir.$filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
 			}
 			
 			$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);
 			$objWriter->save('php://output');
 			
 		}
-		if ($this->filetype == 'pdf'){
+		if ($filetype == 'pdf'){
 			$rendererName = PHPExcel_Settings::PDF_RENDERER_MPDF;
 			$rendererLibraryPath = FCPATH.'../vendor/mpdf/mpdf/src/';
 			if (!PHPExcel_Settings::setPdfRenderer($rendererName,	$rendererLibraryPath)) {
@@ -586,28 +578,16 @@ class Getmeb extends CI_Controller
 			if ($return){
 				$objWriter = new PHPExcel_Writer_PDF($objPHPExcel);
 				$objWriter->save($this->tmp_dir.$filename);
-				if ($this->is_compress) {
-					if(! $result = $this->_compress_file($this->tmp_dir.$filename))
-						return FALSE;
-					
-					return $result;
-				}
-				return ['filename' => $filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
+				return ['filename' => $filename, 'filepath' => $this->tmp_dir.$filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
 			}
 			$objWriter = new PHPExcel_Writer_PDF($objPHPExcel);
 			$objWriter->save('php://output');
 		}
-		if ($this->filetype == 'html'){
+		if ($filetype == 'html'){
 			if ($return){
 				$objWriter = new PHPExcel_Writer_HTML($objPHPExcel);
 				$objWriter->save($this->tmp_dir.$filename);
-				if ($this->is_compress) {
-					if(! $result = $this->_compress_file($this->tmp_dir.$filename))
-						return FALSE;
-					
-					return $result;
-				}
-				return ['filename' => $filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
+				return ['filename' => $filename, 'filepath' => $this->tmp_dir.$filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
 			}
 			
 			$objWriter = new PHPExcel_Writer_HTML($objPHPExcel);
@@ -633,7 +613,7 @@ class Getmeb extends CI_Controller
 		$zip->close();
 		/* remove master file */
 		@unlink($file);
-		return ['filename' => $filezip, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filezip];
+		return ['filename' => $filezip, 'filepath' => $this->rel_tmp_dir.$filezip, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filezip];
 	}
 	
 	function _reorder_menu()
@@ -659,7 +639,7 @@ class Getmeb extends CI_Controller
 	{
 		if (isset($this->params->step) && $this->params->step == '1') {
 			if (!$result = $this->_upload_file()){
-				$this->xresponse(FALSE, ['message' => $this->messages()]);
+				return FALSE;
 			}
 			
 			/* If Success */
@@ -687,7 +667,7 @@ class Getmeb extends CI_Controller
 			foreach($sheetData as $k => $v){
 				if ($k == 1){
 					$title = explode(',', $v['A']);
-					$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
+					$fields['tmp_id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
 					foreach(explode(',', $v['A']) as $k => $name) {
 						$fields[$name] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE];
 					}
@@ -705,29 +685,32 @@ class Getmeb extends CI_Controller
 					$this->db->insert($tmp_table, $val);
 				}
 			}
-			$this->tmp_fields = $this->db->list_fields($tmp_table);
+			return ['tmp_fields' => $this->db->list_fields($tmp_table), 'table_fields' => $this->imported_fields];
 		}
+		
 		if (isset($this->params->step) && $this->params->step == '2') {
 			/* Add column status to tmp_table */
 			$fields['status'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE];
 			$this->load->dbforge();
 			$this->dbforge->add_column($this->session->tmp_table, $fields);
 			
+			$this->importtype = $this->params->importtype;
+			
 			/* Insert into target table */
 			$qry = $this->db->get($this->session->tmp_table);
 			if($qry->num_rows() > 0){
 				foreach($qry->result_array() as $k => $values){
-					$id = ['id' => $values['id']];
-					unset($values['id']);
-					unset($values['status']);
+					$tmp_id = ['tmp_id' => $values['tmp_id']];
+					unset($values['tmp_id'], $values['status'], $values['id']);
+					
 					// debug($values);
-					if ($this->import_type == 'insert') {
+					if ($this->importtype == 'insert') {
 						
 						if (!$result = $this->insertRecord($this->c_method, $values, TRUE, TRUE)) {
-							$this->db->update($this->session->tmp_table, ['status' => $this->messages(FALSE)], $id);
+							$this->db->update($this->session->tmp_table, ['status' => $this->messages(FALSE)], $tmp_id);
 						}
 						
-					} elseif ($this->import_type == 'update') {
+					} elseif ($this->importtype == 'update') {
 						
 						/* Setup identity_keys */
 						if ($this->identity_keys){
@@ -737,15 +720,17 @@ class Getmeb extends CI_Controller
 									$val[$v] = $values[$v];
 								}
 							}
-
+							// debug($values);
 							if (count($val) > 0) {
 								$fk = $this->db->get_where($this->c_method, array_merge($val, ['is_active' => '1', 'is_deleted' => '0']), 1);
 								// debugf($this->db->last_query());
 								if ($fk->num_rows() < 1){
-									$this->db->update($this->session->tmp_table, ['status' => 'This line is not exist !'], $id);
+								// debug('<1');
+									$this->db->update($this->session->tmp_table, ['status' => 'This line is not exist !'], $tmp_id);
 								} else {
+								// debug('>1');
 									if (!$result = $this->updateRecord($this->c_method, $values, array_merge($val, ['is_active' => '1', 'is_deleted' => '0']), TRUE)) {
-										$this->db->update($this->session->tmp_table, ['status' => $this->messages(FALSE)], $id);
+										$this->db->update($this->session->tmp_table, ['status' => $this->messages(FALSE)], $tmp_id);
 									}
 								}
 							}
@@ -755,6 +740,19 @@ class Getmeb extends CI_Controller
 						}
 					}
 				}
+					
+				/* Export the result to CSV and throw to client */
+				$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.csv';
+				$fields = $this->db->list_fields($this->session->tmp_table);
+				$fields = array_diff($fields, ['tmp_id']);
+				$this->db->select($fields);
+				$qry = $this->db->get($this->session->tmp_table);
+				if (! $result = $this->_export_data($qry, $filename, 'csv', TRUE)) {
+					$this->set_message('export_data_failed');
+					return FALSE;
+				}
+				
+				return $result;
 			}
 		}
 	}

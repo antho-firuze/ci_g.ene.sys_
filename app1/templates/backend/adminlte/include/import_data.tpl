@@ -30,6 +30,12 @@
 						{ id:"csv", name:"Comma Separated Values File (.csv)" },
 					] 
 				}));
+				col.push(BSHelper.Combobox({ label:"Import Type", idname:"importtype", required: true, value: 'insert',
+					list:[
+						{ id:"insert", name:"Insert Records" },
+						{ id:"update", name:"Update Records" },
+					] 
+				}));
 				col.push(BSHelper.Input({ type:"text", label:"Filename", idname:"filename", disabled: true, required: true, placeholder: " " }));
 				col.push(BSHelper.Button({ type:"button", label:"Select File", idname:"btn_selectfile" }));
 				col.push("&nbsp;&nbsp;");
@@ -104,7 +110,7 @@
 			filters: { max_file_size: "{$.session.max_file_upload}", mime_types: filetype },
 			browse_button: "btn_selectfile", 
 			multi_selection: false,
-			multipart_params: { "import":1, "step":1, "filetype": $("#filetype").shollu_cb("getValue") },
+			multipart_params: { "import":1, "step":1, "filetype": $("#filetype").shollu_cb("getValue"), "importtype": $("#importtype").shollu_cb("getValue") },
 			init: {
 				FilesAdded: function(up, files) {
 					{* console.log(files); *}
@@ -194,7 +200,7 @@
 			e.stopPropagation();
 			
 			var data = $("#form-2").serializeOBJ();
-			data = { import:1, step:2, pageid:$pageid, filter:$filter, ob:$ob, filetype:data.filetype, fields:data };
+			data = { import:1, step:2, pageid:$pageid, filter:$filter, ob:$ob, filetype:$("#filetype").shollu_cb("getValue"), importtype:$("#importtype").shollu_cb("getValue"), fields:data };
 			
 			{* $(this).prop('disabled', true); *}
 			
@@ -216,6 +222,7 @@
 							col.push(BSHelper.Button({ type:"button", label:"Close", onclick:"window.history.back();" }));
 							row.push(subCol(12, col)); col = [];
 							$("#step-3").append(subRow(row).hide().fadeIn(1000));
+							window.open(result.file_url);
 						}, 1000);
 					}
 				},
