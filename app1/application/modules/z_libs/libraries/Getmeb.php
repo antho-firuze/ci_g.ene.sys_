@@ -29,10 +29,16 @@ class Getmeb extends CI_Controller
 	/* ========================================= */
 	public $pageid;
 	/* ========================================= */
-	/* This variable for INSERT & UPDATE records */
+	/* This variable for CRUD & IMPORT/EXPORT    */
 	/* ========================================= */
 	/* FOR DEFINED IDENTITY FIELD WHICH CANNOT BE DUPLICATE */
 	public $identity_keys = ['name'];
+	/* FOR ISOLATED FIELDS WHICH CANNOT BE EXPORT */
+	public $protected_fields = [];	// ['user_org_id','user_role_id','api_token','password']
+	/* FOR DECLARE MANDATORY IMPORTED FIELDS */
+	public $imported_fields = [];		// ['code','name','description']
+	/* FOR VALIDATE IDENTITY FIELDS TO MASTER TABLE */
+	public $validations = [];				// ['user_id' => 'a_user', 'item_id' => 'm_item']
 	
 	/* ========================================= */
 	/* This variable for UPLOAD & DOWNLOAD files */
@@ -41,14 +47,8 @@ class Getmeb extends CI_Controller
 	public $tmp_dir = FCPATH.'var/tmp/';
 	public $allow_ext = 'jpg,jpeg,png,gif,xls,xlsx,csv,doc,docx,ppt,pptx,pdf,zip,rar';
 	public $max_file_upload = '2mb';
-	
-	/* ========================================= */
-	/* This variable for IMPORT & EXPORT files */
-	/* ========================================= */
-	public $protected_fields = [];
+	/* FOR RELATIVE TMP DIRECTORY */
 	public $rel_tmp_dir = 'var/tmp/';
-	public $imported_fields = [];
-	public $validations = [];
 	
 	function __construct() {
 		parent::__construct();
