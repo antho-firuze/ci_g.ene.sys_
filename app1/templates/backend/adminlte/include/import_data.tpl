@@ -24,7 +24,7 @@
 		dataList: [
 			{	title:"Select & Upload File", idname:"step-1", content: function(){
 				row = [];
-				col.push(BSHelper.Combobox({ label:"File Type", idname:"filetype", required: true, value: 'csv',
+				col.push(BSHelper.Combobox({ label:"File Type", idname:"filetype", required: true, value: 'xls',
 					list:[
 						{ id:"xls", name:"Excel File (.xls)" },
 						{ id:"csv", name:"Comma Separated Values File (.csv)" },
@@ -40,6 +40,8 @@
 				col.push(BSHelper.Button({ type:"button", label:"Select File", idname:"btn_selectfile" }));
 				col.push("&nbsp;&nbsp;");
 				col.push(BSHelper.Button({ type:"button", label:"Upload File", idname:"btn_uploadfile" }));
+				col.push("<br><br>");
+				col.push(BSHelper.Button({ type:"button", label:"Cancel", cls:"btn-danger", onclick:"window.history.back();" }));
 				row.push(subCol(6, col)); col = [];
 				row.push(subCol(6, col)); col = [];
 				return subRow(row);
@@ -124,13 +126,15 @@
 					if (response.status) { 
 						$("#filename").parent().find("small").html("File Uploaded !");
 						
-						set_step2(response.table_fields, response.tmp_fields);
+						set_field_sync(response.table_fields, response.tmp_fields);
 						
 						setTimeout(function(){
 							$("#btn_uploadfile").prop("disabled", true);
 							$(".smartwizard").smartWizard("next");
 							paceOptions = {	ajax: false	};
 						}, 500);
+					} else {
+						BootstrapDialog.alert(response.message);
 					}
 				},
 				Error: function(up, err) {
@@ -160,7 +164,7 @@
 		
 	});
 	
-	function set_step2(fields, tmp_fields){
+	function set_field_sync(fields, tmp_fields){
 		var form2 = BSHelper.Form({ autocomplete:"off", idname:"form-2" });	
 		var tmp_list = [];
 		$.each(tmp_fields, function(i, val){
@@ -184,12 +188,12 @@
 			if (e.isDefaultPrevented()) { return false;	} 
 			
 			$(".smartwizard").smartWizard("next");
-			set_step3();
+			set_step2();
 			return false;
 		});
 	}
 	
-	function set_step3(){
+	function set_step2(){
 		row = []; col = [];
 		col.push(BSHelper.Button({ type:"button", label:"Start Import", idname:"btn_startimport" }));
 		row.push(subCol(12, col)); col = [];
@@ -202,7 +206,7 @@
 			var data = $("#form-2").serializeOBJ();
 			data = { import:1, step:2, pageid:$pageid, filter:$filter, ob:$ob, filetype:$("#filetype").shollu_cb("getValue"), importtype:$("#importtype").shollu_cb("getValue"), fields:data };
 			
-			{* $(this).prop('disabled', true); *}
+			$(this).prop('disabled', true);
 			
 			console.log('Importing on progress...');
 			paceOptions = {	ajax: true };
@@ -210,20 +214,19 @@
 			
 			$.ajax({ url: $url_module, method: "POST", data: data, 
 				success: function(result){ 
-					if (!result.status) {
-						BootstrapDialog.alert(result.message);
-						$(this).prop('disabled', false);
-					} else {
-
+					if (result.status) {
 						setTimeout(function(){
 							col.push("<br><br>");
 							col.push(result.message);
 							col.push("<br><br>");
-							col.push(BSHelper.Button({ type:"button", label:"Close", onclick:"window.history.back();" }));
+							col.push(BSHelper.Button({ type:"button", label:"Close", cls:"btn-danger", onclick:"window.history.back();" }));
 							row.push(subCol(12, col)); col = [];
 							$("#step-3").append(subRow(row).hide().fadeIn(1000));
 							window.open(result.file_url);
 						}, 1000);
+					} else {
+						BootstrapDialog.alert(result.message);
+						$(this).prop('disabled', false);
 					}
 				},
 				error: function(data) {

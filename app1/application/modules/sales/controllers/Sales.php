@@ -190,7 +190,7 @@ class Sales extends Getmeb
 				if (isset($this->params->step) && $this->params->step == '1') {
 					/* Check permission in the role */
 					if (! $result = $this->_import_data())
-						$this->xresponse(FALSE, ['message' => $this->message()]);
+						$this->xresponse(FALSE, ['message' => $this->messages()]);
 					else
 						$this->xresponse(TRUE, $result);
 				}
@@ -198,7 +198,7 @@ class Sales extends Getmeb
 				if (isset($this->params->step) && $this->params->step == '2') {
 					/* Check permission in the role */
 					if (! $result = $this->_import_data())
-						$this->xresponse(FALSE, ['message' => $this->message()]);
+						$this->xresponse(FALSE, ['message' => $this->messages()]);
 					else
 						$this->xresponse(TRUE, array_merge($result, ['message' => $this->lang->line('import_finish')]));
 				}

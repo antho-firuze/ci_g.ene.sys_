@@ -638,21 +638,22 @@ class Getmeb extends CI_Controller
 	function _import_data()
 	{
 		if (isset($this->params->step) && $this->params->step == '1') {
+			/* Received the file to be import */
 			if (!$result = $this->_upload_file()){
+				/* Upload file failed ! */
 				return FALSE;
 			}
 			
-			/* If Success */
-			if ($this->params->filetype == 'csv'){
-				$this->load->library('z_libs/Excel');
-				$objReader = new PHPExcel_Reader_CSV();
-				$objReader->setInputEncoding('CP1252');
-				$objReader->setDelimiter(';');
-				$objReader->setEnclosure('');
-				$objReader->setSheetIndex(0);
-				$objPHPExcel = $objReader->load($result["path"]);
-				$sheetData = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
-			}
+			/* Check file type */
+			$this->load->library('z_libs/Excel');
+			/**  Identify the type of $inputFileName  **/
+			$inputFileType = PHPExcel_IOFactory::identify($result["path"]);
+			/**  Create a new Reader of the type that has been identified  **/
+			$objReader = PHPExcel_IOFactory::createReader($inputFileType);
+			/**  Load $inputFileName to a PHPExcel Object  **/
+			$objPHPExcel = $objReader->load($result["path"]);
+			/**  Convert object to array and populate to variable  **/
+			$sheetData = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
 			
 			if (!$tmp_table = $this->session->tmp_table) {
 				/* Create random filename for tmp_table */
@@ -661,64 +662,74 @@ class Getmeb extends CI_Controller
 				$this->session->set_userdata(['tmp_table' => $tmp_table]);
 			} 
 			
-			/* Insert into Table  */
+			/* Drop table if exists  */
 			$this->load->dbforge();
 			$this->dbforge->drop_table($tmp_table,TRUE);
-			foreach($sheetData as $k => $v){
-				if ($k == 1){
-					$title = explode(',', $v['A']);
+			
+			/* Process for parsing data_sheet (csv & xls) file */
+			foreach($sheetData as $key => $values){
+				if ($key == 1){
+					/* Row #1, for header/title */
 					$fields['tmp_id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
-					foreach(explode(',', $v['A']) as $k => $name) {
-						$fields[$name] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE];
+					foreach($values as $k => $v){
+						$fn = $values[$k] ? $v : $k;
+						$title[$k] = $fn;
+						$fields[$fn] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE];
 					}
+					$fields['status'] = ['type' => 'text', 'null' => TRUE];
 					$this->dbforge->add_field($fields);
-					$this->dbforge->create_table($tmp_table);
-					
-					/* Adding table name to a_tmp_tables */
-					$this->db->delete('a_tmp_tables', ['name' => $tmp_table]);
-					$this->db->insert('a_tmp_tables', ['name' => $tmp_table, 'created_at' => date('Y-m-d H:i:s'), 'time' => time()]);
-				} else {
-					foreach(explode(',', $v['A']) as $k => $v) {
-						$val[$title[$k]] = !empty($v) && $v && $v != '' ? str_replace('"','',$v) : NULL;
+					if (! $result = $this->dbforge->create_table($tmp_table)){
+						$this->set_message('no_header_fields');
+						return FALSE;
 					}
-					
+					// debug($fields);
+				} else {
+					/* Next, Row #2 until end is value */
+					foreach($values as $k => $v){
+						$val[$title[$k]] = !empty($v) && $v && $v != '' ? $v : NULL;
+					}
 					$this->db->insert($tmp_table, $val);
 				}
 			}
+			/* Adding table name & creation date to a_tmp_tables */
+			$this->db->delete('a_tmp_tables', ['name' => $tmp_table]);
+			$this->db->insert('a_tmp_tables', ['name' => $tmp_table, 'created_at' => date('Y-m-d H:i:s'), 'time' => time()]);
+			/* Getting fields from tmp_table */
 			$tmp_fields = $this->db->list_fields($tmp_table);
-			$tmp_fields = array_diff($tmp_fields, ['tmp_id']);
+			$tmp_fields = array_diff($tmp_fields, ['tmp_id', 'status']);
 			return ['tmp_fields' => array_values($tmp_fields), 'table_fields' => $this->imported_fields];
 		}
 		
 		if (isset($this->params->step) && $this->params->step == '2') {
-			/* Add column status to tmp_table */
-			$fields['status'] = ['type' => 'text', 'null' => TRUE];
-			$this->load->dbforge();
-			$this->dbforge->add_column($this->session->tmp_table, $fields);
-			
-			$this->importtype = $this->params->importtype;
-			
-			/* Insert into target table */
+			/* fields syncronization with target table */
+			$tmp_fields = $this->db->list_fields($this->session->tmp_table);
+			$params_flip = array_flip($this->params->fields);
+			foreach($tmp_fields as $k => $v){
+				if (isset($params_flip[$v]))
+					$tmp_fields[$k] = $v . ' as ' . $params_flip[$v];
+			}
+
+			/* Select fields with new alias */
+			$this->db->select($tmp_fields);
 			$qry = $this->db->get($this->session->tmp_table);
 			if($qry->num_rows() > 0){
 				foreach($qry->result_array() as $k => $values){
 					$tmp_id = ['tmp_id' => $values['tmp_id']];
 					unset($values['tmp_id'], $values['status'], $values['id']);
 					
-					$fields_flip = array_flip($this->params->fields);
-					// debug($this->params->fields);
-					// debug($fields_flip);
-					
-					debug($values);
-					if ($this->importtype == 'insert') {
+					/* ============================ Insert cluster ============================ */
+					if ($this->params->importtype == 'insert') {
 						
+						/* Start the Insert Process */
 						if (!$result = $this->insertRecord($this->c_method, $values, TRUE, TRUE)) {
 							$this->db->update($this->session->tmp_table, ['status' => $this->messages(FALSE)], $tmp_id);
 						}
+					} 
+					
+					/* ============================ Update cluster ============================ */
+					if ($this->params->importtype == 'update') {
 						
-					} elseif ($this->importtype == 'update') {
-						
-						/* Setup identity_keys */
+						/* Build identity_keys, this is a mandatory for update query */
 						if ($this->identity_keys){
 							$val = [];
 							foreach($this->identity_keys as $k => $v){
@@ -726,34 +737,33 @@ class Getmeb extends CI_Controller
 									$val[$v] = $values[$v];
 								}
 							}
-							// debug($values);
-							if (count($val) > 0) {
-								$fk = $this->db->get_where($this->c_method, array_merge($val, ['is_active' => '1', 'is_deleted' => '0']), 1);
-								// debugf($this->db->last_query());
-								if ($fk->num_rows() < 1){
-								// debug('<1');
-									$this->db->update($this->session->tmp_table, ['status' => 'This line is not exist !'], $tmp_id);
-								} else {
-								// debug('>1');
-									if (!$result = $this->updateRecord($this->c_method, $values, array_merge($val, ['is_active' => '1', 'is_deleted' => '0']), TRUE)) {
-										$this->db->update($this->session->tmp_table, ['status' => $this->messages(FALSE)], $tmp_id);
-									}
-								}
-							}
 						} else {
 							$this->set_message('Failed: Method ['.$this->c_method.'] the identity_keys was not set !');
 							return FALSE;
+						}
+							
+						/* Check existing record in target table */
+						$fk = $this->db->get_where($this->c_method, array_merge($val, ['is_active' => '1', 'is_deleted' => '0']), 1);
+						if ($fk->num_rows() < 1){
+
+							$this->db->update($this->session->tmp_table, ['status' => 'This line is not exist !'], $tmp_id);
+						} else {
+
+							/* Start the Update Process */
+							if (!$result = $this->updateRecord($this->c_method, $values, array_merge($val, ['is_active' => '1', 'is_deleted' => '0']), TRUE)) {
+								$this->db->update($this->session->tmp_table, ['status' => $this->messages(FALSE)], $tmp_id);
+							}
 						}
 					}
 				}
 					
 				/* Export the result to CSV and throw to client */
-				$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.csv';
+				$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.'.$this->params->filetype;
 				$fields = $this->db->list_fields($this->session->tmp_table);
 				$fields = array_diff($fields, ['tmp_id']);
 				$this->db->select($fields);
 				$qry = $this->db->get($this->session->tmp_table);
-				if (! $result = $this->_export_data($qry, $filename, 'csv', TRUE)) {
+				if (! $result = $this->_export_data($qry, $filename, $this->params->filetype, TRUE)) {
 					$this->set_message('export_data_failed');
 					return FALSE;
 				}
@@ -810,8 +820,11 @@ class Getmeb extends CI_Controller
 			}
 
 			if (count($val) > 0) {
-				$fk = $this->db->get_where($table, array_merge($val, ['is_active' => '1', 'is_deleted' => '0']), 1);
-				// debugf($this->db->last_query());
+				if (! $fk = $this->db->get_where($table, array_merge($val, ['is_active' => '1', 'is_deleted' => '0']), 1)) {
+					$this->set_message($this->db->error()['message']);
+					return FALSE;
+				}
+				// debug($this->db->last_query());
 				if ($fk->num_rows() > 0){
 					// $this->set_message('error_identity_keys', __FUNCTION__, $val);
 					$this->set_message('error_identity_keys');
