@@ -31,11 +31,7 @@ class Getmeb extends CI_Controller
 	/* ========================================= */
 	/* This variable for INSERT & UPDATE records */
 	/* ========================================= */
-	/* FOR DEFINED BOOLEAN FIELDS */
-	// public $boolfields = [];
-	/* FOR DEFINED ALLOW NULL FIELDS */
-	// public $nullfields = [];
-	/* FOR DEFINED IDENTITY FIELD WHICH CANNOT NE DUPLICATE */
+	/* FOR DEFINED IDENTITY FIELD WHICH CANNOT BE DUPLICATE */
 	public $identity_keys = ['name'];
 	
 	/* ========================================= */
@@ -51,11 +47,8 @@ class Getmeb extends CI_Controller
 	/* ========================================= */
 	public $protected_fields = [];
 	public $rel_tmp_dir = 'var/tmp/';
-	public $filetype = 'xls';	// xls, csv, pdf, html
-	public $importtype;	// insert, update
-	public $is_compress = false;	
 	public $imported_fields = [];
-	public $tmp_fields = [];
+	public $validations = [];
 	
 	function __construct() {
 		parent::__construct();
@@ -497,9 +490,11 @@ class Getmeb extends CI_Controller
 		if ($return)
 			return $result;
 		
+		/* Export the datas */
 		if (! $result = $this->_export_data($result, $filename, $filetype, TRUE))
 			$this->xresponse(FALSE, ['message' => 'export_data_failed']);
 		
+		/* Compress the file */
 		if ($is_compress) 
 			if(! $result = $this->_compress_file($result['filepath']))
 				$this->xresponse(FALSE, ['message' => 'compress_file_failed']);
@@ -713,12 +708,27 @@ class Getmeb extends CI_Controller
 			$this->db->select($tmp_fields);
 			$qry = $this->db->get($this->session->tmp_table);
 			if($qry->num_rows() > 0){
-				foreach($qry->result_array() as $k => $values){
+				foreach($qry->result_array() as $key => $values){
 					$tmp_id = ['tmp_id' => $values['tmp_id']];
 					unset($values['tmp_id'], $values['status'], $values['id']);
 					
 					/* ============================ Insert cluster ============================ */
 					if ($this->params->importtype == 'insert') {
+						
+						/* Validation rule */
+						if ($this->validations){
+							$is_valid = true;
+							foreach($this->validations as $k => $v) {
+								if ($this->db->where('id', $values[$k])->get($v)->num_rows() < 1) {
+									$this->db->update($this->session->tmp_table, ['status' => sprintf("[%s = %s] doesn't exists on table [%s]", $k, $values[$k], $v)], $tmp_id);
+									$is_valid = false;
+								}
+								$this->db->flush_cache();
+							}
+							if (!$is_valid) 
+								continue;
+						}
+						
 						
 						/* Start the Insert Process */
 						if (!$result = $this->insertRecord($this->c_method, $values, TRUE, TRUE)) {

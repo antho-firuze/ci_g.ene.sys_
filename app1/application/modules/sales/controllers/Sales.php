@@ -164,6 +164,7 @@ class Sales extends Getmeb
 		$this->identity_keys = ['pricelist_id','pricelist_version_id','item_id'];
 		$this->protected_fields = [];
 		$this->imported_fields = ['is_active','pricelist_id','pricelist_version_id','item_id','itemtype_id','itemcat_id','measure_id','code','name','size','description','price'];
+		$this->validations = ['pricelist_id' => 'm_pricelist', 'pricelist_version_id' => 'm_pricelist_version', 'item_id' => 'm_item', 'itemtype_id' => 'm_itemtype', 'itemcat_id' => 'm_itemcat', 'measure_id' => 'm_measure'];
 		
 		if ($this->r_method == 'GET') {
 			if (isset($this->params['id']) && !empty($this->params['id'])) 

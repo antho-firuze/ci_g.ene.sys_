@@ -34,7 +34,7 @@ var id = getURLParameter("id"),
 $( document ).ready(function() {
 	
 	/* Init form */
-	$('form').each(function(e){
+	/* $('form').each(function(e){
 		var form = $(this);
 		
 		form.validator().on('submit', function(e) {
@@ -57,6 +57,6 @@ $( document ).ready(function() {
 
 			return false;
 		});
-	});
+	}); */
 	
 });

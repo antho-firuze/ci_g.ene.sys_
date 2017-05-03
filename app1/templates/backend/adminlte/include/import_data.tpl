@@ -67,7 +67,7 @@
 	form1.append(SWContent);
 	
 	{* Event on change filetype *}
-	var filetype = [{ title:"CSV files", extensions:"csv" }];
+	var filetype = [{ title:"Excel files", extensions:"xls" }];
 	$("#filetype").shollu_cb({
 		onSelect: function(rowData){
 			if (rowData.id == 'xls')
