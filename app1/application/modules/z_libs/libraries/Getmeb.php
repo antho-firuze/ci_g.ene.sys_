@@ -685,12 +685,14 @@ class Getmeb extends CI_Controller
 					$this->db->insert($tmp_table, $val);
 				}
 			}
-			return ['tmp_fields' => $this->db->list_fields($tmp_table), 'table_fields' => $this->imported_fields];
+			$tmp_fields = $this->db->list_fields($tmp_table);
+			$tmp_fields = array_diff($tmp_fields, ['tmp_id']);
+			return ['tmp_fields' => array_values($tmp_fields), 'table_fields' => $this->imported_fields];
 		}
 		
 		if (isset($this->params->step) && $this->params->step == '2') {
 			/* Add column status to tmp_table */
-			$fields['status'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE];
+			$fields['status'] = ['type' => 'text', 'null' => TRUE];
 			$this->load->dbforge();
 			$this->dbforge->add_column($this->session->tmp_table, $fields);
 			
@@ -703,7 +705,11 @@ class Getmeb extends CI_Controller
 					$tmp_id = ['tmp_id' => $values['tmp_id']];
 					unset($values['tmp_id'], $values['status'], $values['id']);
 					
-					// debug($values);
+					$fields_flip = array_flip($this->params->fields);
+					// debug($this->params->fields);
+					// debug($fields_flip);
+					
+					debug($values);
 					if ($this->importtype == 'insert') {
 						
 						if (!$result = $this->insertRecord($this->c_method, $values, TRUE, TRUE)) {
@@ -815,9 +821,13 @@ class Getmeb extends CI_Controller
 		}
 
 		if (!$return = $this->db->insert($table, $data)) {
+// debug($return);
+// debug($this->db->error()['message']);
 			$this->set_message($this->db->error()['message']);
 			return false;
 		} else {
+// debug($this->db->last_query());
+// debug($return);
 			$this->set_message('success_saving');
 			return true;
 		}
