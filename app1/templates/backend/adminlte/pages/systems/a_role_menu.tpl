@@ -12,14 +12,14 @@
 </div>
 <!-- /.content-wrapper -->
 <script>
-	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)}, $is_submodule = "{$is_submodule}";
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		enable: true,
 		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process'],
 		disableBtn: ['btn-copy','btn-message','btn-print','btn-import'],
 		hiddenBtn: ['btn-copy','btn-message','btn-print','btn-import'],
-		processMenu: [{ id:"btn-process1", title:"Copy Menu From Role..." }, ],
+		processMenu: [{ id:"btn-process1", pageid: 45, title:"Copy Menu From Role..." }, ],
 		processMenuDisable: [],
 	};
 	{* DataTable Init *}
@@ -71,7 +71,12 @@
 				if (!confirm("All Menu in this Role will be replaced, Are you sure ?")) {
 					return false;
 				}
-				window.location.href = getURLOrigin()+window.location.search+"&action=xcopy";
+				var $pageid = getURLParameter("pageid");
+				var $filter = getURLParameter("filter");
+				$pageid = '?pageid='+$pageid+','+$(e.target).attr('data-pageid');
+				if ($filter)
+					$filter = '&filter='+$filter;
+				window.location.href = getURLOrigin()+$pageid+$filter+"&action=prc";
 				break;
 		}
 	});	

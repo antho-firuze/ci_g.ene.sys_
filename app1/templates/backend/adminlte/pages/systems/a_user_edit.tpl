@@ -11,7 +11,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/plupload/js/plupload.full.min.js"></script>
 <script>
-	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $title	= "{$title}", auto_populate = false;
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $bread = {$.php.json_encode($bread)}, auto_populate = false;
 	{* Get Params *}
 	var id = getURLParameter("id"), act = getURLParameter("action");
 	var act_name = (act == 'new') ? "(New)" : (act == 'edt') ? "(Edit)" : (act == 'cpy') ? "(Copy)" : act;

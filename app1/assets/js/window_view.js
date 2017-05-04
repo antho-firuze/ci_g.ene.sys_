@@ -70,7 +70,7 @@ function initToolbarButton()
 	if (Toolbar_Init.processMenu.length > 0){
 		var dropdown_menu = $('<ul class="dropdown-menu" />').insertAfter(toolbarBtn.find('#btn-process'));
 		$.each(Toolbar_Init.processMenu, function(k,v){
-			$('<li disabled />').append($('<a href="#" title="'+v.title+'" id="'+v.id+'" />').html(v.title)).appendTo(dropdown_menu);
+			$('<li disabled />').append($('<a href="#" data-pageid='+v.pageid+' title="'+v.title+'" id="'+v.id+'" />').html(v.title)).appendTo(dropdown_menu);
 		});
 		$.each(Toolbar_Init.processMenuDisable, function(k,v){
 			$('#'+v).parent().addClass('disabled');
@@ -328,7 +328,7 @@ $('.toolbar_container').click('button', function(e){
 				BootstrapDialog.alert('Please chosed one record !');
 				return false;
 			}
-			$.getJSON($url_module, { viewlog:1, id:data[0].id }, function(result){ 
+			$.getJSON($url_module, { viewlog:1, pageid:$pageid, id:data[0].id }, function(result){ 
 				// console.log(data[0]);
 				if (!result.status){
 					BootstrapDialog.alert(result.message);

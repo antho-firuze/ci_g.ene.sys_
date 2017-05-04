@@ -216,51 +216,13 @@ class Systems_Model extends CI_model
 	
 	function get_a_role($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, (select name from c_currency where id = t1.currency_id limit 1) as currency_name, (select name from a_user where id = t1.supervisor_id limit 1) as supervisor_name";
 		$params['table'] 	= "a_role as t1";
-		$params['join'][] 	= ['c_currency as cc', 't1.currency_id = cc.id', 'left'];
-		$params['join'][] 	= ['a_user as au4', 't1.supervisor_id = au4.id', 'left'];
+		// $params['join'][] 	= ['c_currency as cc', 't1.currency_id = cc.id', 'left'];
+		// $params['join'][] 	= ['a_user as au4', 't1.supervisor_id = au4.id', 'left'];
 		$params['where']['t1.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec($params);
-	}
-	
-	function getMenuByRoleId($role_id)
-	{
-		if ($role_id) {
-			$query = "select 
-						am1.id as menu_id1, am1.name as name1, am1.is_parent as is_parent1, am1.icon as icon1, am1.type as type1,
-						am2.id as menu_id2, am2.name as name2, am2.is_parent as is_parent2, am2.icon as icon2, am2.type as type2,
-						am3.id as menu_id3, am3.name as name3, am3.is_parent as is_parent3, am3.icon as icon3, am3.type as type3
-			from (
-				select * from a_menu am where am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and am.parent_id = '0' and 
-				exists (
-					select * from (
-						select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
-						from a_menu am
-						left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
-						where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
-					) basemenu where role_id is not null and parent_id = am.id
-				)
-			) am1
-			left join (
-				select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
-				from a_menu am
-				left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
-				where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
-			) am2 on am1.id = am2.parent_id and am2.role_id is not null
-			left join (
-				select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
-				from a_menu am
-				left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
-				where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
-			) am3 on am2.id = am3.parent_id and am3.role_id is not null
-			order by am1.line_no, am2.line_no, am3.line_no";
-			
-			$row = $this->db->query($query);
-			return ($row->num_rows() > 0) ? $row->result() : FALSE;
-		}
-		return FALSE;
 	}
 	
 	function getDashboardByRoleId($role_id)

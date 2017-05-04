@@ -346,25 +346,31 @@ class Systems extends Getmeb
 	function x_page()
 	{
 		if (isset($this->params['pageid']) && !empty($this->params['pageid'])) {
-			$this->pageid = explode(',', $this->params['pageid']);
+			
+			$menu = $this->_check_is_allow();
 			
 			/* For getting breadcrumb */
-			$menu = $this->db->where_in('id', $this->pageid)->order_by('id')->get('a_menu')->result();
-			for($i = 0; $i < count($menu); $i++){
-				$link = 'javascript:history.go(-'.(count($menu)-$i).')';
-				// $link = 'window.history.go(-'.(count($menu)-$i).')';
-				if (count($menu) == 1 && $i+1 == 1) $link = '';
-				if (count($menu) == $i+1) $link = ''; 
-				// $bc[$menu[$i]->id] = ['icon' => $menu[$i]->icon, 'title' => $menu[$i]->title, 'title_desc' => $menu[$i]->title_desc, 'link' => $link];
-				$bc[] = ['pageid' => $menu[$i]->id, 'icon' => $menu[$i]->icon, 'title' => $menu[$i]->title, 'title_desc' => $menu[$i]->title_desc, 'link' => $link];
-			}
-			$this->params['bread'] = $bc;
-			
-			$this->pageid = end($this->pageid);
-			/* Checking standard page for existance */
-			$menu = $this->base_model->getValueArray('*', 'a_menu', ['client_id','id'], [DEFAULT_CLIENT_ID, $this->pageid]);
-			if (! $this->_check_menu($menu)) {
-				$this->backend_view('pages/404', ['message'=>'<b>'.$this->messages().'</b>']);
+			$this->params['bread'] = [];
+			if ($qry = $this->db->where_in('id', explode(',', $this->params['pageid']))->order_by('id')->get('a_menu')) {
+				$menus = $qry->result();
+				for($i = 0; $i < count($menus); $i++){
+					$link = 'javascript:history.go(-'.(count($menus)-$i).')';
+					$title = $menus[$i]->title;
+					
+					/* Menu only one and also the first menu */
+					if (count($menus) == 1 && $i+1 == 1)
+						$link = '';
+
+					/* Last menu on bc */
+					if (count($menus) == $i+1) {
+						$link = ''; 
+						$actions = ['new'=>'(New)', 'edt'=>'(Edit)', 'cpy'=>'(Copy)'];
+						$act_name = isset($this->params['action']) && isset($actions[$this->params['action']]) ? ' '.$actions[$this->params['action']] : '';
+						$title = $menus[$i]->title.$act_name;
+					}
+					$bc[] = ['pageid' => $menus[$i]->id, 'icon' => $menus[$i]->icon, 'title' => $title, 'title_desc' => $menus[$i]->title_desc, 'link' => $link];
+				}
+				$this->params['bread'] = $bc;
 			}
 			
 			/* For identify opened table to client (property for auto reload event) */
@@ -387,12 +393,11 @@ class Systems extends Getmeb
 					case 'imp':
 						$this->backend_view('include/import_data', $menu);
 						break;
+					case 'prc':
+						$this->backend_view($menu['path'].$menu['method'], $menu);
+						break;
 					default:
-						/* Check for additional/custom page */
-						if ($this->params['action'][0] == 'x')
-							$this->backend_view($menu['path'].$menu['table'].'_'.$this->params['action'], $menu);
-						else
-							$this->backend_view('pages/404', ['message'=>'']);
+						$this->backend_view('pages/404', ['message'=>'']);
 				}
 			}
 			

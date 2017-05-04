@@ -8,24 +8,18 @@
  * A functions for build Form to Add/Edit/Copy Data
  */
 /* Get Params */
-var id = getURLParameter("id"), act = getURLParameter("action"), key = getURLParameter("key"), val = getURLParameter("val");
-var act_name = (act == 'new') ? "(New)" : (act == 'edt') ? "(Edit)" : (act == 'cpy') ? "(Copy)" : act;
+var $id = getURLParameter("id"), $act = getURLParameter("action"), $filter = getURLParameter("filter");
 /* 
 /* ========================================= */
 /* Default init for Header									 */
 /* ========================================= */
 // $( document ).ready(function() {
 	/* Start :: Init for Title, Breadcrumb */
+	$bread.unshift({ icon:"fa fa-dashboard", title:"Dashboard", link: "window.location.href = '"+$APPS_LNK+"'" });
 	$(".content").before(BSHelper.PageHeader({ 
-		title: $title, 
-		title_desc: act_name, 
-		bc_list:[
-			{ icon:"fa fa-dashboard", title:"Dashboard", link: $APPS_LNK },
-			{ icon:"", title: $title, link:"javascript:history.back()" },
-			{ icon:"", title: act_name, link:"" },
-		]
+		bc_list: $bread
 	}));
-
+	
 // });
 /* ==================================== */
 /* Default action for Form Edit */
@@ -40,7 +34,7 @@ $( document ).ready(function() {
 	/* Begin: Populate data to form */
 	if(typeof(auto_populate)==='undefined') auto_populate = true;
 	if (auto_populate){
-		$.getJSON($url_module, { "id": (id==null)?-1:id }, function(result){ 
+		$.getJSON($url_module, { "id": ($id==null)?-1:$id }, function(result){ 
 			if (!isempty_obj(result.data.rows)) 
 				$('form').shollu_autofill('load', result.data.rows[0]);  
 				$('form').validator('update');
@@ -138,11 +132,18 @@ $( document ).ready(function() {
 		
 		form.validator().on('submit', function(e) {
 			if (e.isDefaultPrevented()) { return false;	} 
-			var r_method = (act == 'new') ? 'POST' : (act == 'cpy') ? 'POST' : 'PUT';
+			// var r_method = ($act == 'new') ? 'POST' : ($act == 'cpy') ? 'POST' : 'PUT';
+			var r_method = $.inArray($act, ['new','cpy']) > -1 ? 'POST' : $.inArray($act, ['edt']) > -1 ? 'PUT' : 'OPTIONS';
 			
-			form.append(BSHelper.Input({ type:"hidden", idname:"id", value:id }));
-			if (key){
-				form.append(BSHelper.Input({ type:"hidden", idname:key, value:val }));
+			/* adding primary key id on the fly */
+			form.append(BSHelper.Input({ type:"hidden", idname:"id", value:$id }));
+			
+			/* adding foreign key id on the fly */
+			if ($filter){
+				$.each($filter.split(','), function(i, val){
+					var fil = val.split('=');
+					form.append(BSHelper.Input({ type:"hidden", idname:fil[0], value:fil[1] }));
+				});
 			}
 			// console.log(form.serializeJSON()); return false;
 			

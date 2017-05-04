@@ -96,6 +96,12 @@ class Getmeb extends CI_Controller
 			/* Become Array */
 			$this->params = $this->input->get();
 
+			/* Parsing pageid */
+			if (isset($this->params['pageid'])) {
+				$this->pageid = explode(',', $this->params['pageid']);
+				$this->pageid = end($this->pageid);
+			}
+			
 			/* Request for viewlog */
 			if (isset($this->params['viewlog']) && !empty($this->params['viewlog'])) {
 				/* Check permission in the role */
@@ -104,10 +110,22 @@ class Getmeb extends CI_Controller
 			}
 			
 			/* Request for Export Data */
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				/* Check permission in the role */
-				$this->_check_is_allow_inrole('canexport');
+			if (isset($this->params['action']) && !empty($this->params['action'])) {
+				switch($this->params['action']) {
+					case 'exp':
+						/* Check permission in the role */
+						$this->_check_is_allow_inrole('canexport');
+						break;
+					case 'imp':
+						/* Check permission in the role */
+						$this->_check_is_allow_inrole('canexport');
+						break;
+				}
 			}
+			// if (isset($this->params['export']) && !empty($this->params['export'])) {
+				// /* Check permission in the role */
+				// $this->_check_is_allow_inrole('canexport');
+			// }
 		}
 		
 		/* This Request for INDERT & UPDATE Data */
@@ -254,85 +272,104 @@ class Getmeb extends CI_Controller
 			if (in_array($this->c_method, $this->exception_method))
 				return;
 		}
-		/* Only check this request method */
-		if (!in_array($this->r_method, ['POST','PUT','DELETE','OPTIONS'])){
-			return;
-		}
 		
-		$menu = $this->base_model->getValue('id, name, type', 'a_menu', 'table', $this->c_method);
-		if (!$menu){
-			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Table ['.$this->c_method.'] not found in [a_menu] !'], 401);
-		}
-		$allow = $this->base_model->getValue('permit_form, permit_process, permit_window', 'a_role_menu', ['role_id', 'menu_id', 'is_active', 'is_deleted'], [$this->session->role_id, $menu->id, '1', '0']);
-		if ($allow === FALSE)
-			$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Permission ['.$menu->name.'] not found in [a_role_menu] !'], 401);
+		/* Check menu existance on the table a_menu */
+		if ($this->pageid)
+			$menu = $this->base_model->getValueArray('*', 'a_menu', ['client_id','id'], [DEFAULT_CLIENT_ID, $this->pageid]);
+		else
+			$menu = $this->base_model->getValueArray('*', 'a_menu', ['client_id','table'], [DEFAULT_CLIENT_ID, $this->c_method]);
+		
+		if (!$menu)
+			$this->backend_view('pages/404', ['message' => 'Menu not found !']);
 
-		if ($menu->type == 'F') {
+		/* Check menu active & permission on the table a_role_menu */
+		$allow = $this->base_model->getValue('permit_form, permit_process, permit_window', 'a_role_menu', ['role_id', 'menu_id', 'is_active', 'is_deleted'], [$this->session->role_id, $menu['id'], '1', '0']);
+		if (!$allow)
+			$this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] <b>not found</b> or <b>not active</b> in [a_role_menu] !', $menu['name'])]);
+		
+		/* Permission for view */
+		if ($this->r_method == 'GET' && $allow)
+			return $menu;
+		
+		if ($menu['type'] == 'F') {
 			switch($allow->permit_form){
 			case '1':
 				/* Execute */
 				if (!in_array($this->r_method, ['OPTIONS']))
 					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			default:
-				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Permission ['.$menu->name.'] is not set !'], 401);
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
+				// $this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu->name)]);
 				break;
 			}
 		}
-		if ($menu->type == 'P') {
+		if ($menu['type'] == 'P') {
 			switch($allow->permit_process){
 			case '1':
 				/* Export */
 				if (!in_array($this->r_method, ['OPTIONS']))
 					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			default:
-				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Permission ['.$menu->name.'] is not set !'], 401);
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
+				// $this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu['name'])]);
 				break;
 			}
 		}
-		if ($menu->type == 'W') {
+		if ($menu['type'] == 'W') {
 			switch($allow->permit_window){
 			case '1':
 				/* Only Create */
 				if (!in_array($this->r_method, ['POST']))
 					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			case '2':
 				/* Only Edit */
 				if (!in_array($this->r_method, ['PUT']))
 					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			case '3':
 				/* Only Delete */
 				if (!in_array($this->r_method, ['DELETE']))
 					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			case '4':
 				/* Can Create & Edit */
 				if (!in_array($this->r_method, ['POST','PUT']))
 					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			case '5':
 				/* Can Create & Delete */
 				if (!in_array($this->r_method, ['POST','DELETE']))
 					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			case '6':
 				/* Can Edit & Delete */
 				if (!in_array($this->r_method, ['PUT','DELETE']))
 					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			case '7':
 				/* Can All */
 				if (!in_array($this->r_method, ['POST','PUT','DELETE']))
 					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			default:
-				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => 'Menu ['.$menu->name.'] is not set !'], 401);
+				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
+				// $this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu['name'])]);
 				break;
 			}
 		}
+		return $menu;
 	}
 	
 	function _check_is_allow_inrole($permit)
@@ -341,19 +378,23 @@ class Getmeb extends CI_Controller
 		switch($permit){
 			case 'canviewlog':
 				if (!$role->is_canviewlog)
-					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
+					$this->backend_view('pages/unauthorized', ['message'=>'You are not authorized !']);
+					// $this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
 				break;
 			case 'canexport':
 				if (!$role->is_canexport)
-					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
+					$this->backend_view('pages/unauthorized', ['message'=>'You are not authorized !']);
+					// $this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
 				break;
 			case 'canapproveowndoc':
 				if (!$role->is_canapproveowndoc)
-					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
+					$this->backend_view('pages/unauthorized', ['message'=>'You are not authorized !']);
+					// $this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
 				break;
 			case 'canreport':
 				if (!$role->is_canreport)
-					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
+					$this->backend_view('pages/unauthorized', ['message'=>'You are not authorized !']);
+					// $this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
 				break;
 		}
 	}
@@ -931,6 +972,44 @@ class Getmeb extends CI_Controller
 		exit();
 	}
 	
+	function _getMenuByRoleId($role_id)
+	{
+		if ($role_id) {
+			$query = "select 
+						am1.id as menu_id1, am1.name as name1, am1.is_parent as is_parent1, am1.icon as icon1, am1.type as type1,
+						am2.id as menu_id2, am2.name as name2, am2.is_parent as is_parent2, am2.icon as icon2, am2.type as type2,
+						am3.id as menu_id3, am3.name as name3, am3.is_parent as is_parent3, am3.icon as icon3, am3.type as type3
+			from (
+				select * from a_menu am where am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and am.parent_id = '0' and 
+				exists (
+					select * from (
+						select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
+						from a_menu am
+						left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
+						where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
+					) basemenu where role_id is not null and parent_id = am.id
+				)
+			) am1
+			left join (
+				select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
+				from a_menu am
+				left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
+				where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
+			) am2 on am1.id = am2.parent_id and am2.role_id is not null
+			left join (
+				select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
+				from a_menu am
+				left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
+				where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
+			) am3 on am2.id = am3.parent_id and am3.role_id is not null
+			order by am1.line_no, am2.line_no, am3.line_no";
+			
+			$row = $this->db->query($query);
+			return ($row->num_rows() > 0) ? $row->result() : FALSE;
+		}
+		return FALSE;
+	}
+	
 	/**
 	 * li
 	 *
@@ -985,7 +1064,7 @@ class Getmeb extends CI_Controller
 		$html = ''; $li1_closed = false; $li2_closed = false; $menu_id1 = 0; $menu_id2 = 0; $menu_id3 = 0; $parent_id = 0;
 		$html.= $this->li($cur_page, 1, 'systems/x_page?pageid=1', 'Dashboard', 'fa fa-dashboard');
 		$rowParentMenu = ($result = $this->getParentMenu($cur_page)) ? $result[0] : (object)['lvl1_id'=>0, 'lvl2_id'=>0];
-		$rowMenus = $this->systems_model->getMenuByRoleId($this->session->role_id);
+		$rowMenus = $this->_getMenuByRoleId($this->session->role_id);
 		if ($rowMenus) {
 			foreach ($rowMenus as $menu){
 				if (($menu_id1 != $menu->menu_id1) && $li1_closed){
