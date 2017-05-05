@@ -1,5 +1,3 @@
-{var $url_module_main = $.php.base_url('systems/a_role')}
-
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
 	<!-- Main content -->
@@ -71,11 +69,9 @@
 				if (!confirm("All Menu in this Role will be replaced, Are you sure ?")) {
 					return false;
 				}
-				var $pageid = getURLParameter("pageid");
-				var $filter = getURLParameter("filter");
-				$pageid = '?pageid='+$pageid+','+$(e.target).attr('data-pageid');
-				if ($filter)
-					$filter = '&filter='+$filter;
+				var $pageid = getURLParameter("pageid"), $filter = getURLParameter("filter");
+				$pageid = "?pageid="+$pageid+","+$(e.target).attr("data-pageid");
+				$filter = $filter ? "&filter="+$filter : "";
 				window.location.href = getURLOrigin()+$pageid+$filter+"&action=prc";
 				break;
 		}

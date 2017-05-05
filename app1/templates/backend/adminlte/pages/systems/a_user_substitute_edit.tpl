@@ -18,7 +18,7 @@
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });	
 	var box1 = BSHelper.Box({ type:"info" });
-	col.push(BSHelper.Combobox({ horz:false, label:"User Substitute", idname:"substitute_id", url:"{$.php.base_url('systems/a_user')}", remote: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"User Substitute", label_link:"{$.const.PAGE_LNK}?pageid=20", idname:"substitute_id", url:"{$.php.base_url('systems/a_user')}", remote: true }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", placeholder:"string(2000)" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	col.push(BSHelper.Input({ type:"date", label:"Valid From", idname:"valid_from", cls:"auto_ymd", format:"{$.session.date_format}" }));

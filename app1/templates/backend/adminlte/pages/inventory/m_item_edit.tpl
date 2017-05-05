@@ -19,9 +19,9 @@
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Name", idname:"name", required: true, }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 	row.push(subCol(6, col)); col = [];
-	col.push(BSHelper.Combobox({ label:"Type", idname:"itemtype_id", required: true, url:"{$.php.base_url('inventory/m_itemtype')}", remote: true }));
-	col.push(BSHelper.Combobox({ label:"Category", idname:"itemcat_id", required: true, url:"{$.php.base_url('inventory/m_itemcat')}", remote: true }));
-	col.push(BSHelper.Combobox({ label:"UOM", idname:"measure_id", required: true, url:"{$.php.base_url('inventory/m_measure')}", remote: true }));
+	col.push(BSHelper.Combobox({ label:"Type", label_link:"{$.const.PAGE_LNK}?pageid=48", idname:"itemtype_id", required: true, url:"{$.php.base_url('inventory/m_itemtype')}", remote: true }));
+	col.push(BSHelper.Combobox({ label:"Category", label_link:"{$.const.PAGE_LNK}?pageid=47", idname:"itemcat_id", required: true, url:"{$.php.base_url('inventory/m_itemcat')}", remote: true }));
+	col.push(BSHelper.Combobox({ label:"UOM", label_link:"{$.const.PAGE_LNK}?pageid=49", idname:"measure_id", required: true, url:"{$.php.base_url('inventory/m_measure')}", remote: true }));
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
 	form1.append(subRow(subCol()));
