@@ -254,6 +254,14 @@ class Systems_Model extends CI_model
 		return $this->base_model->mget_rec($params);
 	}
 	
+	function get_a_dashboard($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params['table'] 	= "a_dashboard as t1";
+		$params['where']['t1.is_deleted'] 	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
 	function get_a_domain($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";

@@ -840,6 +840,32 @@ class Systems extends Getmeb
 		}
 	}
 	
+	function a_dashboard()
+	{
+		if ($this->r_method == 'GET') {
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (isset($this->params['q']) && !empty($this->params['q']))
+				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
+
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$this->_pre_update_records();
+		}
+	}
+	
 	function a_domain()
 	{
 		if ($this->r_method == 'GET') {

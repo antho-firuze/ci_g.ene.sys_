@@ -37,6 +37,17 @@
 		});
 	};
 
+	BSHelper.WidgetBox3 = function(){
+		var default_opts = {
+			value: 0,
+			title: '',
+			icon: '',
+			link: '#',
+		}
+		var o = $.extend( {}, default_opts, options );
+		var content = '<div class="col-lg-3 col-xs-6"><div class="small-box bg-light-blue"><div class="inner"><h3>'+value+'</h3><p>'+title+'</p><div class="icon"><i class="'+icon+'"></i></div><a href="'+link+'" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a></div></div></div>'
+	}
+	
 	BSHelper.PageHeader = function(options){
 		var default_opts = {
 			cls: '',
