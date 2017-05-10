@@ -674,10 +674,22 @@ if (! function_exists('debugf'))
 	function debugf($data='')
 	{
 		$file = APPPATH.'logs/debug';
-		
 		$str = file_get_contents($file);
-		$type = is_array($data) ? 'Array: ' : is_object($data) ? 'Object: ' : is_bool($data) ? 'Boolean: ' : 'String: ';
-		$data = is_array($data) || is_object($data) ? $type.http_build_query($data, '', ';') : is_bool($data) && $data ? $type.'TRUE' : is_bool($data) && !$data ? $type.'FALSE' : $type.$data;
+		
+		$type = 'String: ';
+		if (is_array($data)) $type = 'Array: ';
+		if (is_object($data)) $type = 'Object: '.http_build_query($data, '', ';');
+		if (is_bool($data)) $type = 'Boolean: ';
+		
+		if (is_array($data) || is_object($data)) 
+			$data = $type.http_build_query($data, '', ';');
+		elseif (is_bool($data) && $data) 
+			$data = $type.'TRUE';
+		elseif (is_bool($data) && !$data) 
+			$data = $type.'FALSE';
+		else 
+			$data = $type.$data;
+		
 		$newstr = date('Y-m-d H:i').' '.$data."\r\n".$str;
 		file_put_contents($file, $newstr);
 	}

@@ -2,10 +2,7 @@
     <!-- Main content -->
     <section class="content">
       <!-- Small boxes (Stat box) -->
-      <div class="row">
-	    {foreach $content_box_3 as $board}
-			{include $.const.TEMPLATE_PATH ~ "pages/{$board}"}
-	    {/foreach}
+      <div class="row box-3">
       </div>
       <!-- /.row -->
       <!-- Main row -->
@@ -33,14 +30,28 @@
   
   
 <script>
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Start :: Init for Title, Breadcrumb *}
 	$(".content").before(BSHelper.PageHeader({ 
-		title:"{$title}", 
-		title_desc:"{$title_desc}", 
-		bc_list:[
-			{ icon:"fa fa-dashboard", title:" Dashboard", link:"{$.const.APPS_LNK}" },
-		]
+		bc_list: $bread
 	}));
+	
+	$.getJSON($url_module, {}, function(result){ 
+		{* // console.log(data[0]); *}
+		if (result.status){
+			var c = [], r = [], a = [];
+			$.each(result.data, function(i, val){
+				{* console.log(val.type); *}
+				if (val.type == 'BOX-3'){
+					c.push(BSHelper.WidgetBox3({ title:val.name, color:val.color, value:val.value, icon:val.icon, link:val.link }));
+				}
+			});
+			$(".box-3").append(c);
+			{* console.log(c); *}
+		}
+	});
+	
+	
 	{* End :: Init for Title, Breadcrumb *}
 	{* $(".connectedSortable").sortable({
 		placeholder: "sort-highlight",

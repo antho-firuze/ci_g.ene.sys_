@@ -37,15 +37,22 @@
 		});
 	};
 
-	BSHelper.WidgetBox3 = function(){
+	BSHelper.WidgetBox3 = function(options){
 		var default_opts = {
-			value: 0,
+			color: '',
 			title: '',
+			value: 0,
 			icon: '',
 			link: '#',
 		}
 		var o = $.extend( {}, default_opts, options );
-		var content = '<div class="col-lg-3 col-xs-6"><div class="small-box bg-light-blue"><div class="inner"><h3>'+value+'</h3><p>'+title+'</p><div class="icon"><i class="'+icon+'"></i></div><a href="'+link+'" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a></div></div></div>'
+		return $('<div class="col-lg-3 col-xs-6">'+
+								'<div class="small-box '+o.color+'">'+
+									'<div class="inner"><h3>'+o.value+'</h3><p>'+o.title+'</p></div>'+
+									'<div class="icon"><i class="'+o.icon+'"></i></div>'+
+									'<a href="'+o.link+'" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>'+
+								'</div>'+
+							'</div>');
 	}
 	
 	BSHelper.PageHeader = function(options){
@@ -67,7 +74,7 @@
 			$.each(o.bc_list, function(j){
 				var link 	= o.bc_list[j]['link'];
 				var icon 	= o.bc_list[j]['icon'];
-				var title = icon ? '<i class="'+icon+'" />'+o.bc_list[j]['title'] : o.bc_list[j]['title'];
+				var title = icon ? '<i class="'+icon+'" />&nbsp;'+o.bc_list[j]['title'] : o.bc_list[j]['title'];
 				var li = $('<li />');
 				if (j == (countlist-1)) {
 					li.addClass('active').html(title);

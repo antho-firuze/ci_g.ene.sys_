@@ -20,7 +20,34 @@ class Systems extends Getmeb
 	
 	function dashboard1()
 	{
-		$this->backend_view('dashboard1', 'pages/dashboard/dashboard1');
+		if ($this->r_method == 'GET') {
+			
+			$this->params['list'] = 1;
+			if (!$result = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				foreach($result as $key => $val){
+					$result[$key]->value = 0;
+					if ($val->query) {
+						if (!$qry = $this->db->query($val->query)) {
+							$result[$key]->value = 0;
+							// debugf($this->db->error()['message']);
+						} else {
+							foreach($qry->list_fields() as $field){
+								// debugf($qry->row(0)->{$field});
+								$result[$key]->value = $qry->row(0)->{$field};
+							}
+							$qry->free_result();
+						}
+					}
+					unset($result[$key]->query);
+				}
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
+		}
+		// $this->backend_view('dashboard1', 'pages/dashboard/dashboard1');
 	}
 	
 	function x_auth()
