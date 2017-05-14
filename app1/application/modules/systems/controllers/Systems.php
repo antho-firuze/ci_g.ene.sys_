@@ -23,6 +23,7 @@ class Systems extends Getmeb
 		if ($this->r_method == 'GET') {
 			
 			$this->params['list'] = 1;
+			$this->params['ob'] = 'lineno';
 			if (!$result = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();

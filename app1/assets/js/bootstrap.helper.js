@@ -43,14 +43,15 @@
 			title: '',
 			value: 0,
 			icon: '',
-			link: '#',
+			link: '',
 		}
 		var o = $.extend( {}, default_opts, options );
+		var link = o.link ? '<a href="'+o.link+'" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>' : '<div class="small-box-footer">&nbsp;</div>';
 		return $('<div class="col-lg-3 col-xs-6">'+
 								'<div class="small-box '+o.color+'">'+
 									'<div class="inner"><h3>'+o.value+'</h3><p>'+o.title+'</p></div>'+
 									'<div class="icon"><i class="'+o.icon+'"></i></div>'+
-									'<a href="'+o.link+'" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>'+
+									link +
 								'</div>'+
 							'</div>');
 	}
@@ -117,8 +118,10 @@
 			cls: '',
 			title: '',
 			idname: '',
+			header: false,
 			footer: false,
 			type: 'default', // default, primary, info, warning, success, danger
+			toolbtn: [],
 		}
 		var o = $.extend( {}, default_opts, options );
 		var box = $('<div class="box">'+
@@ -127,7 +130,19 @@
 		var box_header = $('<div class="box-header" />');
 		var box_footer = $('<div class="box-footer" />');
 		var box_body = box.find('.box-body');
-		if (o.title) box_header.insertBefore(box_body).append($('<h3 class="box-title" />').html(o.title));
+		
+		
+		if (o.header) box_header.insertBefore(box_body);
+		if (o.title) box_header.append($('<h3 class="box-title" />').html(o.title));
+		var toolb = [];
+		$.each(o.toolbtn, function(i, val){
+			if (val == 'min')
+				toolb.push($('<button type="button" class="btn btn-info btn-sm" data-widget="collapse"><i class="fa fa-minus"></i></button>'));
+			if (val == 'rem')
+				toolb.push($('<button type="button" class="btn btn-info btn-sm" data-widget="remove" data-toggle="tooltip" title="Remove"><i class="fa fa-times"></i></button>'));
+		});
+		if (toolb) 
+			box_header.append($('<div class="pull-right box-tools">').append(toolb));
 		if (o.footer) box_footer.insertAfter(box_body);
 		if (o.cls) box.addClass(o.cls);
 		if (o.idname) { box.attr('id', o.idname); box.attr('name', o.idname); }
@@ -258,7 +273,7 @@
 		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
 		var el = (o.type == 'textarea') ? 'textarea' : 'input';
-		var input = $('<'+el+' />', {class: "form-control", id:o.idname, name:o.idname, value:o.value, autocomplete:"off"}); 
+		var input = $('<'+el+' />', {class: "form-control", id:o.idname, name:o.idname, value:o.value}); 
 		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
 
 		/* type=textarea => el=textarea,type='' */
