@@ -36,9 +36,17 @@ class Systems extends Getmeb
 							$result[$key]->value = 0;
 							// debugf($this->db->error()['message']);
 						} else {
-							foreach($qry->list_fields() as $field){
-								// debugf($qry->row(0)->{$field});
-								$result[$key]->value = $qry->row(0)->{$field};
+							// debugf(count($qry->list_fields()));
+							if (count($qry->list_fields()) == 1) {
+								foreach($qry->list_fields() as $field){
+									// debugf($qry->row(0)->{$field});
+									$result[$key]->value = $qry->row(0)->{$field};
+								}
+							} else {
+								foreach($qry->result() as $k => $v){
+									$res[$v->key] = $v->val;
+								}
+								$result[$key]->value = $res;
 							}
 							$qry->free_result();
 						}

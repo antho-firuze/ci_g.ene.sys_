@@ -27,10 +27,13 @@
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/datepicker/datepicker3.css">
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/tag-it/css/jquery.tagit.css">
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/tag-it/css/tagit.ui-zendesk.css">
+<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/jvectormap/jquery-jvectormap-1.2.2.css">
 <script src="{$.const.TEMPLATE_URL}plugins/jQueryUI/jquery-ui.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/summernote/summernote.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/datepicker/bootstrap-datepicker.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/tag-it/js/tag-it.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Start :: Init for Title, Breadcrumb *}
@@ -39,6 +42,7 @@
 	}));
 	{* End :: Init for Title, Breadcrumb *}
 	
+  var visitorsData = {};
 	$.getJSON($url_module, {}, function(result){ 
 		{* // console.log(data[0]); *}
 		if (result.status){
@@ -49,9 +53,50 @@
 					var link = val.link ? $BASE_URL+val.link : '';
 					c.push(BSHelper.WidgetBox3({ title:val.name, color:val.color, value:val.value, icon:val.icon, link:link }));
 				}
+				if (val.type == 'BOX-7' && val.name == 'Quick Email'){
+					r.push(qemail());
+				}
+				if (val.type == 'BOX-5' && val.name == 'Calendar'){
+					a.push(wcal());
+				}
+				if (val.type == 'BOX-7' && val.name == 'Visitor Maps'){
+					visitorsData = val.value;
+					r.push(visitor_maps());
+				}
 			});
-			$(".box-3").append(c);
+			if (c)
+				$(".box-3").append(c);
+			if (r)
+				$(".col-lg-7").append(r);
+			if (a)
+				$(".col-lg-5").append(a);
 			{* console.log(c); *}
+			if ($('#world-map').length > 0){
+				$('#world-map').vectorMap({
+					map: 'world_mill_en',
+					backgroundColor: "transparent",
+					regionStyle: {
+						initial: {
+							fill: '#e4e4e4',
+							"fill-opacity": 1,
+							stroke: 'none',
+							"stroke-width": 0,
+							"stroke-opacity": 1
+						}
+					},
+					series: {
+						regions: [{
+							values: visitorsData,
+							scale: ['#b6d6ff', '#005ace'],
+							normalizeFunction: 'polynomial'
+						}]
+					},
+					onRegionLabelShow: function (e, el, code) {
+						if (typeof visitorsData[code] != "undefined")
+							el.html(el.html() + ': ' + visitorsData[code] + ' new visitors');
+					}
+				});
+			}
 		}
 	});
 	
@@ -74,17 +119,24 @@
 		box1.find('.note-btn').attr('title', '');
 		return box1;
 	}
-	$(".col-lg-7").append(qemail());
 
 	function wcal(){
 		var col = [], row = [];
 		var box1 = BSHelper.Box({ type:"info", header:true, title:"Calendar", toolbtn:['min','rem'] });
 		box1.find('.box-header h3').before($('<i class="fa fa-calendar"></i>'));
-		box1.find('.box-body').append('<div id="calendar" style="width: 100%"></div>');
+		box1.find('.box-body').append($('<div id="calendar" style="width: 100%"> </div>'));
 		box1.find("#calendar").datepicker({ todayHighlight:true });
 		return box1;
 	}
-	$(".col-lg-5").append(wcal());
+	
+	function visitor_maps(){
+		var col = [], row = [];
+		var box1 = BSHelper.Box({ type:"info", cls:"bg-light-blue-gradient", header:true, title:"Visitor Maps", toolbtn:['min','rem'] });
+		box1.find('.box-header h3').before($('<i class="fa fa-map-marker"></i>'));
+		box1.find('.box-body').append($('<div id="world-map" style="height: 250px; width: 100%;"> </div>'));
+		return box1;
+	}
+	{* $(".col-lg-5").append(visitor_maps()); *}
 	
 	{* var conhead = $('.content-header'); *}
 	{* var info_list = $('<ul id="info_marquee" class="info-marquee marquee" />'); *}
