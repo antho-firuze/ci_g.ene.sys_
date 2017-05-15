@@ -67,24 +67,24 @@
 		box1.find('.box-header h3').before($('<i class="fa fa-envelope"></i>'));
 		box1.find('.box-body').append(form1);
 		box1.find('.box-footer').addClass('clearfix').append('<button type="button" class="pull-right btn btn-default" id="sendEmail">Send <i class="fa fa-arrow-circle-right"></i></button>');
+		box1.find("#email_to").tagit({ placeholderText:"Email to:" });
+		box1.find(".summernote")
+			.summernote({ height: 150, minHeight: null, maxHeight: null, focus: true })
+			.summernote('code', '');
+		box1.find('.note-btn').attr('title', '');
 		return box1;
 	}
 	$(".col-lg-7").append(qemail());
-	$(".summernote")
-		.summernote({ height: 150, minHeight: null, maxHeight: null, focus: true })
-		.summernote('code', '');
-	$('.note-btn').attr('title', '');
-	$("#email_to").tagit({ placeholderText:"Email to:" });
 
 	function wcal(){
 		var col = [], row = [];
 		var box1 = BSHelper.Box({ type:"info", header:true, title:"Calendar", toolbtn:['min','rem'] });
 		box1.find('.box-header h3').before($('<i class="fa fa-calendar"></i>'));
 		box1.find('.box-body').append('<div id="calendar" style="width: 100%"></div>');
+		box1.find("#calendar").datepicker({ todayHighlight:true });
 		return box1;
 	}
 	$(".col-lg-5").append(wcal());
-	$("#calendar").datepicker({ todayHighlight:true });
 	
 	{* var conhead = $('.content-header'); *}
 	{* var info_list = $('<ul id="info_marquee" class="info-marquee marquee" />'); *}
