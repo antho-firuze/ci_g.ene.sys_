@@ -179,6 +179,16 @@ class Systems_Model extends CI_model
 		return $this->base_model->mget_rec($params);
 	}
 	
+	function get_a_role_dashboard($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.dashboard_id, t2.code, t2.name, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t2.type";
+		$params['table'] 	= "a_role_dashboard t1";
+		$params['join'][] = ['a_dashboard t2', 't1.dashboard_id = t2.id', 'left'];
+		$params['where']['t1.is_deleted']	= '0';
+		$params['where']['t2.is_deleted']	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
 	function get_a_role_process($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.process_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active";

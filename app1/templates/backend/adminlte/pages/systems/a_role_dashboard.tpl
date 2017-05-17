@@ -15,25 +15,38 @@
 	var Toolbar_Init = {
 		enable: true,
 		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process'],
-		disableBtn: ['btn-copy','btn-message','btn-print','btn-import','btn-process'],
+		disableBtn: ['btn-copy','btn-message','btn-print','btn-import'],
 		hiddenBtn: ['btn-copy','btn-message','btn-print','btn-import'],
-		processMenu: [{ id:"btn-process1", title:"Process 1" }, { id:"btn-process2", title:"Process 2" }, ],
-		processMenuDisable: ['btn-process1'],
+		processMenu: [{ id:"btn-process1", pageid: 45, title:"Copy Menu From Role..." }, ],
+		processMenuDisable: [],
 	};
 	{* DataTable Init *}
 	var DataTable_Init = {
 		enable: true,
-		aLBtn: { copy: true, edit: true, delete: true },
+		aLBtn: { copy: false, edit: true, delete: true },
 		aRBtn: [],
 		aRBtn_width: '100px',
+		order: ['id desc'],
 		columns: [
-			{ width:"130px", orderable:false, data:"code_name", title:"Name" },
-			{ width:"250px", orderable:false, data:"description", title:"Description" },
+			{ width:"150px", orderable:false, data:"code_name", title:"Dashboard" },
 			{ width:"55px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Type" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"line_no", title:"Line", render:function(data, type, row){ return '<input type="number" class="line_no" style="width:50px; text-align:center;" value="'+data+'">'; } },
 		],
 	};
+	{* btn-process1 in Toolbar *}
+	$(document.body).click('button', function(e){
+		switch($(e.target).attr('id')){
+			case 'btn-process1':
+				if (!confirm("All Menu in this Role will be replaced, Are you sure ?")) {
+					return false;
+				}
+				var $pageid = getURLParameter("pageid"), $filter = getURLParameter("filter");
+				$pageid = "?pageid="+$pageid+","+$(e.target).attr("data-pageid");
+				$filter = $filter ? "&filter="+$filter : "";
+				window.location.href = getURLOrigin()+$pageid+$filter+"&action=prc";
+				break;
+		}
+	});	
 	
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>

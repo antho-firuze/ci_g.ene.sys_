@@ -871,7 +871,7 @@ class Getmeb extends CI_Controller
 			}
 
 			if (count($val) > 0) {
-				if (! $fk = $this->db->get_where($table, array_merge($val, ['is_active' => '1', 'is_deleted' => '0']), 1)) {
+				if (! $fk = $this->db->get_where($table, array_merge($val, ['is_deleted' => '0']), 1)) {
 					$this->set_message($this->db->error()['message']);
 					return FALSE;
 				}

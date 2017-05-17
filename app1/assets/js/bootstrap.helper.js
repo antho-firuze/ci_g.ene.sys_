@@ -138,8 +138,10 @@
 		$.each(o.toolbtn, function(i, val){
 			if (val == 'min')
 				toolb.push($('<button type="button" class="btn btn-info btn-sm" data-widget="collapse"><i class="fa fa-minus"></i></button>'));
-			if (val == 'rem')
-				toolb.push($('<button type="button" class="btn btn-info btn-sm" data-widget="remove" data-toggle="tooltip" title="Remove"><i class="fa fa-times"></i></button>'));
+			if (val == 'rem'){
+				toolb.push("&nbsp;");
+				toolb.push($('<button type="button" class="btn btn-info btn-sm" data-widget="remove"><i class="fa fa-times"></i></button>'));
+			}
 		});
 		if (toolb) 
 			box_header.append($('<div class="pull-right box-tools">').append(toolb));
@@ -330,7 +332,7 @@
 		}
 		if (o.hidden) { input.attr('style','display:none;'); return input; }
 		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
-		if (!o.label) { container.find('label').remove(); container.removeClass('form-group'); }
+		if (!o.label) { container.find('label').remove(); /* container.removeClass('form-group'); */ }
 		if (o.required) input.attr('required',''); 
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
@@ -339,6 +341,7 @@
 		if (o.idmatch) input.attr('data-match','#'+o.idmatch);
 		if (o.errormatch) input.attr('data-match-error',o.errormatch);
 		if (o.cls) input.addClass(o.cls);
+		if (o.role) input.attr('data-role', o.role);
 		
 		if (thetype.toLowerCase() == 'date') 
 			container.find('.control-input').append(input).append(input2).append(help);

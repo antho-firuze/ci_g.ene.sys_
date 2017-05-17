@@ -25,15 +25,19 @@
   
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/summernote/summernote.css">
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/datepicker/datepicker3.css">
-<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/tag-it/css/jquery.tagit.css">
-<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/tag-it/css/tagit.ui-zendesk.css">
+{* <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/tag-it/css/jquery.tagit.css"> *}
+{* <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/tag-it/css/tagit.ui-zendesk.css"> *}
+<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/bootstrap-tagsinput/bootstrap-tagsinput.css">
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/jvectormap/jquery-jvectormap-1.2.2.css">
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/jQueryUI/jquery-ui.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/summernote/summernote.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/datepicker/bootstrap-datepicker.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/tag-it/js/tag-it.js"></script>
+{* <script src="{$.const.TEMPLATE_URL}plugins/tag-it/js/tag-it.js"></script> *}
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-tagsinput/bootstrap-tagsinput.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Start :: Init for Title, Breadcrumb *}
@@ -105,18 +109,55 @@
 		var form1 = BSHelper.Form({ autocomplete:"off" });
 		var box1 = BSHelper.Box({ type:"info", header:true, title:"Quick Email", toolbtn:['min','rem'], footer:true });
 		col.push(BSHelper.Input({ horz:false, type:"text", idname:"email_from", value:"{$.session.user_email}", readonly:true }) );
-		col.push(BSHelper.Input({ horz:false, type:"text", idname:"email_to", required: true, placeholder:"Email to:" }) );
+		col.push(BSHelper.Input({ horz:false, type:"text", idname:"email_to", required: true, placeholder:"Email to:", role:"tagsinput" }) );
 		col.push(BSHelper.Input({ horz:false, type:"text", idname:"subject", required: true, placeholder:"Subject:" }) );
 		col.push(BSHelper.Input({ horz:false, type:"textarea", idname:"body_content", cls:"summernote", placeholder:"Message" }));
+		{* col.push(BSHelper.Button({ type:"submit", label:'Send <i class="fa fa-arrow-circle-right"></i>', idname:"submit_btn" })); *}
 		form1.append( col );
 		box1.find('.box-header h3').before($('<i class="fa fa-envelope"></i>'));
 		box1.find('.box-body').append(form1);
 		box1.find('.box-footer').addClass('clearfix').append('<button type="button" class="pull-right btn btn-default" id="sendEmail">Send <i class="fa fa-arrow-circle-right"></i></button>');
-		box1.find("#email_to").tagit({ placeholderText:"Email to:" });
+		{* box1.find("#email_to").tagit({ placeholderText:"Email to:" }); *}
+		box1.find("#email_to").tagsinput();
 		box1.find(".summernote")
 			.summernote({ height: 150, minHeight: null, maxHeight: null, focus: true })
 			.summernote('code', '');
 		box1.find('.note-btn').attr('title', '');
+		box1.find('#sendEmail').click(function(e){
+			{* form1.validator().trigger('submit'); *}
+			form1.validator('validate');
+			if (form1.find(".has-error").length > 0) { return false; }
+			
+			form1.shollu_autofill('reset');
+			
+			{* $.ajax({ url: $url_module, method: "POST", async: true, dataType:'json',
+				data: form1.serializeJSON(),
+				success: function(data) {
+					BootstrapDialog.alert(data.message, function(){
+						window.history.back();
+					});
+				},
+				error: function(data) {
+					if (data.status==500){
+						var message = data.statusText;
+					} else {
+						var error = JSON.parse(data.responseText);
+						var message = error.message;
+					}
+					form.find("[type='submit']").prop( "disabled", false );
+					BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+				}
+			}); *}
+			{* console.log(form1.find("#email_to").val()); *}
+			{* console.log(form1.find(".has-error").length); *}
+			{* if (e.isDefaultPrevented()) { return false;	} *}
+			console.log('textting');
+		});
+		{* form1.validator().on('submit', function(e) { *}
+			{* if (e.isDefaultPrevented()) { return false;	}  *}
+			{* console.log('submit'); *}
+			{* return false; *}
+		{* }); *}
 		return box1;
 	}
 
@@ -136,7 +177,6 @@
 		box1.find('.box-body').append($('<div id="world-map" style="height: 250px; width: 100%;"> </div>'));
 		return box1;
 	}
-	{* $(".col-lg-5").append(visitor_maps()); *}
 	
 	{* var conhead = $('.content-header'); *}
 	{* var info_list = $('<ul id="info_marquee" class="info-marquee marquee" />'); *}

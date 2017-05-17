@@ -13,25 +13,12 @@
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $bread = {$.php.json_encode($bread)};
 	{* For design form interface *}
 	var col = [], row = [];
-	var form1 = BSHelper.Form({ autocomplete:"off" });
+	var form1 = BSHelper.Form({ autocomplete:"off" });	
 	var box1 = BSHelper.Box({ type:"info" });
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Code", idname:"code", required: false, }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Name", idname:"name", required: true, }));
-	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Dashboard", idname:"dashboard_id", url:"{$.php.base_url('systems/a_dashboard')}?ob=name", remote: true }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
-	col.push(BSHelper.Combobox({ label:"Type", idname:"type", 
-		list:[
-			{ id:"BOX-3", name:"BOX-3" },
-			{ id:"BOX-5", name:"BOX-5" },
-			{ id:"BOX-7", name:"BOX-7" },
-		] 
-	}));
 	row.push(subCol(6, col)); col = [];
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Link", idname:"link", }));
-	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Query", idname:"query", }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Icon", idname:"icon", }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Color", idname:"color", }));
-	row.push(subCol(6, col)); col = [];
+	row.push(subCol(6, col));
 	form1.append(subRow(row));
 	form1.append(subRow(subCol()));
 	col = [];

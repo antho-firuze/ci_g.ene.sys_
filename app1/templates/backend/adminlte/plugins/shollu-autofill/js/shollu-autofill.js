@@ -92,17 +92,29 @@
 					field_type = form[i].type.toLowerCase();
 					field_name = form[i].name;
 					field_id 	 = form[i].id;
+					
+					if (field_type == 'text' && $(form[i]).attr('readonly'))
+						continue;
+
 					switch (field_type)
 					{
+					case "textarea":
+						if ($(form[i]).hasClass('summernote') && jQuery().summernote){
+							$(form[i]).summernote('code', '');
+						}
+						break;
 					case "text":
 					case "email":
 					case "number":
 					case "password":
-					case "textarea":
 					case "hidden":
 						form[i].value = "";
 						
 						if (field_name){
+							console.log($(form));
+							if ($(form[i]).attr('data-role') == 'tagsinput' && jQuery().tagsinput()){
+								$(form[i]).tagsinput('removeAll');
+							}
 							if ($(form).find('#'+field_name).data('init-shollu_cb')) {
 								if (jQuery().shollu_cb){
 									$(form).find('#'+field_name).shollu_cb('setValue', '');

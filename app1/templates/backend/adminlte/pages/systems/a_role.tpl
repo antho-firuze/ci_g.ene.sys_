@@ -26,6 +26,7 @@
 		aLBtn: { copy: true, edit: true, delete: true },
 		aRBtn: [
 			{ pageid: 36, subKey: 'role_id', title: 'Menu Access', },
+			{ pageid: 37, subKey: 'role_id', title: 'Dashboard List', },
 		],
 		aRBtn_width: '100px',
 		columns: [
