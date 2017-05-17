@@ -3,7 +3,7 @@
 // MAIL
 if ( ! function_exists('send_mail'))
 {
-	function send_mail( $email_to=NULL, $subject=NULL, $message=NULL ) {
+	function send_mail( $email_from=NULL, $email_to=NULL, $subject=NULL, $message=NULL ) {
 		$ci = get_instance();
 		
 		$ci->load->library('email');
@@ -14,7 +14,9 @@ if ( ! function_exists('send_mail'))
 		$ci->email->initialize($config);
 
 		$ci->email->clear();
-		$ci->email->from($config['smtp_user'], '[SYSTEM APPS]');
+		
+		$email_from = $email_from ? $email_from : [$config['smtp_user'], '[SYSTEM APPS]'];
+		$ci->email->from($email_from);
 		$ci->email->to($email_to); 
 		// $ci->email->bcc('hertanto@fajarbenua.co.id');
 		$ci->email->subject($subject);

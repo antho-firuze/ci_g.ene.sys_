@@ -111,31 +111,39 @@
 		col.push(BSHelper.Input({ horz:false, type:"text", idname:"email_from", value:"{$.session.user_email}", readonly:true }) );
 		col.push(BSHelper.Input({ horz:false, type:"text", idname:"email_to", required: true, placeholder:"Email to:", role:"tagsinput" }) );
 		col.push(BSHelper.Input({ horz:false, type:"text", idname:"subject", required: true, placeholder:"Subject:" }) );
-		col.push(BSHelper.Input({ horz:false, type:"textarea", idname:"body_content", cls:"summernote", placeholder:"Message" }));
+		col.push(BSHelper.Input({ horz:false, type:"textarea", idname:"message", cls:"summernote", placeholder:"Message" }));
 		{* col.push(BSHelper.Button({ type:"submit", label:'Send <i class="fa fa-arrow-circle-right"></i>', idname:"submit_btn" })); *}
 		form1.append( col );
 		box1.find('.box-header h3').before($('<i class="fa fa-envelope"></i>'));
 		box1.find('.box-body').append(form1);
-		box1.find('.box-footer').addClass('clearfix').append('<button type="button" class="pull-right btn btn-default" id="sendEmail">Send <i class="fa fa-arrow-circle-right"></i></button>');
-		{* box1.find("#email_to").tagit({ placeholderText:"Email to:" }); *}
+		box1.find('.box-footer').addClass('clearfix').append('<button type="button" class="pull-right btn btn-info" id="sendEmail">Send <i class="fa fa-arrow-circle-right"></i></button>');
 		box1.find("#email_to").tagsinput();
+		box1.find("#email_to").on('itemAdded itemRemoved', function(event) {
+			$(this).parents('.control-input').find('input').attr('placeholder', $(this).val() ? '' : 'Email to:');
+		});
 		box1.find(".summernote")
 			.summernote({ height: 150, minHeight: null, maxHeight: null, focus: true })
 			.summernote('code', '');
 		box1.find('.note-btn').attr('title', '');
+		
 		box1.find('#sendEmail').click(function(e){
 			{* form1.validator().trigger('submit'); *}
 			form1.validator('validate');
 			if (form1.find(".has-error").length > 0) { return false; }
 			
-			form1.shollu_autofill('reset');
+			paceOptions = {	ajax: true };
+			Pace.restart();
 			
-			{* $.ajax({ url: $url_module, method: "POST", async: true, dataType:'json',
+			{* console.log(form1.serializeJSON()); *}
+			box1.find('#sendEmail').prop( "disabled", true );
+			form1.append( BSHelper.Input({ type:"hidden", idname:"send_mail", value:1 }) );
+			
+			$.ajax({ url: $url_module, method: "POST", async: true, dataType:'json',
 				data: form1.serializeJSON(),
 				success: function(data) {
-					BootstrapDialog.alert(data.message, function(){
-						window.history.back();
-					});
+					form1.shollu_autofill('reset');
+					box1.find('#sendEmail').prop( "disabled", false );
+					BootstrapDialog.alert(data.message);
 				},
 				error: function(data) {
 					if (data.status==500){
@@ -144,20 +152,13 @@
 						var error = JSON.parse(data.responseText);
 						var message = error.message;
 					}
-					form.find("[type='submit']").prop( "disabled", false );
+					box1.find('#sendEmail').prop( "disabled", false );
 					BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
 				}
-			}); *}
-			{* console.log(form1.find("#email_to").val()); *}
-			{* console.log(form1.find(".has-error").length); *}
-			{* if (e.isDefaultPrevented()) { return false;	} *}
-			console.log('textting');
+			});
+			
+			paceOptions = {	ajax: false };
 		});
-		{* form1.validator().on('submit', function(e) { *}
-			{* if (e.isDefaultPrevented()) { return false;	}  *}
-			{* console.log('submit'); *}
-			{* return false; *}
-		{* }); *}
 		return box1;
 	}
 

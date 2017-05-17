@@ -57,6 +57,17 @@ class Systems extends Getmeb
 			}
 		}
 		// $this->backend_view('dashboard1', 'pages/dashboard/dashboard1');
+		if ($this->r_method == 'POST') {
+			if (isset($this->params->send_mail) && $this->params->send_mail) {
+				// debug($this->params);
+				if(! send_mail($this->params->email_from, $this->params->email_to, $this->params->subject, $this->params->message)) {
+					$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')], 401);
+				}
+				
+				/* success */
+				$this->xresponse(TRUE, ['message' => 'Your email has been sent.']);
+			}
+		}
 	}
 	
 	function x_auth()
@@ -78,7 +89,7 @@ class Systems extends Getmeb
 		
 			/* Trying to sending email */
 			$message = AUTH_LNK."?code=".$user->forgotten_password_code;
-			if(! send_mail($user->email, 'Your Reset Password Link', $message)) {
+			if(! send_mail(NULL, $user->email, 'Your Reset Password Link', $message)) {
 				$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')], 401);
 			}
 			

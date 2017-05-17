@@ -111,7 +111,6 @@
 						form[i].value = "";
 						
 						if (field_name){
-							console.log($(form));
 							if ($(form[i]).attr('data-role') == 'tagsinput' && jQuery().tagsinput()){
 								$(form[i]).tagsinput('removeAll');
 							}
