@@ -15,7 +15,9 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
-	function drop_table()
+	
+	
+	function drop_table_tmp()
 	{
 		$qry = $this->db->get_where('a_tmp_tables', ['time <' => time()-60]);
 		if ($qry->num_rows() > 0){
@@ -116,11 +118,14 @@ class Test extends CI_Controller {
 		echo $is_datetime ? implode(' ', [$date_result, $time_result]) : $date_result;
 	}
 	
-	function short()
+	function get_shorten()
 	{
+		$params = $this->input->get();
+		// debug($params);
 		// echo base64_encode(1000);
 		$this->load->helper('string');
-		echo random_string('alnum', 5);
+		$rndstr = random_string('alnum', 5);
+		xresponse(TRUE, ['base_url' => $params['url'], 'short_url' => 'http://jeil.bz/'.$rndstr]);
 		// echo random_string('md5', 5);
 		// echo random_string('sha1', 5);
 	}
