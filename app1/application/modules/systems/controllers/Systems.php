@@ -447,7 +447,9 @@ class Systems extends Getmeb
 						$this->backend_view('pages/404', ['message'=>'']);
 				}
 			}
-			
+			/* Checking the menu existance */
+			if (! $this->_check_menu($menu))
+				$this->backend_view('pages/404', ['message'=>$this->messages()]);
 			/* Standard page */
 			$this->backend_view($menu['path'].$menu['table'], $menu);
 		}
@@ -473,15 +475,8 @@ class Systems extends Getmeb
 	function a_user()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+			$this->_get_filtered(TRUE, FALSE);
 			
-			if (key_exists('zone', $this->params) && ($this->params['zone']))
-				$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
-			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
-
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->protected_fields = ['user_org_id','user_role_id','api_token','password','salt','remember_token','is_online','forgotten_password_code','forgotten_password_time','ip_address','photo_file'];
 				$this->_pre_export_data();
@@ -728,12 +723,8 @@ class Systems extends Getmeb
 	function a_role()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
-
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -892,12 +883,8 @@ class Systems extends Getmeb
 	function a_system()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+			$this->_get_filtered(FALSE, FALSE);
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
-
 			$this->params['where']['t1.client_id'] 	=	DEFAULT_CLIENT_ID;
 			$this->params['where']['t1.org_id']			= DEFAULT_ORG_ID;
 			
@@ -917,12 +904,8 @@ class Systems extends Getmeb
 	function a_client()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+			$this->_get_filtered(FALSE, FALSE);
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
-
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -943,12 +926,8 @@ class Systems extends Getmeb
 	function a_dashboard()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
-
 			$this->params['ob'] = "type, line_no";
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -970,12 +949,8 @@ class Systems extends Getmeb
 	function a_domain()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
-
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -1006,13 +981,7 @@ class Systems extends Getmeb
 	function a_menu()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
-			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
-
-			$this->params['where']['t1.client_id'] 	=	DEFAULT_CLIENT_ID;
+			$this->_get_filtered(TRUE, FALSE);
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -1035,19 +1004,27 @@ class Systems extends Getmeb
 					$this->xresponse(TRUE, ['message' => $this->messages()]);
 				}
 			}
-			$this->_pre_update_records();
+			
+			$datas = $this->_pre_update_records(TRUE);
+			$datas['line_no'] = $this->db->query('select max(line_no) from a_menu where parent_id = '.$datas['parent_id'])->row()->max + 1;
+			
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
+			else
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);				
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
 	
 	function a_org()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.code, t1.name, t1.description', $this->params['q']);
-
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -1069,12 +1046,8 @@ class Systems extends Getmeb
 	function a_orgtype()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.code, t1.name, t1.description', $this->params['q']);
-
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -1095,12 +1068,8 @@ class Systems extends Getmeb
 	function a_sequence()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.code, t1.name, t1.description', $this->params['q']);
-
 			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -1148,12 +1117,8 @@ class Systems extends Getmeb
 	function c_currency()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
-
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}

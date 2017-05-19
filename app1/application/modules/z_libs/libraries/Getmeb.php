@@ -211,7 +211,7 @@ class Getmeb extends CI_Controller
 			$this->set_message('ERROR: Menu [method] is could not be empty !');
 			return FALSE;
 		}
-
+		
 		/* CHECK PATH FILE */
 		if (!$this->_check_path($data['path'].$data['table'])) {
 			$this->set_message('ERROR: Menu [path] is could not be found or file not exist !');
@@ -428,6 +428,21 @@ class Getmeb extends CI_Controller
 			}
 		}
 		$this->xresponse(TRUE, ['data' => $result]);
+	}
+	
+	function _get_filtered($client = TRUE, $org = TRUE)
+	{
+		if (isset($this->params['id']) && !empty($this->params['id'])) 
+			$this->params['where']['t1.id'] = $this->params['id'];
+		
+		if (isset($this->params['q']) && !empty($this->params['q']))
+			$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
+		
+		if ($client)
+			$this->params['where']['t1.client_id'] = $this->session->client_id;
+
+		if ($org)
+			$this->params['where']['t1.org_id'] = $this->session->org_id;
 	}
 	
 	function _pre_update_records($return = FALSE)
@@ -980,7 +995,7 @@ class Getmeb extends CI_Controller
 						am2.id as menu_id2, am2.name as name2, am2.is_parent as is_parent2, am2.icon as icon2, am2.type as type2,
 						am3.id as menu_id3, am3.name as name3, am3.is_parent as is_parent3, am3.icon as icon3, am3.type as type3
 			from (
-				select * from a_menu am where am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and am.parent_id = '0' and 
+				select * from a_menu am where am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and (am.parent_id = '0' or am.parent_id is null) and 
 				exists (
 					select * from (
 						select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id

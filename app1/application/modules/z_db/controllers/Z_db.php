@@ -21,6 +21,7 @@ class Z_db extends CI_Controller {
 		$fields['branch_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['department_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['division_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['user_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['gender_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['religion_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['marital_status_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
