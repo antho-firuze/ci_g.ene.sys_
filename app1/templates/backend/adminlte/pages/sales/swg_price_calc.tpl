@@ -34,7 +34,7 @@
 	var formContent = $('<form "autocomplete"="off"><div class="row"><div class="col-left col-md-6"></div><div class="col-right col-md-6"></div></div></form>');
 	var col_l = formContent.find('div.col-left');
 	var col_r = formContent.find('div.col-right');
-	col_l.append(BSHelper.Combobox({ label:"Price List", idname:"pricelist_version", url:"{$.php.base_url('sales/m_pricelist_version')}?filter=t1.is_active='1',is_sopricelist='1'&ob=validfrom desc", required: true, remote: true }));
+	col_l.append(BSHelper.Combobox({ label:"Price List", idname:"pricelist_version", url:"{$.php.base_url('sales/m_pricelist_version')}?level=1&filter=t1.is_active='1',is_sopricelist='1'", required: true, remote: true }));
 	a.push( subCol(4, BSHelper.Combobox({ label:"Size", idname:"swg_size_id", url:"{$.php.base_url('sales/e_swg_size')}?ob=id", required: true, remote: true })) );
 	a.push( subCol(4, BSHelper.Combobox({ label:"Class", idname:"swg_class_id", url:"{$.php.base_url('sales/e_swg_class')}", required: true, remote: true })) );
 	a.push( subCol(4, BSHelper.Combobox({ label:"Series", idname:"swg_series_id", url:"{$.php.base_url('sales/e_swg_series')}", required: true, remote: true })) );
@@ -46,13 +46,13 @@
 	a.push( subCol(3, BSHelper.Input({ type:"number", step:"any", label:"D4", idname:"d4", required: true, placeholder:"0", readonly: true  })) );
 	col_l.append(subRow(a));
 	col_l.append(BSHelper.Input({ type:"number", label:"Quantity", idname:"qty", required: true, placeholder:"numeric", value:1 }));
-	col_r.append(BSHelper.Combobox({ label:"Material IR", idname:"ir_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: false, remote: true }));
+	col_r.append(BSHelper.Combobox({ label:"Material IR", idname:"ir_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: false, remote: true }));
 	col_r.append(BSHelper.Input({ type:"hidden", idname:"ir_price" }));
-	col_r.append(BSHelper.Combobox({ label:"Material OR", idname:"or_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: false, remote: true }));
+	col_r.append(BSHelper.Combobox({ label:"Material OR", idname:"or_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: false, remote: true }));
 	col_r.append(BSHelper.Input({ type:"hidden", idname:"or_price" }));
-	col_r.append(BSHelper.Combobox({ label:"Material HOOP", idname:"hoop_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: false, remote: true }));
+	col_r.append(BSHelper.Combobox({ label:"Material HOOP", idname:"hoop_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: false, remote: true }));
 	col_r.append(BSHelper.Input({ type:"hidden", idname:"hoop_price" }));
-	col_r.append(BSHelper.Combobox({ label:"Material FILLER", idname:"filler_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?&filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: true, remote: true }));
+	col_r.append(BSHelper.Combobox({ label:"Material FILLER", idname:"filler_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: true, remote: true }));
 	col_r.append(BSHelper.Input({ type:"hidden", idname:"filler_price" }));
 	col_r.append(BSHelper.Combobox({ label:"Branch", idname:"branch_id", url:"{$.php.base_url('sales/a_user_org')}", required: true, remote: true }));
 	col_r.append(BSHelper.Input({ type:"hidden", idname:"swg_margin" }));
@@ -65,16 +65,16 @@
 	
 	function filter_material(){
 		$("#ir_item_id")
-			.shollu_cb({ queryParams: { "filter":"t1.pricelist_id="+pricelist_id+",t1.pricelist_version_id="+pricelist_version_id+",is_swg_ir='1'" }})
+			.shollu_cb({ queryParams: { "level":1,"filter":"t1.pricelist_id="+pricelist_id+",t1.pricelist_version_id="+pricelist_version_id+",is_swg_ir='1'" }})
 			.shollu_cb('setValue', '');
 		$("#or_item_id")
-			.shollu_cb({ queryParams: { "filter":"t1.pricelist_id="+pricelist_id+",t1.pricelist_version_id="+pricelist_version_id+",is_swg_or='1'" }})
+			.shollu_cb({ queryParams: { "level":1,"filter":"t1.pricelist_id="+pricelist_id+",t1.pricelist_version_id="+pricelist_version_id+",is_swg_or='1'" }})
 			.shollu_cb('setValue', '');
 		$("#hoop_item_id")
-			.shollu_cb({ queryParams: { "filter":"t1.pricelist_id="+pricelist_id+",t1.pricelist_version_id="+pricelist_version_id+",is_swg_hoop='1'" }})
+			.shollu_cb({ queryParams: { "level":1,"filter":"t1.pricelist_id="+pricelist_id+",t1.pricelist_version_id="+pricelist_version_id+",is_swg_hoop='1'" }})
 			.shollu_cb('setValue', '');
 		$("#filler_item_id")
-			.shollu_cb({ queryParams: { "filter":"t1.pricelist_id="+pricelist_id+",t1.pricelist_version_id="+pricelist_version_id+",is_swg_filler='1'" }})
+			.shollu_cb({ queryParams: { "level":1,"filter":"t1.pricelist_id="+pricelist_id+",t1.pricelist_version_id="+pricelist_version_id+",is_swg_filler='1'" }})
 			.shollu_cb('setValue', '');
 	}
 	
@@ -118,7 +118,7 @@
 	{* INITILIZATION *}
 	var pricelist_id, pricelist_version_id = 0;
 	$("#pricelist_version").shollu_cb({ 
-		textField: 'name_version',
+		{* textField: 'name_version', *}
 		onSelect: function(rowData){
 			pricelist_id = rowData.pricelist_id;
 			pricelist_version_id = rowData.id;

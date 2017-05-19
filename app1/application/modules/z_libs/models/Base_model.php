@@ -111,7 +111,7 @@ class Base_Model extends CI_Model
 		if ( key_exists('where', $params)) $this->db->where($params['where']);
 		if ( key_exists('like', $params)) $this->db->where($params['like']);
 		if ( key_exists('sort', $params)) $this->db->order_by($params['sort'], $params['order']);
-		if ( key_exists('ob', $params)) 	$this->db->order_by($params['ob']);
+		// if ( key_exists('ob', $params)) 	$this->db->order_by($params['ob']);
 		
 		/* &filter=field1=value1,field2=value2... */
 		if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
@@ -160,6 +160,7 @@ class Base_Model extends CI_Model
 		if (! $query = $this->db->get() ){
 			// $this->db->error(); // Has keys 'code' and 'message'
 			$this->set_error($this->db->error()['message']);
+			$this->set_error($this->db->last_query());
 			return FALSE;
 		} 
 		// debug($this->db->last_query());

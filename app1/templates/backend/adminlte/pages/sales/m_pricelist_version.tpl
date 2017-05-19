@@ -34,7 +34,7 @@
 			{ width:"150px", orderable:false, data:"pricelist_name", title:"Price List" },
 			{ width:"150px", orderable:false, data:"code_name", title:"Name" },
 			{ width:"200px", orderable:false, data:"description", title:"Description" },
-			{ width:"75px", orderable:false, className:"dt-head-center dt-body-center", data:"validfrom", title:"Valid From" },
+			{ width:"75px", orderable:false, className:"dt-head-center dt-body-center", data:"valid_from", title:"Valid From" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 	};

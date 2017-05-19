@@ -20,7 +20,7 @@
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Name", idname:"name", required: true, }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
-	col.push(BSHelper.Input({ type:"date", label:"Valid From", idname:"validfrom", cls:"auto_ymd", format:"{$.session.date_format}" }));
+	col.push(BSHelper.Input({ type:"date", label:"Valid From", idname:"valid_from", cls:"auto_ymd", format:"{$.session.date_format}" }));
 	row.push(subCol(6, col)); col = [];
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
