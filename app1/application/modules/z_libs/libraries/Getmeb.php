@@ -667,6 +667,11 @@ class Getmeb extends CI_Controller
 		return ['filename' => $filezip, 'filepath' => $this->rel_tmp_dir.$filezip, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filezip];
 	}
 	
+	function _get_menulist()
+	{
+		
+	}
+	
 	function _reorder_menu()
 	{
 		$strq = "select t1.* 
@@ -990,7 +995,7 @@ class Getmeb extends CI_Controller
 	function _getMenuByRoleId($role_id)
 	{
 		if ($role_id) {
-			$query = "select 
+			/* $query = "select 
 						am1.id as menu_id1, am1.name as name1, am1.is_parent as is_parent1, am1.icon as icon1, am1.type as type1,
 						am2.id as menu_id2, am2.name as name2, am2.is_parent as is_parent2, am2.icon as icon2, am2.type as type2,
 						am3.id as menu_id3, am3.name as name3, am3.is_parent as is_parent3, am3.icon as icon3, am3.type as type3
@@ -1010,6 +1015,38 @@ class Getmeb extends CI_Controller
 				from a_menu am
 				left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
 				where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
+			) am2 on am1.id = am2.parent_id and am2.role_id is not null
+			left join (
+				select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
+				from a_menu am
+				left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
+				where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
+			) am3 on am2.id = am3.parent_id and am3.role_id is not null
+			order by am1.line_no, am2.line_no, am3.line_no"; */
+			$query = "select 
+						am1.id as menu_id1, am1.name as name1, am1.is_parent as is_parent1, am1.icon as icon1, am1.type as type1,
+						am2.id as menu_id2, am2.name as name2, am2.is_parent as is_parent2, am2.icon as icon2, am2.type as type2,
+						am3.id as menu_id3, am3.name as name3, am3.is_parent as is_parent3, am3.icon as icon3, am3.type as type3
+			from (
+				select * from a_menu am where am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and is_parent = '1' and (am.parent_id = '0' or am.parent_id is null) and 
+				exists (
+					select * from (
+						select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
+						from a_menu am
+						left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
+						where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
+					) basemenu where role_id is not null and parent_id = am.id
+				)
+			) am1
+			left join (
+				select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
+				from a_menu am
+				left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
+				where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
+				union 
+				select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, $role_id as role_id
+				from a_menu am
+				where am.is_parent = '1' and am.parent_id <> '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0'
 			) am2 on am1.id = am2.parent_id and am2.role_id is not null
 			left join (
 				select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id

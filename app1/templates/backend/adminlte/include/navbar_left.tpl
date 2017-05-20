@@ -4,11 +4,11 @@
       <!-- Sidebar user panel -->
       <div class="user-panel">
         <div class="pull-left image">
-          <img src="{$.php.base_url()~$.session.user_photo_path~$.session.user_photo_file}" class="img-circle" alt="User Image">
+          <img src="{$.php.base_url()~$.session.user_photo_path~$.session.user_photo_file}" onclick="window.location.href = '{$.const.PROFILE_LNK}';" class="img-circle" alt="User Image" style="cursor:pointer; cursor:hand;">
         </div>
         <div class="pull-left info">
-          <p>{$.session.user_name}</p>
-          <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+          <p><a href="{$.const.PROFILE_LNK}">{$.session.user_name}</a></p>
+          <a href="{$.const.PROFILE_LNK}"><i class="fa fa-circle text-success"></i> Online</a>
         </div>
       </div>
       <!-- search form -->

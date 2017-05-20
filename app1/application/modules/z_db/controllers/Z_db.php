@@ -45,6 +45,8 @@ class Z_db extends CI_Controller {
 		// $fields['pasport_expired'] 	= ['type' => 'DATE', 'null' => TRUE];
 		// $fields['kitas_no'] 	= ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		// $fields['kitas_expired'] 	= ['type' => 'DATE', 'null' => TRUE];
+		$fields['photo_file'] = ['type' => 'VARCHAR', 'constraint' => '120', 'null' => TRUE];
+		$fields['photo_bin'] = ['type' => 'BYTEA', 'null' => TRUE];
 		$fields['npwp_no'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		$fields['npwp_date'] 	= ['type' => 'DATE', 'null' => TRUE];
 		$fields['npwp_address'] 	= ['type' => 'TEXT', 'null' => TRUE];

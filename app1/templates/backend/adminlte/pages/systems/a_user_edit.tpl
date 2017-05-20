@@ -22,9 +22,9 @@
 	var req = (act == 'new') ? true : (act == 'edt') ? false : true;
 	col.push(BSHelper.Input({ type:"hidden", idname:"photo_file" }));
 	col.push( $('<div style="text-align:center;width:100%;" />')
-		.append( $('<img class="profile-user-img img-responsive img-circle" style="width:150px; margin-bottom:13px;" alt="User Picture" />') )
-		.append( BSHelper.Button({ type:"button", label:"Upload Photo", idname:"btn_uploadphoto" }) ) 
-		.append( '&nbsp;&nbsp;&nbsp;' ) 
+		.append( $('<img id="btn_uploadphoto" class="profile-user-img img-responsive img-circle" style="width:150px; margin-bottom:13px; cursor:pointer; cursor:hand;" title="Upload Photo" alt="User Picture" />') )
+		{* .append( BSHelper.Button({ type:"button", label:"Upload Photo", idname:"btn_uploadphoto" }) )  *}
+		{* .append( '&nbsp;&nbsp;&nbsp;' )  *}
 		.append( BSHelper.Button({ type:"button", label:"Generate Image", idname:"btn_generatephoto", 
 			onclick:"$.ajax({ 
 				url:$url_module,

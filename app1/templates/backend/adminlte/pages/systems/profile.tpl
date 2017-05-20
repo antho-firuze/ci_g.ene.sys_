@@ -28,9 +28,9 @@
 	var box1 = BSHelper.Box({ type:"info" });
 
 	col.push( $('<div style="text-align:center;width:100%;" />')
-		.append( $('<img class="profile-user-img img-responsive img-circle" style="width:150px; margin-bottom:13px;" alt="User Picture" />') )
-		.append( BSHelper.Button({ type:"button", label:"Upload Photo", idname:"btn_uploadphoto" }) ) 
-		.append( '&nbsp;&nbsp;&nbsp;' ) 
+		.append( $('<img id="btn_uploadphoto" class="profile-user-img img-responsive img-circle" style="width:150px; margin-bottom:13px; cursor:pointer; cursor:hand;" title="Upload Photo" alt="User Picture" />') )
+		{* .append( BSHelper.Button({ type:"button", label:"Upload Photo", idname:"btn_uploadphoto" }) )  *}
+		{* .append( '&nbsp;&nbsp;&nbsp;' )  *}
 		.append( $('<h3 class="profile-username text-center">{$.session.user_name}</h3>') ) 
 		.append( $('<p class="text-muted text-center">{$.session.user_description}</p>') ) 
 	);
