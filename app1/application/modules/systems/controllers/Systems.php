@@ -18,6 +18,11 @@ class Systems extends Getmeb
 		redirect(base_url().'systems/x_page?pageid=1');
 	}
 	
+	function test_menu()
+	{
+		debug($this->_get_menu(FALSE));
+	}
+	
 	function dashboard1()
 	{
 		if ($this->r_method == 'GET') {

@@ -667,19 +667,46 @@ class Getmeb extends CI_Controller
 		return ['filename' => $filezip, 'filepath' => $this->rel_tmp_dir.$filezip, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filezip];
 	}
 	
-	function _get_menulist()
+	function _get_menu_child($parent_id, $menu = array(), $active_only = TRUE)
 	{
-		
+		$active_only = $active_only ? "and is_active = '1'" : "";
+		$str = "select * from a_menu where is_submodule = '0' $active_only and is_deleted = '0' and parent_id = $parent_id order by is_parent desc, line_no";
+		$qry = $this->db->query($str);
+		foreach($qry->result() as $k => $v){
+			$menu[] = $v;
+			$menu = $this->_get_menu_child($v->id, $menu);
+		}
+		return $menu;
+	}
+	
+	function _get_menu($active_only = TRUE)
+	{
+		$menu = [];
+		/* get menu level 0 : not include dashboard (id <> 1)*/
+		$active_only = $active_only ? "and is_active = '1'" : "";
+		$str = "select * from (
+			select * from a_menu where is_parent = '1' and is_submodule = '0' $active_only and is_deleted = '0' and (parent_id = 0 or parent_id is null)
+			union
+			select * from a_menu where is_parent = '0' and is_submodule = '0' $active_only and is_deleted = '0' and (parent_id = 0 or parent_id is null) and id <> 1
+		) as lvl0 order by is_parent desc, line_no";
+		$qry = $this->db->query($str);
+		foreach($qry->result() as $k => $v){
+			$menu[] = $v;
+			$menu = $this->_get_menu_child($v->id, $menu);
+		}
+		return $menu;
 	}
 	
 	function _reorder_menu()
 	{
-		$strq = "select t1.* 
-			from(select id as grp, * from a_menu where is_parent = '1' union all select parent_id as grp, * from a_menu where is_parent = '0') as t1
-			where is_deleted = '0' and type != 'P' order by grp, is_parent desc, is_submodule, line_no";
-		$fetch = $this->db->query($strq);
-		$line = 1; $lineh = 1;
-		foreach($fetch->result() as $k => $v){
+		// $strq = "select t1.* 
+			// from(select id as grp, * from a_menu where is_parent = '1' union all select parent_id as grp, * from a_menu where is_parent = '0') as t1
+			// where is_deleted = '0' and type != 'P' order by grp, is_parent desc, is_submodule, line_no";
+		// $fetch = $this->db->query($strq);
+		// $line = 1; $lineh = 1;
+		// foreach($fetch->result() as $k => $v){
+			
+		foreach($this->_get_menu(FALSE) as $k => $v){
 			if ($v->is_parent == 1){
 				$line = 1;
 				$this->db->update('a_menu', ['line_no' => $lineh], ['id' => $v->id]);
