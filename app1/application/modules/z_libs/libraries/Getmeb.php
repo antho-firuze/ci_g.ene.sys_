@@ -1218,7 +1218,7 @@ class Getmeb extends CI_Controller
 		$html = '';
 		$html.= $this->li($cur_page, 1, 'systems/x_page?pageid=1', 'Dashboard', 'fa fa-dashboard');
 		// debug($qry->result_array());
-		$html.= $this->recurse($qry->result_array());
+		$html.= $this->recurse($qry->result_array(), null, explode(',', $menu_active));
 		$html.= '<br><li><a href="#" id="go-lock-screen" onclick="lock_the_screen();"><i class="fa fa-circle-o text-yellow"></i> <span>' . $this->lang->line('nav_lckscr') . '</span></a></li>';
 		$html.= '<li><a href="'.LOGOUT_LNK.'" id="go-sign-out"><i class="fa fa-sign-out text-red"></i> <span>' . $this->lang->line('nav_logout') . '</span></a></li>';
 		return $html;
