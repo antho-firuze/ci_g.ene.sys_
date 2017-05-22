@@ -18,9 +18,9 @@ class Systems extends Getmeb
 		redirect(base_url().'systems/x_page?pageid=1');
 	}
 	
-	function test_menu()
+	function get_menu()
 	{
-		debug($this->_get_menu(FALSE));
+		$this->getMenuStructure2(0);
 	}
 	
 	function dashboard1()
