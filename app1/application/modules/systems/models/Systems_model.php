@@ -169,13 +169,51 @@ class Systems_Model extends CI_model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function get_a_menu_parent($params)
+	function get_a_menu_parent_list($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= "(select id as grp, * from a_menu where is_parent = '1' union all	select parent_id as grp, * from a_menu where is_parent = '0') as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
+		$id = '';
+		if (isset($params['where']['id']) && $params['where']['id'])
+			$id = 'and id = '.$params['where']['id'];
+		$q = '';
+		if (isset($params['like']) && $params['like'])
+			$q = 'and '.$params['like'];
 		
-		return $this->base_model->mget_rec($params);
+		$str = "WITH RECURSIVE menu_tree (id, level, parent_id, line_no, is_parent, name) 
+			AS ( 
+				SELECT 
+					id, 0 as level, parent_id, 1 as line_no,	is_parent, '' || name 
+				FROM a_menu
+				WHERE (parent_id is NULL or parent_id = 0) and is_deleted = '0' 
+				UNION ALL
+				SELECT
+					mn.id, mt.level + 1, mt.id, mn.line_no, mn.is_parent, mt.name || '->' || mn.name
+				FROM a_menu mn, menu_tree mt 
+				WHERE mn.parent_id = mt.id and is_deleted = '0' 
+			) 
+			SELECT count(*) FROM menu_tree 
+			WHERE is_parent = '1' $id $q;";
+		$qry = $this->db->query($str);
+		$response['total'] = $qry->row()->count;
+		
+		$str = "WITH RECURSIVE menu_tree (id, level, parent_id, line_no, is_parent, name) 
+			AS ( 
+				SELECT 
+					id, 0 as level, parent_id, 1 as line_no,	is_parent, '' || name 
+				FROM a_menu
+				WHERE (parent_id is NULL or parent_id = 0) and is_deleted = '0' 
+				UNION ALL
+				SELECT
+					mn.id, mt.level + 1, mt.id, mn.line_no, mn.is_parent, mt.name || '->' || mn.name
+				FROM a_menu mn, menu_tree mt 
+				WHERE mn.parent_id = mt.id and is_deleted = '0' 
+			) 
+			SELECT * FROM menu_tree 
+			WHERE is_parent = '1' $id $q 
+			ORDER BY level, parent_id, line_no;";
+		$qry = $this->db->query($str);
+		$response['rows']  = $qry->result();
+		
+		return $response;
 	}
 	
 	function get_a_role_menu($params)

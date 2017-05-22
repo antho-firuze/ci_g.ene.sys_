@@ -487,7 +487,7 @@ class Systems extends Getmeb
 				$this->_pre_export_data();
 			}
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -580,7 +580,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or(["t2.code", "t2.name", "coalesce(t2.code,'') ||'_'|| t2.name"], $this->params['q']);
 
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -621,7 +621,7 @@ class Systems extends Getmeb
 				// $this->params['like'] = DBX::like_or("coalesce(t2.code,'') ||'_'|| t2.name", $this->params['q']);
 				$this->params['like'] = DBX::like_or(["t2.code", "t2.name", "coalesce(t2.code,'') ||'_'|| t2.name"], $this->params['q']);
 
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$result['str_query'] = $this->session->flashdata('str_query');
@@ -649,7 +649,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -734,7 +734,7 @@ class Systems extends Getmeb
 				$this->_pre_export_data();
 			}
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -776,7 +776,7 @@ class Systems extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -835,7 +835,7 @@ class Systems extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -893,7 +893,7 @@ class Systems extends Getmeb
 			$this->params['where']['t1.client_id'] 	=	DEFAULT_CLIENT_ID;
 			$this->params['where']['t1.org_id']			= DEFAULT_ORG_ID;
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -915,7 +915,7 @@ class Systems extends Getmeb
 				$this->_pre_export_data();
 			}
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -938,7 +938,7 @@ class Systems extends Getmeb
 				$this->_pre_export_data();
 			}
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -960,7 +960,7 @@ class Systems extends Getmeb
 				$this->_pre_export_data();
 			}
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -992,7 +992,7 @@ class Systems extends Getmeb
 				$this->_pre_export_data();
 			}
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1025,6 +1025,25 @@ class Systems extends Getmeb
 		}
 	}
 	
+	function a_menu_parent_list()
+	{
+		if ($this->r_method == 'GET') {
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
+				$this->params['where']['id'] = $this->params['id'];
+		
+			if (isset($this->params['q']) && !empty($this->params['q']))
+				$this->params['like'] = DBX::like_or('name', $this->params['q']);
+		
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+	
 	function a_org()
 	{
 		if ($this->r_method == 'GET') {
@@ -1035,7 +1054,7 @@ class Systems extends Getmeb
 			}
 			
 			$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1057,7 +1076,7 @@ class Systems extends Getmeb
 				$this->_pre_export_data();
 			}
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1075,7 +1094,7 @@ class Systems extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, FALSE);
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1106,7 +1125,7 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1128,7 +1147,7 @@ class Systems extends Getmeb
 				$this->_pre_export_data();
 			}
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1154,7 +1173,7 @@ class Systems extends Getmeb
 				$this->_pre_export_data();
 			}
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1185,7 +1204,7 @@ class Systems extends Getmeb
 				$this->_pre_export_data();
 			}
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1217,7 +1236,7 @@ class Systems extends Getmeb
 				$this->_pre_export_data();
 			}
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1248,7 +1267,7 @@ class Systems extends Getmeb
 				$this->_pre_export_data();
 			}
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
@@ -1279,7 +1298,7 @@ class Systems extends Getmeb
 				$this->_pre_export_data();
 			}
 			
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);
