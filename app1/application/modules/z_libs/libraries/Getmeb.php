@@ -699,18 +699,16 @@ class Getmeb extends CI_Controller
 	
 	function _reorder_menu()
 	{
-		// $strq = "select t1.* 
-			// from(select id as grp, * from a_menu where is_parent = '1' union all select parent_id as grp, * from a_menu where is_parent = '0') as t1
-			// where is_deleted = '0' and type != 'P' order by grp, is_parent desc, is_submodule, line_no";
-		// $fetch = $this->db->query($strq);
-		// $line = 1; $lineh = 1;
-		// foreach($fetch->result() as $k => $v){
-			
+		$line = 1; $lineh = 1; $parent_id = -1;
 		foreach($this->_get_menu(FALSE) as $k => $v){
 			if ($v->is_parent == 1){
-				$line = 1;
+				if ($parent_id != $v->parent_id){
+					$line = 1;
+					$lineh = 1;
+				}
 				$this->db->update('a_menu', ['line_no' => $lineh], ['id' => $v->id]);
 				$lineh++;
+				$parent_id = $v->parent_id;
 				continue;
 			}
 			$this->db->update('a_menu', ['line_no' => $line], ['id' => $v->id]);

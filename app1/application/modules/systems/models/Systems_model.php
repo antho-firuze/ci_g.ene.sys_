@@ -169,6 +169,15 @@ class Systems_Model extends CI_model
 		return $this->base_model->mget_rec($params);
 	}
 	
+	function get_a_menu_parent($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params['table'] 	= "(select id as grp, * from a_menu where is_parent = '1' union all	select parent_id as grp, * from a_menu where is_parent = '0') as t1";
+		$params['where']['t1.is_deleted'] 	= '0';
+		
+		return $this->base_model->mget_rec($params);
+	}
+	
 	function get_a_role_menu($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.menu_id, t2.code, t2.name, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t2.is_parent, (select coalesce(code,'') ||'_'|| name from a_menu where id = t2.parent_id limit 1) as parent_name, t2.type, t1.permit_form, t1.permit_process, t1.permit_window";
