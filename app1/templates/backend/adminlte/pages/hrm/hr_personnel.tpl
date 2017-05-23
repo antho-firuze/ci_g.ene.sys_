@@ -9,14 +9,15 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+<script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		enable: true,
 		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process'],
-		disableBtn: ['btn-copy','btn-message','btn-print','btn-import','btn-process'],
-		hiddenBtn: ['btn-copy','btn-message','btn-print','btn-import'],
+		disableBtn: ['btn-copy','btn-message','btn-print','btn-process'],
+		hiddenBtn: ['btn-copy','btn-message','btn-print'],
 		processMenu: [{ id:"btn-process1", title:"Process 1" }, { id:"btn-process2", title:"Process 2" }, ],
 		processMenuDisable: ['btn-process1'],
 	};
@@ -30,6 +31,7 @@
 			{ width:"130px", orderable:false, data:"code_name", title:"Name" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"50px", orderable:false, data:"profile_status", title:"Status", render:function(data, type, row){ return accounting.toFixed(data, 2)+'%'; } },
 		],
 	};
 	

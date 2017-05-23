@@ -445,6 +445,12 @@ class Getmeb extends CI_Controller
 			$this->params['where']['t1.org_id'] = $this->session->org_id;
 	}
 	
+	function remove_empty($array) {
+		return array_filter($array, function($value){
+			return !empty($value) || $value === 0;
+		});
+	}
+
 	function _pre_update_records($return = FALSE)
 	{
 		$datas = [];
@@ -470,6 +476,11 @@ class Getmeb extends CI_Controller
 		if ($return) 
 			return $datas;
 			
+		$this->_go_update_records($datas);
+	}
+	
+	function _go_update_records($datas)
+	{
 		if ($this->r_method == 'POST')
 			$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
 		else

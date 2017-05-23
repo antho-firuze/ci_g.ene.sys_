@@ -471,12 +471,21 @@ class Hrm extends Getmeb
 					// $data_imgUri = "data:image/png;base64," . base64_encode($data_img);
 					
 					/* update to table */
-					// $this->updateRecord('hr_personnel', ['photo_file' => $result["name"], 'photo_bin' => $es_data_img], ['id' => $this->params->id]);
+					$this->updateRecord('hr_personnel', ['photo_file' => $result["name"], 'photo_bin' => $es_data_img], ['id' => $this->params->id]);
 					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'data_uri' => $data_imgUri]);
 					@unlink($result["path"]);
 				}
 			}
-			$this->_pre_update_records();
+			$datas = $this->_pre_update_records(TRUE);
+			$datas['name'] = $datas['first_name'].' '.$datas['last_name'];
+			/* for counting percentage of field population */
+			$fields = $this->db->list_fields($this->c_method);
+			// debug($datas);
+			$datas = $this->remove_empty($datas);
+			// debug($datas);
+			// $data = $this->base_model->getValueArray('*', $this->c_method, 'id', $id);
+			$datas['profile_status'] = (count($datas) / (count($fields)-11-8)) * 100;
+			$this->_go_update_records($datas);
 		}
 	}
 	

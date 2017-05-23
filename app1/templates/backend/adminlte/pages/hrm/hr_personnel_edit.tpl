@@ -42,8 +42,7 @@
 			{	title:"Personal", idname:"tab-personal", 
 				content:function(){
 					col = [], row = [], a = [];
-					{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Code", idname:"code", required: false, })); *}
-					{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Name", idname:"name", required: true, })); *}
+					col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
 					col.push(BSHelper.Input({ horz:false, type:"text", label:"First Name", idname:"first_name", required: true, }));
 					col.push(BSHelper.Input({ horz:false, type:"text", label:"Last Name", idname:"last_name", required: true, }));
 					col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
@@ -255,7 +254,7 @@
 		filters: { max_file_size: "2mb", mime_types: [{ title:"Image files", extensions:"jpg,gif,png" }] },
 		browse_button: "btn_uploadphoto", 
 		multi_selection: false, 
-		multipart_params: { "userphoto":1, "id":{$.session.user_id}, "photo_file":$('#photo_file').val() },
+		multipart_params: { "userphoto":1, "id":$('#id').val(), "photo_file":$('#photo_file').val() },
 		init: {
 			FilesAdded: function(up, files) {
 				uploader.start();
