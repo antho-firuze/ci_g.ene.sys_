@@ -9,69 +9,7 @@ class Z_db extends CI_Controller {
 		parent::__construct();
 		
 	}
-	/* WITH RECURSIVE menu_tree (id, level, parent_id, line_no, name, name_tree) 
-AS ( 
-  SELECT
-    id, 
-    0 as level, 
-    parent_id, 
-    1 as line_no,
-    name, 
-    name 
-  FROM a_menu
-  WHERE (parent_id is NULL or parent_id = 0) and is_deleted = '0' --and is_submodule = '0' and "type" != 'P'
- 
-  UNION ALL
-  SELECT
-    mn.id, 
-    mt.level + 1, 
-    mt.id, 
-    mn.line_no, 
-    mn.name, 
-    mt.name_tree || '->' || mn.name
-  FROM a_menu mn, menu_tree mt 
-  WHERE mn.parent_id = mt.id and is_deleted = '0' --and is_submodule = '0' and "type" != 'P'
-) 
-SELECT * FROM menu_tree 
---WHERE level > 0 
-ORDER BY level, parent_id, line_no; */
 
-/* WITH departmentcte (
-	deptid,
-	department,
-	parent,
-	LEVEL,
-	treepath
-) AS (
-	SELECT
-		ID AS deptid,
-		department,
-		parent,
-		0 AS LEVEL,
-		CAST (department AS VARCHAR(1024)) AS treepath
-	FROM
-		departments
-	WHERE
-		parent IS NULL
-
-	UNION ALL -- AND now FOR the RECURSIVE part 
-
-	SELECT
-		d. ID AS deptid,
-		d.department,
-		d.parent,
-		departmentcte. LEVEL + 1 AS LEVEL,
-		CAST (departmentcte.treepath + ‘ -> ‘ + CAST (d.department AS VARCHAR(1024)) AS VARCHAR (1024)) AS treepath
-	FROM
-		departments d
-	INNER JOIN departmentcte ON departmentcte.deptid = d.parent
-) 
-SELECT
-	*
-FROM
-	departmentcte
-ORDER BY
-	treepath; */
 	function table_hr_personnel()
 	{
 		$fields = $this->field_00_Main();

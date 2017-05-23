@@ -356,6 +356,7 @@
 		button.addClass(o.cls?o.cls:'btn-primary');
 
 		if (o.disabled) button.attr('disabled','');
+		if (o.style) button.attr('style', o.style);
 		if (o.onclick) button.attr('onclick',o.onclick);
 		return button;
 	};

@@ -449,6 +449,33 @@ class Hrm extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* This process is for Upload Photo */
+			if (isset($this->params->userphoto) && !empty($this->params->userphoto)) {
+				if (isset($this->params->id) && $this->params->id) {
+					
+					if (!$result = $this->_upload_file()){
+						$this->xresponse(FALSE, ['message' => $this->messages()]);
+					}
+						
+					/* If Success */
+					if (! $img = fopen($result["path"], 'rb'))
+						$this->xresponse(FALSE, ['message' => 'Error: Cannot read image !']);
+					
+					$data_img = fread($img, $result["size"]);
+					$data_imgUri = "data:image/png;base64," . base64_encode($data_img);
+					$es_data_img = pg_escape_bytea($data_img);
+					fclose($img);
+					
+					/* For reading image field */
+					// $data_img = pg_unescape_bytea($photo_bin);
+					// $data_imgUri = "data:image/png;base64," . base64_encode($data_img);
+					
+					/* update to table */
+					// $this->updateRecord('hr_personnel', ['photo_file' => $result["name"], 'photo_bin' => $es_data_img], ['id' => $this->params->id]);
+					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'data_uri' => $data_imgUri]);
+					@unlink($result["path"]);
+				}
+			}
 			$this->_pre_update_records();
 		}
 	}

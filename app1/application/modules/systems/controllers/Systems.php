@@ -389,7 +389,7 @@ class Systems extends Getmeb
 			}
 		}
 		
-		$this->backend_view('pages/systems/profile');
+		$this->backend_view('pages/systems/x_profile');
 	}
 	
 	/*

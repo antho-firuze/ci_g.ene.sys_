@@ -11,6 +11,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/input-mask/jquery.inputmask.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/input-mask/jquery.inputmask.date.extensions.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/plupload/js/plupload.full.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $bread = {$.php.json_encode($bread)};
 	{* For design form interface *}
@@ -19,24 +20,22 @@
 	var form2 = BSHelper.Form({ autocomplete:"off" });
 	var form3 = BSHelper.Form({ autocomplete:"off" });
 	var form4 = BSHelper.Form({ autocomplete:"off" });
-	var box1 = BSHelper.Box({ type:"info" });
+	var box1 = BSHelper.Box({ type:"info", header:false, toolbtn:['min','rem'] });
 	
 	col.push( $('<div style="text-align:center;width:100%;" />') );
-	col.push( $('<img id="btn_uploadphoto" class="profile-user-img img-responsive img-circle" style="width:150px; margin-bottom:13px; cursor:pointer; cursor:hand;" title="Upload Photo" alt="User Picture" />') );
-	col.push( $('<h3 class="profile-username text-center">{$.session.user_name}</h3>') ); 
-	col.push( $('<p class="text-muted text-center">{$.session.user_description}</p>') ); 
-	{* col.push( $('<ul class="list-group list-group-unbordered" />') *}
-		{* .append( $('<li class="list-group-item" />') *}
-			{* .append( BSHelper.Combobox({ horz:false, label:"Role (Default)", idname:"user_role_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_role')}?filter=user_id="+{$.session.user_id}, remote: true, required:true }) ) ) *}
-		{* .append( $('<li class="list-group-item" />') *}
-			{* .append( BSHelper.Combobox({ horz:false, label:"Organization (Default)", idname:"user_org_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_org')}?filter=user_id="+{$.session.user_id}, remote: true, required:true }) ) ) *}
-  {* ); *}
+	col.push( $('<img id="btn_uploadphoto" class="profile-user-img img-responsive img-circle" src="{$.php.base_url()}upload/images/default-photo.png" style="width:150px; margin-bottom:13px; cursor:pointer; cursor:hand;" title="Upload Photo" alt="User Picture" />') );
+	{* col.push( $('<h3 class="profile-username text-center">{$.session.user_name}</h3>') );  *}
+	{* col.push( $('<p class="text-muted text-center">{$.session.user_description}</p>') );  *}
+	col.push( $('<ul class="list-group list-group-unbordered" />')
+		.append( $('<li class="list-group-item" />').append( $('<b>Leave Balance</b><a class="pull-right">0 Days</a>') ))
+		.append( $('<li class="list-group-item" />').append( $('<b>Profile Status</b><a class="pull-right">0%</a>') ))
+  );
 	{* col.push( BSHelper.Button({ type:"button", label:"Reload", idname:"btn_reload", *}
 		{* onclick:"var last_url = window.location.href; *}
 			{* $.getJSON('{$.const.RELOAD_LNK}', '', function(data){ window.location.replace(last_url); });"  *}
 	{* }) );  *}
-	form1.append(subRow(subCol(12, col)));
-	box1.find('.box-body').append(form1);
+	{* form1.append(subRow(subCol(12, col))); *}
+	box1.find('.box-body').append(subRow(subCol(12, col)));
 	
 	var tab1 = BSHelper.Tabs({
 		dataList: [
@@ -63,7 +62,7 @@
 					col.push(BSHelper.Combobox({ horz:false, label:"Nationality", label_link:"{$.const.PAGE_LNK}?pageid=69", idname:"nationality_id", url:"{$.php.base_url('hrm/hr_nationality')}", remote: true }));
 					row.push(subCol(6, col)); col = [];
 					a.push(subRow(row)); col = []; row = [];
-					{* form2.append(subRow(row)); *}
+					{* form2.append(a); *}
 					{* form2.append(subRow(subCol(12, BSHelper.Button({ type:"submit", label:"Save", cls:"btn-primary" }) )) ); *}
 					{* return form2; *}
 					return a;
@@ -150,6 +149,11 @@
 					return a;
 				} 
 			},
+		],
+	});
+	
+	var tab2 = BSHelper.Tabs({
+		dataList: [
 			{	title:"Allowance", idname:"tab-allowance", 
 				content:function(){
 					col = [], row = [], a = [];
@@ -230,14 +234,50 @@
 		],
 	});
 	
-	col = [];
+	col = []; row = [];
 	col.push(subCol(3, box1));
-	col.push(subCol(9, tab1));
-	$(".content").append(subRow(col));
+	
+	a = [];
+	a.push( tab1 );
+	a.push( BSHelper.Button({ type:"submit", label:"Save", cls:"btn-primary", style:"margin-top:-10px; margin-bottom:10px;" }) );
+	form1.append(subCol(9, a));
+	col.push(form1);
+	
+	row.push(subRow(col)); col = [];
+	col.push(subCol(12, tab2));
+	row.push(subRow(col)); col = [];
+	$(".content").append(row);
 	
 	$("[data-mask]").inputmask();
 	
-	
+	{* Init data for custom element (combogrid, button etc.) *}
+	var uploader = new plupload.Uploader({ url: $url_module, runtimes:"html5",
+		filters: { max_file_size: "2mb", mime_types: [{ title:"Image files", extensions:"jpg,gif,png" }] },
+		browse_button: "btn_uploadphoto", 
+		multi_selection: false, 
+		multipart_params: { "userphoto":1, "id":{$.session.user_id}, "photo_file":$('#photo_file').val() },
+		init: {
+			FilesAdded: function(up, files) {
+				uploader.start();
+			},
+			FileUploaded: function(up, file, info) {
+				var response = $.parseJSON(info.response);
+				{* console.log(response.file_url); *}
+				if (response.status) { 
+					$('img.profile-user-img').attr('src', response.data_uri);
+					{* $('#photo_file').val(response.photo_file); *}
+				}
+			},
+			Error: function(up, err) {
+				{* document.getElementById('console').appendChild(document.createTextNode("\nError #" + err.code + ": " + err.message)); *}
+			}
+		}
+	});
+	uploader.bind('BeforeUpload', function(uploader, file) {
+		uploader.settings.multipart_params = { "userphoto":1, "id":{$.session.user_id}, "photo_file":$('#photo_file').val() };
+	});
+	uploader.init();
+
 	
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Code", idname:"code", required: false, }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Name", idname:"name", required: true, }));

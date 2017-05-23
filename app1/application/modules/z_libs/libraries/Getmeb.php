@@ -1137,7 +1137,6 @@ class Getmeb extends CI_Controller
 	
 	function getMenuStructure_old($cur_page)
 	{
-		/* Start Treeview Menu */
 		$html = ''; $li1_closed = false; $li2_closed = false; $menu_id1 = 0; $menu_id2 = 0; $menu_id3 = 0; $parent_id = 0;
 		$html.= $this->li($cur_page, 1, 'systems/x_page?pageid=1', 'Dashboard', 'fa fa-dashboard');
 		$rowParentMenu = ($result = $this->getParentMenu($cur_page)) ? $result[0] : (object)['lvl1_id'=>0, 'lvl2_id'=>0];
@@ -1179,7 +1178,6 @@ class Getmeb extends CI_Controller
 			if ($li1_closed)
 				$html.= '</ul></li>';
 		}
-		/* End Treeview Menu */
 		
 		$html.= '<br><li><a href="#" id="go-lock-screen" onclick="lock_the_screen();"><i class="fa fa-circle-o text-yellow"></i> <span>' . $this->lang->line('nav_lckscr') . '</span></a></li>';
 		$html.= '<li><a href="'.LOGOUT_LNK.'" id="go-sign-out"><i class="fa fa-sign-out text-red"></i> <span>' . $this->lang->line('nav_logout') . '</span></a></li>';
@@ -1191,40 +1189,60 @@ class Getmeb extends CI_Controller
 		$cur_page = $cur_page ? 'and id = '.$cur_page : '';
 		$str = "WITH RECURSIVE menu_tree (id, parent_id, level, menu_active) 
 			AS ( 
-				SELECT id, parent_id, 0 as level, cast(id as text)
+				SELECT 
+					id, parent_id, 0 as level, cast(id as text)
 				FROM a_menu
 				WHERE (parent_id is NULL or parent_id = 0) and is_deleted = '0' and is_active = '1' and is_submodule = '0' and type != 'P'
 				UNION ALL
-				SELECT mn.id, mt.id, mt.level + 1, mt.menu_active || ',' || mn.id
+				SELECT 
+					mn.id, mt.id, mt.level + 1, mt.menu_active || ',' || mn.id
 				FROM a_menu mn, menu_tree mt 
 				WHERE mn.parent_id = mt.id and is_deleted = '0' and is_active = '1' and is_submodule = '0' and type != 'P'
 			) 
 			SELECT * FROM menu_tree WHERE id != 1 $cur_page ORDER BY level, parent_id;";
 		$qry = $this->db->query($str);
-		$menu_active = $qry->row()->menu_active;
+		$menu_active = $qry->row() ? explode(',', $qry->row()->menu_active) : [];
 		// debugf(explode(',', $menu_active));		
-		$str = "WITH RECURSIVE menu_tree (id, parent_id, level, childno, line_no, is_parent, name, name_tree, icon) 
+		/* $str = "WITH RECURSIVE menu_tree (id, parent_id, level, childno, line_no, is_parent, name, name_tree, icon) 
 			AS ( 
-				SELECT id, parent_id, 0 as level, (select count(distinct am.id) from a_menu as am where am.parent_id = a_menu.id) as childno, 1 as line_no, is_parent, name, '' || name, icon
+				SELECT 
+					id, parent_id, 0 as level, (select count(distinct am.id) from a_menu as am where am.parent_id = a_menu.id) as childno, 1 as line_no, is_parent, name, '' || name, icon
 				FROM a_menu
 				WHERE (parent_id is NULL or parent_id = 0) and is_deleted = '0' and is_active = '1' and is_submodule = '0' and type != 'P'
 				UNION ALL
-				SELECT mn.id, mt.id, mt.level + 1, (select count(distinct am.id) from a_menu as am where am.parent_id = mn.id) as childno, mn.line_no, mn.is_parent, mn.name, mt.name_tree || '->' || mn.name,mn.icon
+				SELECT 
+					mn.id, mt.id, mt.level + 1, (select count(distinct am.id) from a_menu as am where am.parent_id = mn.id) as childno, mn.line_no, mn.is_parent, mn.name, mt.name_tree || '->' || mn.name,mn.icon
 				FROM a_menu mn, menu_tree mt 
 				WHERE mn.parent_id = mt.id and is_deleted = '0' and is_active = '1' and is_submodule = '0' and type != 'P'
 			) 
-			SELECT * FROM menu_tree WHERE id != 1	ORDER BY level, parent_id, line_no;";
+			SELECT * FROM menu_tree WHERE id != 1	ORDER BY level, parent_id, line_no;"; */
+		$role_id = $this->session->role_id;
+		$str = "WITH RECURSIVE menu_tree (id, parent_id, childno, line_no, is_parent, name, icon) 
+			AS ( 
+				SELECT
+					id, parent_id, (select count(distinct am.id) from a_menu as am where am.parent_id = a_menu.id) as childno, 1 as line_no, is_parent, name, icon
+				FROM a_menu
+				WHERE is_deleted = '0' and is_active = '1' and is_submodule = '0' and type != 'P' and exists(select menu_id from a_role_menu where role_id = $role_id and is_deleted = '0' and is_active = '1' and menu_id = a_menu.id)
+				UNION ALL
+				SELECT
+					mn.id, mn.parent_id, (select count(distinct am.id) from a_menu as am where am.parent_id = mn.id) as childno, mn.line_no, mn.is_parent, mn.name, mn.icon
+				FROM a_menu mn, (select distinct parent_id from menu_tree) mt 
+				WHERE mn.id = mt.parent_id --and (mt.parent_id is NULL or mt.parent_id = 0) 
+			) 
+			SELECT distinct * FROM menu_tree 
+			WHERE id != 1
+			ORDER BY parent_id, line_no;";
 		$qry = $this->db->query($str);
 		$html = '';
 		$html.= $this->li($cur_page, 1, 'systems/x_page?pageid=1', 'Dashboard', 'fa fa-dashboard');
 		// debug($qry->result_array());
-		$html.= $this->recurse($qry->result_array(), null, explode(',', $menu_active));
+		$html.= $this->_getmenu_recursively($qry->result_array(), null, $menu_active);
 		$html.= '<br><li><a href="#" id="go-lock-screen" onclick="lock_the_screen();"><i class="fa fa-circle-o text-yellow"></i> <span>' . $this->lang->line('nav_lckscr') . '</span></a></li>';
 		$html.= '<li><a href="'.LOGOUT_LNK.'" id="go-sign-out"><i class="fa fa-sign-out text-red"></i> <span>' . $this->lang->line('nav_logout') . '</span></a></li>';
 		return $html;
 	}
 	
-	function recurse($categories, $parent = null, $menu_active = array())
+	function _getmenu_recursively($categories, $parent = null, $menu_active = array())
 	{
     $ret = '';
     foreach($categories as $index => $category)
@@ -1235,13 +1253,13 @@ class Getmeb extends CI_Controller
 				$active = in_array($category['id'], $menu_active) ? 'active' : '';
 				if ($category['is_parent'] == '1'){
 					$glyp_icon = ($category['icon']) ? '<i class="'.$category['icon'].'"></i> ' : '<i class="glyphicon glyphicon-menu-hamburger"></i>';
-					$ret .= '<li class="treeview '.$active.'"><a href="'.$url.'">'.$glyp_icon.'<span>'.$category['name'].'</span></a>';
-					$ret .= '<ul class="treeview-menu">'.$this->recurse($categories, $category['id'], $menu_active).'</ul>';
+					$ret .= '<li class="treeview '.$active.'"><a href="'.$url.'">'.$glyp_icon.'<span>'.$category['name'].'</span><i class="fa fa-angle-left pull-right"></i></a>';
+					$ret .= '<ul class="treeview-menu">'.$this->_getmenu_recursively($categories, $category['id'], $menu_active).'</ul>';
 					$ret .= '</li>';
 				} else {
 					$glyp_icon = ($category['icon']) ? '<i class="'.$category['icon'].'"></i> ' : '<i class="fa fa-circle"></i>';
 					$ret .= '<li class="treeview '.$active.'"><a href="'.$url.'">'.$glyp_icon.'<span>'.$category['name'].'</span></a>';
-					$ret .= $this->recurse($categories, $category['id'], $menu_active);
+					$ret .= $this->_getmenu_recursively($categories, $category['id'], $menu_active);
 					$ret .= '</li>';
 				}
 			}
