@@ -461,14 +461,12 @@ class Hrm extends Getmeb
 					if (! $img = fopen($result["path"], 'rb'))
 						$this->xresponse(FALSE, ['message' => 'Error: Cannot read image !']);
 					
+					// $data_img = fread($img, $result["size"]);
+					$data_img = file_get_contents($result["path"]);
 					$data_img = fread($img, $result["size"]);
 					$data_imgUri = "data:image/png;base64," . base64_encode($data_img);
 					$es_data_img = pg_escape_bytea($data_img);
 					fclose($img);
-					
-					/* For reading image field */
-					// $data_img = pg_unescape_bytea($photo_bin);
-					// $data_imgUri = "data:image/png;base64," . base64_encode($data_img);
 					
 					/* update to table */
 					$this->updateRecord('hr_personnel', ['photo_file' => $result["name"], 'photo_bin' => $es_data_img], ['id' => $this->params->id]);
@@ -481,10 +479,10 @@ class Hrm extends Getmeb
 			/* for counting percentage of field population */
 			$fields = $this->db->list_fields($this->c_method);
 			// debug($datas);
-			$datas = $this->remove_empty($datas);
+			$datas_cnt = $this->remove_empty($datas);
 			// debug($datas);
 			// $data = $this->base_model->getValueArray('*', $this->c_method, 'id', $id);
-			$datas['profile_status'] = (count($datas) / (count($fields)-11-8)) * 100;
+			$datas['profile_status'] = (count($datas_cnt) / (count($fields)-11-8)) * 100;
 			$this->_go_update_records($datas);
 		}
 	}

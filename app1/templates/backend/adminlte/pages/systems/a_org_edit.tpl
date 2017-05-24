@@ -15,13 +15,13 @@
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });	
 	var box1 = BSHelper.Box({ type:"info" });
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Code", idname:"code", required: true }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Code", idname:"code", required: false }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Name", idname:"name", required: true }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Parent", idname:"is_parent", value:0 }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Parent Org", idname:"parent_id", url:"{$.php.base_url('systems/a_org')}?filter=is_parent='1'", remote: true }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Org Type", label_link:"{$.const.PAGE_LNK}?pageid=19", idname:"orgtype_id", url:"{$.php.base_url('systems/a_orgtype')}", remote: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Parent Org", idname:"parent_id", textField:"name_tree", url:"{$.php.base_url('systems/a_org_parent_list')}", remote: true, required: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Org Type", label_link:"{$.const.PAGE_LNK}?pageid=19", idname:"orgtype_id", url:"{$.php.base_url('systems/a_orgtype')}", remote: true, required: true }));
 	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Combobox({ horz:false, label:"Supervisor", label_link:"{$.const.PAGE_LNK}?pageid=20", idname:"supervisor_id", url:"{$.php.base_url('systems/a_user')}", remote: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Phone", idname:"phone", required: false }));
@@ -29,7 +29,7 @@
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Fax", idname:"fax", required: false }));
 	col.push(BSHelper.Input({ horz:false, type:"email", label:"Email", idname:"email", required: false }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Website", idname:"website", required: false }));
-	col.push(BSHelper.Input({ horz:false, type:"decimal", label:"SWG Margin", idname:"swg_margin", required: false }));
+	col.push(BSHelper.Input({ horz:false, type:"decimal", label:"SWG Margin", idname:"swg_margin", required: false, value:0 }));
 	row.push(subCol(6, col));
 	form1.append(subRow(row));
 	form1.append(subRow(subCol()));

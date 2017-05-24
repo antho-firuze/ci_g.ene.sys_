@@ -1046,6 +1046,8 @@ class Systems extends Getmeb
 	
 	function a_org()
 	{
+		$this->identity_keys = ['name', 'parent_id'];
+		
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, FALSE);
 			
@@ -1053,7 +1055,7 @@ class Systems extends Getmeb
 				$this->_pre_export_data();
 			}
 			
-			$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
+			$this->params['ob'] = 'orgtype_id';
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
@@ -1063,7 +1065,46 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
+			$datas = $this->_pre_update_records(TRUE);
+			$datas['client_id'] = $this->session->client_id;
+			
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, $datas, FALSE, TRUE);
+			else
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);				
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
+	function a_org_parent_list()
+	{
+		if ($this->r_method == 'GET') {
+			if (isset($this->params['id']) && !empty($this->params['id'])) 
+				$this->params['where']['id'] = $this->params['id'];
+			
+			if (isset($this->params['client_id']) && !empty($this->params['client_id'])) 
+				$this->params['where']['client_id'] = $this->params['client_id'];
+		
+			if (isset($this->params['org_id']) && !empty($this->params['org_id'])) 
+				$this->params['where']['org_id'] = $this->params['org_id'];
+		
+			if (isset($this->params['orgtype_id']) && !empty($this->params['orgtype_id'])) 
+				$this->params['where']['orgtype_id'] = $this->params['orgtype_id'];
+		
+			if (isset($this->params['q']) && !empty($this->params['q']))
+				$this->params['like'] = DBX::like_or('name', $this->params['q']);
+		
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+				$result['data'] = [];
+				$result['message'] = $this->base_model->errors();
+				$this->xresponse(FALSE, $result);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
 		}
 	}
 	

@@ -178,7 +178,7 @@ class Systems_Model extends CI_model
 		if (isset($params['like']) && $params['like'])
 			$q = 'and '.$params['like'];
 		
-		$str = "WITH RECURSIVE menu_tree (id, level, parent_id, line_no, is_parent, name) 
+		$str = "WITH RECURSIVE tmp_tree (id, level, parent_id, line_no, is_parent, name) 
 			AS ( 
 				SELECT 
 					id, 0 as level, parent_id, 1 as line_no,	is_parent, '' || name 
@@ -186,16 +186,16 @@ class Systems_Model extends CI_model
 				WHERE (parent_id is NULL or parent_id = 0) and is_deleted = '0' 
 				UNION ALL
 				SELECT
-					mn.id, mt.level + 1, mt.id, mn.line_no, mn.is_parent, mt.name || '->' || mn.name
-				FROM a_menu mn, menu_tree mt 
-				WHERE mn.parent_id = mt.id and is_deleted = '0' 
+					t1.id, tt.level + 1, tt.id, t1.line_no, t1.is_parent, tt.name || '->' || t1.name
+				FROM a_menu t1, tmp_tree tt 
+				WHERE t1.parent_id = tt.id and is_deleted = '0' 
 			) 
-			SELECT count(*) FROM menu_tree 
+			SELECT count(*) FROM tmp_tree 
 			WHERE is_parent = '1' $id $q;";
 		$qry = $this->db->query($str);
 		$response['total'] = $qry->row()->count;
 		
-		$str = "WITH RECURSIVE menu_tree (id, level, parent_id, line_no, is_parent, name) 
+		$str = "WITH RECURSIVE tmp_tree (id, level, parent_id, line_no, is_parent, name) 
 			AS ( 
 				SELECT 
 					id, 0 as level, parent_id, 1 as line_no,	is_parent, '' || name 
@@ -203,11 +203,11 @@ class Systems_Model extends CI_model
 				WHERE (parent_id is NULL or parent_id = 0) and is_deleted = '0' 
 				UNION ALL
 				SELECT
-					mn.id, mt.level + 1, mt.id, mn.line_no, mn.is_parent, mt.name || '->' || mn.name
-				FROM a_menu mn, menu_tree mt 
-				WHERE mn.parent_id = mt.id and is_deleted = '0' 
+					t1.id, tt.level + 1, tt.id, t1.line_no, t1.is_parent, tt.name || '->' || t1.name
+				FROM a_menu t1, tmp_tree tt 
+				WHERE t1.parent_id = tt.id and is_deleted = '0' 
 			) 
-			SELECT * FROM menu_tree 
+			SELECT * FROM tmp_tree 
 			WHERE is_parent = '1' $id $q 
 			ORDER BY level, parent_id, line_no;";
 		$qry = $this->db->query($str);
@@ -253,6 +253,52 @@ class Systems_Model extends CI_model
 		$params['join'][] 	= ['a_orgtype as t2', 't1.orgtype_id = t2.id', 'left'];
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
+	}
+	
+	function get_a_org_parent_list($params)
+	{
+		$q = isset($params['like']) ? 'and '.$params['like'] : '';
+		$id = isset($params['where']['id']) ? 'and id = '.$params['where']['id'] : '';
+		$client_id = isset($params['where']['client_id']) ? 'client_id = '.$params['where']['client_id'] : 'client_id = '.$this->session->client_id;
+		$org_id = isset($params['where']['org_id']) ? 'and org_id = '.$params['where']['org_id'] : '';
+		$orgtype_id = isset($params['where']['orgtype_id']) ? 'and orgtype_id = '.$params['where']['orgtype_id'] : '';
+				
+		$str = "WITH RECURSIVE tmp_tree (id, parent_id, level, line_no, is_parent, client_id, org_id, orgtype_id, name, name_tree) 
+			AS ( 
+				SELECT 
+					id, parent_id, 0 as level, 1 as line_no,	is_parent, client_id, org_id, orgtype_id, name, '' || name 
+				FROM a_org
+				WHERE (parent_id is NULL or parent_id = 0) and is_deleted = '0'
+				UNION ALL
+				SELECT
+					t1.id, tt.id, tt.level + 1, t1.line_no, t1.is_parent, t1.client_id, t1.org_id, t1.orgtype_id, t1.name, tt.name_tree || '->' || t1.name
+				FROM a_org t1, tmp_tree tt 
+				WHERE t1.parent_id = tt.id and t1.is_deleted = '0' 
+			) 
+			SELECT count(*) FROM tmp_tree 
+			WHERE $client_id $org_id $orgtype_id $id $q;";
+		$qry = $this->db->query($str);
+		$response['total'] = $qry->row()->count;
+		
+		$str = "WITH RECURSIVE tmp_tree (id, parent_id, level, line_no, is_parent, client_id, org_id, orgtype_id, name, name_tree) 
+			AS ( 
+				SELECT 
+					id, parent_id, 0 as level, 1 as line_no,	is_parent, client_id, org_id, orgtype_id, name, '' || name 
+				FROM a_org
+				WHERE (parent_id is NULL or parent_id = 0) and is_deleted = '0'
+				UNION ALL
+				SELECT
+					t1.id, tt.id, tt.level + 1, t1.line_no, t1.is_parent, t1.client_id, t1.org_id, t1.orgtype_id, t1.name, tt.name_tree || '->' || t1.name
+				FROM a_org t1, tmp_tree tt 
+				WHERE t1.parent_id = tt.id and t1.is_deleted = '0' 
+			) 
+			SELECT * FROM tmp_tree 
+			WHERE $client_id $org_id $orgtype_id $id $q 
+			ORDER BY level, parent_id, line_no;";
+		$qry = $this->db->query($str);
+		$response['rows']  = $qry->result();
+		
+		return $response;
 	}
 	
 	function get_a_sequence($params)

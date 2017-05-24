@@ -10,6 +10,12 @@ class Z_db extends CI_Controller {
 		
 	}
 
+	/* 
+	// for modify field type from text to integer	
+	
+	ALTER TABLE hr_personnel ALTER COLUMN employee_status_id TYPE integer USING (employee_status_id::integer);
+	*/
+	
 	function table_hr_personnel()
 	{
 		$fields = $this->field_00_Main();
@@ -61,7 +67,7 @@ class Z_db extends CI_Controller {
 		$fields['begin_date'] = 	['type' => 'DATE', 'null' => TRUE];
 		$fields['end_date'] = 	['type' => 'DATE', 'null' => TRUE];
 		$fields['employee_id'] 	= ['type' => 'VARCHAR', 'constraint' => '60',  'null' => TRUE];
-		$fields['employee_status'] 	= ['type' => 'VARCHAR', 'constraint' => '60',  'null' => TRUE];
+		$fields['employee_status_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['number_leave_status'] = ['type' => 'NUMERIC', 'constraint' => '10', 'null' => TRUE];
 		$fields['bpjs_tk_no'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		$fields['bpjs_kes_no'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
