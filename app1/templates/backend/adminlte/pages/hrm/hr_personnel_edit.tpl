@@ -12,6 +12,14 @@
 <script src="{$.const.TEMPLATE_URL}plugins/input-mask/jquery.inputmask.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/input-mask/jquery.inputmask.date.extensions.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/plupload/js/plupload.full.min.js"></script>
+<style>
+#img-preview canvas{
+	border-radius: 50%;
+	padding: 3px;
+	border: 3px solid #d2d6de;
+	margin-bottom: 13px;
+}
+</style>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $bread = {$.php.json_encode($bread)};
 	{* For design form interface *}
@@ -23,6 +31,7 @@
 	var box1 = BSHelper.Box({ type:"info", header:false, toolbtn:['min','rem'] });
 	
 	col.push( $('<div style="text-align:center;width:100%;" />') );
+	col.push( $('<div id="img-preview" style="text-align:center;width:100%;" />') );
 	col.push( $('<img id="btn_uploadphoto" class="profile-user-img img-responsive img-circle" src="{$.php.base_url()}upload/images/default-photo.png" style="width:150px; margin-bottom:13px; cursor:pointer; cursor:hand;" title="Upload Photo" alt="User Picture" />') );
 	{* col.push( $('<h3 class="profile-username text-center">{$.session.user_name}</h3>') );  *}
 	{* col.push( $('<p class="text-muted text-center">{$.session.user_description}</p>') );  *}
@@ -242,15 +251,30 @@
 		multipart_params: { "userphoto":1, "id":$('#id').val(), "photo_file":$('#photo_file').val() },
 		init: {
 			FilesAdded: function(up, files) {
-				uploader.start();
+				{* uploader.start(); *}
+				plupload.each(files, function(file) {
+					var img = new mOxie.Image();
+					{* var img = new o.Image(); *}
+					console.log(file.getSource());
+					img.onload = function() {
+						this.embed($('#img-preview').get(0), {
+								width: 150,
+								height: 150,
+								crop: true
+						});
+						$('#btn_uploadphoto').remove();
+					};
+					img.load(file.getSource());
+					{* document.getElementById('filelist').innerHTML += '<div id="' + file.id + '">' + file.name + ' (' + plupload.formatSize(file.size) + ') <b></b></div>'; *}
+				});
 			},
 			FileUploaded: function(up, file, info) {
-				var response = $.parseJSON(info.response);
+				{* var response = $.parseJSON(info.response); *}
 				{* console.log(response.file_url); *}
-				if (response.status) { 
-					$('img.profile-user-img').attr('src', response.data_uri);
+				{* if (response.status) {  *}
+					{* $('img.profile-user-img').attr('src', response.data_uri); *}
 					{* $('#photo_file').val(response.photo_file); *}
-				}
+				{* } *}
 			},
 			Error: function(up, err) {
 				{* document.getElementById('console').appendChild(document.createTextNode("\nError #" + err.code + ": " + err.message)); *}

@@ -51,8 +51,6 @@ class Z_db extends CI_Controller {
 		// $fields['pasport_expired'] 	= ['type' => 'DATE', 'null' => TRUE];
 		// $fields['kitas_no'] 	= ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		// $fields['kitas_expired'] 	= ['type' => 'DATE', 'null' => TRUE];
-		$fields['photo_file'] = ['type' => 'VARCHAR', 'constraint' => '120', 'null' => TRUE];
-		$fields['photo_bin'] = ['type' => 'BYTEA', 'null' => TRUE];
 		$fields['npwp_no'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		$fields['npwp_date'] 	= ['type' => 'DATE', 'null' => TRUE];
 		$fields['npwp_address'] 	= ['type' => 'TEXT', 'null' => TRUE];
@@ -77,6 +75,15 @@ class Z_db extends CI_Controller {
 		$fields['child1_name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		$fields['child2_name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		$fields['child3_name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_hr_personnel_photo()
+	{
+		$fields = $this->field_00_Main();
+		$fields['personnel_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['photo_file'] = ['type' => 'VARCHAR', 'constraint' => '120', 'null' => TRUE];
+		$fields['photo_bin'] = ['type' => 'BYTEA', 'null' => TRUE];
 		return $fields;
 	}
 	
