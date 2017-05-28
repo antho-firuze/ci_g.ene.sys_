@@ -499,6 +499,7 @@ class Hrm extends Getmeb
 			// debug($datas);
 			// $data = $this->base_model->getValueArray('*', $this->c_method, 'id', $id);
 			$datas['profile_status'] = (count($datas_cnt) / (count($fields)-11-8)) * 100;
+			
 			$this->_go_update_records($datas);
 		}
 	}

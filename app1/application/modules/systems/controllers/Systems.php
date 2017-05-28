@@ -547,33 +547,16 @@ class Systems extends Getmeb
 			if ($data) {
 				$this->updateRecord($this->c_method, ['photo_file'=>$data['filename']], ['id' => $id]);
 			}
-			$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
+			$this->xresponse(TRUE, ['id' => $id, 'message' => $this->lang->line('success_saving')]);
 		}
 		if ($this->r_method == 'PUT') {
-			if (isset($this->params->genphoto) && $this->params->genphoto) {
-				if (isset($this->params->name) && $this->params->name && isset($this->params->id) && $this->params->id) {
-					/* create avatar image */
-					$data = ['word'=>$this->params->name[0], 'img_path'=>$this->session->user_photo_path, 'img_url'=> base_url().$this->session->user_photo_path];
-					$data = create_avatar_img($data);
-					if ($data) {
-						/* delete old file photo */
-						if (isset($this->params->photo_file) && $this->params->photo_file) {
-							@unlink($this->session->user_photo_path.$this->params->photo_file);
-						}
-						/* update to table */
-						$this->updateRecord($this->c_method, ['photo_file'=>$data['filename']], ['id' => $this->params->id]);
-						$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => $data['file_url'], 'photo_file' => $data['filename']]);
-					}
-				}
-				$this->xresponse(TRUE, ['message' => $this->lang->line('err_generate_photo')]);
-			}
-			
 			/* Reset Password*/
 			if (isset($this->params->password) && ($this->params->password != '')) {
 				$this->load->library('z_auth/auth');
 				$this->auth->reset_password($this->params->name, $this->params->password);
 				unset($this->params->password);
 			}
+			
 			$this->_pre_update_records();
 		}
 	}

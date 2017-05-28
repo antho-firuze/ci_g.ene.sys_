@@ -12,6 +12,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/input-mask/jquery.inputmask.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/input-mask/jquery.inputmask.date.extensions.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/plupload/js/plupload.full.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 {* <script src="{$.const.TEMPLATE_URL}plugins/plupload/js/moxie.min.js"></script> *}
 {* <script src="https://cdnjs.cloudflare.com/ajax/libs/plupload/3.1.0/plupload.min.js"></script> *}
 
@@ -42,8 +43,8 @@
 	{* col.push( $('<h3 class="profile-username text-center">{$.session.user_name}</h3>') );  *}
 	{* col.push( $('<p class="text-muted text-center">{$.session.user_description}</p>') );  *}
 	col.push( $('<ul class="list-group list-group-unbordered" />')
-		.append( $('<li class="list-group-item" />').append( $('<b>Leave Balance</b><a class="pull-right">0 Days</a>') ))
-		.append( $('<li class="list-group-item" />').append( $('<b>Profile Status</b><a class="pull-right">0%</a>') ))
+		.append( $('<li class="list-group-item" />').append( $('<b>Leave Balance</b><a class="leave-balance pull-right">0 Days</a>') ))
+		.append( $('<li class="list-group-item" />').append( $('<b>Profile Status</b><a class="profile-status pull-right">0%</a>') ))
   );
 	col.push( BSHelper.Button({ type:"button", label:"Insert Picture", idname:"btn_uploadphoto", style:"width:100%;" }) ); 
 	form1.append(subRow(subCol(12, col)));
@@ -54,7 +55,6 @@
 			{	title:"Personal", idname:"tab-personal", 
 				content:function(){
 					col = [], row = [], a = [];
-					col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
 					col.push(BSHelper.Input({ horz:false, type:"text", label:"Code", idname:"code", required: false, }));
 					col.push(BSHelper.Input({ horz:false, type:"text", label:"First Name", idname:"first_name", required: true, }));
 					col.push(BSHelper.Input({ horz:false, type:"text", label:"Last Name", idname:"last_name", required: true, }));
@@ -234,7 +234,9 @@
 	col.push(subCol(3, box1));
 	
 	a.push( tab1 );
-	a.push( BSHelper.Button({ type:"submit", label:"Save", cls:"btn-primary", style:"margin-top:-10px; margin-bottom:10px;" }) );
+	a.push( BSHelper.Button({ type:"submit", label:"Submit", cls:"btn-primary", style:"margin-top:-10px; margin-bottom:10px;" }) );
+	a.push( '&nbsp;&nbsp;&nbsp;' );
+	a.push( BSHelper.Button({ type:"button", label:"Cancel", cls:"btn-danger", style:"margin-top:-10px; margin-bottom:10px;", idname:"btn_cancel", onclick:"window.history.back();" }) );
 	
 	col.push(subCol(9, a)); 
 	form1.append(col);
@@ -304,22 +306,24 @@
 	});
 	uploader.init();
 	
-	$( document ).ready(function() {
-		{* $.getJSON($url_module + '_photo', { "personnel_id": ($id==null)?-1:$id }, function(result){  *}
-		$.getJSON($url_module, { "id": ($id==null)?-1:$id }, function(result){ 
-			if (!isempty_obj(result.data.rows)) {
-				var photo_file = result.data.rows[0].photo_file;
-				if (photo_file) {
-					{* console.log(result.data.rows[0].photo_binx); *}
-					{* $('img.profile-user-img').attr('src', result.data.rows[0].photo_binx); *}
-					$("img.profile-user-img").attr("src", "{$.const.BASE_URL~$.session.personnel_photo_path}"+photo_file);
-				}
+	{* $.getJSON($url_module + '_photo', { "personnel_id": ($id==null)?-1:$id }, function(result){  *}
+	$.getJSON($url_module, { "id": ($id==null)?-1:$id }, function(result){ 
+		if (!isempty_obj(result.data.rows)) {
+			var photo_file = result.data.rows[0].photo_file;
+			if (photo_file) {
+				{* console.log(result.data.rows[0].photo_binx); *}
+				{* $('img.profile-user-img').attr('src', result.data.rows[0].photo_binx); *}
+				$("img.profile-user-img").attr("src", "{$.const.BASE_URL~$.session.personnel_photo_path}"+photo_file);
 			}
-		});
+			$(".profile-status").text(accounting.toFixed(result.data.rows[0].profile_status, 2)+'%');
+		}
 	});
 
 	form1.validator().on('submit', function(e) {
 		if (e.isDefaultPrevented()) { return false;	} 
+		
+		{* adding primary key id on the fly *}
+		form1.append(BSHelper.Input({ type:"hidden", idname:"id", value:$id }));
 		
 		form1.find("[type='submit']").prop( "disabled", true );
 		
