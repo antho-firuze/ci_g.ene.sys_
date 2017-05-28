@@ -488,6 +488,9 @@ class Getmeb extends CI_Controller
 		
 		if (! $result)
 			$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+		if ($this->r_method == 'POST')
+			$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
 		else
 			$this->xresponse(TRUE, ['message' => $this->messages()]);
 	}
@@ -946,10 +949,11 @@ class Getmeb extends CI_Controller
 			$this->set_message($this->db->error()['message']);
 			return false;
 		} else {
+			$id = $this->db->insert_id();
 // debug($this->db->last_query());
 // debug($return);
 			$this->set_message('success_saving');
-			return true;
+			return $id;
 		}
 	}
 	

@@ -456,24 +456,40 @@ class Hrm extends Getmeb
 					if (!$result = $this->_upload_file()){
 						$this->xresponse(FALSE, ['message' => $this->messages()]);
 					}
-						
-					/* If Success */
-					if (! $img = fopen($result["path"], 'rb'))
-						$this->xresponse(FALSE, ['message' => 'Error: Cannot read image !']);
+					/* If picture success upload to tmp folder */
 					
-					// $data_img = fread($img, $result["size"]);
-					$data_img = file_get_contents($result["path"]);
-					$data_img = fread($img, $result["size"]);
-					$data_imgUri = "data:image/png;base64," . base64_encode($data_img);
-					$es_data_img = pg_escape_bytea($data_img);
-					fclose($img);
+					/* Method #1: if picture saved to table | this method required a lot of memory & high resource of hardware */
+					// $data_img = bin2hex(file_get_contents($result["path"])); 
+					/* insert to table */
+					// $this->db->where('personnel_id', $this->params->id)->delete('hr_personnel_photo');
+					// $this->insertRecord('hr_personnel_photo', ['personnel_id' => $this->params->id, 'photo_file' => $result["name"], 'photo_bin' => $data_img], TRUE, TRUE);
+					
+					/* Method #2: if picture saved to folder */
+					
+					/* Create random filename */
+					$this->load->helper('string');
+					$rndName = random_string('alnum', 10);
+					
+					/* Moving to desire location with rename */
+					$ext = strtolower(pathinfo($result['name'], PATHINFO_EXTENSION));
+					$new_filename = $this->session->personnel_photo_path.$rndName.'.'.$ext;
+					if (!is_dir($this->session->personnel_photo_path))
+						mkdir($this->session->personnel_photo_path, 0755, true);
+					rename($result["path"], $new_filename);
+				
+					/* delete old file photo */
+					$tbl = $this->base_model->getValue('photo_file', $this->c_method, 'id', $this->params->id);
+					if ($tbl && $tbl->photo_file) {
+						@unlink($this->session->personnel_photo_path.$tbl->photo_file);
+					}
 					
 					/* update to table */
-					$this->updateRecord('hr_personnel', ['photo_file' => $result["name"], 'photo_bin' => $es_data_img], ['id' => $this->params->id]);
-					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'data_uri' => $data_imgUri]);
-					@unlink($result["path"]);
+					$this->updateRecord($this->c_method, ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params->id]);
+					// $this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => base_url().'upload/images/personnel/'.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
+					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 				}
 			}
+
 			$datas = $this->_pre_update_records(TRUE);
 			$datas['name'] = $datas['first_name'].' '.$datas['last_name'];
 			/* for counting percentage of field population */
@@ -484,6 +500,36 @@ class Hrm extends Getmeb
 			// $data = $this->base_model->getValueArray('*', $this->c_method, 'id', $id);
 			$datas['profile_status'] = (count($datas_cnt) / (count($fields)-11-8)) * 100;
 			$this->_go_update_records($datas);
+		}
+	}
+	
+	function hr_personnel_photo()
+	{
+		if ($this->r_method == 'GET') {
+			if (isset($this->params['personnel_id']) && !empty($this->params['personnel_id'])) 
+				$this->params['where']['t1.personnel_id'] = $this->params['personnel_id'];
+			
+			$this->_get_filtered();
+	
+			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				foreach($result['data']['rows'] as $k => $v){
+					ob_start(); // Let's start output buffering.
+					fpassthru($v->photo_bin); 
+					$contents = ob_get_contents(); //Instead, output above is saved to $contents
+					ob_end_clean(); //End the output buffer.
+					
+					$result['data']['rows'][$k]->photo_binx = "data:image/png;base64," . base64_encode(hex2bin($contents));
+					// $dataUri = "data:image/png;base64," . base64_encode(hex2bin($contents));
+					// echo "<img src='$dataUri' />";
+					unset($result['data']['rows'][$k]->photo_bin);
+				}
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$this->_pre_update_records();
 		}
 	}
 	

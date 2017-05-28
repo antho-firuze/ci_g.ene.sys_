@@ -16,6 +16,17 @@ class Z_db extends CI_Controller {
 	ALTER TABLE hr_personnel ALTER COLUMN employee_status_id TYPE integer USING (employee_status_id::integer);
 	*/
 	
+	function table_hr_config()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		
+		$fields['photo_path'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		return $fields;
+	}
+	
 	function table_hr_personnel()
 	{
 		$fields = $this->field_00_Main();

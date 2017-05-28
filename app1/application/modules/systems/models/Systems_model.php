@@ -80,7 +80,7 @@ class Systems_Model extends CI_model
 		$client = $this->base_model->getValueArray('name as client_name', 'a_client', 'id', $user['client_id']);
 		$org = $this->base_model->getValueArray('name as org_name, supervisor_id as org_supervisor_id, address_map as org_address_map, phone as org_phone, fax as org_fax, email as org_email, website as org_website, swg_margin', 'a_org', 'id', $user_org['org_id']);
 		$role = $this->base_model->getValueArray('name as role_name, supervisor_id as role_supervisor_id, amt_approval, is_canexport, is_canreport, is_canapproveowndoc, is_accessallorgs, is_useuserorgaccess', 'a_role', 'id', $user_role['role_id']);
-		$system = $this->base_model->getValueArray('api_token, head_title, page_title, logo_text_mn, logo_text_lg, date_format, time_format, datetime_format, user_photo_path, max_file_upload', 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID]);
+		$system = $this->base_model->getValueArray('api_token, head_title, page_title, logo_text_mn, logo_text_lg, date_format, time_format, datetime_format, user_photo_path, personnel_photo_path, max_file_upload', 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID]);
 		$user_config = $this->base_model->getValue('attribute, value', 'a_user_config', 'user_id', $user_id);
 		$userconfig = [];
 		if ($user_config) {

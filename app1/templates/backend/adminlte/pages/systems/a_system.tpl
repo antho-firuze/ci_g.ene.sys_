@@ -60,7 +60,6 @@
 						{ id:"mm-dd-yyyy hh:mm", name:"mm-dd-yyyy hh:mm" },
 					] 
 				}));
-				a.push(BSHelper.Input({ type:"text", label:"User Photo Path", idname:"user_photo_path", required: true, placeholder:"string(200)" }));
 				col.push(subCol(6, a));
 				return subRow(col);
 			} },
@@ -112,6 +111,13 @@
 						{ id:"sendmail", name:"sendmail" },
 					] 
 				}));
+				col.push(subCol(6, a));
+				return subRow(col);
+			} },
+			{	title:"Others", idname:"tab-oth", content:function(){
+				a = []; col = [];
+				a.push(BSHelper.Input({ type:"text", label:"User Photo Path", idname:"user_photo_path", required: true, placeholder:"string(200)" }));
+				a.push(BSHelper.Input({ type:"text", label:"Personnel Photo Path", idname:"personnel_photo_path", required: true, placeholder:"string(200)" }));
 				col.push(subCol(6, a));
 				return subRow(col);
 			} },

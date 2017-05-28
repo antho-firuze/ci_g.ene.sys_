@@ -376,12 +376,20 @@ class Systems extends Getmeb
 					
 					/* Moving to desire location with rename */
 					$ext = strtolower(pathinfo($result['name'], PATHINFO_EXTENSION));
-					rename($result["path"], $this->session->user_photo_path.$rndName.'.'.$ext);
+					$new_filename = $this->session->user_photo_path.$rndName.'.'.$ext;
+					if (!is_dir($this->session->user_photo_path))
+						mkdir($this->session->user_photo_path, 0755, true);
+					rename($result["path"], $new_filename);
 				
 					/* delete old file photo */
-					if (isset($this->params->photo_file) && $this->params->photo_file) {
-						@unlink($this->session->user_photo_path.$this->params->photo_file);
+					$tbl = $this->base_model->getValue('photo_file', 'a_user', 'id', $this->params->id);
+					if ($tbl && $tbl->photo_file) {
+						@unlink($this->session->user_photo_path.$tbl->photo_file);
 					}
+					// /* delete old file photo */
+					// if (isset($this->params->photo_file) && $this->params->photo_file) {
+						// @unlink($this->session->user_photo_path.$this->params->photo_file);
+					// }
 					/* update to table */
 					$this->updateRecord('a_user', ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params->id]);
 					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => base_url().$this->session->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
@@ -503,21 +511,28 @@ class Systems extends Getmeb
 						$this->xresponse(FALSE, ['message' => $this->messages()]);
 					}
 						
-					/* If Success */
+					/* If picture success upload to tmp folder */
 					/* Create random filename */
 					$this->load->helper('string');
 					$rndName = random_string('alnum', 10);
 					
 					/* Moving to desire location with rename */
 					$ext = strtolower(pathinfo($result['name'], PATHINFO_EXTENSION));
-					rename($result["path"], $this->session->user_photo_path.$rndName.'.'.$ext);
+					$new_filename = $this->session->user_photo_path.$rndName.'.'.$ext;
+					if (!is_dir($this->session->user_photo_path))
+						mkdir($this->session->user_photo_path, 0755, true);
+					rename($result["path"], $new_filename);
 				
 					/* delete old file photo */
-					if (isset($this->params->photo_file) && $this->params->photo_file) {
-						@unlink($this->session->user_photo_path.$this->params->photo_file);
+					$tbl = $this->base_model->getValue('photo_file', $this->c_method, 'id', $this->params->id);
+					if ($tbl && $tbl->photo_file) {
+						@unlink($this->session->user_photo_path.$tbl->photo_file);
 					}
+					// if (isset($this->params->photo_file) && $this->params->photo_file) {
+						// @unlink($this->session->user_photo_path.$this->params->photo_file);
+					// }
 					/* update to table */
-					$this->updateRecord('a_user', ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params->id]);
+					$this->updateRecord($this->c_method, ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params->id]);
 					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => base_url().$this->session->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
 				}
 			}

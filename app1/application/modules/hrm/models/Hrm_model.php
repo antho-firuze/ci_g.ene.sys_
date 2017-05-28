@@ -185,6 +185,14 @@ class Hrm_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
+	function get_hr_personnel_photo($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
+		$params['table'] 	= "hr_personnel_photo as t1";
+		$params['where']['t1.is_deleted'] 	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
 	function get_hr_personnel_allowance($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
