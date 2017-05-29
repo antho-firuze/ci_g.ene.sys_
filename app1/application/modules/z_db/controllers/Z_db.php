@@ -15,6 +15,376 @@ class Z_db extends CI_Controller {
 	
 	ALTER TABLE hr_personnel ALTER COLUMN employee_status_id TYPE integer USING (employee_status_id::integer);
 	*/
+
+	/* CashFlow Master */
+	function table_cf_account()
+	{
+		$fields = $this->field_00_Main();
+		$fields['parent_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['is_cashbank'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['is_projection'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		return $fields;
+	}
+	
+	function table_cf_charge_type()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		return $fields;
+	}
+	
+	/* cf_order: sales order & purchase order */
+	function table_cf_order()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		
+		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_order_dt()
+	{
+		$fields = $this->field_00_Main();
+		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['item_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['itemcat_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['measure_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		
+		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['item_code'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['item_name'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['item_size'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		
+		$fields['qty'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['price'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		
+		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_order_plan()
+	{
+		$fields = $this->field_00_Main();
+		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_order_plan_import()
+	{
+		$fields = $this->field_00_Main();
+		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_order_plan_clearance()
+	{
+		$fields = $this->field_00_Main();
+		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
+		return $fields;
+	}
+	
+	/* cf_inout: shipment & material receipt */
+	function table_cf_inout()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		
+		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['delivery_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['received_date'] = ['type' => 'DATE', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_inout_dt()
+	{
+		$fields = $this->field_00_Main();
+		$fields['inout_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['item_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['itemcat_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['measure_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		
+		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['item_code'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['item_name'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['item_size'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		
+		$fields['qty'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['price'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		
+		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		return $fields;
+	}
+	
+	/* cf_invoice: invoice customer & invoice vendor */
+	function table_cf_invoice()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		
+		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['inout_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_invoice_dt()
+	{
+		$fields = $this->field_00_Main();
+		$fields['invoice_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['item_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['itemcat_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['measure_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['account_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		
+		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['item_code'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['item_name'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['item_size'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		
+		$fields['qty'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['price'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		
+		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_invoice_plan()
+	{
+		$fields = $this->field_00_Main();
+		$fields['invoice_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
+		return $fields;
+	}
+	
+	/* cf_charge: charge in & charge out */
+	function table_cf_charge()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		
+		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['charge_type_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_charge_dt()
+	{
+		$fields = $this->field_00_Main();
+		$fields['charge_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['account_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		
+		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_charge_plan()
+	{
+		$fields = $this->field_00_Main();
+		$fields['charge_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
+		return $fields;
+	}
+	
+	/* cf_request_type: For Stock, For SO */
+	function table_cf_request_type()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_request()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		
+		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['request_type_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['eta'] = ['type' => 'DATE', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_request_dt()
+	{
+		$fields = $this->field_00_Main();
+		$fields['request_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['item_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['itemcat_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['measure_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		
+		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['item_code'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['item_name'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['item_size'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		
+		$fields['qty'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['price'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		
+		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_requisition()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		
+		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['request_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['eta'] = ['type' => 'DATE', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_requisition_dt()
+	{
+		$fields = $this->field_00_Main();
+		$fields['requisition_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['item_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['itemcat_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['measure_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		
+		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['item_code'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['item_name'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['item_size'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		
+		$fields['qty'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['price'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		
+		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		return $fields;
+	}
+	
+	/* cf_movement: inbound & outbound */
+	function table_cf_movement()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		
+		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['orgto_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['request_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['delivery_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['received_date'] = ['type' => 'DATE', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_movement_dt()
+	{
+		$fields = $this->field_00_Main();
+		$fields['movement_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['item_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['itemcat_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['measure_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		
+		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['item_code'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['item_name'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['item_size'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		
+		$fields['qty'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['price'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		
+		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		return $fields;
+	}
+	
+
 	
 	function table_hr_config()
 	{
@@ -86,6 +456,7 @@ class Z_db extends CI_Controller {
 		$fields['child1_name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		$fields['child2_name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		$fields['child3_name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
+		$fields['photo_file'] = ['type' => 'VARCHAR', 'constraint' => '120', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -522,7 +893,7 @@ class Z_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_bpartner()
+	function table_c_bpartner()
 	{
 		$fields = $this->field_00_Main();
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
@@ -531,41 +902,12 @@ class Z_db extends CI_Controller {
 		
 		$fields['parent_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['greeting_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['sex_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['religion_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['maritalstatus_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['educationlevel_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['homestatus_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['jobtitle_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['nationality_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['occupation_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['first_name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		$fields['last_name'] 	= ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['join_date'] = 	['type' => 'DATE', 'null' => TRUE];
-		$fields['birth_place'] = 	['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['birth_date'] = 	['type' => 'DATE', 'null' => TRUE];
-		$fields['idcard_no'] 	= ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['idcard_expired'] 	= ['type' => 'DATE', 'null' => TRUE];
-		$fields['pasport_no'] 	= ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['pasport_expired'] 	= ['type' => 'DATE', 'null' => TRUE];
-		$fields['kitas_no'] 	= ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['kitas_expired'] 	= ['type' => 'DATE', 'null' => TRUE];
 		$fields['website'] 	= ['type' => 'VARCHAR', 'constraint' => '120', 'null' => TRUE];
 		$fields['email'] 	= ['type' => 'VARCHAR', 'constraint' => '120', 'null' => TRUE];
 		$fields['phone'] 	= ['type' => 'VARCHAR', 'constraint' => '120', 'null' => TRUE];
 		$fields['fax'] 	= ['type' => 'VARCHAR', 'constraint' => '120', 'null' => TRUE];
-		/* HRD area */
-		$fields['is_employee'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
-		$fields['employee_type'] 	= ['type' => 'CHAR', 'constraint' => '1',  'null' => TRUE];
-		$fields['employee_grade'] 	= ['type' => 'CHAR', 'constraint' => '1',  'null' => TRUE];
-		$fields['bpjs_tk_no'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['bpjs_kes_no'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['father_name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['mother_name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['spouse_name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['child1_name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['child2_name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['child3_name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		/* Marketing area */
 		$fields['is_customer'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
 		$fields['is_prospect'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
@@ -591,7 +933,7 @@ class Z_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_bpartner_location()
+	function table_c_bpartner_location()
 	{
 		$fields = $this->field_00_Main();
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
@@ -606,7 +948,7 @@ class Z_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_bpartner_sosial()
+	function table_c_bpartner_sosial()
 	{
 		$fields = $this->field_00_Main();
 		$fields['bpartner_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];

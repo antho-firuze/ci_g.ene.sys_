@@ -1235,7 +1235,7 @@ class Getmeb extends CI_Controller
 		$str = "WITH RECURSIVE menu_tree (id, parent_id, childno, line_no, is_parent, name, icon) 
 			AS ( 
 				SELECT
-					id, parent_id, (select count(distinct am.id) from a_menu as am where am.parent_id = a_menu.id) as childno, 1 as line_no, is_parent, name, icon
+					id, parent_id, (select count(distinct am.id) from a_menu as am where am.parent_id = a_menu.id) as childno, line_no, is_parent, name, icon
 				FROM a_menu
 				WHERE is_deleted = '0' and is_active = '1' and is_submodule = '0' and type != 'P' and exists(select menu_id from a_role_menu where role_id = $role_id and is_deleted = '0' and is_active = '1' and menu_id = a_menu.id)
 				UNION ALL
