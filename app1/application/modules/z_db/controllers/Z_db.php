@@ -16,6 +16,22 @@ class Z_db extends CI_Controller {
 	ALTER TABLE hr_personnel ALTER COLUMN employee_status_id TYPE integer USING (employee_status_id::integer);
 	*/
 
+	function table_a_changelog()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['table_name'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['record_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['column_name'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['method'] = ['type' => 'VARCHAR', 'constraint' => '12', 'null' => TRUE];
+		$fields['old_value'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['new_value'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['trxname'] = ['type' => 'TEXT', 'null' => TRUE];
+		return $fields;
+	}
+	
 	/* CashFlow Master */
 	function table_cf_account()
 	{

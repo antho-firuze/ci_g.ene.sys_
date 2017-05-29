@@ -983,6 +983,8 @@ class Systems extends Getmeb
 	
 	function a_menu()
 	{
+		$this->identity_keys = ['name', 'parent_id'];
+		
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, FALSE);
 			
@@ -1009,7 +1011,8 @@ class Systems extends Getmeb
 			}
 			
 			$datas = $this->_pre_update_records(TRUE);
-			$datas['line_no'] = $this->db->query('select max(line_no) from a_menu where parent_id = '.$datas['parent_id'])->row()->max + 1;
+			$parent_id = $datas['parent_id'] ? $datas['parent_id'] : 0;
+			$datas['line_no'] = $this->db->query('select max(line_no) from a_menu where parent_id = '.$parent_id)->row()->max + 1;
 			
 			if ($this->r_method == 'POST')
 				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
