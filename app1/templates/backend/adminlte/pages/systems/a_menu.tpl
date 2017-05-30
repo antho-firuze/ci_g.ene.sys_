@@ -28,8 +28,7 @@
 		aRBtn_width: '100px',
 		order: ['grp', 'is_parent desc', 'is_submodule', 'line_no'],
 		columns: [
-			{ width:"150px", orderable:false, data:"name", title:"Name" },
-			{* { width:"150px", orderable:false, data:"title", title:"Title" }, *}
+			{ width:"150px", orderable:false, data:"code_name", title:"Name" },
 			{ width:"200px", orderable:false, data:"title_desc", title:"Description" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"is_parent", title:"Parent", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
@@ -37,6 +36,7 @@
 			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"is_submodule", title:"Sub", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{* { width:"100px", orderable:false, data:"icon", title:"Icon" }, *}
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Type", render:function(data, type, row){ return (data=='F') ? 'FORM' : (data=='P') ? 'PROCESS' : (data=='W') ? 'WINDOW' : 'GROUP'; } },
+			{ width:"150px", orderable:false, data:"parent_name", title:"Parent" },
 			{ width:"125px", orderable:false, data:"path", title:"Path" },
 			{ width:"100px", orderable:false, data:"class", title:"Class" },
 			{ width:"120px", orderable:false, data:"method", title:"Method" },

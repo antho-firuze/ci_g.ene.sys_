@@ -30,9 +30,7 @@ class Systems extends Getmeb
 			$this->params['list'] = 1;
 			$this->params['ob'] = 'line_no';
 			if (!$result = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				foreach($result as $key => $val){
 					$result[$key]->value = 0;
@@ -223,9 +221,7 @@ class Systems extends Getmeb
 			$this->params['where']['t1.id'] = $this->session->user_id;
 			
 			if (($result['data'] = $this->{$this->mdl}->get_a_user($this->params)) === FALSE){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -496,9 +492,7 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -579,9 +573,7 @@ class Systems extends Getmeb
 				$this->params['like'] = DBX::like_or(["t2.code", "t2.name", "coalesce(t2.code,'') ||'_'|| t2.name"], $this->params['q']);
 
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -648,9 +640,7 @@ class Systems extends Getmeb
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -733,9 +723,7 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -775,9 +763,7 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -834,9 +820,7 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -892,9 +876,7 @@ class Systems extends Getmeb
 			$this->params['where']['t1.org_id']			= DEFAULT_ORG_ID;
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -914,9 +896,7 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -937,9 +917,7 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -959,9 +937,7 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -993,9 +969,7 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -1036,9 +1010,7 @@ class Systems extends Getmeb
 				$this->params['like'] = DBX::like_or('name', $this->params['q']);
 		
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -1058,9 +1030,7 @@ class Systems extends Getmeb
 			
 			$this->params['ob'] = 'orgtype_id';
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -1100,9 +1070,7 @@ class Systems extends Getmeb
 				$this->params['like'] = DBX::like_or('name', $this->params['q']);
 		
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -1119,9 +1087,7 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -1137,9 +1103,7 @@ class Systems extends Getmeb
 			$this->_get_filtered(TRUE, FALSE);
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -1168,9 +1132,7 @@ class Systems extends Getmeb
 				$this->params['like'] = DBX::like_or('t1.description', $this->params['q']);
 
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -1190,9 +1152,7 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -1216,9 +1176,7 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -1247,9 +1205,7 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -1279,9 +1235,7 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -1310,9 +1264,7 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -1341,9 +1293,7 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$this->xresponse(FALSE, $result);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
