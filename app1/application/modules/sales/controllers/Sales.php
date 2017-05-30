@@ -29,7 +29,7 @@ class Sales extends Getmeb
 			$this->params['where']['t1.user_id'] = $this->session->user_id;
 			
 			$this->load->model('systems/system_model');
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->system_model->{$this->c_method}($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -46,7 +46,7 @@ class Sales extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -66,7 +66,7 @@ class Sales extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -86,7 +86,7 @@ class Sales extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -110,7 +110,7 @@ class Sales extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -136,7 +136,7 @@ class Sales extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -164,7 +164,7 @@ class Sales extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -204,7 +204,7 @@ class Sales extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 	
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -224,7 +224,7 @@ class Sales extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.attribute, t1.description', $this->params['q']);
 	
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);

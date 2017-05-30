@@ -22,7 +22,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -42,7 +42,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -62,7 +62,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -82,7 +82,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -102,7 +102,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -122,7 +122,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -142,7 +142,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -162,7 +162,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -182,7 +182,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -202,7 +202,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -222,7 +222,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -242,7 +242,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -262,7 +262,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -282,7 +282,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -302,7 +302,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -322,7 +322,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -342,7 +342,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -362,7 +362,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -382,7 +382,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -402,7 +402,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -422,7 +422,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -442,7 +442,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -512,7 +512,7 @@ class Hrm extends Getmeb
 			
 			$this->_get_filtered();
 	
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				foreach($result['data']['rows'] as $k => $v){
@@ -543,7 +543,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -563,7 +563,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -583,7 +583,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -603,7 +603,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -623,7 +623,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -643,7 +643,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -663,7 +663,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -683,7 +683,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -703,7 +703,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -723,7 +723,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -743,7 +743,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -763,7 +763,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -783,7 +783,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -803,7 +803,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -827,7 +827,7 @@ class Hrm extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (! $result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);

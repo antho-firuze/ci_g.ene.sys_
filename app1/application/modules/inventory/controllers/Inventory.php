@@ -26,7 +26,7 @@ class Inventory extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -50,7 +50,7 @@ class Inventory extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -74,7 +74,7 @@ class Inventory extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -98,7 +98,7 @@ class Inventory extends Getmeb
 				$this->_pre_export_data();
 			}
 
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);

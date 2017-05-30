@@ -24,7 +24,7 @@ class Web extends Getmeb
 
 			$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
 			$this->params['where']['t1.org_id'] = DEFAULT_ORG_ID;
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -48,7 +48,7 @@ class Web extends Getmeb
 
 			$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
 			$this->params['where']['t1.org_id'] = DEFAULT_ORG_ID;
-			if (($result['data'] = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
