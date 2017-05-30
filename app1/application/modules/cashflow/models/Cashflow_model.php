@@ -49,42 +49,82 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_inout($params)
+	function cf_sinout($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= "cf_inout as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_inout_dt($params)
+	function cf_sinout_dt($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= "cf_inout_dt as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_invoice($params)
+	function cf_pinout($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= "cf_inout as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_invoice_dt($params)
+	function cf_pinout_dt($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= "cf_inout_dt as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_invoice_plan($params)
+	function cf_sinvoice($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= "cf_invoice as t1";
+		$params['where']['t1.is_deleted'] 	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_sinvoice_dt($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
+		$params['table'] 	= "cf_invoice_dt as t1";
+		$params['where']['t1.is_deleted'] 	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_sinvoice_plan($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
+		$params['table'] 	= "cf_invoice_plan as t1";
+		$params['where']['t1.is_deleted'] 	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_pinvoice($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
+		$params['table'] 	= "cf_invoice as t1";
+		$params['where']['t1.is_deleted'] 	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_pinvoice_dt($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
+		$params['table'] 	= "cf_invoice_dt as t1";
+		$params['where']['t1.is_deleted'] 	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_pinvoice_plan($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
+		$params['table'] 	= "cf_invoice_plan as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -105,42 +145,66 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_order($params)
+	function cf_sorder($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= "cf_order as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_order_dt($params)
+	function cf_sorder_dt($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= "cf_order_dt as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_order_plan($params)
+	function cf_sorder_plan($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= "cf_order_plan as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_order_plan_clearance($params)
+	function cf_porder($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= "cf_order as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_order_plan_import($params)
+	function cf_porder_dt($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= "cf_order_dt as t1";
+		$params['where']['t1.is_deleted'] 	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_porder_plan($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
+		$params['table'] 	= "cf_order_plan as t1";
+		$params['where']['t1.is_deleted'] 	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_porder_plan_clearance($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
+		$params['table'] 	= "cf_order_plan_clearance as t1";
+		$params['where']['t1.is_deleted'] 	= '0';
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_porder_plan_import($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
+		$params['table'] 	= "cf_order_plan_import as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}

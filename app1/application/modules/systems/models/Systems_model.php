@@ -262,6 +262,7 @@ class Systems_Model extends CI_model
 		$client_id = isset($params['where']['client_id']) ? 'client_id = '.$params['where']['client_id'] : 'client_id = '.$this->session->client_id;
 		$org_id = isset($params['where']['org_id']) ? 'and org_id = '.$params['where']['org_id'] : '';
 		$orgtype_id = isset($params['where']['orgtype_id']) ? 'and orgtype_id = '.$params['where']['orgtype_id'] : '';
+		$parent_id = isset($params['where']['parent_id']) ? 'and parent_id = '.$params['where']['parent_id'] : '';
 				
 		$str = "WITH RECURSIVE tmp_tree (id, parent_id, level, line_no, is_parent, client_id, org_id, orgtype_id, name, name_tree) 
 			AS ( 

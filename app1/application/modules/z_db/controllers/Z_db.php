@@ -16,6 +16,40 @@ class Z_db extends CI_Controller {
 	ALTER TABLE hr_personnel ALTER COLUMN employee_status_id TYPE integer USING (employee_status_id::integer);
 	*/
 
+	function table_a_client()
+	{
+		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
+		$fields['is_active'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '1'];
+		$fields['is_deleted'] = ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['created_by'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['updated_by'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['deleted_by'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['created_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
+		$fields['updated_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
+		$fields['deleted_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_a_dashboard()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['link'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => FALSE];
+		$fields['type'] = ['type' => 'VARCHAR', 'constraint' => '12', 'null' => FALSE];
+		$fields['position'] = ['type' => 'VARCHAR', 'constraint' => '12', 'null' => FALSE];
+		$fields['query'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['include_files'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['line_no'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['icon'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => FALSE];
+		$fields['color'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => FALSE];
+		return $fields;
+	}
+	
 	function table_a_changelog()
 	{
 		$fields = $this->field_00_Main();
@@ -31,6 +65,10 @@ class Z_db extends CI_Controller {
 		$fields['trxname'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
+	
+	
+	
+	
 	
 	/* CashFlow Master */
 	function table_cf_account()
@@ -909,6 +947,15 @@ class Z_db extends CI_Controller {
 		return $fields;
 	}
 	
+	function table_c_greeting()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		return $fields;
+	}
+	
 	function table_c_bpartner()
 	{
 		$fields = $this->field_00_Main();
@@ -968,8 +1015,9 @@ class Z_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['bpartner_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['sosial_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['sosial_url'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
-		$fields['url'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
 		return $fields;
 	}
 	

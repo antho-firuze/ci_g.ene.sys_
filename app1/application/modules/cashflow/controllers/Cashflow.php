@@ -113,7 +113,28 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_inout()
+	function cf_sinout()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			$this->params['where']['is_sotrx'] = '1';
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$this->_pre_update_records();
+		}
+	}
+	
+	function cf_sinout_dt()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -133,7 +154,28 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_inout_dt()
+	function cf_pinout()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			$this->params['where']['is_sotrx'] = '0';
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$this->_pre_update_records();
+		}
+	}
+	
+	function cf_pinout_dt()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -153,7 +195,28 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_invoice()
+	function cf_sinvoice()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			$this->params['where']['is_sotrx'] = '1';
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$this->_pre_update_records();
+		}
+	}
+	
+	function cf_sinvoice_dt()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -173,7 +236,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_invoice_dt()
+	function cf_sinvoice_plan()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -193,7 +256,48 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_invoice_plan()
+	function cf_pinvoice()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			$this->params['where']['is_sotrx'] = '0';
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$this->_pre_update_records();
+		}
+	}
+	
+	function cf_pinvoice_dt()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$this->_pre_update_records();
+		}
+	}
+	
+	function cf_pinvoice_plan()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -253,7 +357,28 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_order()
+	function cf_sorder()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			$this->params['where']['is_sotrx'] = '1';
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$this->_pre_update_records();
+		}
+	}
+	
+	function cf_sorder_dt()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -273,7 +398,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_order_dt()
+	function cf_sorder_plan()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -293,7 +418,28 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_order_plan()
+	function cf_porder()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			$this->params['where']['is_sotrx'] = '0';
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$this->_pre_update_records();
+		}
+	}
+	
+	function cf_porder_dt()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -313,7 +459,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_order_plan_clearance()
+	function cf_porder_plan()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -333,7 +479,27 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_order_plan_import()
+	function cf_porder_plan_clearance()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$this->_pre_update_records();
+		}
+	}
+	
+	function cf_porder_plan_import()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);

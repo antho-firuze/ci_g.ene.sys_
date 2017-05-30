@@ -985,13 +985,14 @@ class Systems extends Getmeb
 			}
 			
 			$datas = $this->_pre_update_records(TRUE);
-			$parent_id = $datas['parent_id'] ? $datas['parent_id'] : 0;
-			$datas['line_no'] = $this->db->query('select max(line_no) from a_menu where parent_id = '.$parent_id)->row()->max + 1;
 			
-			if ($this->r_method == 'POST')
+			if ($this->r_method == 'POST'){
+				$parent_id = $datas['parent_id'] ? $datas['parent_id'] : 0;
+				$datas['line_no'] = $this->db->query('select max(line_no) from a_menu where parent_id = '.$parent_id)->row()->max + 1;
 				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			else
+			} else {
 				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);				
+			}
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
@@ -1065,6 +1066,9 @@ class Systems extends Getmeb
 		
 			if (isset($this->params['orgtype_id']) && !empty($this->params['orgtype_id'])) 
 				$this->params['where']['orgtype_id'] = $this->params['orgtype_id'];
+		
+			if (isset($this->params['parent_id']) && !empty($this->params['parent_id'])) 
+				$this->params['where']['parent_id'] = $this->params['parent_id'];
 		
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('name', $this->params['q']);
