@@ -259,9 +259,9 @@ function initActionMenu(tableData1, dataTable1)
 	// var container = $('<div class="btn-group" />');
 	// container.append($('<button type="button" class="btn btn-xs aLBtn btn-info glyphicon glyphicon-chevron-down dropdown-toggle" data-toggle="dropdown" title="Menu" name="btn-menu" />'));
 	var dropdown_menu = $('<ul class="dropdown-menu" />');
-	if (DataTable_Init.aLBtn.copy) dropdown_menu.append('<li><a href="#">Copy</a></li>');
-	if (DataTable_Init.aLBtn.edit) dropdown_menu.append('<li><a href="#">Edit</a></li>');
-	if (DataTable_Init.aLBtn.delete) dropdown_menu.append('<li><a href="#">Delete</a></li>');
+	if (DataTable_Init.aLBtn.copy) dropdown_menu.append('<li><a href="#" name="copy">Copy</a></li>');
+	if (DataTable_Init.aLBtn.edit) dropdown_menu.append('<li><a href="#" name="edit">Edit</a></li>');
+	if (DataTable_Init.aLBtn.delete) dropdown_menu.append('<li><a href="#" name="delete">Delete</a></li>');
 	
 	tableData1.find('tbody').on( 'click', '.aLBtn', function (e) {
 		/* get selscted record from datatable */
@@ -280,23 +280,24 @@ function initActionMenu(tableData1, dataTable1)
 
 		$menu.find('a')
 			.on('click', function(e){
-				// select($(this));
-				console.log($(this).text());
+				select($(this));
+				hide();
 			});
 		
 		function select($el) 
 		{
 			switch($el.attr('name')){
-				case 'btn-copy':
+				case 'copy':
+					console.log('aaaaa');
 					if (!confirm("Copy this data ?")) {
 						return false;
 					}
 					window.location.href = getURLOrigin()+window.location.search+"&action=cpy&id="+data.id;
 					break;
-				case 'btn-edit':
+				case 'edit':
 					window.location.href = getURLOrigin()+window.location.search+"&action=edt&id="+data.id;
 					break;
-				case 'btn-delete':
+				case 'delete':
 					if (!confirm("Are you sure want to delete this record ?")) {
 						return false;
 					}
@@ -317,6 +318,11 @@ function initActionMenu(tableData1, dataTable1)
 					});
 					break;
 			}
+		}
+		
+		function hide()
+		{
+			$menu.hide();
 		}
 	});
 }
