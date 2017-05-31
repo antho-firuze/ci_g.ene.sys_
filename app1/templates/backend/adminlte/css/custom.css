@@ -245,6 +245,9 @@ input[type="checkbox"]:checked::after,
 .dataTables_wrapper .btn-toolbar {
 	padding-bottom: 7px;
 }
+table.dataTable tr td {
+	overflow: visible;
+}
 
 /* additional css for dataTables.bootstrap.css */
 table.dataTable th.dt-left,

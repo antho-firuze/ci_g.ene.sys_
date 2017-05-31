@@ -92,10 +92,20 @@ function initDataTable()
 	$('.box-body').append( tableData1 );
 	
 	/* Defining Left Button for Datatables */
-	var aLBtn = [];
-	if (DataTable_Init.aLBtn.copy) aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs aLBtn btn-info glyphicon glyphicon-duplicate" title="Copy" name="btn-copy" />');
-	if (DataTable_Init.aLBtn.edit) aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs aLBtn btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />');
-	if (DataTable_Init.aLBtn.delete) aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs aLBtn btn-danger glyphicon glyphicon-trash" title="Delete" name="btn-delete" />');
+	var aLBtn_container = $('<div class="btn-group" />');
+	aLBtn_container.append($('<button type="button" class="btn btn-xs aLBtn btn-info glyphicon glyphicon-chevron-down" title="Menu" name="btn-menu" />'));
+	
+	// var aLBtn_container = $('<div class="dropup" />');
+	// aLBtn_container.append($('<button type="button" class="btn btn-xs aLBtn btn-info glyphicon glyphicon-chevron-down dropdown-toggle" data-toggle="dropdown" title="Menu" name="btn-menu" />'));
+	// var dropdown_menu = $('<ul class="dropdown-menu" />').appendTo(aLBtn_container);
+	// dropdown_menu.append('<li><a href="#">Copy</a></li>');
+	// dropdown_menu.append('<li><a href="#">Edit</a></li>');
+	// dropdown_menu.append('<li><a href="#">Delete</a></li>');
+	
+	// var aLBtn = [];
+	// if (DataTable_Init.aLBtn.copy) aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs aLBtn btn-info glyphicon glyphicon-duplicate" title="Copy" name="btn-copy" />');
+	// if (DataTable_Init.aLBtn.edit) aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs aLBtn btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />');
+	// if (DataTable_Init.aLBtn.delete) aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs aLBtn btn-danger glyphicon glyphicon-trash" title="Delete" name="btn-delete" />');
 	/* Defining Right Button for Datatables */
 	var aRBtn = [];
 	$.each(DataTable_Init.aRBtn, function(i){
@@ -105,8 +115,9 @@ function initDataTable()
 	/* Setup DataTables */
 	var right_column = [];
 	var left_column = [
-			{ width:"20px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render:function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
-			{ width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render: function(data, type, row){ return aLBtn.join(""); } },
+			{ width:"10px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render:function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
+			// { width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render: function(data, type, row){ return aLBtn.join(""); } },
+			{ width:"10px", orderable:false, className:"dt-head-center dt-body-center", title:"", render: function(data, type, row){ return aLBtn_container.prop('outerHTML'); } },
 	];
 	if (aRBtn.length > 0) {
 		right_column = [
@@ -173,12 +184,26 @@ function initDataTable()
 	
 	/* Init Checklist for DataTable */
 	initCheckList(tableData1, dataTable1);
+	/* Init ActionMenu for DataTable */
+	initActionMenu(tableData1, dataTable1);
 	/* For Left Button if Exists */
-	tableData1.find('tbody').on( 'click', '.aLBtn', function (e) {
+	// tableData1.find('tbody').on( 'click', '.aLBtn', function (e) {
 		/* get selscted record from datatable */
-		var data = dataTable1.row( $(e.target).closest('tr') ).data();
+		// var data = dataTable1.row( $(e.target).closest('tr') ).data();
 		
-		switch($(e.target).attr('name')){
+		// var $menu = initActionMenu();
+		// var pos = $.extend({}, $(e.target).position(), {height: $(e.target)[0].offsetHeight});
+		// var pos = $.extend({}, {top: $(e.target).offset().top}, {left: $(e.target).offset().left}, {height: $(e.target)[0].offsetHeight});
+		// console.log(pos);
+		// $menu
+			// .insertAfter($(e.target))
+			// .appendTo('body')
+			// .css({top: pos.top + pos.height, left: pos.left, position: 'absolute'})
+			// .css({top: pos.top + pos.height, left: pos.left})
+			// .show();
+
+		
+		/* switch($(e.target).attr('name')){
 			case 'btn-copy':
 				if (!confirm("Copy this data ?")) {
 					return false;
@@ -208,8 +233,8 @@ function initDataTable()
 					}
 				});
 				break;
-		}
-	});
+		} */
+	// });
 	
 	/* For Right Button if Exists */
 	tableData1.find('tbody').on( 'click', '.aRBtn', function () {
@@ -226,6 +251,74 @@ function initDataTable()
 		window.location.href = url;
 	});
 		
+}
+
+/* {* Don't change this code: Init for datatables action menu *} */
+function initActionMenu(tableData1, dataTable1)
+{
+	// var container = $('<div class="btn-group" />');
+	// container.append($('<button type="button" class="btn btn-xs aLBtn btn-info glyphicon glyphicon-chevron-down dropdown-toggle" data-toggle="dropdown" title="Menu" name="btn-menu" />'));
+	var dropdown_menu = $('<ul class="dropdown-menu" />');
+	if (DataTable_Init.aLBtn.copy) dropdown_menu.append('<li><a href="#">Copy</a></li>');
+	if (DataTable_Init.aLBtn.edit) dropdown_menu.append('<li><a href="#">Edit</a></li>');
+	if (DataTable_Init.aLBtn.delete) dropdown_menu.append('<li><a href="#">Delete</a></li>');
+	
+	tableData1.find('tbody').on( 'click', '.aLBtn', function (e) {
+		/* get selscted record from datatable */
+		// var data = dataTable1.row( $(e.target).closest('tr') ).data();
+		
+		var $menu = dropdown_menu;
+		// var pos = $.extend({}, $(e.target).position(), {height: $(e.target)[0].offsetHeight});
+		var pos = $.extend({}, {top: $(e.target).offset().top}, {left: $(e.target).offset().left}, {height: $(e.target)[0].offsetHeight});
+		console.log(pos);
+		$menu
+			// .insertAfter($(e.target))
+			.appendTo('body')
+			.css({top: pos.top + pos.height, left: pos.left, position: 'absolute'})
+			// .css({top: pos.top + pos.height, left: pos.left})
+			.show();
+
+		$menu.find('a')
+			.on('click', function(e){
+				// select($(this));
+				console.log($(this).text());
+			});
+		
+		function select($el) 
+		{
+			switch($el.attr('name')){
+				case 'btn-copy':
+					if (!confirm("Copy this data ?")) {
+						return false;
+					}
+					window.location.href = getURLOrigin()+window.location.search+"&action=cpy&id="+data.id;
+					break;
+				case 'btn-edit':
+					window.location.href = getURLOrigin()+window.location.search+"&action=edt&id="+data.id;
+					break;
+				case 'btn-delete':
+					if (!confirm("Are you sure want to delete this record ?")) {
+						return false;
+					}
+					$.ajax({ url: $url_module+"?id="+data.id, method: "DELETE", async: true, dataType: 'json',
+						success: function(data) {
+							dataTable1.ajax.reload( null, false );
+							BootstrapDialog.alert(data.message);
+						},
+						error: function(data) {
+							if (data.status==500){
+								var message = data.statusText;
+							} else {
+								var error = JSON.parse(data.responseText);
+								var message = error.message;
+							}
+							BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+						}
+					});
+					break;
+			}
+		}
+	});
 }
 
 /* {* Don't change this code: Init for datatables checklist *} */
@@ -290,6 +383,68 @@ function initCheckList(tableData1, dataTable1){
 		});
 	});
 };
+
+$(document).ready(function(){
+	
+/* $('.table-responsive').on('show.bs.dropdown', function () {
+	console.log('aaaa');
+	$('.table-responsive').css( "overflow", "inherit" );
+});
+
+$('.table-responsive').on('hide.bs.dropdown', function () {
+	$('.table-responsive').css( "overflow", "auto" );
+}) */
+
+	// $('button[name="btn-menu"]').on('click', function () {
+		// console.log($(this));
+	// });
+    /* $('.dropdown-menu').parent().on('show.bs.dropdown', function () {
+				console.log($(this));
+        var parentResponsiveTable = $(this).parents('.table-responsive');
+        var parentTarget = $(parentResponsiveTable).first().hasClass('table-responsive') ? $(parentResponsiveTable) : $(window);
+        var parentTop = $(parentResponsiveTable).first().hasClass('table-responsive') ? $(parentResponsiveTable).offset().top : 0;
+        var parentLeft = $(parentResponsiveTable).first().hasClass('table-responsive') ? $(parentResponsiveTable).offset().left : 0;
+
+        var dropdownMenu = $(this).children('.dropdown-menu').first();
+
+        if (!$(this).hasClass('dropdown') && !$(this).hasClass('dropup')) {
+            $(this).addClass('dropdown');
+        }
+        $(this).attr('olddrop', $(this).hasClass('dropup') ? 'dropup' : 'dropdown');
+        $(this).children('.dropdown-menu').each(function () {
+            $(this).attr('olddrop-pull', $(this).hasClass('dropdown-menu-right') ? 'dropdown-menu-right' : '');
+        });
+
+        if ($(this).hasClass('dropdown')) {
+            if ($(this).offset().top + $(this).height() + $(dropdownMenu).height() + 10 >= parentTop + $(parentTarget).height()) {
+                $(this).removeClass('dropdown');
+                $(this).addClass('dropup');
+            }
+        } else if ($(this).hasClass('dropup')) {
+            if ($(this).offset().top - $(dropdownMenu).height() - 10 <= parentTop) {
+                $(this).removeClass('dropup');
+                $(this).addClass('dropdown');
+            }
+        }
+
+        if ($(this).offset().left + $(dropdownMenu).width() >= parentLeft + $(parentTarget).width()) {
+            $(this).children('.dropdown-menu').addClass('dropdown-menu-right');
+        }
+    }); */
+
+    /* $('.dropdown-menu').parent().on('hide.bs.dropdown', function () {
+        if ($(this).attr('olddrop') != '') {
+            $(this).removeClass('dropup dropdown');
+            $(this).addClass($(this).attr('olddrop'));
+            $(this).attr('olddrop', '');
+        }
+
+        $(this).children('.dropdown-menu').each(function () {
+            $(this).removeClass('dropdown-menu-right');
+            $(this).addClass($(this).attr('olddrop-pull'));
+        });
+    }); */
+});
 
 /* ========================================= */
 /* Default init for Header									 */

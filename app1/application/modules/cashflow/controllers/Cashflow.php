@@ -374,7 +374,22 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
+			$datas = $this->_pre_update_records(TRUE);
+			
+			if ($this->r_method == 'POST') {
+				$datas['is_sotrx'] = '1';
+				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
+			} else {
+				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			}
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+			if ($this->r_method == 'POST')
+				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
 	

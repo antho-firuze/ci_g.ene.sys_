@@ -21,9 +21,10 @@
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", required: false, }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Doc Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}" }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", textField:"name_tree", idname:"branch_id", url:"{$.php.base_url('systems/a_org_parent_list?orgtype_id=3')}", remote: true }));
-	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
+	{* col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 })); *}
 	row.push(subCol(6, col)); col = [];
+	col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"branch_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Customer", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_customer='1'", remote: true }));
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
 	form1.append(subRow(subCol()));
@@ -35,5 +36,8 @@
 	box1.find('.box-body').append(form1);
 	$(".content").append(box1);
 
+	$("[data-mask]").inputmask();
+	
+	{* INITILIZATION *}
 </script>
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>

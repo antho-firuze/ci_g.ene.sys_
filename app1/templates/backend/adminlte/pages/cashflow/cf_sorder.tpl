@@ -27,9 +27,10 @@
 		aRBtn: [],
 		aRBtn_width: '100px',
 		columns: [
-			{ width:"130px", orderable:false, data:"code_name", title:"Name" },
+			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
+			{ width:"100px", orderable:false, data:"doc_date", title:"Doc Date" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{* { width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } }, *}
 		],
 	};
 	

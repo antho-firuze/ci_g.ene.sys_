@@ -10,6 +10,8 @@ class Getmeb extends CI_Controller
 	public $r_method;	
 	/* FOR CONTROLLER METHOD */
 	public $c_method;
+	/* FOR THIS METHOD USING WHICH TABLE*/
+	public $c_table;
 	/* FOR EXCEPTION METHOD */
 	public $exception_method = [];
 	/* FOR GETTING PARAMS FROM REQUEST URL */
@@ -64,7 +66,7 @@ class Getmeb extends CI_Controller
 		
 		$this->fixed_data = [
 			'client_id'		=> DEFAULT_CLIENT_ID,
-			'org_id'			=> DEFAULT_ORG_ID
+			'org_id'			=> $this->session->org_id,
 		];
 		$this->create_log = [
 			'created_by'	=> (!empty($this->session->user_id) ? $this->session->user_id : '0'),
@@ -146,7 +148,7 @@ class Getmeb extends CI_Controller
 
 			/* Become Array */
 			$this->params = $this->input->get();
-			if (! $this->deleteRecords($this->c_method, $this->params['id']))
+			if (! $this->deleteRecords($this->c_table, $this->params['id']))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
@@ -213,14 +215,14 @@ class Getmeb extends CI_Controller
 		}
 		
 		/* CHECK PATH FILE */
-		if (!$this->_check_path($data['path'].$data['table'])) {
+		if (!$this->_check_path($data['path'].$data['method'])) {
 			$this->set_message('ERROR: Menu [path] is could not be found or file not exist !');
 			return FALSE;
 		}
 		
 		if (key_exists('edit', $this->params) && !empty($this->params['edit'])) {
-			if (!$this->_check_path($data['path'].$data['table'].'_edit')) {
-				$this->set_message('ERROR: Page or File ['.$data['path'].$data['table'].'_edit'.'] is could not be found or file not exist !');
+			if (!$this->_check_path($data['path'].$data['method'].'_edit')) {
+				$this->set_message('ERROR: Page or File ['.$data['path'].$data['method'].'_edit'.'] is could not be found or file not exist !');
 				return FALSE;
 			}
 		}
@@ -277,10 +279,13 @@ class Getmeb extends CI_Controller
 		if ($this->pageid)
 			$menu = $this->base_model->getValueArray('*', 'a_menu', ['client_id','id'], [DEFAULT_CLIENT_ID, $this->pageid]);
 		else
-			$menu = $this->base_model->getValueArray('*', 'a_menu', ['client_id','table'], [DEFAULT_CLIENT_ID, $this->c_method]);
+			$menu = $this->base_model->getValueArray('*', 'a_menu', ['client_id','method'], [DEFAULT_CLIENT_ID, $this->c_method]);
 		
 		if (!$menu)
 			$this->backend_view('pages/404', ['message' => 'Menu not found !']);
+		
+		/* Set this menu using this table */
+		$this->c_table = $menu['table'];
 
 		/* Check menu active & permission on the table a_role_menu */
 		$allow = $this->base_model->getValue('permit_form, permit_process, permit_window', 'a_role_menu', ['role_id', 'menu_id', 'is_active', 'is_deleted'], [$this->session->role_id, $menu['id'], '1', '0']);
@@ -454,7 +459,7 @@ class Getmeb extends CI_Controller
 	function _pre_update_records($return = FALSE)
 	{
 		$datas = [];
-		$fields = $this->db->list_fields($this->c_method);
+		$fields = $this->db->list_fields($this->c_table);
 		foreach($fields as $f){
 			if (key_exists($f, $this->params)){
 				/* Check if any exists allow null fields */
@@ -482,9 +487,9 @@ class Getmeb extends CI_Controller
 	function _go_update_records($datas)
 	{
 		if ($this->r_method == 'POST')
-			$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
+			$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
 		else
-			$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);				
+			$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
 		
 		if (! $result)
 			$this->xresponse(FALSE, ['message' => $this->messages()], 401);

@@ -280,7 +280,7 @@ class Systems extends Getmeb
 		if ($this->r_method == 'GET') {
 			if (isset($this->params['view']) && $this->params['view']) {
 				$this->params['where']['t1.id'] = $this->session->user_id;
-				if (($result['data'] = $this->{$this->mdl}->get_a_user($this->params)) === FALSE){
+				if (($result['data'] = $this->{$this->mdl}->a_user($this->params)) === FALSE){
 					$result['data'] = [];
 					$result['message'] = $this->base_model->errors();
 					$this->xresponse(FALSE, $result);
@@ -441,7 +441,7 @@ class Systems extends Getmeb
 					case 'new': 
 					case 'cpy': 
 					case 'edt': 
-						$this->backend_view($menu['path'].$menu['table'].'_edit', $menu);
+						$this->backend_view($menu['path'].$menu['method'].'_edit', $menu);
 						break;
 					case 'exp':
 						$this->backend_view('include/export_data',$menu);
@@ -460,7 +460,7 @@ class Systems extends Getmeb
 			if (! $this->_check_menu($menu))
 				$this->backend_view('pages/404', ['message'=>$this->messages()]);
 			/* Standard page */
-			$this->backend_view($menu['path'].$menu['table'], $menu);
+			$this->backend_view($menu['path'].$menu['method'], $menu);
 		}
 		$this->backend_view('pages/404', ['message'=>'']);
 	}

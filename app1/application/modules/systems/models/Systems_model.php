@@ -107,7 +107,7 @@ class Systems_Model extends CI_model
 	function a_user($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.client_id, t1.user_org_id, t1.user_role_id, t1.is_active, t1.code, t1.name, coalesce(t1.code, '')||' '||t1.name as code_name, t1.description, t1.email, t1.last_login, t1.is_online, t1.supervisor_id,	t1.bpartner_id, t1.is_fullbpaccess, t1.is_expired, t1.ip_address, t1.photo_file";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= "a_user as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -263,7 +263,7 @@ class Systems_Model extends CI_model
 		$org_id = isset($params['where']['org_id']) ? 'and org_id = '.$params['where']['org_id'] : '';
 		$orgtype_id = isset($params['where']['orgtype_id']) ? 'and orgtype_id = '.$params['where']['orgtype_id'] : '';
 		$parent_id = isset($params['where']['parent_id']) ? 'and parent_id = '.$params['where']['parent_id'] : '';
-				
+		
 		$str = "WITH RECURSIVE tmp_tree (id, parent_id, level, line_no, is_parent, client_id, org_id, orgtype_id, name, name_tree) 
 			AS ( 
 				SELECT 
@@ -277,7 +277,7 @@ class Systems_Model extends CI_model
 				WHERE t1.parent_id = tt.id and t1.is_deleted = '0' 
 			) 
 			SELECT count(*) FROM tmp_tree 
-			WHERE $client_id $org_id $orgtype_id $id $q;";
+			WHERE $client_id $org_id $orgtype_id $id $q $parent_id;";
 		$qry = $this->db->query($str);
 		$response['total'] = $qry->row()->count;
 		
@@ -294,7 +294,7 @@ class Systems_Model extends CI_model
 				WHERE t1.parent_id = tt.id and t1.is_deleted = '0' 
 			) 
 			SELECT * FROM tmp_tree 
-			WHERE $client_id $org_id $orgtype_id $id $q 
+			WHERE $client_id $org_id $orgtype_id $id $q $parent_id 
 			ORDER BY level, parent_id, line_no;";
 		$qry = $this->db->query($str);
 		$response['rows']  = $qry->result();
