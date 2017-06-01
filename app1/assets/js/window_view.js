@@ -33,7 +33,7 @@ function setToolbarBtn(btnList)
 		"btn-new": 			{group:1, id:"btn-new", title:"New", bstyle:"btn-success", icon:"glyphicon glyphicon-plus"},
 		"btn-copy": 		{group:1, id:"btn-copy", title:"Copy", bstyle:"btn-success", icon:"glyphicon glyphicon-duplicate"},
 		"btn-refresh": 	{group:1, id:"btn-refresh", title:"Refresh", bstyle:"btn-success", icon:"glyphicon glyphicon-refresh"},
-		"btn-delete": 	{group:1, id:"btn-delete", title:"Delete", bstyle:"btn-danger", icon:"glyphicon glyphicon-trash"},
+		"btn-delete": 	{group:1, id:"btn-delete", title:"Batch Delete", bstyle:"btn-danger", icon:"glyphicon glyphicon-trash"},
 		"btn-message": 	{group:2, id:"btn-message", title:"Chat/Message/Attach", bstyle:"btn-info", icon:"glyphicon glyphicon-comment"},
 		"btn-export": 	{group:3, id:"btn-export", title:"Export", bstyle:"btn-warning", icon:"glyphicon glyphicon-save"},
 		"btn-print": 		{group:3, id:"btn-print", title:"Print", bstyle:"bg-purple", icon:"glyphicon glyphicon-print"},
@@ -92,38 +92,13 @@ function initDataTable()
 	$('.box-body').append( tableData1 );
 	
 	/* Defining Left Button for Datatables */
-	var aLBtn_container = $('<div class="btn-group" />');
-	aLBtn_container.append($('<button type="button" class="btn btn-xs aLBtn btn-info glyphicon glyphicon-chevron-down" title="Menu" name="btn-menu" />'));
+	var act_menu_container = $('<div class="dropdown" />');
+	act_menu_container.append($('<button type="button" class="btn btn-xs action-menu btn-info glyphicon glyphicon-align-justify" title="Menu" name="btn-menu" />'));
 	
-	// var aLBtn_container = $('<div class="dropup" />');
-	// aLBtn_container.append($('<button type="button" class="btn btn-xs aLBtn btn-info glyphicon glyphicon-chevron-down dropdown-toggle" data-toggle="dropdown" title="Menu" name="btn-menu" />'));
-	// var dropdown_menu = $('<ul class="dropdown-menu" />').appendTo(aLBtn_container);
-	// dropdown_menu.append('<li><a href="#">Copy</a></li>');
-	// dropdown_menu.append('<li><a href="#">Edit</a></li>');
-	// dropdown_menu.append('<li><a href="#">Delete</a></li>');
-	
-	// var aLBtn = [];
-	// if (DataTable_Init.aLBtn.copy) aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs aLBtn btn-info glyphicon glyphicon-duplicate" title="Copy" name="btn-copy" />');
-	// if (DataTable_Init.aLBtn.edit) aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs aLBtn btn-success glyphicon glyphicon-edit" title="Edit" name="btn-edit" />');
-	// if (DataTable_Init.aLBtn.delete) aLBtn.push('<button type="button" style="margin-right:5px;" class="btn btn-xs aLBtn btn-danger glyphicon glyphicon-trash" title="Delete" name="btn-delete" />');
-	/* Defining Right Button for Datatables */
-	var aRBtn = [];
-	$.each(DataTable_Init.aRBtn, function(i){
-		v = DataTable_Init.aRBtn[i];
-		aRBtn.push('<span><a href="#" class="aRBtn" data-pageid='+v.pageid+' data-subKey="'+v.subKey+'">'+v.title+'</a></span>');
-	});
-	/* Setup DataTables */
-	var right_column = [];
 	var left_column = [
 			{ width:"10px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render:function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
-			// { width:"90px", orderable:false, className:"dt-head-center dt-body-center", title:"Actions", render: function(data, type, row){ return aLBtn.join(""); } },
-			{ width:"10px", orderable:false, className:"dt-head-center dt-body-center", title:"", render: function(data, type, row){ return aLBtn_container.prop('outerHTML'); } },
+			{ width:"10px", orderable:false, className:"dt-head-center dt-body-center", title:"", render: function(data, type, row){ return act_menu_container.prop('outerHTML'); } },
 	];
-	if (aRBtn.length > 0) {
-		right_column = [
-				{ width: DataTable_Init.aRBtn_width, orderable:false, className:"dt-head-center dt-body-center", title:"Sub Menu", render:function(data, type, row){ return aRBtn.join("&nbsp;-&nbsp;"); } }
-		];
-	}
 	/* Create order params */
 	var $ob = '';
 	if (DataTable_Init.order)
@@ -144,7 +119,7 @@ function initDataTable()
 				}
 			}
 		},
-		"columns": left_column.concat(DataTable_Init.columns).concat(right_column),
+		"columns": left_column.concat(DataTable_Init.columns),
 		"order": [],
 		"fnDrawCallback": function( oSettings ) {
 			/* For Adding Tooltip to the "tr body datatables" */
@@ -186,35 +161,94 @@ function initDataTable()
 	initCheckList(tableData1, dataTable1);
 	/* Init ActionMenu for DataTable */
 	initActionMenu(tableData1, dataTable1);
-	/* For Left Button if Exists */
-	// tableData1.find('tbody').on( 'click', '.aLBtn', function (e) {
-		/* get selscted record from datatable */
-		// var data = dataTable1.row( $(e.target).closest('tr') ).data();
-		
-		// var $menu = initActionMenu();
-		// var pos = $.extend({}, $(e.target).position(), {height: $(e.target)[0].offsetHeight});
-		// var pos = $.extend({}, {top: $(e.target).offset().top}, {left: $(e.target).offset().left}, {height: $(e.target)[0].offsetHeight});
-		// console.log(pos);
-		// $menu
-			// .insertAfter($(e.target))
-			// .appendTo('body')
-			// .css({top: pos.top + pos.height, left: pos.left, position: 'absolute'})
-			// .css({top: pos.top + pos.height, left: pos.left})
-			// .show();
+}
 
+/* {* Don't change this code: Init for datatables action menu *} */
+function initActionMenu(tableData1, dataTable1)
+{
+	var data, shown;
+	var dropdown_menu = $('<ul class="dropdown-menu" />');
+	
+	/* Defining Action Menu */
+	if (DataTable_Init.act_menu.copy) dropdown_menu.append('<li><a href="#" name="copy"><span class="glyphicon glyphicon-duplicate"></span>Copy</a></li>');
+	if (DataTable_Init.act_menu.edit) dropdown_menu.append('<li><a href="#" name="edit"><span class="glyphicon glyphicon-edit"></span>Edit</a></li>');
+	if (DataTable_Init.act_menu.delete) dropdown_menu.append('<li><a href="#" name="delete"><span class="glyphicon glyphicon-remove"></span>Delete</a></li>');
+
+	/* Defining Additional Menu */
+	var add_menu = [];
+	$.each(DataTable_Init.add_menu, function(i){
+		v = DataTable_Init.add_menu[i];
+		add_menu.push('<li><a href="#" name="add-menu" data-name="'+v.name+'"><span class="glyphicon glyphicon-cog"></span>'+v.title+'</a></li>');
+	});
+	if (! isempty_arr(add_menu)) {
+		dropdown_menu.append('<li role="separator" class="divider"></li>');
+		dropdown_menu.append(add_menu);
+	}
+	
+	/* Defining Sub Menu */
+	var sub_menu = [];
+	$.each(DataTable_Init.sub_menu, function(i){
+		v = DataTable_Init.sub_menu[i];
+		sub_menu.push('<li><a href="#" name="sub-menu" data-pageid='+v.pageid+' data-subKey="'+v.subKey+'"><span class="glyphicon glyphicon-menu-hamburger"></span>'+v.title+'</a></li>');
+	});
+	if (! isempty_arr(sub_menu)) {
+		dropdown_menu.append('<li role="separator" class="divider"></li>');
+		dropdown_menu.append(sub_menu);
+	}
+
+	var $menu = dropdown_menu;
+	
+	$menu
+		.appendTo('body')
+		.find('a').on('click', function(e){
+			select($(this));
+			hide();
+		});
 		
-		/* switch($(e.target).attr('name')){
-			case 'btn-copy':
-				if (!confirm("Copy this data ?")) {
+	$(document).click(function() {
+		if (shown) hide();
+	});
+	
+	function toggle(e){
+		if (shown) 
+			hide()
+		else 
+			show(e);
+	}
+	
+	function show(e){
+		var top;
+		var pos = $.extend({}, {top: $(e.target).offset().top}, {left: $(e.target).offset().left}, {height: $(e.target)[0].offsetHeight}, {width: $(e.target)[0].offsetWidth});
+		if ((pos.top + pos.height + $menu.height()) > window.innerHeight) {
+			top = pos.top - pos.height - $menu.height() + 6;
+		} else {
+			top = pos.top + pos.height;
+		}
+		$menu
+			.css({top: top, left: pos.left, position: 'absolute'})
+			.show();
+		shown = true;
+	}
+	
+	function hide(){
+		$menu.hide();
+		shown = false;
+	}
+		
+	function select($el) 
+	{
+		switch($el.attr('name')){
+			case 'copy':
+				if (!confirm(lang_confirm_copy)) {
 					return false;
 				}
 				window.location.href = getURLOrigin()+window.location.search+"&action=cpy&id="+data.id;
 				break;
-			case 'btn-edit':
+			case 'edit':
 				window.location.href = getURLOrigin()+window.location.search+"&action=edt&id="+data.id;
 				break;
-			case 'btn-delete':
-				if (!confirm("Are you sure want to delete this record ?")) {
+			case 'delete':
+				if (!confirm(lang_confirm_delete)) {
 					return false;
 				}
 				$.ajax({ url: $url_module+"?id="+data.id, method: "DELETE", async: true, dataType: 'json',
@@ -233,97 +267,31 @@ function initDataTable()
 					}
 				});
 				break;
-		} */
-	// });
-	
-	/* For Right Button if Exists */
-	tableData1.find('tbody').on( 'click', '.aRBtn', function () {
-		var data = dataTable1.row( $(this).parents('tr') ).data();
-		
-		/* Set Main Title & code_name to Cookies */
-		$pageid = '?pageid='+$pageid+','+$(this).attr('data-pageid');
-		if ($filter){
-			$filter = '&filter='+$filter+','+$(this).attr('data-subKey') + '=' + data.id;
-		} else {
-			$filter = '&filter='+$(this).attr('data-subKey') + '=' + data.id;
+			case 'add-menu':
+				window[$el.attr('data-name')](data);
+				break;
+			case 'sub-menu':
+				/* Set Main Title & code_name to Cookies */
+				$pageid = '?pageid='+$pageid+','+$el.attr('data-pageid');
+				if ($filter){
+					$filter = '&filter='+$filter+','+$el.attr('data-subKey') + '=' + data.id;
+				} else {
+					$filter = '&filter='+$el.attr('data-subKey') + '=' + data.id;
+				}
+				var url = $BASE_URL+"systems/x_page"+$pageid+$filter;
+				window.location.href = url;
+				break;
 		}
-		var url = $BASE_URL+"systems/x_page"+$pageid+$filter;
-		window.location.href = url;
-	});
+	}
 		
-}
-
-/* {* Don't change this code: Init for datatables action menu *} */
-function initActionMenu(tableData1, dataTable1)
-{
-	// var container = $('<div class="btn-group" />');
-	// container.append($('<button type="button" class="btn btn-xs aLBtn btn-info glyphicon glyphicon-chevron-down dropdown-toggle" data-toggle="dropdown" title="Menu" name="btn-menu" />'));
-	var dropdown_menu = $('<ul class="dropdown-menu" />');
-	if (DataTable_Init.aLBtn.copy) dropdown_menu.append('<li><a href="#" name="copy">Copy</a></li>');
-	if (DataTable_Init.aLBtn.edit) dropdown_menu.append('<li><a href="#" name="edit">Edit</a></li>');
-	if (DataTable_Init.aLBtn.delete) dropdown_menu.append('<li><a href="#" name="delete">Delete</a></li>');
-	
-	tableData1.find('tbody').on( 'click', '.aLBtn', function (e) {
-		/* get selscted record from datatable */
-		// var data = dataTable1.row( $(e.target).closest('tr') ).data();
+	tableData1.find('tbody').on( 'click', '.action-menu', function (e) {
+		e.stopPropagation(); 
+		/* get selected record from datatable */
+		data = dataTable1.row( $(e.target).closest('tr') ).data();
 		
-		var $menu = dropdown_menu;
-		// var pos = $.extend({}, $(e.target).position(), {height: $(e.target)[0].offsetHeight});
-		var pos = $.extend({}, {top: $(e.target).offset().top}, {left: $(e.target).offset().left}, {height: $(e.target)[0].offsetHeight});
-		console.log(pos);
-		$menu
-			// .insertAfter($(e.target))
-			.appendTo('body')
-			.css({top: pos.top + pos.height, left: pos.left, position: 'absolute'})
-			// .css({top: pos.top + pos.height, left: pos.left})
-			.show();
-
-		$menu.find('a')
-			.on('click', function(e){
-				select($(this));
-				hide();
-			});
+		toggle(e);
 		
-		function select($el) 
-		{
-			switch($el.attr('name')){
-				case 'copy':
-					console.log('aaaaa');
-					if (!confirm("Copy this data ?")) {
-						return false;
-					}
-					window.location.href = getURLOrigin()+window.location.search+"&action=cpy&id="+data.id;
-					break;
-				case 'edit':
-					window.location.href = getURLOrigin()+window.location.search+"&action=edt&id="+data.id;
-					break;
-				case 'delete':
-					if (!confirm("Are you sure want to delete this record ?")) {
-						return false;
-					}
-					$.ajax({ url: $url_module+"?id="+data.id, method: "DELETE", async: true, dataType: 'json',
-						success: function(data) {
-							dataTable1.ajax.reload( null, false );
-							BootstrapDialog.alert(data.message);
-						},
-						error: function(data) {
-							if (data.status==500){
-								var message = data.statusText;
-							} else {
-								var error = JSON.parse(data.responseText);
-								var message = error.message;
-							}
-							BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
-						}
-					});
-					break;
-			}
-		}
-		
-		function hide()
-		{
-			$menu.hide();
-		}
+    return false;
 	});
 }
 
@@ -390,68 +358,6 @@ function initCheckList(tableData1, dataTable1){
 	});
 };
 
-$(document).ready(function(){
-	
-/* $('.table-responsive').on('show.bs.dropdown', function () {
-	console.log('aaaa');
-	$('.table-responsive').css( "overflow", "inherit" );
-});
-
-$('.table-responsive').on('hide.bs.dropdown', function () {
-	$('.table-responsive').css( "overflow", "auto" );
-}) */
-
-	// $('button[name="btn-menu"]').on('click', function () {
-		// console.log($(this));
-	// });
-    /* $('.dropdown-menu').parent().on('show.bs.dropdown', function () {
-				console.log($(this));
-        var parentResponsiveTable = $(this).parents('.table-responsive');
-        var parentTarget = $(parentResponsiveTable).first().hasClass('table-responsive') ? $(parentResponsiveTable) : $(window);
-        var parentTop = $(parentResponsiveTable).first().hasClass('table-responsive') ? $(parentResponsiveTable).offset().top : 0;
-        var parentLeft = $(parentResponsiveTable).first().hasClass('table-responsive') ? $(parentResponsiveTable).offset().left : 0;
-
-        var dropdownMenu = $(this).children('.dropdown-menu').first();
-
-        if (!$(this).hasClass('dropdown') && !$(this).hasClass('dropup')) {
-            $(this).addClass('dropdown');
-        }
-        $(this).attr('olddrop', $(this).hasClass('dropup') ? 'dropup' : 'dropdown');
-        $(this).children('.dropdown-menu').each(function () {
-            $(this).attr('olddrop-pull', $(this).hasClass('dropdown-menu-right') ? 'dropdown-menu-right' : '');
-        });
-
-        if ($(this).hasClass('dropdown')) {
-            if ($(this).offset().top + $(this).height() + $(dropdownMenu).height() + 10 >= parentTop + $(parentTarget).height()) {
-                $(this).removeClass('dropdown');
-                $(this).addClass('dropup');
-            }
-        } else if ($(this).hasClass('dropup')) {
-            if ($(this).offset().top - $(dropdownMenu).height() - 10 <= parentTop) {
-                $(this).removeClass('dropup');
-                $(this).addClass('dropdown');
-            }
-        }
-
-        if ($(this).offset().left + $(dropdownMenu).width() >= parentLeft + $(parentTarget).width()) {
-            $(this).children('.dropdown-menu').addClass('dropdown-menu-right');
-        }
-    }); */
-
-    /* $('.dropdown-menu').parent().on('hide.bs.dropdown', function () {
-        if ($(this).attr('olddrop') != '') {
-            $(this).removeClass('dropup dropdown');
-            $(this).addClass($(this).attr('olddrop'));
-            $(this).attr('olddrop', '');
-        }
-
-        $(this).children('.dropdown-menu').each(function () {
-            $(this).removeClass('dropdown-menu-right');
-            $(this).addClass($(this).attr('olddrop-pull'));
-        });
-    }); */
-});
-
 /* ========================================= */
 /* Default init for Header									 */
 /* ========================================= */
@@ -486,7 +392,7 @@ $('.toolbar_container').click('button', function(e){
 		case 'btn-viewlog':
 			var data = dataTable1.rows('.selected').data();
 			if (data.count() < 1 || data.count() > 1){
-				BootstrapDialog.alert('Please chosed one record !');
+				BootstrapDialog.alert(lang_notif_choose_record);
 				return false;
 			}
 			$.getJSON($url_module, { viewlog:1, pageid:$pageid, id:data[0].id }, function(result){ 
@@ -531,11 +437,11 @@ $('.toolbar_container').click('button', function(e){
 		case 'btn-delete':
 			var data = dataTable1.rows('.selected').data();
 			if (data.count() < 1){
-				BootstrapDialog.alert('Please chosed the record !');
+				BootstrapDialog.alert(lang_notif_choose_record);
 				return false;
 			}
 			var tblConfirm = BSHelper.Table({
-					data: data,	rowno: true, showheader: true, maxrows: 3, isConfirm: true,
+					data: data,	rowno: true, showheader: true, maxrows: 3, isConfirm: true, title: lang_confirm_delete,
 					columns:[
 						{ data:"name"					,title:"Name" },
 						{ data:"description"	,title:"Description" },

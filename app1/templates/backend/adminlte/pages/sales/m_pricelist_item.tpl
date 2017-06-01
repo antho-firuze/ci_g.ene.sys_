@@ -26,9 +26,8 @@
 	var DataTable_Init = {
 		enable: true,
 		tooltips: true,
-		aLBtn: { copy: true, edit: true, delete: true },
-		aRBtn: [],
-		aRBtn_width: '100px',
+		act_menu: { copy: true, edit: true, delete: true },
+		sub_menu: [],
 		order: ['id desc'],
 		columns: [
 			{ width:"150px", orderable:false, data:"pricelist_name", title:"Price List" },

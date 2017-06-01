@@ -15,17 +15,16 @@
 	var Toolbar_Init = {
 		enable: true,
 		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process'],
-		disableBtn: ['btn-copy','btn-message','btn-print','btn-import','btn-process'],
-		hiddenBtn: ['btn-copy','btn-message','btn-print','btn-import'],
+		disableBtn: ['btn-copy','btn-message','btn-process'],
+		hiddenBtn: ['btn-copy','btn-message'],
 		processMenu: [{ id:"btn-process1", title:"Process 1" }, { id:"btn-process2", title:"Process 2" }, ],
 		processMenuDisable: ['btn-process1'],
 	};
 	{* DataTable Init *}
 	var DataTable_Init = {
 		enable: true,
-		aLBtn: { copy: true, edit: true, delete: true },
-		aRBtn: [],
-		aRBtn_width: '100px',
+		act_menu: { copy: true, edit: true, delete: true },
+		sub_menu: [],
 		columns: [
 			{ width:"130px", orderable:false, data:"code_name", title:"Name" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },

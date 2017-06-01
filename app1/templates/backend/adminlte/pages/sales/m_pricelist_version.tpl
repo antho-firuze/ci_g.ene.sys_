@@ -15,8 +15,8 @@
 	var Toolbar_Init = {
 		enable: true,
 		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process'],
-		disableBtn: ['btn-copy','btn-message','btn-print','btn-import','btn-process'],
-		hiddenBtn: ['btn-copy','btn-message','btn-print','btn-import'],
+		disableBtn: ['btn-copy','btn-message','btn-process'],
+		hiddenBtn: ['btn-copy','btn-message'],
 		processMenu: [{ id:"btn-process1", title:"btn-process1" }, ],
 		processMenuDisable: [],
 	};
@@ -24,11 +24,10 @@
 	var DataTable_Init = {
 		enable: true,
 		tooltips: true,
-		aLBtn: { copy: true, edit: true, delete: true },
-		aRBtn: [
+		act_menu: { copy: true, edit: true, delete: true },
+		sub_menu: [
 			{ pageid: 52, subKey: 'pricelist_version_id', title: 'View Items', },
 		],
-		aRBtn_width: '100px',
 		order: ['id desc'],
 		columns: [
 			{ width:"150px", orderable:false, data:"pricelist_name", title:"Price List" },

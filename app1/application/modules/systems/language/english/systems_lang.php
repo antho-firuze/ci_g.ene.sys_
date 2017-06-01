@@ -13,12 +13,14 @@
 *				- Base on Window
 *
 */
-
+/* Notification */
+$lang['notif_choose_record'] 		= 'Please chosed the record !';
 /* PERMISSION */
 $lang['permission_failed_menu'] = 'You don\'t have permission to access this menu !';
 $lang['permission_failed_crud'] = 'You don\'t have permission to do this action !';
 /* CRUD */
-$lang['confirm_delete'] 		= 'Are you sure you want to delete this record ?';
+$lang['confirm_copy'] 		= 'Are you want copy this record ?';
+$lang['confirm_delete'] 		= 'Are you sure want to delete this record ?';
 $lang['success_delete'] 		= 'Deleting Data Successfully !';
 $lang['success_update'] 		= 'Updating Data Successfully !';
 $lang['success_saving'] 		= 'Saving Data Successfully !';
@@ -66,3 +68,7 @@ $lang['error_file_not_exists']  = 'Error: The file does not exist. Please check 
 $lang['error_wrong_file_xls']   = 'Error: Wrong file excel !. The fields is not same with the table.';
 $lang['error_due_date']   		= 'Error: Due date is coincide with holidays. Please change the due date !';
 $lang['error_add_currency_rate'] = 'Error: This Currency has already exists on database. <br>Use Edit/Update for changing the Rates !';
+
+/* Reset Login Attempt */
+$lang['confirm_rla'] 		= 'Are you sure want to [Reset Login Attempt] this record ?';
+$lang['success_rla'] 		= 'Login attempt has been cleared !';

@@ -5,6 +5,15 @@ include 'email_helper.php';
 include 'sequence_helper.php';
 include 'spelled_out_helper.php';
 
+if ( ! function_exists('lang'))
+{
+	function lang($str)
+	{
+		$ci = &get_instance();
+		return $ci->lang->line($str);
+	}
+}
+
 if ( ! function_exists('run_shell'))
 {
 	function run_shell($cmd)

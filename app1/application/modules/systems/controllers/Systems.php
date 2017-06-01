@@ -476,7 +476,8 @@ class Systems extends Getmeb
 			if (! $this->deleteRecords('a_loginattempt', $this->params->id, TRUE))
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+				// $this->xresponse(TRUE, ['message' => $this->messages()]);
+				$this->xresponse(TRUE, ['message' => $this->lang->line('success_rla')]);
 		}
 	}
 	

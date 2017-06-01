@@ -16,16 +16,17 @@
 		enable: true,
 		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process'],
 		disableBtn: ['btn-copy','btn-message','btn-print','btn-import'],
-		hiddenBtn: ['btn-copy','btn-message','btn-print','btn-import'],
+		hiddenBtn: ['btn-copy','btn-message'],
 		processMenu: [{ id:"btn-process1", pageid: 45, title:"Copy Menu From Role..." }, ],
 		processMenuDisable: [],
 	};
+	if ("{$is_canimport}" == "0") Toolbar_Init.disableBtn.push('btn-import');
+	if ("{$is_canexport}" == "0") Toolbar_Init.disableBtn.push('btn-export');
 	{* DataTable Init *}
 	var DataTable_Init = {
 		enable: true,
-		aLBtn: { copy: false, edit: true, delete: true },
-		aRBtn: [],
-		aRBtn_width: '100px',
+		act_menu: { copy: false, edit: true, delete: true },
+		sub_menu: [],
 		order: ['id desc'],
 		columns: [
 			{ width:"150px", orderable:false, data:"code_name", title:"Menu" },

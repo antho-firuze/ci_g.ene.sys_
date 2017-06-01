@@ -41,6 +41,10 @@
 	var $BASE_URL = '{$.php.base_url()}';
 	var $APPS_LNK = '{$.const.APPS_LNK}';
 	var $TEMPLATE_URL = '{$.const.TEMPLATE_URL}';
+	{* Defined Language *}
+	var lang_confirm_delete = "{$.php.lang('confirm_delete')}";
+	var lang_confirm_copy = "{$.php.lang('confirm_copy')}";
+	var lang_notif_choose_record = "{$.php.lang('notif_choose_record')}";
 	store($skin, "{$.session.skin !: 'skin-purple'}");
 	store($sidebar, "{$.session.sidebar !: ''}");
 	store($screen_timeout, "{$.session.screen_timeout !: 60000}");
