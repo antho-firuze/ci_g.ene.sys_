@@ -152,9 +152,18 @@ $( document ).ready(function() {
 			$.ajax({ url: $url_module, method: r_method, async: true, dataType:'json',
 				data: form.serializeJSON(),
 				success: function(data) {
-					BootstrapDialog.alert(data.message, function(){
-						window.history.back();
+					
+					BootstrapDialog.show({ message:data.message, closable: false,
+						buttons: [{ label: 'OK', hotkey: 13, 
+							action: function(dialogRef) {
+								window.history.back();
+							} 
+						}],
 					});
+					// var dialog = BootstrapDialog.alert(data.message, function(){
+						// window.history.back();
+					// });
+					// setInterval(function(){ $('#'+dialog.getButtons()[0].id).focus(); },100);
 				},
 				error: function(data) {
 					if (data.status==500){

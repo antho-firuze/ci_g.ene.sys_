@@ -103,12 +103,13 @@ class Base_Model extends CI_Model
 	* @return object
 	* @author antho.firuze@gmail.com
 	*/
-	function mget_rec($params = NULL)
+	function mget_rec($params = NULL, $counter = FALSE)
 	{
 		$this->db->select($params['select']);
 		$this->db->from($params['table']);
 		if ( key_exists('join', $params)) DBX::join($this, $params['join']);
 		if ( key_exists('where', $params)) $this->db->where($params['where']);
+		if ( key_exists('where_custom', $params)) $this->db->where($params['where_custom']);
 		if ( key_exists('like', $params)) $this->db->where($params['like']);
 		if ( key_exists('sort', $params)) $this->db->order_by($params['sort'], $params['order']);
 		// if ( key_exists('ob', $params)) 	$this->db->order_by($params['ob']);
@@ -123,6 +124,15 @@ class Base_Model extends CI_Model
 					$this->db->where($value);
 				}
 			}
+		}
+		
+		if ($counter){
+			if (! $query = $this->db->get() ){
+				// $this->db->error(); // Has keys 'code' and 'message'
+				$this->set_error($this->db->error()['message']);
+				return FALSE;
+			} 
+			return ($query->num_rows() > 0) ? $query->num_rows() : 0;
 		}
 		
 		/* &ob=field1,field2,field3... */
@@ -176,20 +186,20 @@ class Base_Model extends CI_Model
 			return $result;
 		} 
 		
-		$response['total'] = $this->mget_rec_count($params);
+		$response['total'] = $this->mget_rec($params, TRUE);
 		$response['rows']  = $result;
 		return $response;
 	}
 	
-	function mget_rec_count($params = NULL)
+	/* function mget_rec_count($params = NULL)
 	{
 		$this->db->select($params['select']);
 		$this->db->from($params['table']);
 		if ( key_exists('join', $params)) DBX::join($this, $params['join']);
 		if ( key_exists('where', $params)) $this->db->where($params['where']);
+		if ( key_exists('where_custom', $params)) $this->db->where($params['where_custom']);
 		if ( key_exists('like', $params)) $this->db->where($params['like']);
 
-		/* &filter=field1=value1,field2=value2... */
 		if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
 			$array = explode(",", $this->params['filter']);
 			if (!empty($array)) {
@@ -207,7 +217,7 @@ class Base_Model extends CI_Model
 			return FALSE;
 		} 
 		return ($query->num_rows() > 0) ? $query->num_rows() : 0;
-	}
+	} */
 	
 	/**
 	 * getValue

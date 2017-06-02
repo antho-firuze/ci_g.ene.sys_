@@ -155,7 +155,7 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_sorder_dt($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name";
 		$params['table'] 	= "cf_order_dt as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);

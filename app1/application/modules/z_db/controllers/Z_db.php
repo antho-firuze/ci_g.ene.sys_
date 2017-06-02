@@ -105,8 +105,13 @@ class Z_db extends CI_Controller {
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
 		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['pricelist_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		
+		$fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -117,6 +122,7 @@ class Z_db extends CI_Controller {
 		$fields['item_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['itemcat_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['measure_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['pricelist_version_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['item_code'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];

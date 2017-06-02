@@ -32,15 +32,9 @@
 		],
 		columns: [
 			{ width:"25px", orderable:false, data:"seq", title:"Line" },
-			{ width:"100px", orderable:false, data:"itemcat_name", title:"Item Category" },
-			{* { width:"100px", orderable:false, data:"item_code", title:"Item Code" }, *}
-			{* { width:"100px", orderable:false, data:"item_name", title:"Item Name" }, *}
-			{* { width:"100px", orderable:false, data:"item_size", title:"Item Size" }, *}
-			{* { width:"40px", orderable:false, data:"qty", title:"Qty" }, *}
-			{* { width:"100px", orderable:false, data:"price", title:"Price" }, *}
-			{ width:"100px", orderable:false, data:"sub_amt", title:"Sub Amount" },
-			{ width:"100px", orderable:false, data:"vat_amt", title:"VAT Amount" },
-			{ width:"100px", orderable:false, data:"ttl_amt", title:"Total Amount" },
+			{ width:"100px", orderable:false, data:"doc_date", title:"Doc Date" },
+			{ width:"100px", orderable:false, data:"amount", title:"Amount" },
+			{ width:"250px", orderable:false, data:"note", title:"Note" },
 		],
 	};
 	

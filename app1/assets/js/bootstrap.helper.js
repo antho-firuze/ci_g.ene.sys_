@@ -292,6 +292,10 @@
 			case 'text':
 				input.attr('placeholder',(o.placeholder) ? o.placeholder : 'string(60)');
 				input.attr('type',o.type);
+				if (o.format) {
+					input.attr('data-inputmask',o.format);
+				}
+				input.attr('data-mask','');
 				break;
 			case 'number':
 				if (o.step) input.attr('step',o.step);		
@@ -337,6 +341,7 @@
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
 		if (o.onfocus) input.attr('onfocus',o.onfocus);
+		if (o.onchange) input.attr('onchange',o.onchange);
 		if (o.minlength) input.attr('data-minlength',o.minlength);
 		if (o.idmatch) input.attr('data-match','#'+o.idmatch);
 		if (o.errormatch) input.attr('data-match-error',o.errormatch);

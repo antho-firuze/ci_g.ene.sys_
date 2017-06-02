@@ -195,6 +195,23 @@ class Sales extends Getmeb
 		}
 	}
 	
+	function m_pricelist_item_list()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+
+			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+	
 	function e_pl_swg_dimension()
 	{
 		if ($this->r_method == 'GET') {
