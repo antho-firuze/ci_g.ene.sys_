@@ -25,7 +25,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_charge_dt($params)
+	function cf_charge_line($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= $this->c_table." as t1";
@@ -57,10 +57,10 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_sinout_dt($params)
+	function cf_sinout_line($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= "cf_inout_dt as t1";
+		$params['table'] 	= "cf_inout_line as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -73,10 +73,10 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_pinout_dt($params)
+	function cf_pinout_line($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= "cf_inout_dt as t1";
+		$params['table'] 	= "cf_inout_line as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -89,10 +89,10 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_sinvoice_dt($params)
+	function cf_sinvoice_line($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= "cf_invoice_dt as t1";
+		$params['table'] 	= "cf_invoice_line as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -113,10 +113,10 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_pinvoice_dt($params)
+	function cf_pinvoice_line($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= "cf_invoice_dt as t1";
+		$params['table'] 	= "cf_invoice_line as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -137,7 +137,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_movement_dt($params)
+	function cf_movement_line($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= $this->c_table." as t1";
@@ -153,10 +153,10 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_sorder_dt($params)
+	function cf_sorder_line($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name";
-		$params['table'] 	= "cf_order_dt as t1";
+		$params['table'] 	= "cf_order_line as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -177,10 +177,10 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_porder_dt($params)
+	function cf_porder_line($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= "cf_order_dt as t1";
+		$params['table'] 	= "cf_order_line as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -217,7 +217,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_request_dt($params)
+	function cf_request_line($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= $this->c_table." as t1";
@@ -241,12 +241,27 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_requisition_dt($params)
+	function cf_requisition_line($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= $this->c_table." as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_order_update_summary($params)
+	{
+		$params = is_array($params) ? (object) $params : $params;
+		$id = isset($params->order_id) ? 'where t1.id = '.$params->order_id : '';
+		$str = "update cf_order t1 set (sub_total, vat_total, grand_total) = 
+						(
+							select sum(sub_amt), sum(vat_amt), sum(ttl_amt) from cf_order_line t2 
+							where t2.is_active = '1' and t2.is_deleted = '0' and t2.order_id = t1.id
+						)
+						$id";
+		// $result = $this->db->query($str);
+		// debug($result);
+		return $this->db->query($str);
 	}
 	
 }

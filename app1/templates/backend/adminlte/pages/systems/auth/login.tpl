@@ -108,19 +108,24 @@
 		e.preventDefault();
 		var rememberme = $("[name='remember']").prop('checked') ? 1 : 0;
 		
+		form.find('[type="submit"]').attr("disabled", "disabled");
+		
 		$.ajax({ url:"{$.const.AUTH_LNK}?login=1", method:"GET", async:true, dataType:'json',
 			headers: { "X-AUTH": "Basic " + btoa($("[name='username']").val() + ":" + $("[name='password']").val()) },
 			data: { "rememberme":rememberme },
-			beforeSend: function(xhr) { form.find('[type="submit"]').attr("disabled", "disabled"); },
-			complete: function(xhr, data) {	setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled");	},1000); },
+			{* beforeSend: function(xhr) { form.find('[type="submit"]').attr("disabled", "disabled"); }, *}
+			{* complete: function(xhr, data) {	setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled");	},1000); }, *}
 			success: function(data) {
+				alert("Login success !");
 				if (data.status) {
 					store('lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}', 0);
 					var url = "{$.session.referred_index !: $.const.APPS_LNK}";
-					window.location.replace(url);
+					{* window.location.replace(url); *}
+					window.location = url;
 				}
 			},
 			error: function(data, status, errThrown) {
+				alert("Login error !");
 				setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled"); },1000);
 				if (data.status==500){
 					var message = data.statusText;

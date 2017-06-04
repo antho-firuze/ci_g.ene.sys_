@@ -38,7 +38,8 @@ class Systems_Model extends CI_model
 		$data['status'] = $status;
 
 		$data['ip_address'] = $_SERVER['REMOTE_ADDR'];
-		if (!in_array($data['ip_address'], ['::1','127.0.0.1'])) {
+		// if (! in_array($data['ip_address'], ['::1','127.0.0.1'])) {
+		if (filter_var($data['ip_address'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
 			$this->load->library('z_libs/IPAPI');
 			$query = IPAPI::query($data['ip_address']);
 			$data['country'] = $query->country;

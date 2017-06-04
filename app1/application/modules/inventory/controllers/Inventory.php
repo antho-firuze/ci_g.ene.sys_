@@ -9,8 +9,6 @@ class Inventory extends Getmeb
 		$this->exception_method = [];
 		parent::__construct();
 		
-		$this->mdl = strtolower(get_class($this)).'_model';
-		$this->load->model($this->mdl);
 	}
 	
 	function m_item()

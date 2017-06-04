@@ -12,7 +12,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/inputmask.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/inputmask.numeric.extensions.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/jquery.inputmask.js"></script>
-{* <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script> *}
+<script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $bread = {$.php.json_encode($bread)};
 	{* For design form interface *}
@@ -27,8 +27,8 @@
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Item Size", idname:"item_size", required: false, })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"number", label:"Unit Price", idname:"price", required: false, value: 0, })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"number", label:"Quantity", idname:"qty", required: false, value: 1 })); *}
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Sub Amount", idname:"sub_amt", format: format_currency, required: false, value: 0, onchange:"calculate_amount()", }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"VAT Amount", idname:"vat_amt", format: format_currency, required: false, value: 0, onchange:"calculate_amount()", }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Sub Amount", idname:"sub_amt", format: format_currency, pattern: "^(0|[1-9][0-9]*)$*", required: false, value: 0, onchange:"calculate_amount()", }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"VAT Amount", idname:"vat_amt", format: format_currency, pattern: "^(0|[1-9][0-9]*)$*", required: false, value: 0, onchange:"calculate_amount()", }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Total Amount", idname:"ttl_amt", format: format_currency, required: false, value: 0, readonly: true, }));
 	row.push(subCol(6, col)); col = [];
 	row.push(subCol(6, col)); col = [];

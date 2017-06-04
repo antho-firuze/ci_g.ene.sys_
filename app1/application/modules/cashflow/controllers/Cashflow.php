@@ -7,10 +7,8 @@ class Cashflow extends Getmeb
 	function __construct() {
 		/* Exeption list methods is not required login */
 		$this->exception_method = [];
-		parent::__construct();
+		parent::__construct();	
 		
-		$this->mdl = strtolower(get_class($this)).'_model';
-		$this->load->model($this->mdl);
 	}
 	
 	function cf_account()
@@ -53,7 +51,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_charge_dt()
+	function cf_charge_line()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -134,7 +132,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_sinout_dt()
+	function cf_sinout_line()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -175,7 +173,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_pinout_dt()
+	function cf_pinout_line()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -216,7 +214,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_sinvoice_dt()
+	function cf_sinvoice_line()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -277,7 +275,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_pinvoice_dt()
+	function cf_pinvoice_line()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -337,7 +335,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_movement_dt()
+	function cf_movement_line()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -393,10 +391,15 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_sorder_dt()
+	function cf_sorder_line()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
+				$result = $this->base_model->getValueArray('sub_total, vat_total, grand_total', 'cf_order', 'id',$this->params['order_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -419,11 +422,22 @@ class Cashflow extends Getmeb
 			
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-
+			
+			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
+			
+			$this->{$this->mdl}->cf_order_update_summary($this->params);
+			
 			if ($this->r_method == 'POST')
 				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
+				
+				$this->{$this->mdl}->cf_order_update_summary($this->params);
+			}
 		}
 	}
 	
@@ -468,7 +482,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_porder_dt()
+	function cf_porder_line()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -568,7 +582,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_request_dt()
+	function cf_request_line()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -628,7 +642,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_requisition_dt()
+	function cf_requisition_line()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);

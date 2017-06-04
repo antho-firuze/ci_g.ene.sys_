@@ -3,7 +3,7 @@
 	<!-- Main content -->
 	<section class="content">
 		<!-- /.row -->
-		<div class="box box-body table-responsive no-padding"></div>
+		<div class="box box-body datagrid table-responsive no-padding"></div>
 		<!-- /.box -->
 	</section>
 	<!-- /.content -->

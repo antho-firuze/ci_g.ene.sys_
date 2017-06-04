@@ -89,7 +89,7 @@ function initDataTable()
 	
 	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="width:100%; table-layout:fixed; word-wrap:break-word; margin:0px !important;" />');
 	
-	$('.box-body').append( tableData1 );
+	$('div.datagrid').append( tableData1 );
 	
 	/* Defining Left Button for Datatables */
 	var act_menu_container = $('<div class="dropdown" />');
@@ -142,6 +142,17 @@ function initDataTable()
 				$(this).attr('title', title);
 			});
 		},
+		/* "footerCallback": function ( row, data, start, end, display ) {
+			if (typeof DataTable_Init.footerCallback !== 'undefined')
+				DataTable_Init.footerCallback( row, data, start, end, display );
+		}, */
+		/* "footerCallback": function ( row, data, start, end, display ) {
+			var api = this.api(), data;
+			console.log($( api.column( 4 ).footer() ));
+			$( api.column( 4 ).footer() ).html(
+					'123456789'
+			);
+		}, */
 	})
 	.search($q ? $q : '');
 
@@ -153,8 +164,8 @@ function initDataTable()
 		history.pushState({}, '', origin_url +'?'+ $url);
 	});		
 	
-	$('div.dataTables_wrapper').find('div.row:first').insertBefore('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_filter');
-	$('div.dataTables_wrapper').find('div.row:last').insertAfter('div.box-body').addClass('dataTables_wrapper').addClass('dataTables_paginate');
+	$('div.dataTables_wrapper').find('div.row:first').insertBefore('div.datagrid').addClass('dataTables_wrapper').addClass('dataTables_filter');
+	$('div.dataTables_wrapper').find('div.row:last').insertAfter('div.datagrid').addClass('dataTables_wrapper').addClass('dataTables_paginate');
 	$('div.box').css('margin-bottom','10px');
 	
 	/* Init Checklist for DataTable */

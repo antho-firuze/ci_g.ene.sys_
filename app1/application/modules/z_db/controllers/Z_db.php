@@ -50,16 +50,15 @@ class Z_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_a_changelog()
+	function table_a_activity_log()
 	{
-		$fields = $this->field_00_Main();
-		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
-		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
+		$fields['client_id'] 	= ['type' => 'INT', 'constraint' => '32', 'default' => 0];
+		$fields['org_id'] 		= ['type' => 'INT', 'constraint' => '32', 'default' => 0];
+		$fields['method'] = ['type' => 'VARCHAR', 'constraint' => '12', 'null' => TRUE];
 		$fields['table_name'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
 		$fields['record_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['column_name'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
-		$fields['method'] = ['type' => 'VARCHAR', 'constraint' => '12', 'null' => TRUE];
 		$fields['old_value'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
 		$fields['new_value'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
 		$fields['trxname'] = ['type' => 'TEXT', 'null' => TRUE];
@@ -115,7 +114,7 @@ class Z_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_cf_order_dt()
+	function table_cf_order_line()
 	{
 		$fields = $this->field_00_Main();
 		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -192,7 +191,7 @@ class Z_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_cf_inout_dt()
+	function table_cf_inout_line()
 	{
 		$fields = $this->field_00_Main();
 		$fields['inout_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -231,10 +230,14 @@ class Z_db extends CI_Controller {
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
+		
+		$fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		return $fields;
 	}
 	
-	function table_cf_invoice_dt()
+	function table_cf_invoice_line()
 	{
 		$fields = $this->field_00_Main();
 		$fields['invoice_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -282,10 +285,14 @@ class Z_db extends CI_Controller {
 		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		
+		$fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		return $fields;
 	}
 	
-	function table_cf_charge_dt()
+	function table_cf_charge_line()
 	{
 		$fields = $this->field_00_Main();
 		$fields['charge_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -340,7 +347,7 @@ class Z_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_cf_request_dt()
+	function table_cf_request_line()
 	{
 		$fields = $this->field_00_Main();
 		$fields['request_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -380,7 +387,7 @@ class Z_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_cf_requisition_dt()
+	function table_cf_requisition_line()
 	{
 		$fields = $this->field_00_Main();
 		$fields['requisition_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -422,7 +429,7 @@ class Z_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_cf_movement_dt()
+	function table_cf_movement_line()
 	{
 		$fields = $this->field_00_Main();
 		$fields['movement_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];

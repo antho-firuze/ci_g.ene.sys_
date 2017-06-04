@@ -41,7 +41,6 @@ class Getmeb extends CI_Controller
 	public $imported_fields = [];		// ['code','name','description']
 	/* FOR VALIDATE IDENTITY FIELDS TO MASTER TABLE */
 	public $validations = [];				// ['user_id' => 'a_user', 'item_id' => 'm_item']
-	
 	/* ========================================= */
 	/* This variable for UPLOAD & DOWNLOAD files */
 	/* ========================================= */
@@ -56,6 +55,10 @@ class Getmeb extends CI_Controller
 		parent::__construct();
 		$this->r_method = $_SERVER['REQUEST_METHOD'];
 		$this->c_method = $this->uri->segment(2);
+		
+		/* Load models */
+		$this->mdl = strtolower(get_class($this)).'_model';
+		$this->load->model($this->mdl);
 		
 		/* Defined for template */
 		define('ASSET_URL', base_url().'/assets/');
@@ -89,7 +92,6 @@ class Getmeb extends CI_Controller
 			// /* Check permission in the role */
 			// $this->_check_is_allow_inrole('canexport');
 		// }
-
 
 		/* This process is running before checking request method */
 		$this->_check_is_login();
@@ -148,7 +150,18 @@ class Getmeb extends CI_Controller
 
 			/* Become Array */
 			$this->params = $this->input->get();
-			if (! $this->deleteRecords($this->c_table, $this->params['id']))
+			
+			/* Trigger events before delete */
+			$this->params['event'] = 'pre_delete';
+			$this->{$this->c_method}();
+			
+			$result = $this->deleteRecords($this->c_table, $this->params['id']);
+			
+			/* Trigger events after delete */
+			$this->params['event'] = 'post_delete';
+			$this->{$this->c_method}();
+			
+			if (!$result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				$this->xresponse(TRUE, ['message' => $this->messages()]);

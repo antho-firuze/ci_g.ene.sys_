@@ -9,8 +9,6 @@ class Systems extends Getmeb
 		$this->exception_method = ['x_auth','x_forgot','x_login','x_logout','x_reload'];
 		parent::__construct();
 		
-		$this->mdl = strtolower(get_class($this)).'_model';
-		$this->load->model($this->mdl);
 	}
 	
 	function index()
@@ -152,12 +150,17 @@ class Systems extends Getmeb
 		/* This line for authentication login page */
 		if (isset($this->params['login']) && $this->params['login']) {
 			$http_auth 	= $this->input->server('HTTP_X_AUTH');
+			// debug(filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE));
+			// debug($_SERVER['REMOTE_ADDR'].'-'.$_SERVER['SERVER_ADDR']);
 			if ($http_auth !== NULL)
 			{
 				if (strpos(strtolower($http_auth), 'basic') === 0)
 				{
 					list($username, $password) = explode(':', base64_decode(substr($http_auth, 6)));
 				}
+			} else {
+				$username = $_SERVER['PHP_AUTH_USER'];
+				$password = $_SERVER['PHP_AUTH_PW'];
 			}
 
 			$rememberme = isset($this->params['rememberme']) && $this->params['rememberme'] ? TRUE : FALSE;
@@ -175,7 +178,7 @@ class Systems extends Getmeb
 			/* Store configuration to session */
 			$this->{$this->mdl}->_store_config($user_id);
 			
-			$this->xresponse(TRUE);
+			$this->xresponse(TRUE, ['message' => 'Login Success !']);
 		}
 
 		/* This line for unlock the screen */

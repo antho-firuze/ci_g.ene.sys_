@@ -292,9 +292,8 @@
 			case 'text':
 				input.attr('placeholder',(o.placeholder) ? o.placeholder : 'string(60)');
 				input.attr('type',o.type);
-				if (o.format) {
-					input.attr('data-inputmask',o.format);
-				}
+				if (o.format) input.attr('data-inputmask',o.format);
+				if (o.pattern) input.attr('pattern',o.pattern);
 				input.attr('data-mask','');
 				break;
 			case 'number':

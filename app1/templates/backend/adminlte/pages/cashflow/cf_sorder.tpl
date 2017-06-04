@@ -3,12 +3,13 @@
 	<!-- Main content -->
 	<section class="content">
 		<!-- /.row -->
-		<div class="box box-body table-responsive no-padding"></div>
+		<div class="box box-body datagrid table-responsive no-padding"></div>
 		<!-- /.box -->
 	</section>
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+<script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Toolbar Init *}
@@ -23,6 +24,7 @@
 	if ("{$is_canimport}" == "0") Toolbar_Init.disableBtn.push('btn-import');
 	if ("{$is_canexport}" == "0") Toolbar_Init.disableBtn.push('btn-export');
 	{* DataTable Init *}
+	var format_currency = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
 	var DataTable_Init = {
 		enable: true,
 		act_menu: { copy: true, edit: true, delete: true },
@@ -34,6 +36,9 @@
 			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"100px", orderable:false, data:"doc_date", title:"Doc Date" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_currency(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Total", render: function(data, type, row){ return format_currency(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_currency(data); } },
 			{* { width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } }, *}
 		],
 	};
