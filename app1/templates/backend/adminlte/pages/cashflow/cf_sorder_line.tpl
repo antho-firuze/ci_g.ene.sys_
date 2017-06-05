@@ -55,15 +55,15 @@
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info", footer: false });
-	var format_currency = "'alias': 'currency', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'autoGroup': true, 'autoUnmask': true";
-	col.push(BSHelper.Input({ horz:true, type:"text", label:"Sub Total", idname:"sub_total", format: format_currency, required: false, value: 0, readonly: true, }));
-	col.push(BSHelper.Input({ horz:true, type:"text", label:"VAT Total", idname:"vat_total", format: format_currency, required: false, value: 0, readonly: true, }));
-	col.push(BSHelper.Input({ horz:true, type:"text", label:"Grand Total", idname:"grand_total", format: format_currency, required: false, value: 0, readonly: true, }));
+	var format_currency = "'alias': 'decimal', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'rightAlign': true, 'autoGroup': true, 'autoUnmask': true";
+	col.push(BSHelper.Input({ horz:true, type:"text", label:"Sub Total", idname:"sub_total", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, }));
+	col.push(BSHelper.Input({ horz:true, type:"text", label:"VAT Total", idname:"vat_total", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, }));
+	col.push(BSHelper.Input({ horz:true, type:"text", label:"Grand Total", idname:"grand_total", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, }));
 	row.push(subCol(12, col)); col = [];
 	{* row.push(subCol(6, col)); col = []; *}
 	form1.append(subRow(row));
 	box1.find('.box-body').append(form1);
-	$(".content").append(subRow(subCol(6, box1)));
+	$(".content").append(subRow(subCol(5, box1)));
 	{* console.log($filter.split('=')[0]); *}
 	
 	$("[data-mask]").inputmask();

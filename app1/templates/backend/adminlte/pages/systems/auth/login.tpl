@@ -120,8 +120,8 @@
 				if (data.status) {
 					store('lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}', 0);
 					var url = "{$.session.referred_index !: $.const.APPS_LNK}";
-					{* window.location.replace(url); *}
-					window.location = url;
+					window.location.replace(url);
+					{* window.location = url; *}
 				}
 			},
 			error: function(data, status, errThrown) {

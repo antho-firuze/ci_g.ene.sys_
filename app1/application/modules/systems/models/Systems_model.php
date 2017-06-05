@@ -38,8 +38,7 @@ class Systems_Model extends CI_model
 		$data['status'] = $status;
 
 		$data['ip_address'] = $_SERVER['REMOTE_ADDR'];
-		// if (! in_array($data['ip_address'], ['::1','127.0.0.1'])) {
-		if (filter_var($data['ip_address'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+		if (! in_array($data['ip_address'], ['::1','127.0.0.1']) && ! is_private_ip($data['ip_address'])) {
 			$this->load->library('z_libs/IPAPI');
 			$query = IPAPI::query($data['ip_address']);
 			$data['country'] = $query->country;
@@ -220,7 +219,7 @@ class Systems_Model extends CI_model
 	function a_role_menu($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.menu_id, t2.code, t2.name, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t2.is_parent, (select coalesce(code,'') ||'_'|| name from a_menu where id = t2.parent_id limit 1) as parent_name, t2.type, t1.permit_form, t1.permit_process, t1.permit_window";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= "a_role_menu as t1";
 		$params['join'][] = ['a_menu t2', 't1.menu_id = t2.id', 'left'];
 		$params['where']['t1.is_deleted']	= '0';
 		$params['where']['t2.is_deleted']	= '0';

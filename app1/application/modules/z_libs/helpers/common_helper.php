@@ -26,6 +26,20 @@ if ( ! function_exists('run_shell'))
 	}
 }
 
+/**
+* Check if a client IP is in our Server subnet
+*
+* @param string $client_ip
+* @param string $server_ip
+* @return boolean
+*/
+if ( ! function_exists('is_private_ip'))
+{
+	function is_private_ip($ip) {
+    return !filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+	}
+}
+
 if ( ! function_exists('getPHPExecutableFromPath'))
 {
 	function getPHPExecutableFromPath() {

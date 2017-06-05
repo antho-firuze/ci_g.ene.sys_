@@ -345,6 +345,7 @@
 		if (o.idmatch) input.attr('data-match','#'+o.idmatch);
 		if (o.errormatch) input.attr('data-match-error',o.errormatch);
 		if (o.cls) input.addClass(o.cls);
+		if (o.style) input.attr('style', o.style);
 		if (o.role) input.attr('data-role', o.role);
 		
 		if (thetype.toLowerCase() == 'date') 

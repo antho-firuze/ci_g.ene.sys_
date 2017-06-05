@@ -152,6 +152,7 @@ class Systems extends Getmeb
 			$http_auth 	= $this->input->server('HTTP_X_AUTH');
 			// debug(filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE));
 			// debug($_SERVER['REMOTE_ADDR'].'-'.$_SERVER['SERVER_ADDR']);
+			// debug((! in_array($_SERVER['REMOTE_ADDR'], ['::1','127.0.0.1']) && ! is_private_ip($_SERVER['REMOTE_ADDR'])));
 			if ($http_auth !== NULL)
 			{
 				if (strpos(strtolower($http_auth), 'basic') === 0)
@@ -272,9 +273,10 @@ class Systems extends Getmeb
 		$this->params['where']['t2.is_active']	= '1';
 		$this->params['where']['t1.is_active']	= '1';
 		$this->params['where']['t2.is_parent']	= '0';
+		$this->params['where']['t2.is_submodule']	= '0';
 		$this->params['order'] = "t2.name";
 		$this->params['list']	= 1;
-		$result['data'] = $this->{$this->mdl}->get_a_role_menu($this->params);
+		$result['data'] = $this->{$this->mdl}->a_role_menu($this->params);
 		$this->xresponse(TRUE, $result);
 	}
 	
