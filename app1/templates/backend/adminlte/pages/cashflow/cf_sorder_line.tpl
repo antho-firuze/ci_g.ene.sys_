@@ -15,7 +15,6 @@
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/jquery.inputmask.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
-	var $filter = getURLParameter("filter");
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Toolbar Init *}
 	var Toolbar_Init = {
@@ -52,6 +51,7 @@
 	};
 	
 	{* For design form interface *}
+	var $filter = getURLParameter("filter");
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info", footer: false });
@@ -61,9 +61,11 @@
 	col.push(BSHelper.Input({ horz:true, type:"text", label:"Grand Total", idname:"grand_total", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, }));
 	row.push(subCol(12, col)); col = [];
 	{* row.push(subCol(6, col)); col = []; *}
-	form1.append(subRow(row));
+	form1.append(subRow(row)); row = [];
 	box1.find('.box-body').append(form1);
-	$(".content").append(subRow(subCol(5, box1)));
+	row.push(subCol(7));
+	row.push(subCol(5, box1));
+	$(".content").append(subRow(row));
 	{* console.log($filter.split('=')[0]); *}
 	
 	$("[data-mask]").inputmask();

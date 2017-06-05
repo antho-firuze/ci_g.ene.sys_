@@ -250,7 +250,33 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
+			$datas = $this->_pre_update_records(TRUE);
+			
+			if ($this->r_method == 'POST') {
+				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
+			} else {
+				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			}
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
+			
+			$this->params->is_plan = 1;
+			$this->{$this->mdl}->cf_order_update_summary($this->params);
+			
+			if ($this->r_method == 'POST')
+				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->params->is_plan = 1;
+				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
+				$this->{$this->mdl}->cf_order_update_summary($this->params);
+			}
 		}
 	}
 	
@@ -311,7 +337,33 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
+			$datas = $this->_pre_update_records(TRUE);
+			
+			if ($this->r_method == 'POST') {
+				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
+			} else {
+				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			}
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
+			
+			$this->params->is_plan = 1;
+			$this->{$this->mdl}->cf_order_update_summary($this->params);
+			
+			if ($this->r_method == 'POST')
+				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->params->is_plan = 1;
+				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
+				$this->{$this->mdl}->cf_order_update_summary($this->params);
+			}
 		}
 	}
 	
@@ -397,7 +449,7 @@ class Cashflow extends Getmeb
 			$this->_get_filtered(TRUE, TRUE);
 			
 			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
-				$result = $this->base_model->getValueArray('sub_total, vat_total, grand_total', 'cf_order', 'id',$this->params['order_id']);
+				$result = $this->base_model->getValueArray('sub_total, vat_total, grand_total, plan_total, plan_cl_total, plan_im_total', 'cf_order', 'id',$this->params['order_id']);
 				$this->xresponse(TRUE, ['data' => $result]);
 			}
 			
@@ -425,6 +477,7 @@ class Cashflow extends Getmeb
 			
 			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
 			
+			$this->params->is_line = 1;
 			$this->{$this->mdl}->cf_order_update_summary($this->params);
 			
 			if ($this->r_method == 'POST')
@@ -434,8 +487,8 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
+				$this->params->is_line = 1;
 				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
-				
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
 		}
@@ -445,6 +498,11 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
+				$result = $this->base_model->getValueArray('sub_total, vat_total, grand_total, plan_total, plan_cl_total, plan_im_total', 'cf_order', 'id',$this->params['order_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -457,7 +515,33 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
+			$datas = $this->_pre_update_records(TRUE);
+			
+			if ($this->r_method == 'POST') {
+				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
+			} else {
+				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			}
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
+			
+			$this->params->is_plan = 1;
+			$this->{$this->mdl}->cf_order_update_summary($this->params);
+			
+			if ($this->r_method == 'POST')
+				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->params->is_plan = 1;
+				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
+				$this->{$this->mdl}->cf_order_update_summary($this->params);
+			}
 		}
 	}
 	
@@ -487,6 +571,11 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
 			
+			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
+				$result = $this->base_model->getValueArray('sub_total, vat_total, grand_total, plan_total, plan_cl_total, plan_im_total', 'cf_order', 'id',$this->params['order_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -498,7 +587,33 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
+			$datas = $this->_pre_update_records(TRUE);
+			
+			if ($this->r_method == 'POST') {
+				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
+			} else {
+				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			}
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
+			
+			$this->params->is_line = 1;
+			$this->{$this->mdl}->cf_order_update_summary($this->params);
+			
+			if ($this->r_method == 'POST')
+				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->params->is_line = 1;
+				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
+				$this->{$this->mdl}->cf_order_update_summary($this->params);
+			}
 		}
 	}
 	
@@ -511,6 +626,11 @@ class Cashflow extends Getmeb
 				$this->_pre_export_data();
 			}
 			
+			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
+				$result = $this->base_model->getValueArray('sub_total, vat_total, grand_total, plan_total, plan_cl_total, plan_im_total', 'cf_order', 'id',$this->params['order_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -518,7 +638,33 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
+			$datas = $this->_pre_update_records(TRUE);
+			
+			if ($this->r_method == 'POST') {
+				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
+			} else {
+				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			}
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
+			
+			$this->params->is_plan = 1;
+			$this->{$this->mdl}->cf_order_update_summary($this->params);
+			
+			if ($this->r_method == 'POST')
+				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->params->is_plan = 1;
+				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
+				$this->{$this->mdl}->cf_order_update_summary($this->params);
+			}
 		}
 	}
 	
@@ -527,6 +673,11 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
 			
+			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
+				$result = $this->base_model->getValueArray('sub_total, vat_total, grand_total, plan_total, plan_cl_total, plan_im_total', 'cf_order', 'id',$this->params['order_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -538,7 +689,33 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
+			$datas = $this->_pre_update_records(TRUE);
+			
+			if ($this->r_method == 'POST') {
+				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
+			} else {
+				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			}
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
+			
+			$this->params->is_plan_cl = 1;
+			$this->{$this->mdl}->cf_order_update_summary($this->params);
+			
+			if ($this->r_method == 'POST')
+				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->params->is_plan_cl = 1;
+				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
+				$this->{$this->mdl}->cf_order_update_summary($this->params);
+			}
 		}
 	}
 	
@@ -547,6 +724,11 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
 			
+			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
+				$result = $this->base_model->getValueArray('sub_total, vat_total, grand_total, plan_total, plan_cl_total, plan_im_total', 'cf_order', 'id',$this->params['order_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -558,7 +740,33 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
+			$datas = $this->_pre_update_records(TRUE);
+			
+			if ($this->r_method == 'POST') {
+				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
+			} else {
+				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			}
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
+			
+			$this->params->is_plan_im = 1;
+			$this->{$this->mdl}->cf_order_update_summary($this->params);
+			
+			if ($this->r_method == 'POST')
+				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->params->is_plan_im = 1;
+				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
+				$this->{$this->mdl}->cf_order_update_summary($this->params);
+			}
 		}
 	}
 	

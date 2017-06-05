@@ -108,9 +108,12 @@ class Z_db extends CI_Controller {
 		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		
-		$fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['plan_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['plan_cl_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['plan_im_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -131,9 +134,9 @@ class Z_db extends CI_Controller {
 		$fields['qty'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		$fields['price'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		
-		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -143,7 +146,7 @@ class Z_db extends CI_Controller {
 		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
-		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
@@ -154,7 +157,7 @@ class Z_db extends CI_Controller {
 		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
-		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
@@ -165,7 +168,7 @@ class Z_db extends CI_Controller {
 		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
-		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
@@ -207,9 +210,9 @@ class Z_db extends CI_Controller {
 		$fields['qty'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		$fields['price'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		
-		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -231,9 +234,10 @@ class Z_db extends CI_Controller {
 		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
 		
-		$fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['plan_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -254,9 +258,9 @@ class Z_db extends CI_Controller {
 		$fields['qty'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		$fields['price'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		
-		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -266,7 +270,7 @@ class Z_db extends CI_Controller {
 		$fields['invoice_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
-		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
@@ -286,9 +290,10 @@ class Z_db extends CI_Controller {
 		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		
-		$fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['plan_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -301,9 +306,9 @@ class Z_db extends CI_Controller {
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		
-		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -313,7 +318,7 @@ class Z_db extends CI_Controller {
 		$fields['charge_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
-		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
@@ -363,9 +368,9 @@ class Z_db extends CI_Controller {
 		$fields['qty'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		$fields['price'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		
-		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -403,9 +408,9 @@ class Z_db extends CI_Controller {
 		$fields['qty'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		$fields['price'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		
-		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -445,9 +450,9 @@ class Z_db extends CI_Controller {
 		$fields['qty'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		$fields['price'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		
-		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
+		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		return $fields;
 	}
 	
