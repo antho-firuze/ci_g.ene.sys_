@@ -12,6 +12,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/inputmask.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/inputmask.numeric.extensions.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/inputmask.date.extensions.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/inputmask/dependencyLibs/inputmask.dependencyLib.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/jquery.inputmask.js"></script>
 {* <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script> *}
 <script>

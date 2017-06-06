@@ -288,15 +288,15 @@ class Cashflow_Model extends CI_Model
 		return $this->db->query($str);
 	}
 	
-	function cf_order_total_summaries($params)
+	function cf_order_valid_amount($params)
 	{
 		/* Insert: (grand_total - plan_total) < new_amount => error */
 		/* Update: (grand_total - sum(plan_amount except current id)) < new_amount => error */
+		$params = is_array($params) ? (object) $params : $params;
 		if (! isset($params->order_id) && !$params->order_id)
 			return false;
 		
-		$params = is_array($params) ? (object) $params : $params;
-		$id = isset($params->id) ? 'and t2.id <> '.$params->id : '';
+		$id = isset($params->id) && $params->id ? 'and t2.id <> '.$params->id : '';
 		$order_id = $params->order_id;
 		if (isset($params->is_plan) && $params->is_plan) {
 			$str = "SELECT grand_total,
@@ -306,7 +306,11 @@ class Cashflow_Model extends CI_Model
 				from cf_order t1 where t1.id = $order_id";
 		}
 		$row = $this->db->query($str)->row();
-		return $row->grand_total - $row->plan_total - $params->amount >= 0 ? true : false;
+		if ($row->grand_total - $row->plan_total - $params->amount < 0) {
+			$this->session->set_flashdata('message', $row->grand_total - $row->plan_total);
+			return FALSE;
+		}
+		return TRUE;
 		// if ($row->grand_total - $row->plan_total < $params->amount)
 			
 	}

@@ -7,10 +7,13 @@ include 'spelled_out_helper.php';
 
 if ( ! function_exists('lang'))
 {
-	function lang($str)
+	function lang($str, $args = array())
 	{
 		$ci = &get_instance();
-		return $ci->lang->line($str);
+		$msg = $ci->lang->line($str);
+		if (is_array($args) && $args)
+			$msg = vsprintf($msg, $args);
+		return $msg;
 	}
 }
 

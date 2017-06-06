@@ -9,6 +9,7 @@ class Cashflow extends Getmeb
 		$this->exception_method = [];
 		parent::__construct();	
 		
+		$this->lang->load('cashflow/cashflow', (!empty($this->session->language) ? $this->session->language : 'english'));
 	}
 	
 	function cf_account()
@@ -516,6 +517,12 @@ class Cashflow extends Getmeb
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$datas = $this->_pre_update_records(TRUE);
+			
+			$datas['is_plan'] = 1;
+			if (! $this->{$this->mdl}->cf_order_valid_amount($datas)){ 
+				$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+			}
+			unset($datas['is_plan']);
 			
 			if ($this->r_method == 'POST') {
 				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);

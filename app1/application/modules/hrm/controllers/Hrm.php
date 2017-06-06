@@ -847,7 +847,7 @@ class Hrm extends Getmeb
 					if (! $result = $this->_import_data())
 						$this->xresponse(FALSE, ['message' => $this->messages()]);
 					else
-						$this->xresponse(TRUE, array_merge($result, ['message' => $this->lang->line('import_finish')]));
+						$this->xresponse(TRUE, array_merge($result, ['message' => $this->lang->line('success_import_data')]));
 				}
 			}
 				

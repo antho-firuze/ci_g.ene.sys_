@@ -133,8 +133,8 @@ $lang['success_create_quotation'] = 'Creating Quotation successfully !';
 $lang['success_reorder']		= 'Data has been re-order successfully !';
 
 //ERROR NOTIFICATION
-$lang['permission_failed_menu'] = 'You don\'t have permission to access this menu !';
-$lang['permission_failed_crud'] = 'You don\'t have permission to do this action !';
+$lang['error_permit_menu'] = 'You don\'t have permission to access this menu !';
+$lang['error_permit_crud'] = 'You don\'t have permission to do this action !';
 
 $lang['error_approve'] 			= 'Data has been Approved !';
 $lang['error_forward'] 			= 'Error: Only status [PROCESS] can be Forward!';

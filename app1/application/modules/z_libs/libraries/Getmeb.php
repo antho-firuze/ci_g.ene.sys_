@@ -314,11 +314,11 @@ class Getmeb extends CI_Controller
 			case '1':
 				/* Execute */
 				if (!in_array($this->r_method, ['OPTIONS']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
 					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			default:
-				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
+				$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
 				// $this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu->name)]);
 				break;
 			}
@@ -328,11 +328,11 @@ class Getmeb extends CI_Controller
 			case '1':
 				/* Export */
 				if (!in_array($this->r_method, ['OPTIONS']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
 					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			default:
-				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
+				$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
 				// $this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu['name'])]);
 				break;
 			}
@@ -342,47 +342,47 @@ class Getmeb extends CI_Controller
 			case '1':
 				/* Only Create */
 				if (!in_array($this->r_method, ['POST']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
 					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			case '2':
 				/* Only Edit */
 				if (!in_array($this->r_method, ['PUT']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
 					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			case '3':
 				/* Only Delete */
 				if (!in_array($this->r_method, ['DELETE']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
 					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			case '4':
 				/* Can Create & Edit */
 				if (!in_array($this->r_method, ['POST','PUT']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
 					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			case '5':
 				/* Can Create & Delete */
 				if (!in_array($this->r_method, ['POST','DELETE']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
 					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			case '6':
 				/* Can Edit & Delete */
 				if (!in_array($this->r_method, ['PUT','DELETE']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
 					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			case '7':
 				/* Can All */
 				if (!in_array($this->r_method, ['POST','PUT','DELETE']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')], 401);
+					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
 					// $this->backend_view('pages/unauthorized', ['message' => '']);
 				break;
 			default:
-				$this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
+				$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
 				// $this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu['name'])]);
 				break;
 			}
@@ -397,22 +397,22 @@ class Getmeb extends CI_Controller
 			case 'canviewlog':
 				if (!$role->is_canviewlog)
 					$this->backend_view('pages/unauthorized', ['message'=>'You are not authorized !']);
-					// $this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
+					// $this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')]);
 				break;
 			case 'canexport':
 				if (!$role->is_canexport)
 					$this->backend_view('pages/unauthorized', ['message'=>'You are not authorized !']);
-					// $this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
+					// $this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')]);
 				break;
 			case 'canapproveowndoc':
 				if (!$role->is_canapproveowndoc)
 					$this->backend_view('pages/unauthorized', ['message'=>'You are not authorized !']);
-					// $this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
+					// $this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')]);
 				break;
 			case 'canreport':
 				if (!$role->is_canreport)
 					$this->backend_view('pages/unauthorized', ['message'=>'You are not authorized !']);
-					// $this->xresponse(FALSE, ['message' => $this->lang->line('permission_failed_crud')]);
+					// $this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')]);
 				break;
 		}
 	}
@@ -557,10 +557,10 @@ class Getmeb extends CI_Controller
 		/* Get the Table */
 		$menu = $this->base_model->getValue('*', 'a_menu', ['client_id','id'], [DEFAULT_CLIENT_ID, $this->pageid]);
 		if (!$menu)
-			$this->xresponse(FALSE, ['message' => $this->lang->line('export_failed'), 'note' => '[pageid='.$this->pageid.'] is not exists on [a_menu]'], 401);
+			$this->xresponse(FALSE, ['message' => $this->lang->line('error_export_data'), 'note' => '[pageid='.$this->pageid.'] is not exists on [a_menu]'], 401);
 
 		if (!$this->db->table_exists($menu->table))
-			$this->xresponse(FALSE, ['message' => $this->lang->line('export_failed'), 'note' => '[pageid='.$this->pageid.'][table='.$menu->table.'] does not exists'], 401);
+			$this->xresponse(FALSE, ['message' => $this->lang->line('error_export_data'), 'note' => '[pageid='.$this->pageid.'][table='.$menu->table.'] does not exists'], 401);
 
 		$protected_fields = ['id','client_id','org_id','is_deleted','created_by','updated_by','deleted_by','created_at','updated_at','deleted_at'];
 		$fields = $this->db->list_fields($menu->table);

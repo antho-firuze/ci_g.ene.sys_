@@ -173,7 +173,14 @@ $( document ).ready(function() {
 						var message = error.message;
 					}
 					form.find("[type='submit']").prop( "disabled", false );
-					BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+					BootstrapDialog.show({ message:message, closable: false, type:'modal-danger', title:'Notification', 
+						buttons: [{ label: 'OK', hotkey: 13, 
+							action: function(dialogRef) {
+								dialogRef.close();
+							} 
+						}],
+					});
+					// BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
 				}
 			});
 
