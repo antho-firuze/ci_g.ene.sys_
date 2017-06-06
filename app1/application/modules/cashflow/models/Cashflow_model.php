@@ -288,6 +288,29 @@ class Cashflow_Model extends CI_Model
 		return $this->db->query($str);
 	}
 	
+	function cf_order_total_summaries($params)
+	{
+		/* Insert: (grand_total - plan_total) < new_amount => error */
+		/* Update: (grand_total - sum(plan_amount except current id)) < new_amount => error */
+		if (! isset($params->order_id) && !$params->order_id)
+			return false;
+		
+		$params = is_array($params) ? (object) $params : $params;
+		$id = isset($params->id) ? 'and t2.id <> '.$params->id : '';
+		$order_id = $params->order_id;
+		if (isset($params->is_plan) && $params->is_plan) {
+			$str = "SELECT grand_total,
+				(
+					select sum(amount) from cf_order_plan t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.order_id = t1.id $id
+				) as plan_total 
+				from cf_order t1 where t1.id = $order_id";
+		}
+		$row = $this->db->query($str)->row();
+		return $row->grand_total - $row->plan_total - $params->amount >= 0 ? true : false;
+		// if ($row->grand_total - $row->plan_total < $params->amount)
+			
+	}
+	
 	function cf_charge_update_summary($params)
 	{
 		$params = is_array($params) ? (object) $params : $params;

@@ -233,7 +233,13 @@
 	
 	var certs = [];
 	{foreach $certificates as $c}
-		var bodyHtml = '<button type="button" style="float:right;" class="btn btn-default" aria-label="Left Align"><a href="{$.php.base_url()}upload/images/certificate/{$c->file_name}" download="{$c->file_name}"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a></button><a id="cert{$c->id}" href="{$.php.base_url()}upload/images/certificate/{$c->file_name}"><img class="img-responsive img-center" style="width:350px;" src="{$.php.base_url()}upload/images/certificate/{$c->file_name}" alt="{$c->title}" />{$c->title}</a>';
+		var filename = "{$c->file_name}";
+		var filename_arr = filename.split('.');
+		var filetype = filename_arr[filename_arr.length-1];
+		var display = filetype == "pdf" 
+			? '<a href="{$.php.base_url()}upload/images/certificate/{$c->file_name}" download="{$c->file_name}"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a></button><a id="cert{$c->id}" href="{$.php.base_url()}upload/images/certificate/{$c->file_name}">Certificate Of Compliance 2.1</a>' 
+			: '<a href="{$.php.base_url()}upload/images/certificate/{$c->file_name}" download="{$c->file_name}"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a></button><a id="cert{$c->id}" href="{$.php.base_url()}upload/images/certificate/{$c->file_name}"><img class="img-responsive img-center" style="width:350px;" src="{$.php.base_url()}upload/images/certificate/{$c->file_name}" alt="{$c->title}" />{$c->title}</a>';
+		var bodyHtml = '<button type="button" style="float:right;" class="btn btn-default" aria-label="Left Align">'+display;
 		certs.push( { paneltype:"default", title:'{$c->title}', content:bodyHtml } );
 		{* console.log("{$c->id}"); *}
 	{/foreach}
