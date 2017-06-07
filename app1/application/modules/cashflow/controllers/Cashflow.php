@@ -117,7 +117,9 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
 			
-			$this->params['where']['is_sotrx'] = '1';
+			$this->params['level'] = 1;
+			$this->params['where']['t1.is_sotrx'] = '1';
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -129,7 +131,22 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
+			$datas = $this->_pre_update_records(TRUE);
+			
+			if ($this->r_method == 'POST') {
+				$datas['is_sotrx'] = '1';
+				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
+			} else {
+				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			}
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+			if ($this->r_method == 'POST')
+				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
 	
@@ -414,6 +431,7 @@ class Cashflow extends Getmeb
 			$this->_get_filtered(TRUE, TRUE);
 			
 			$this->params['where']['is_sotrx'] = '1';
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}

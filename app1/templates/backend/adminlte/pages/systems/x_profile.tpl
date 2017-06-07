@@ -39,6 +39,8 @@
 			.append( BSHelper.Combobox({ horz:false, label:"Role (Default)", idname:"user_role_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_role')}?filter=user_id="+{$.session.user_id}, remote: true, required:true }) ) )
 		.append( $('<li class="list-group-item" />')
 			.append( BSHelper.Combobox({ horz:false, label:"Organization (Default)", idname:"user_org_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_org')}?filter=user_id="+{$.session.user_id}, remote: true, required:true }) ) )
+		.append( $('<li class="list-group-item" />')
+			.append( BSHelper.Combobox({ horz:false, label:"Location (Default)", idname:"user_orgtrx_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_orgtrx')}?filter=user_id="+{$.session.user_id}, remote: true, required:true }) ) )
   );
 	col.push( BSHelper.Button({ type:"button", label:"Reload", idname:"btn_reload",
 		onclick:"var last_url = window.location.href;
@@ -140,6 +142,8 @@
 			}
 			form1.shollu_autofill('load', result.data.rows[0]);  
 			form2.shollu_autofill('load', result.data.rows[0]);  
+			
+			$("#user_orgtrx_id").shollu_cb({ queryParams: { "filter": "user_id="+{$.session.user_id}+",user_org_id="+result.data.rows[0].user_org_id }});
 		}
 	});
 	$.getJSON("{$.php.base_url('systems/a_user_config')}", '', function(result){ 
@@ -186,6 +190,9 @@
 					if (rowData.id){
 						var data = {}; data["table"] = "a_user"; data[id] = rowData.id;
 						$.ajax({ url: $url_module, method:"PUT", data: JSON.stringify(data) });	
+					}
+					if (id == 'user_org_id'){
+						$("#user_orgtrx_id").shollu_cb({ queryParams: { "filter": "user_id="+{$.session.user_id}+",user_org_id="+rowData.id }});
 					}
 				}
 			});

@@ -65,6 +65,21 @@ class Z_db extends CI_Controller {
 		return $fields;
 	}
 	
+	function table_a_user_org()
+	{
+		$fields = $this->field_00_Main();
+		$fields['user_id'] 		= ['type' => 'INT', 'constraint' => '32', 'default' => 0];
+		return $fields;
+	}
+	
+	function table_a_user_orgtrx()
+	{
+		$fields = $this->field_00_Main();
+		$fields['user_id'] 		= ['type' => 'INT', 'constraint' => '32', 'default' => 0];
+		$fields['user_orgtrx_id'] 		= ['type' => 'INT', 'constraint' => '32', 'default' => 0];
+		return $fields;
+	}
+	
 	
 	
 	
@@ -98,7 +113,7 @@ class Z_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
-		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -178,7 +193,7 @@ class Z_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
-		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -221,7 +236,7 @@ class Z_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
-		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -280,7 +295,7 @@ class Z_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
-		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -337,7 +352,7 @@ class Z_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
-		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -378,7 +393,7 @@ class Z_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
-		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -419,7 +434,7 @@ class Z_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
-		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];

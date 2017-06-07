@@ -1,6 +1,6 @@
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-	<!-- Main content -->
+	 <!-- Main content -->
 	<section class="content">
 	</section>
 	<!-- /.content -->
@@ -9,21 +9,27 @@
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/inputmask/inputmask.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/inputmask/inputmask.date.extensions.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/inputmask/jquery.inputmask.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $bread = {$.php.json_encode($bread)};
+	var $filter = getURLParameter("filter");
+	var arr_filter = {};
+	$filter.split(',').forEach(function(x){
+			arr = x.split('=');
+			arr[1] && (arr_filter[arr[0]] = arr[1]);
+	});
+	{* console.log(arr_filter.user_org_id); *}
+	$.getJSON($url_module, { get_org_id: 1, user_org_id: arr_filter.user_org_id }, function(result){
+		{* console.log(result.data); *}
+		$("#org_id").shollu_cb({ queryParams: { "orgtype_id":3, "parent_id":result.data.org_id }});
+	});
 	{* For design form interface *}
 	var col = [], row = [];
-	var form1 = BSHelper.Form({ autocomplete:"off" });
+	var form1 = BSHelper.Form({ autocomplete:"off" });	
 	var box1 = BSHelper.Box({ type:"info" });
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", required: false, required: true, }));
-	col.push(BSHelper.Input({ horz:false, type:"date", label:"Doc Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
-	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
+	{* col.push(BSHelper.Combobox({ horz:false, label:"Location/Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"org_id", textField:"name", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id="+arr_filter.user_org_id, remote: true })); *}
+	col.push(BSHelper.Combobox({ horz:false, label:"Location/Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"org_id", textField:"name", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3", remote: true }));
+	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	row.push(subCol(6, col)); col = [];
-	col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"orgtrx_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true, required: true }));
-	col.push(BSHelper.Combobox({ horz:false, label:"SO No", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"doc_no", idname:"order_id", url:"{$.php.base_url('cashflow/cf_sorder')}", remote: true, required: true }));
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
 	form1.append(subRow(subCol()));
@@ -35,7 +41,5 @@
 	box1.find('.box-body').append(form1);
 	$(".content").append(box1);
 
-	$("[data-mask]").inputmask();
-	
 </script>
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>

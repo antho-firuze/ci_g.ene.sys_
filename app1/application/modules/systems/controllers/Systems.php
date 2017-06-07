@@ -309,6 +309,12 @@ class Systems extends Getmeb
 
 				$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 			}
+			if (isset($this->params->user_orgtrx_id) && ($this->params->user_orgtrx_id != '')) {
+				if (! $this->updateRecord($this->params->table, ['user_orgtrx_id' => $this->params->user_orgtrx_id], ['id' => $this->session->user_id]))
+					$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
+
+				$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
+			}
 			
 			/* This line is for update user config */
 			if (isset($this->params->table) && ($this->params->table == 'a_user_config')) {
@@ -575,6 +581,47 @@ class Systems extends Getmeb
 			if (key_exists('zone', $this->params) && ($this->params['zone']))
 				$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
 			
+			if (isset($this->params['q']) && !empty($this->params['q']))
+				$this->params['like'] = DBX::like_or(["t2.code", "t2.name", "coalesce(t2.code,'') ||'_'|| t2.name"], $this->params['q']);
+
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$datas = $this->_pre_update_records(TRUE);
+			
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_method, array_merge($datas, ['client_id' => DEFAULT_CLIENT_ID]), FALSE, TRUE);
+			else
+				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);				
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
+	function a_user_orgtrx()
+	{
+		$this->identity_keys = ['user_org_id', 'org_id'];
+		
+		if ($this->r_method == 'GET') {
+			/* Getting [org_id] from table a_user_org */
+			if (isset($this->params['get_org_id']) && $this->params['get_org_id']){
+				$row = $this->base_model->getValue('org_id', 'a_user_org', 'id', $this->params['user_org_id']);
+				$this->xresponse(TRUE, ['data'=>$row]);
+			} 
+			
+			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
+				$this->params['where']['t1.id'] = $this->params['id'];
+			
+			if (key_exists('user_org_id', $this->params) && ($this->params['user_org_id'] != '')) 
+				$this->params['where']['t1.user_org_id'] = $this->params['user_org_id'];
+
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or(["t2.code", "t2.name", "coalesce(t2.code,'') ||'_'|| t2.name"], $this->params['q']);
 

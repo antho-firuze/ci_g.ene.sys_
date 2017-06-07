@@ -87,7 +87,8 @@ function initDataTable()
 	if (!DataTable_Init.enable)
 		return false;
 	
-	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="width:100%; table-layout:fixed; word-wrap:break-word; margin:0px !important;" />');
+	tableWidth = (DataTable_Init.tableWidth) ? DataTable_Init.tableWidth : '100%';
+	var tableData1 = $('<table class="table table-bordered table-hover table-striped" style="width:'+tableWidth+'; table-layout:fixed; word-wrap:break-word; margin:0px !important;" />');
 	
 	$('div.datagrid').append( tableData1 );
 	
