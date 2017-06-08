@@ -313,7 +313,7 @@
 			var list = [];
 			var rows = data;
 			var id = $element.attr('data-'+o.idField);
-			var text = $element.val();
+			var text = $element.val() ? $element.val() : '';
 			
 			if (o.page == 1)
 				$menu.empty();
@@ -335,6 +335,7 @@
 					
 					text = text.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
 					var re = new RegExp("(" + text.split(' ').join('|') + ")", "gi");
+					// var li = $('<li data-'+o.idField+'="'+v+'" data-'+o.textField+'="'+t+'"><a>'+t.replace(re, "<b>$1</b>")+'</a></li>');
 					var li = $('<li data-'+o.idField+'="'+v+'" data-'+o.textField+'="'+t+'"><a>'+t.replace(re, "<b>$1</b>")+'</a></li>');
 					if (o.item_cls) li.addClass(o.item_cls);
 					if (id && (id == v)) li.addClass('active');

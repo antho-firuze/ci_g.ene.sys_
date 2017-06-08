@@ -213,6 +213,7 @@ class Z_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['inout_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['order_line_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['item_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['itemcat_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['measure_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -260,6 +261,7 @@ class Z_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['invoice_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['inout_line_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['item_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['itemcat_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['measure_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];

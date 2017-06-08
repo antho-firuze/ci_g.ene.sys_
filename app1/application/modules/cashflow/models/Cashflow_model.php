@@ -51,7 +51,7 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_sinout($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.delivery_date, '".$this->session->date_format."') as delivery_date, to_char(t1.received_date, '".$this->session->date_format."') as received_date";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.delivery_date, '".$this->session->date_format."') as delivery_date, to_char(t1.received_date, '".$this->session->date_format."') as received_date";
 		$params['table'] 	= "cf_inout as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
 			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order";
@@ -63,7 +63,7 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_sinout_line($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name";
 		$params['table'] 	= "cf_inout_line as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
@@ -151,7 +151,7 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_sorder($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
 		$params['table'] 	= "cf_order as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
@@ -159,7 +159,9 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_sorder_line($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_order where id = t1.order_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
+		// $params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_order where id = t1.order_id) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
+		// $params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select name from m_itemcat where id = t1.itemcat_id)) as list_name";
 		$params['table'] 	= "cf_order_line as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
@@ -317,6 +319,36 @@ class Cashflow_Model extends CI_Model
 		return TRUE;
 		// if ($row->grand_total - $row->plan_total < $params->amount)
 			
+	}
+	
+	function cf_order_line_vs_inout_line($params)
+	{
+		/* by value : having sum(ttl_amt) = t1.ttl_amt) */
+		/* by qty : having sum(qty) = t1.qty) */
+		$params = is_array($params) ? (object) $params : $params;
+		$id = isset($params->inout_id) && $params->inout_id ? $params->inout_id : 0;
+		$having = isset($params->having) && $params->having == 'amount' ? 'having sum(ttl_amt) = t1.ttl_amt)' : 'having sum(qty) = t1.qty)';
+		$str = "select *, ((select doc_no from cf_order where id = t1.order_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name from cf_order_line t1
+			where is_active = '1' and is_deleted = '0' and order_id = (select order_id from cf_inout where id = $id) 
+			and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and inout_id = $id $having";
+		$response['total'] = 0;
+		$response['rows']  = $this->db->query($str)->result();
+		return $response;
+	}
+	
+	function cf_inout_line_vs_invoice_line($params)
+	{
+		/* by value : having sum(ttl_amt) = t1.ttl_amt) */
+		/* by qty : having sum(qty) = t1.qty) */
+		$params = is_array($params) ? (object) $params : $params;
+		$id = isset($params->invoice_id) && $params->invoice_id ? $params->invoice_id : 0;
+		$having = isset($params->having) && $params->having == 'amount' ? 'having sum(ttl_amt) = t1.ttl_amt)' : 'having sum(qty) = t1.qty)';
+		$str = "select *, ((select doc_no from cf_inout where id = t1.inout_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name from cf_inout_line t1
+			where is_active = '1' and is_deleted = '0' and inout_id = (select inout_id from cf_invoice where id = 3) 
+			and not exists (select 1 from cf_invoice_line where is_active = '1' and is_deleted = '0' and inout_line_id = t1.id and invoice_id = $id $having";
+		$response['total'] = 0;
+		$response['rows']  = $this->db->query($str)->result();
+		return $response;
 	}
 	
 	function cf_charge_update_summary($params)

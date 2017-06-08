@@ -155,6 +155,17 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
 			
+			if (isset($this->params['get_order_id']) && !empty($this->params['get_order_id'])) {
+				$result = $this->base_model->getValueArray('order_id', 'cf_inout', 'id', $this->params['inout_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
+			if (isset($this->params['get_order_line']) && !empty($this->params['get_order_line'])) {
+				// $result = $this->base_model->getValueArray('order_id', 'cf_inout', 'id', $this->params['inout_id']);
+				$result = $this->{$this->mdl}->cf_order_line_vs_inout_line($this->params);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -236,6 +247,17 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['get_inout_id']) && !empty($this->params['get_inout_id'])) {
+				$result = $this->base_model->getValueArray('inout_id', 'cf_invoice', 'id', $this->params['invoice_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
+			if (isset($this->params['get_inout_line']) && !empty($this->params['get_inout_line'])) {
+				// $result = $this->base_model->getValueArray('order_id', 'cf_inout', 'id', $this->params['inout_id']);
+				$result = $this->{$this->mdl}->cf_inout_line_vs_invoice_line($this->params);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
