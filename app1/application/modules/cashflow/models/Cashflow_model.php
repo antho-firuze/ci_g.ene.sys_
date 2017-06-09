@@ -87,8 +87,12 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_sinvoice($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date";
 		$params['table'] 	= "cf_invoice as t1";
+		if (isset($params['level']) && $params['level'] == 1) {
+			$params['select'] .= ", t2.doc_no as doc_no_inout, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_inout";
+			$params['join'][] = ['cf_inout as t2', 't1.inout_id = t2.id', 'left'];
+		}
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -321,10 +325,8 @@ class Cashflow_Model extends CI_Model
 			
 	}
 	
-	function cf_order_line_vs_inout_line($params)
+	/* function cf_order_vs_inout($params)
 	{
-		/* by value : having sum(ttl_amt) = t1.ttl_amt) */
-		/* by qty : having sum(qty) = t1.qty) */
 		$params = is_array($params) ? (object) $params : $params;
 		$id = isset($params->inout_id) && $params->inout_id ? $params->inout_id : 0;
 		$having = isset($params->having) && $params->having == 'amount' ? 'having sum(ttl_amt) = t1.ttl_amt)' : 'having sum(qty) = t1.qty)';
@@ -334,12 +336,23 @@ class Cashflow_Model extends CI_Model
 		$response['total'] = 0;
 		$response['rows']  = $this->db->query($str)->result();
 		return $response;
-	}
+	} */
 	
-	function cf_inout_line_vs_invoice_line($params)
+	/* function cf_order_line_vs_inout_line($params)
 	{
-		/* by value : having sum(ttl_amt) = t1.ttl_amt) */
-		/* by qty : having sum(qty) = t1.qty) */
+		$params = is_array($params) ? (object) $params : $params;
+		$id = isset($params->inout_id) && $params->inout_id ? $params->inout_id : 0;
+		$having = isset($params->having) && $params->having == 'amount' ? 'having sum(ttl_amt) = t1.ttl_amt)' : 'having sum(qty) = t1.qty)';
+		$str = "select *, ((select doc_no from cf_order where id = t1.order_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name from cf_order_line t1
+			where is_active = '1' and is_deleted = '0' and order_id = (select order_id from cf_inout where id = $id) 
+			and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and inout_id = $id $having";
+		$response['total'] = 0;
+		$response['rows']  = $this->db->query($str)->result();
+		return $response;
+	} */
+	
+	/* function cf_inout_line_vs_invoice_line($params)
+	{
 		$params = is_array($params) ? (object) $params : $params;
 		$id = isset($params->invoice_id) && $params->invoice_id ? $params->invoice_id : 0;
 		$having = isset($params->having) && $params->having == 'amount' ? 'having sum(ttl_amt) = t1.ttl_amt)' : 'having sum(qty) = t1.qty)';
@@ -349,7 +362,7 @@ class Cashflow_Model extends CI_Model
 		$response['total'] = 0;
 		$response['rows']  = $this->db->query($str)->result();
 		return $response;
-	}
+	} */
 	
 	function cf_charge_update_summary($params)
 	{

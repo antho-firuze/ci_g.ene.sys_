@@ -448,13 +448,17 @@ class Getmeb extends CI_Controller
 		$this->xresponse(TRUE, ['data' => $result]);
 	}
 	
-	function _get_filtered($client = TRUE, $org = TRUE)
+	function _get_filtered($client = TRUE, $org = TRUE, $qField = [], $qReplaceField = FALSE)
 	{
 		if (isset($this->params['id']) && !empty($this->params['id'])) 
 			$this->params['where']['t1.id'] = $this->params['id'];
 		
-		if (isset($this->params['q']) && !empty($this->params['q']))
-			$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
+		if (isset($this->params['q']) && !empty($this->params['q'])) {
+			$defaultField = $qReplaceField ? [] : ['t1.name', 't1.description'];
+			$qField = implode(',', array_merge($defaultField, $qField));
+			if ($qField)
+				$this->params['like'] = DBX::like_or($qField, $this->params['q']);
+		}
 		
 		if ($client)
 			$this->params['where']['t1.client_id'] = $this->session->client_id;

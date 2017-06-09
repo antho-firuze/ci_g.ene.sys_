@@ -109,7 +109,15 @@ class Base_Model extends CI_Model
 		$this->db->from($params['table']);
 		if ( key_exists('join', $params)) DBX::join($this, $params['join']);
 		if ( key_exists('where', $params)) $this->db->where($params['where']);
-		if ( key_exists('where_custom', $params)) $this->db->where($params['where_custom']);
+		if ( key_exists('where_custom', $params)) {
+			if (is_array($params['where_custom'])){
+				foreach($params['where_custom'] as $where_custom){
+					$this->db->where($where_custom);
+				}
+			} else {
+				$this->db->where($params['where_custom']);
+			}
+		}
 		if ( key_exists('like', $params)) $this->db->where($params['like']);
 		if ( key_exists('sort', $params)) $this->db->order_by($params['sort'], $params['order']);
 		// if ( key_exists('ob', $params)) 	$this->db->order_by($params['ob']);
