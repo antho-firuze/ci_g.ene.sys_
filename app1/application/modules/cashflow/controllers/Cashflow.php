@@ -305,7 +305,33 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
+			$datas = $this->_pre_update_records(TRUE);
+			
+			if ($this->r_method == 'POST') {
+				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
+			} else {
+				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			}
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
+			
+			$this->params->is_line = 1;
+			$this->{$this->mdl}->cf_invoice_update_summary($this->params);
+			
+			if ($this->r_method == 'POST')
+				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->params['is_line'] = 1;
+				$this->params['invoice_id'] = $this->base_model->getValue('invoice_id', $this->c_table, 'id', $this->params['id'])->invoice_id;
+				$this->{$this->mdl}->cf_invoice_update_summary($this->params);
+			}
 		}
 	}
 	
@@ -327,6 +353,12 @@ class Cashflow extends Getmeb
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$datas = $this->_pre_update_records(TRUE);
 			
+			$datas['is_plan'] = 1;
+			if (! $this->{$this->mdl}->cf_order_valid_amount($datas)){ 
+				$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+			}
+			unset($datas['is_plan']);
+
 			if ($this->r_method == 'POST') {
 				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
 			} else {
@@ -339,7 +371,7 @@ class Cashflow extends Getmeb
 			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
 			
 			$this->params->is_plan = 1;
-			$this->{$this->mdl}->cf_order_update_summary($this->params);
+			$this->{$this->mdl}->cf_invoice_update_summary($this->params);
 			
 			if ($this->r_method == 'POST')
 				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
@@ -349,8 +381,8 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->params->is_plan = 1;
-				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
-				$this->{$this->mdl}->cf_order_update_summary($this->params);
+				$this->params['invoice_id'] = $this->base_model->getValue('invoice_id', $this->c_table, 'id', $this->params['id'])->invoice_id;
+				$this->{$this->mdl}->cf_invoice_update_summary($this->params);
 			}
 		}
 	}
@@ -576,7 +608,7 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
-				$this->params->is_line = 1;
+				$this->params['is_line'] = 1;
 				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}

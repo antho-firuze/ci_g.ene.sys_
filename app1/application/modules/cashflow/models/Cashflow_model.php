@@ -63,7 +63,7 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_sinout_line($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_inout where id = t1.inout_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
 		$params['table'] 	= "cf_inout_line as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
@@ -99,7 +99,7 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_sinvoice_line($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name";
 		$params['table'] 	= "cf_invoice_line as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
@@ -322,7 +322,6 @@ class Cashflow_Model extends CI_Model
 		}
 		return TRUE;
 		// if ($row->grand_total - $row->plan_total < $params->amount)
-			
 	}
 	
 	/* function cf_order_vs_inout($params)
@@ -408,6 +407,32 @@ class Cashflow_Model extends CI_Model
 				$id";
 		}
 		return $this->db->query($str);
+	}
+	
+	function cf_invoice_valid_amount($params)
+	{
+		/* Insert: (grand_total - plan_total) < new_amount => error */
+		/* Update: (grand_total - sum(plan_amount except current id)) < new_amount => error */
+		$params = is_array($params) ? (object) $params : $params;
+		if (! isset($params->invoice_id) && !$params->invoice_id)
+			return false;
+		
+		$id = isset($params->id) && $params->id ? 'and t2.id <> '.$params->id : '';
+		$invoice_id = $params->invoice_id;
+		if (isset($params->is_plan) && $params->is_plan) {
+			$str = "SELECT grand_total,
+				(
+					select sum(amount) from cf_invoice_plan t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.invoice_id = t1.id $id
+				) as plan_total 
+				from cf_invoice t1 where t1.id = $invoice_id";
+		}
+		$row = $this->db->query($str)->row();
+		if ($row->grand_total - $row->plan_total - $params->amount < 0) {
+			$this->session->set_flashdata('message', $row->grand_total - $row->plan_total);
+			return FALSE;
+		}
+		return TRUE;
+		// if ($row->grand_total - $row->plan_total < $params->amount)
 	}
 	
 }
