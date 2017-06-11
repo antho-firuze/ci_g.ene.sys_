@@ -340,6 +340,11 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
 			
+			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
+				$result = $this->base_model->getValueArray('sub_total, vat_total, grand_total, plan_total', 'cf_invoice', 'id',$this->params['invoice_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -354,7 +359,7 @@ class Cashflow extends Getmeb
 			$datas = $this->_pre_update_records(TRUE);
 			
 			$datas['is_plan'] = 1;
-			if (! $this->{$this->mdl}->cf_order_valid_amount($datas)){ 
+			if (! $this->{$this->mdl}->cf_invoice_valid_amount($datas)){ 
 				$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
 			}
 			unset($datas['is_plan']);
@@ -902,6 +907,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
 			
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}

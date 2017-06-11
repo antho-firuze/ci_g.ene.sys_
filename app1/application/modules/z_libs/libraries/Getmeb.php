@@ -130,6 +130,7 @@ class Getmeb extends CI_Controller
 				// /* Check permission in the role */
 				// $this->_check_is_allow_inrole('canexport');
 			// }
+			// debug($this->c_table);
 		}
 		
 		/* This Request for INDERT & UPDATE Data */

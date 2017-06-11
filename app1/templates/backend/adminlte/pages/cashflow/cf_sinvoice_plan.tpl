@@ -65,9 +65,9 @@
 	
 	$("[data-mask]").inputmask();
 	
-	if ($filter.split('=')[0] == 'order_id'){
-		var order_id = $filter.split('=')[1];
-		$.getJSON($url_module, { "summary": 1, "order_id": order_id }, function(result){ 
+	if ($filter.split('=')[0] == 'invoice_id'){
+		var invoice_id = $filter.split('=')[1];
+		$.getJSON($url_module, { "summary": 1, "invoice_id": invoice_id }, function(result){ 
 			if (!isempty_obj(result.data)) 
 				form1.shollu_autofill('load', result.data);  
 		});

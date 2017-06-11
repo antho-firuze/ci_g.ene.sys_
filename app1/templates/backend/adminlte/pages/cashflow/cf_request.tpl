@@ -23,12 +23,17 @@
 	{* DataTable Init *}
 	var DataTable_Init = {
 		enable: true,
+		tableWidth: '110%',
 		act_menu: { copy: true, edit: true, delete: true },
-		sub_menu: [],
+		sub_menu: [
+			{ pageid: 105, subKey: 'request_id', title: 'Request Line', },
+		],
 		columns: [
-			{ width:"130px", orderable:false, data:"code_name", title:"Name" },
+			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
+			{* { width:"100px", orderable:false, data:"doc_no_order", title:"SO No" }, *}
+			{* { width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_order", title:"SO Date" }, *}
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 	};
 	

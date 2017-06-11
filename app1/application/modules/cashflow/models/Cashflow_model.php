@@ -222,7 +222,7 @@ class Cashflow_Model extends CI_Model
 	function cf_request($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
-		$params['table'] 	= $this->c_table." as t1";
+		$params['table'] 	= "cf_request as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -238,7 +238,7 @@ class Cashflow_Model extends CI_Model
 	function cf_request_type($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_table." as t1";
+		$params['table'] 	= $this->c_method." as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
