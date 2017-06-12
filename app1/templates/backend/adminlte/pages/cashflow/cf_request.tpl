@@ -26,13 +26,16 @@
 		tableWidth: '110%',
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
-			{ pageid: 105, subKey: 'request_id', title: 'Request Line', },
+			{ pageid: 108, subKey: 'request_id', title: 'Request Line', },
 		],
 		columns: [
 			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
-			{* { width:"100px", orderable:false, data:"doc_no_order", title:"SO No" }, *}
-			{* { width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_order", title:"SO Date" }, *}
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"eta", title:"ETA" },
+			{ width:"100px", orderable:false, data:"request_type_name", title:"Request Type" },
+			{ width:"100px", orderable:false, data:"doc_no_order", title:"SO No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_order", title:"SO Date" },
+			{ width:"100px", orderable:false, data:"bpartner_name", title:"Customer" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 		],
 	};

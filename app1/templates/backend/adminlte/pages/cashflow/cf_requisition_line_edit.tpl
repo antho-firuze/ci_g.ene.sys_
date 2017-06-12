@@ -22,18 +22,17 @@
 	var format_currency = "'alias': 'currency', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'autoGroup': true, 'autoUnmask': true";
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Line No", idname:"seq", required: false, value: 0, }));
 	{* col.push(BSHelper.Combobox({ horz:false, label:"Item", label_link:"{$.const.PAGE_LNK}?pageid=30", idname:"item_id", url:"{$.php.base_url('sales/m_pricelist_item_list')}?level=1&filter=t1.itemtype_id=1,t1.pricelist_id=", remote: true })); *}
-	{* col.push(BSHelper.Combobox({ horz:false, label:"SO Line", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"list_name", idname:"order_line_id", url:"{$.php.base_url('cashflow/cf_sorder_line')}", remote: true, required: false, })); *}
-	col.push(BSHelper.Combobox({ horz:false, label:"SO Line", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"list_name", idname:"order_line_id", url:"{$.php.base_url('cashflow/cf_sorder_line')}?for_shipment=1", remote: true, required: false, }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Request Line", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"list_name", idname:"request_line_id", url:"{$.php.base_url('cashflow/cf_request_line')}?for_requisition=1&having=qty", remote: true, required: true, }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Item Category", label_link:"{$.const.PAGE_LNK}?pageid=47", idname:"itemcat_id", url:"{$.php.base_url('inventory/m_itemcat')}", remote: true, required: true }));
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Item Name", idname:"item_name", required: false, })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Item Size", idname:"item_size", required: false, })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"number", label:"Unit Price", idname:"price", required: false, value: 0, })); *}
-	{* col.push(BSHelper.Input({ horz:false, type:"number", label:"Quantity", idname:"qty", required: false, value: 1 })); *}
+	col.push(BSHelper.Input({ horz:false, type:"number", label:"Quantity", idname:"qty", required: true, value: 1 }));
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Sub Amount", idname:"sub_amt", style: "text-align: right;", format: format_currency, required: false, value: 0, onchange:"calculate_amount()", })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"VAT Amount", idname:"vat_amt", style: "text-align: right;", format: format_currency, required: false, value: 0, onchange:"calculate_amount()", })); *}
-	col.push(BSHelper.Input({ horz:false, type:"number", label:"Sub Amount", idname:"sub_amt", style: "text-align: right;", step: ".01", required: false, value: 0, onchange:"calculate_amount()", placeholder: "0.00" }));
-	col.push(BSHelper.Input({ horz:false, type:"number", label:"VAT Amount", idname:"vat_amt", style: "text-align: right;", step: ".01", required: false, value: 0, onchange:"calculate_amount()", placeholder: "0.00" }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Total Amount", idname:"ttl_amt", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, }));
+	{* col.push(BSHelper.Input({ horz:false, type:"number", label:"Sub Amount", idname:"sub_amt", style: "text-align: right;", step: ".01", required: false, value: 0, onchange:"calculate_amount()", placeholder: "0.00" })); *}
+	{* col.push(BSHelper.Input({ horz:false, type:"number", label:"VAT Amount", idname:"vat_amt", style: "text-align: right;", step: ".01", required: false, value: 0, onchange:"calculate_amount()", placeholder: "0.00" })); *}
+	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Total Amount", idname:"ttl_amt", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, })); *}
 	row.push(subCol(6, col)); col = [];
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
@@ -55,33 +54,31 @@
 	}
 
 	var $filter = getURLParameter("filter");
-	if ($filter.split('=')[0] == 'inout_id'){
-		var inout_id = $filter.split('=')[1];
-				{* $("#order_line_id").shollu_cb({ queryParams: { get_order_line:1, inout_id:inout_id, having:"amount" } }); *}
-				$("#order_line_id").shollu_cb({ queryParams: { for_shipment:1, inout_id:inout_id, having:"amount" } });
-		$.getJSON($url_module, { "get_order_id": 1, "inout_id": inout_id }, function(result){ 
-			if (result.data.order_id) {
-				$("#order_line_id").attr("required", true);
-				{* $("#order_line_id").shollu_cb({ queryParams: { filter:"order_id="+result.data.order_id } }); *}
+	if ($filter.split('=')[0] == 'requisition_id'){
+		var requisition_id = $filter.split('=')[1];
+		$("#request_line_id").shollu_cb({ queryParams: { for_request:1, requisition_id:requisition_id, having:"qty" } });
+		$.getJSON($url_module, { "get_request_id": 1, "requisition_id": requisition_id }, function(result){ 
+			if (result.data.request_id) {
+				{* $("#order_line_id").attr("required", true); *}
 				$("#itemcat_id").shollu_cb("disable", true);
-				$("#sub_amt").attr("readonly", true);
-				$("#vat_amt").attr("readonly", true);
+				{* $("#sub_amt").attr("readonly", true); *}
+				{* $("#vat_amt").attr("readonly", true); *}
 			} else {
-				$("#order_line_id").attr("required", false);
-				$("#order_line_id").shollu_cb("disable", true);
+				{* $("#order_line_id").attr("required", false); *}
+				{* $("#order_line_id").shollu_cb("disable", true); *}
 				$("#itemcat_id").shollu_cb("disable", false);
 			}
 		});
 	}
 	
-	$("#order_line_id").shollu_cb({
+	$("#request_line_id").shollu_cb({
 		onSelect: function(rawData){
 			$("#itemcat_id").shollu_cb('setValue', rawData.itemcat_id);
 			$("#seq").val(rawData.seq);
-			{* $("#qty").val(rawData.qty); *}
-			$("#sub_amt").val(rawData.sub_amt);
-			$("#vat_amt").val(rawData.vat_amt);
-			$("#ttl_amt").val(rawData.ttl_amt);
+			$("#qty").val(rawData.qty);
+			{* $("#sub_amt").val(rawData.sub_amt); *}
+			{* $("#vat_amt").val(rawData.vat_amt); *}
+			{* $("#ttl_amt").val(rawData.ttl_amt); *}
 		}
 	});
 	

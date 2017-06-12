@@ -76,6 +76,8 @@
 	$("#inout_line_id").shollu_cb({
 		onSelect: function(rawData){
 			$("#itemcat_id").shollu_cb('setValue', rawData.itemcat_id);
+			$("#seq").val(rawData.seq);
+			{* $("#qty").val(rawData.qty); *}
 			$("#sub_amt").val(rawData.sub_amt);
 			$("#vat_amt").val(rawData.vat_amt);
 			$("#ttl_amt").val(rawData.ttl_amt);

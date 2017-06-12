@@ -62,7 +62,7 @@
 	$("#menu_id").shollu_cb({
 		onSelect: function(rowData){
 			$("#type").shollu_cb('setValue', rowData.type);
-			hidden_permission_box();
+			hidden_field();
 			if (rowData.type == 'F')
 				$("#permit_form").closest(".form-group").css("display", "");
 			if (rowData.type == 'P')
@@ -72,7 +72,7 @@
 		},
 		onChange: function(rowData){
 			{* console.log(rowData); *}
-			hidden_permission_box();
+			hidden_field();
 			if (rowData.type == 'F')
 				$("#permit_form").closest(".form-group").css("display", "");
 			if (rowData.type == 'P')
@@ -82,14 +82,14 @@
 		}
 	});
 	
-	function hidden_permission_box(){
+	function hidden_field(){
 		$("#permit_form").closest(".form-group").css("display", "none");
 		$("#permit_process").closest(".form-group").css("display", "none");
 		$("#permit_window").closest(".form-group").css("display", "none");
 	}
 	
 	$(document).ready(function(){
-		hidden_permission_box();
+		hidden_field();
 	});
 	
 </script>

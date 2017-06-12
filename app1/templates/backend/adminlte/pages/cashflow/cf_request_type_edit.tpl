@@ -19,6 +19,7 @@
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Name", idname:"name", required: true, }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
+	col.push(BSHelper.Checkbox({ horz:false, label:"Is SO_Trx", idname:"is_sotrx", value:0 }));
 	row.push(subCol(6, col)); col = [];
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));

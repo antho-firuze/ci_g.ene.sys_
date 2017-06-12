@@ -23,12 +23,19 @@
 	{* DataTable Init *}
 	var DataTable_Init = {
 		enable: true,
+		tableWidth: '110%',
 		act_menu: { copy: true, edit: true, delete: true },
-		sub_menu: [],
+		sub_menu: [
+			{ pageid: 109, subKey: 'requisition_id', title: 'Requisition Line', },
+		],
 		columns: [
-			{ width:"130px", orderable:false, data:"code_name", title:"Name" },
+			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"eta", title:"ETA" },
+			{ width:"100px", orderable:false, data:"doc_no_request", title:"Request No" },
+			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_request", title:"Request Date" },
+			{ width:"100px", orderable:false, data:"bpartner_name", title:"Customer" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 	};
 	

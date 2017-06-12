@@ -530,6 +530,12 @@ class Cashflow extends Getmeb
 					and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = f1.id $having) and f1.order_id = t1.id)";
 			}
 			
+			if (isset($this->params['for_request']) && !empty($this->params['for_request'])) {
+				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+				$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
+					and not exists (select 1 from cf_request_line where is_active = '1' and is_deleted = '0' and order_line_id = f1.id $having) and f1.order_id = t1.id)";
+			}
+			
 			$this->params['where']['is_sotrx'] = '1';
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
@@ -572,6 +578,13 @@ class Cashflow extends Getmeb
 				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
 				$this->params['where_custom'][] = "order_id = (select order_id from cf_inout where id = $inout_id)";
 				$this->params['where_custom'][] = "not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and inout_id = $inout_id $having)";
+			}
+			
+			if (isset($this->params['for_request']) && !empty($this->params['for_request'])) {
+				$request_id = isset($this->params['request_id']) && $this->params['request_id'] ? $this->params['request_id'] : 0;
+				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
+				$this->params['where_custom'][] = "order_id = (select order_id from cf_request where id = $request_id)";
+				$this->params['where_custom'][] = "not exists (select 1 from cf_request_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and request_id = $request_id $having)";
 			}
 			
 			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
@@ -907,6 +920,13 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
 			
+			if (isset($this->params['for_requisition']) && !empty($this->params['for_requisition'])) {
+				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+				$this->params['where_custom'] = "exists (select distinct(request_id) from cf_request_line f1 where is_active = '1' and is_deleted = '0' 
+					and not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and request_line_id = f1.id $having) and f1.request_id = t1.id)";
+			}
+			
+			$this->params['level'] = 1;
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -927,6 +947,19 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['for_requisition']) && !empty($this->params['for_requisition'])) {
+				$requisition_id = isset($this->params['requisition_id']) && $this->params['requisition_id'] ? $this->params['requisition_id'] : 0;
+				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) <= t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
+				$this->params['where_custom'][] = "request_id = (select request_id from cf_requisition where id = $requisition_id)";
+				// $this->params['where_custom'][] = "request_id = (select request_id from cf_requisition)";
+				$this->params['where_custom'][] = "not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and request_line_id = t1.id $having)";
+			}
+			
+			if (isset($this->params['get_order_id']) && !empty($this->params['get_order_id'])) {
+				$result = $this->base_model->getValueArray('order_id', 'cf_request', 'id', $this->params['request_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -968,6 +1001,8 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
 			
+			$this->params['level'] = 1;
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -987,6 +1022,11 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['get_request_id']) && !empty($this->params['get_request_id'])) {
+				$result = $this->base_model->getValueArray('request_id', 'cf_requisition', 'id', $this->params['requisition_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();

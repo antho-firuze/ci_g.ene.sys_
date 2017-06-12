@@ -129,6 +129,7 @@ class Z_db extends CI_Controller {
 		$fields['plan_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['plan_cl_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['plan_im_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['requisition_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -152,6 +153,7 @@ class Z_db extends CI_Controller {
 		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['requisition_line_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -347,6 +349,7 @@ class Z_db extends CI_Controller {
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
 		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
 		return $fields;
 	}
 	
@@ -373,6 +376,7 @@ class Z_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['request_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['order_line_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['item_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['itemcat_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['measure_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -413,6 +417,7 @@ class Z_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['requisition_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['request_line_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['item_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['itemcat_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['measure_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
