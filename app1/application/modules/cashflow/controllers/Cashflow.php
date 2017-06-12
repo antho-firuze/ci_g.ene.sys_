@@ -950,10 +950,9 @@ class Cashflow extends Getmeb
 			
 			if (isset($this->params['for_requisition']) && !empty($this->params['for_requisition'])) {
 				$requisition_id = isset($this->params['requisition_id']) && $this->params['requisition_id'] ? $this->params['requisition_id'] : 0;
-				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) <= t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
+				$this->params['select'] = "t1.*, (t1.qty - (select sum(qty) from cf_requisition_line where is_active = '1' and is_deleted = '0' and request_line_id = t1.id)) as qty, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_request where id = t1.request_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
 				$this->params['where_custom'][] = "request_id = (select request_id from cf_requisition where id = $requisition_id)";
-				// $this->params['where_custom'][] = "request_id = (select request_id from cf_requisition)";
-				$this->params['where_custom'][] = "not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and request_line_id = t1.id $having)";
+				$this->params['where_custom'][] = "(t1.qty - (select sum(qty) from cf_requisition_line where is_active = '1' and is_deleted = '0' and request_line_id = t1.id)) > 0";
 			}
 			
 			if (isset($this->params['get_order_id']) && !empty($this->params['get_order_id'])) {
