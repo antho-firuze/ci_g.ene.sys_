@@ -12,10 +12,13 @@ class IPAPI {
         // $data = self::communicate($q);
         $data = self::communicate($q);
         $result = new static;
-        foreach($data as $key => $val) {
-            $result->$key = $val;
-        }
-        return $result;
+				if ($data) {
+					foreach($data as $key => $val) {
+						$result->$key = $val;
+					}
+					return $result;
+				} 
+        return FALSE;
     }
  
     static private function communicate($q) {

@@ -40,19 +40,20 @@ class Systems_Model extends CI_model
 		$data['ip_address'] = $_SERVER['REMOTE_ADDR'];
 		if (! in_array($data['ip_address'], ['::1','127.0.0.1']) && ! is_private_ip($data['ip_address'])) {
 			$this->load->library('z_libs/IPAPI');
-			$query = IPAPI::query($data['ip_address']);
-			$data['country'] = $query->country;
-			$data['country_code'] = $query->countryCode;
-			$data['region'] = $query->region;
-			$data['region_name'] = $query->regionName;
-			$data['city'] = $query->city;
-			$data['zip'] = $query->zip;
-			$data['lat'] = $query->lat;
-			$data['lon'] = $query->lon;
-			$data['timezone'] = $query->timezone;
-			$data['isp'] = $query->isp;
-			$data['org'] = $query->org;
-			$data['as_number'] = $query->as;
+			if ($query = IPAPI::query($data['ip_address'])) {
+				$data['country'] = $query->country;
+				$data['country_code'] = $query->countryCode;
+				$data['region'] = $query->region;
+				$data['region_name'] = $query->regionName;
+				$data['city'] = $query->city;
+				$data['zip'] = $query->zip;
+				$data['lat'] = $query->lat;
+				$data['lon'] = $query->lon;
+				$data['timezone'] = $query->timezone;
+				$data['isp'] = $query->isp;
+				$data['org'] = $query->org;
+				$data['as_number'] = $query->as;
+			}
 		}
 		$this->load->library('user_agent');
 		$data['platform'] = $this->agent->platform();

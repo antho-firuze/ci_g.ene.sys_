@@ -17,4 +17,5 @@
 /* Error/Failed: error_ */
 // $lang['error_amount_overload'] 		= "Error: The amount you enter is too much ! [max=%01.2f]";
 $lang['error_amount_overload'] 		= "Error: The amount you enter is too much ! [max=%s]";
+$lang['error_qty_overload'] 		= "Error: The quantity you enter is too much ! [max=%s]";
 /* Information: info_ */

@@ -120,8 +120,11 @@ class Z_db extends CI_Controller {
 		$fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
 		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['pricelist_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['requisition_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
 		
 		$fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
@@ -129,7 +132,6 @@ class Z_db extends CI_Controller {
 		$fields['plan_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['plan_cl_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['plan_im_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
-		$fields['requisition_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -141,6 +143,7 @@ class Z_db extends CI_Controller {
 		$fields['itemcat_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['measure_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['pricelist_version_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['requisition_line_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['item_code'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
@@ -153,7 +156,6 @@ class Z_db extends CI_Controller {
 		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
-		$fields['requisition_line_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		return $fields;
 	}
 	

@@ -181,15 +181,19 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_porder($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
 		$params['table'] 	= "cf_order as t1";
+		if (isset($params['level']) && $params['level'] == 1) {
+			$params['select'] .= ", t2.doc_no as doc_no_requisition, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_requisition";
+			$params['join'][] = ['cf_requisition as t2', 't1.requisition_id = t2.id', 'left'];
+		}
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function cf_porder_line($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name";
 		$params['table'] 	= "cf_order_line as t1";
 		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
@@ -317,19 +321,40 @@ class Cashflow_Model extends CI_Model
 		$id = isset($params->id) && $params->id ? 'and t2.id <> '.$params->id : '';
 		$order_id = $params->order_id;
 		if (isset($params->is_plan) && $params->is_plan) {
-			$str = "SELECT grand_total,
-				(
-					select sum(amount) from cf_order_plan t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.order_id = t1.id $id
-				) as plan_total 
+			// $str = "SELECT grand_total,
+				// (
+					// select sum(amount) from cf_order_plan t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.order_id = t1.id $id
+				// ) as plan_total 
+				// from cf_order t1 where t1.id = $order_id";
+			$str = "SELECT (grand_total - (select coalesce(sum(amount),0) from cf_order_plan t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.order_id = t1.id $id)) as amount 
 				from cf_order t1 where t1.id = $order_id";
 		}
 		$row = $this->db->query($str)->row();
-		if ($row->grand_total - $row->plan_total - $params->amount < 0) {
-			$this->session->set_flashdata('message', $row->grand_total - $row->plan_total);
+		// if ($row->grand_total - $row->plan_total - $params->amount < 0) {
+		if ($row->amount - $params->amount < 0) {
+			// $this->session->set_flashdata('message', $row->grand_total - $row->plan_total);
+			$this->session->set_flashdata('message', $row->amount);
 			return FALSE;
 		}
 		return TRUE;
 		// if ($row->grand_total - $row->plan_total < $params->amount)
+	}
+	
+	function cf_order_valid_qty($params)
+	{
+		$params = is_array($params) ? (object) $params : $params;
+		if (! isset($params->order_id) && !$params->order_id)
+			return false;
+		
+		$id = $params->order_id;
+		$str = "select (t1.qty - (select coalesce(sum(qty),0) from cf_requisition_line where is_active = '1' and is_deleted = '0' and order_id = t1.id)) as qty 
+			from cf_request_line as t1 where t1.is_deleted = '0' and t1.id = $id";
+		$row = $this->db->query($str)->row();
+		if ($row->qty - $params->qty < 0) {
+			$this->session->set_flashdata('message', $row->qty);
+			return FALSE;
+		}
+		return TRUE;
 	}
 	
 	/* function cf_order_vs_inout($params)
@@ -428,19 +453,40 @@ class Cashflow_Model extends CI_Model
 		$id = isset($params->id) && $params->id ? 'and t2.id <> '.$params->id : '';
 		$invoice_id = $params->invoice_id;
 		if (isset($params->is_plan) && $params->is_plan) {
-			$str = "SELECT grand_total,
-				(
-					select sum(amount) from cf_invoice_plan t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.invoice_id = t1.id $id
-				) as plan_total 
+			// $str = "SELECT grand_total,
+				// (
+					// select sum(amount) from cf_invoice_plan t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.invoice_id = t1.id $id
+				// ) as plan_total 
+				// from cf_invoice t1 where t1.id = $invoice_id";
+			$str = "SELECT (grand_total - (select coalesce(sum(amount),0) from cf_invoice_plan t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.invoice_id = t1.id $id)) as amount 
 				from cf_invoice t1 where t1.id = $invoice_id";
 		}
 		$row = $this->db->query($str)->row();
-		if ($row->grand_total - $row->plan_total - $params->amount < 0) {
-			$this->session->set_flashdata('message', $row->grand_total - $row->plan_total);
+		// if ($row->grand_total - $row->plan_total - $params->amount < 0) {
+		if ($row->amount - $params->amount < 0) {
+			// $this->session->set_flashdata('message', $row->grand_total - $row->plan_total);
+			$this->session->set_flashdata('message', $row->amount);
 			return FALSE;
 		}
 		return TRUE;
 		// if ($row->grand_total - $row->plan_total < $params->amount)
+	}
+	
+	function cf_requisition_valid_qty($params)
+	{
+		$params = is_array($params) ? (object) $params : $params;
+		if (! isset($params->request_line_id) && !$params->request_line_id)
+			return false;
+		
+		$id = $params->request_line_id;
+		$str = "select (t1.qty - (select coalesce(sum(qty),0) from cf_requisition_line where is_active = '1' and is_deleted = '0' and request_line_id = t1.id)) as qty 
+			from cf_request_line as t1 where t1.is_deleted = '0' and t1.id = $id";
+		$row = $this->db->query($str)->row();
+		if ($row->qty - $params->qty < 0) {
+			$this->session->set_flashdata('message', $row->qty);
+			return FALSE;
+		}
+		return TRUE;
 	}
 	
 }
