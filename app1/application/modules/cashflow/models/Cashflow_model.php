@@ -278,7 +278,7 @@ class Cashflow_Model extends CI_Model
 		if (isset($params->is_line) && $params->is_line) {
 			$str = "update cf_order t1 set (sub_total, vat_total, grand_total) = 
 				(
-					select sum(sub_amt), sum(vat_amt), sum(ttl_amt) from cf_order_line t2 
+					select coalesce(sum(sub_amt),0), coalesce(sum(vat_amt),0), coalesce(sum(ttl_amt),0) from cf_order_line t2 
 					where t2.is_active = '1' and t2.is_deleted = '0' and t2.order_id = t1.id
 				)
 				$id";
@@ -286,7 +286,7 @@ class Cashflow_Model extends CI_Model
 		if (isset($params->is_plan) && $params->is_plan) {
 			$str = "update cf_order t1 set (plan_total) = 
 				(
-					select sum(amount) from cf_order_plan t2 
+					select coalesce(sum(amount),0) from cf_order_plan t2 
 					where t2.is_active = '1' and t2.is_deleted = '0' and t2.order_id = t1.id
 				)
 				$id";
@@ -294,7 +294,7 @@ class Cashflow_Model extends CI_Model
 		if (isset($params->is_plan_cl) && $params->is_plan_cl) {
 			$str = "update cf_order t1 set (plan_cl_total) = 
 				(
-					select sum(amount) from cf_order_plan_clearance t2 
+					select coalesce(sum(amount),0) from cf_order_plan_clearance t2 
 					where t2.is_active = '1' and t2.is_deleted = '0' and t2.order_id = t1.id
 				)
 				$id";
@@ -302,7 +302,7 @@ class Cashflow_Model extends CI_Model
 		if (isset($params->is_plan_im) && $params->is_plan_im) {
 			$str = "update cf_order t1 set (plan_im_total) = 
 				(
-					select sum(amount) from cf_order_plan_import t2 
+					select coalesce(sum(amount),0) from cf_order_plan_import t2 
 					where t2.is_active = '1' and t2.is_deleted = '0' and t2.order_id = t1.id
 				)
 				$id";
@@ -310,6 +310,7 @@ class Cashflow_Model extends CI_Model
 		return $this->db->query($str);
 	}
 	
+	/* For CF Sales Order Plan vs Sales Order Line */
 	function cf_order_valid_amount($params)
 	{
 		/* Insert: (grand_total - plan_total) < new_amount => error */
@@ -323,7 +324,7 @@ class Cashflow_Model extends CI_Model
 		if (isset($params->is_plan) && $params->is_plan) {
 			// $str = "SELECT grand_total,
 				// (
-					// select sum(amount) from cf_order_plan t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.order_id = t1.id $id
+					// select coalesce(sum(amount),0) from cf_order_plan t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.order_id = t1.id $id
 				// ) as plan_total 
 				// from cf_order t1 where t1.id = $order_id";
 			$str = "SELECT (grand_total - (select coalesce(sum(amount),0) from cf_order_plan t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.order_id = t1.id $id)) as amount 
@@ -340,15 +341,16 @@ class Cashflow_Model extends CI_Model
 		// if ($row->grand_total - $row->plan_total < $params->amount)
 	}
 	
+	/* For CF Purchase Order Line vs Requisition Line */
 	function cf_order_valid_qty($params)
 	{
 		$params = is_array($params) ? (object) $params : $params;
-		if (! isset($params->order_id) && !$params->order_id)
+		if (! isset($params->requisition_line_id) && !$params->requisition_line_id)
 			return false;
 		
-		$id = $params->order_id;
-		$str = "select (t1.qty - (select coalesce(sum(qty),0) from cf_requisition_line where is_active = '1' and is_deleted = '0' and order_id = t1.id)) as qty 
-			from cf_request_line as t1 where t1.is_deleted = '0' and t1.id = $id";
+		$id = $params->requisition_line_id;
+		$str = "select (t1.qty - (select coalesce(sum(qty),0) from cf_order_line where is_active = '1' and is_deleted = '0' and requisition_line_id = t1.id)) as qty 
+			from cf_requisition_line as t1 where t1.is_deleted = '0' and t1.id = $id";
 		$row = $this->db->query($str)->row();
 		if ($row->qty - $params->qty < 0) {
 			$this->session->set_flashdata('message', $row->qty);
@@ -403,7 +405,7 @@ class Cashflow_Model extends CI_Model
 		if (isset($params->is_line) && $params->is_line) {
 			$str = "update cf_charge t1 set (sub_total, vat_total, grand_total) = 
 				(
-					select sum(sub_amt), sum(vat_amt), sum(ttl_amt) from cf_charge_line t2 
+					select coalesce(sum(sub_amt),0), coalesce(sum(vat_amt),0), coalesce(sum(ttl_amt),0) from cf_charge_line t2 
 					where t2.is_active = '1' and t2.is_deleted = '0' and t2.charge_id = t1.id
 				)
 				$id";
@@ -411,7 +413,7 @@ class Cashflow_Model extends CI_Model
 		if (isset($params->is_plan) && $params->is_plan) {
 			$str = "update cf_charge t1 set (plan_total) = 
 				(
-					select sum(amount) from cf_charge_plan t2 
+					select coalesce(sum(amount),0) from cf_charge_plan t2 
 					where t2.is_active = '1' and t2.is_deleted = '0' and t2.charge_id = t1.id
 				)
 				$id";
@@ -426,7 +428,7 @@ class Cashflow_Model extends CI_Model
 		if (isset($params->is_line) && $params->is_line) {
 			$str = "update cf_invoice t1 set (sub_total, vat_total, grand_total) = 
 				(
-					select sum(sub_amt), sum(vat_amt), sum(ttl_amt) from cf_invoice_line t2 
+					select coalesce(sum(sub_amt),0), coalesce(sum(vat_amt),0), coalesce(sum(ttl_amt),0) from cf_invoice_line t2 
 					where t2.is_active = '1' and t2.is_deleted = '0' and t2.invoice_id = t1.id
 				)
 				$id";
@@ -434,7 +436,7 @@ class Cashflow_Model extends CI_Model
 		if (isset($params->is_plan) && $params->is_plan) {
 			$str = "update cf_invoice t1 set (plan_total) = 
 				(
-					select sum(amount) from cf_invoice_plan t2 
+					select coalesce(sum(amount),0) from cf_invoice_plan t2 
 					where t2.is_active = '1' and t2.is_deleted = '0' and t2.invoice_id = t1.id
 				)
 				$id";
@@ -455,7 +457,7 @@ class Cashflow_Model extends CI_Model
 		if (isset($params->is_plan) && $params->is_plan) {
 			// $str = "SELECT grand_total,
 				// (
-					// select sum(amount) from cf_invoice_plan t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.invoice_id = t1.id $id
+					// select coalesce(sum(amount),0) from cf_invoice_plan t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.invoice_id = t1.id $id
 				// ) as plan_total 
 				// from cf_invoice t1 where t1.id = $invoice_id";
 			$str = "SELECT (grand_total - (select coalesce(sum(amount),0) from cf_invoice_plan t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.invoice_id = t1.id $id)) as amount 

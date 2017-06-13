@@ -683,7 +683,7 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
-				$this->params->is_plan = 1;
+				$this->params['is_plan'] = 1;
 				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
@@ -757,7 +757,7 @@ class Cashflow extends Getmeb
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$datas = $this->_pre_update_records(TRUE);
 			
-			if (! $this->{$this->mdl}->cf_requisition_valid_qty($datas)){ 
+			if (! $this->{$this->mdl}->cf_order_valid_qty($datas)){ 
 				$this->xresponse(FALSE, ['message' => lang('error_qty_overload', [abs($this->session->flashdata('message'))])], 401);
 			}
 
@@ -782,7 +782,7 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
-				$this->params->is_line = 1;
+				$this->params['is_line'] = 1;
 				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
@@ -794,13 +794,13 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
 			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
 			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
 				$result = $this->base_model->getValueArray('sub_total, vat_total, grand_total, plan_total, plan_cl_total, plan_im_total', 'cf_order', 'id',$this->params['order_id']);
 				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
@@ -811,6 +811,12 @@ class Cashflow extends Getmeb
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			$datas = $this->_pre_update_records(TRUE);
+			
+			$datas['is_plan'] = 1;
+			if (! $this->{$this->mdl}->cf_order_valid_amount($datas)){ 
+				$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+			}
+			unset($datas['is_plan']);
 			
 			if ($this->r_method == 'POST') {
 				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
@@ -833,7 +839,7 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
-				$this->params->is_plan = 1;
+				$this->params['is_plan'] = 1;
 				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}

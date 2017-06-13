@@ -27,7 +27,7 @@
 	}));
 	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Combobox({ label:"Client", idname:"client_id", required: true, url:"{$.php.base_url('systems/a_client')}", remote: true }));
-	col.push(BSHelper.Combobox({ label:"Organization", idname:"org_id", required: true, url:"{$.php.base_url('systems/a_org')}", remote: true }));
+	col.push(BSHelper.Combobox({ label:"Organization", idname:"org_id", required: true, url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=2", remote: true }));
 	row.push(subCol(6, col));
 	form1.append(subRow(row));
 	form1.append(subRow(subCol()));
