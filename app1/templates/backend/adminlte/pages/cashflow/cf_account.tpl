@@ -29,6 +29,7 @@
 			{ width:"130px", orderable:false, data:"code_name", title:"Name" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_sotrx", title:"Is Inflow", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 	};
 	

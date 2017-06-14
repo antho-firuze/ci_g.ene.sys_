@@ -296,8 +296,8 @@ class Z_db extends CI_Controller {
 		return $fields;
 	}
 	
-	/* cf_charge: charge in & charge out */
-	function table_cf_charge()
+	/* cf_ar_ap: ar & ap */
+	function table_cf_ar_ap()
 	{
 		$fields = $this->field_00_Main();
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
@@ -306,7 +306,7 @@ class Z_db extends CI_Controller {
 		
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
-		$fields['charge_type_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['account_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
@@ -318,10 +318,10 @@ class Z_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_cf_charge_line()
+	function table_cf_ar_ap_line()
 	{
 		$fields = $this->field_00_Main();
-		$fields['charge_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['ar_ap_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['account_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
@@ -333,10 +333,10 @@ class Z_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_cf_charge_plan()
+	function table_cf_ar_ap_plan()
 	{
 		$fields = $this->field_00_Main();
-		$fields['charge_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['ar_ap_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];

@@ -176,10 +176,12 @@ class Base_Model extends CI_Model
 		}
 
 		if (! $query = $this->db->get() ){
-			debug($this->db->last_query());
+			// debug($this->db->last_query());
 			// $this->db->error(); // Has keys 'code' and 'message'
 			$this->set_error($this->db->error()['message']);
 			$this->set_error($this->db->last_query());
+			if (ini_get('display_errors'))
+				debug($this->errors());
 			return FALSE;
 		} 
 		// debug($this->db->last_query());

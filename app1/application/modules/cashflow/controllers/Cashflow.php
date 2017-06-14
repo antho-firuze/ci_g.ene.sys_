@@ -32,7 +32,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_charge()
+	function cf_ar_ap()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -52,7 +52,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_charge_line()
+	function cf_ar_ap_line()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -72,7 +72,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_charge_plan()
+	function cf_ar_ap_plan()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -199,7 +199,15 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
 			
-			$this->params['where']['is_sotrx'] = '0';
+			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
+				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+				$this->params['where_custom'] = "exists (select distinct(inout_id) from cf_inout_line f1 where is_active = '1' and is_deleted = '0' 
+					and not exists (select 1 from cf_invoice_line where is_active = '1' and is_deleted = '0' and inout_line_id = f1.id $having) and f1.inout_id = t1.id)";
+			}
+			
+			$this->params['level'] = 1;
+			$this->params['where']['t1.is_sotrx'] = '0';
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -219,6 +227,18 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['get_order_id']) && !empty($this->params['get_order_id'])) {
+				$result = $this->base_model->getValueArray('order_id', 'cf_inout', 'id', $this->params['inout_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
+			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
+				$invoice_id = isset($this->params['invoice_id']) && $this->params['invoice_id'] ? $this->params['invoice_id'] : 0;
+				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
+				$this->params['where_custom'][] = "inout_id = (select inout_id from cf_invoice where id = $invoice_id)";
+				$this->params['where_custom'][] = "not exists (select 1 from cf_invoice_line where is_active = '1' and is_deleted = '0' and inout_line_id = t1.id and invoice_id = $invoice_id $having)";
+			}
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -397,7 +417,9 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
 			
-			$this->params['where']['is_sotrx'] = '0';
+			$this->params['level'] = 1;
+			$this->params['where']['t1.is_sotrx'] = '0';
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -409,7 +431,22 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
+			$datas = $this->_pre_update_records(TRUE);
+			
+			if ($this->r_method == 'POST') {
+				$datas['is_sotrx'] = '0';
+				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
+			} else {
+				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			}
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+			if ($this->r_method == 'POST')
+				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
 	
@@ -418,25 +455,15 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
 			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
+			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
+				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total', 'cf_invoice', 'id',$this->params['invoice_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
 			}
 			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
+			if (isset($this->params['get_inout_id']) && !empty($this->params['get_inout_id'])) {
+				$result = $this->base_model->getValueArray('inout_id', 'cf_invoice', 'id', $this->params['invoice_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
-	}
-	
-	function cf_pinvoice_plan()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE);
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -462,8 +489,65 @@ class Cashflow extends Getmeb
 			
 			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
 			
+			$this->params->is_line = 1;
+			$this->{$this->mdl}->cf_invoice_update_summary($this->params);
+			
+			if ($this->r_method == 'POST')
+				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->params['is_line'] = 1;
+				$this->params['invoice_id'] = $this->base_model->getValue('invoice_id', $this->c_table, 'id', $this->params['id'])->invoice_id;
+				$this->{$this->mdl}->cf_invoice_update_summary($this->params);
+			}
+		}
+	}
+	
+	function cf_pinvoice_plan()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
+				$result = $this->base_model->getValueArray('sub_total, vat_total, grand_total, plan_total', 'cf_invoice', 'id',$this->params['invoice_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			$datas = $this->_pre_update_records(TRUE);
+			
+			$datas['is_plan'] = 1;
+			if (! $this->{$this->mdl}->cf_invoice_valid_amount($datas)){ 
+				$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+			}
+			unset($datas['is_plan']);
+
+			if ($this->r_method == 'POST') {
+				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
+			} else {
+				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			}
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
+			
 			$this->params->is_plan = 1;
-			$this->{$this->mdl}->cf_order_update_summary($this->params);
+			$this->{$this->mdl}->cf_invoice_update_summary($this->params);
 			
 			if ($this->r_method == 'POST')
 				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
@@ -474,7 +558,7 @@ class Cashflow extends Getmeb
 			if ($this->params['event'] == 'post_delete'){
 				$this->params->is_plan = 1;
 				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
-				$this->{$this->mdl}->cf_order_update_summary($this->params);
+				$this->{$this->mdl}->cf_invoice_update_summary($this->params);
 			}
 		}
 	}
@@ -742,6 +826,13 @@ class Cashflow extends Getmeb
 			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
 				$result = $this->base_model->getValueArray('sub_total, vat_total, grand_total, plan_total, plan_cl_total, plan_im_total', 'cf_order', 'id',$this->params['order_id']);
 				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
+			if (isset($this->params['for_material_receipt']) && !empty($this->params['for_material_receipt'])) {
+				$inout_id = isset($this->params['inout_id']) && $this->params['inout_id'] ? $this->params['inout_id'] : 0;
+				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
+				$this->params['where_custom'][] = "order_id = (select order_id from cf_inout where id = $inout_id)";
+				$this->params['where_custom'][] = "not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and inout_id = $inout_id $having)";
 			}
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {

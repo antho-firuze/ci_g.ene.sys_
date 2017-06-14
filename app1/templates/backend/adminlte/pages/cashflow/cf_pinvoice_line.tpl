@@ -48,29 +48,29 @@
 	};
 	
 	{* For design form interface *}
-	{* var $filter = getURLParameter("filter"); *}
-	{* var col = [], row = []; *}
-	{* var form1 = BSHelper.Form({ autocomplete:"off" }); *}
-	{* var box1 = BSHelper.Box({ type:"info", footer: false }); *}
-	{* var format_currency = "'alias': 'decimal', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'rightAlign': true, 'autoGroup': true, 'autoUnmask': true"; *}
-	{* col.push(BSHelper.Input({ horz:true, type:"text", label:"Sub Total", idname:"sub_total", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, })); *}
-	{* col.push(BSHelper.Input({ horz:true, type:"text", label:"VAT Total", idname:"vat_total", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, })); *}
-	{* col.push(BSHelper.Input({ horz:true, type:"text", label:"Grand Total", idname:"grand_total", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, })); *}
-	{* row.push(subCol(12, col)); col = []; *}
-	{* form1.append(subRow(row)); row = []; *}
-	{* box1.find('.box-body').append(form1); *}
-	{* row.push(subCol(7)); *}
-	{* row.push(subCol(5, box1)); *}
-	{* $(".content").append(subRow(row)); *}
+	var $filter = getURLParameter("filter");
+	var col = [], row = [];
+	var form1 = BSHelper.Form({ autocomplete:"off" });
+	var box1 = BSHelper.Box({ type:"info", footer: false });
+	var format_currency = "'alias': 'decimal', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'rightAlign': true, 'autoGroup': true, 'autoUnmask': true";
+	col.push(BSHelper.Input({ horz:true, type:"text", label:"Sub Total", idname:"sub_total", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, placeholder: "0", }));
+	col.push(BSHelper.Input({ horz:true, type:"text", label:"VAT Total", idname:"vat_total", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, placeholder: "0", }));
+	col.push(BSHelper.Input({ horz:true, type:"text", label:"Grand Total", idname:"grand_total", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, placeholder: "0", }));
+	row.push(subCol(12, col)); col = [];
+	form1.append(subRow(row)); row = [];
+	box1.find('.box-body').append(form1);
+	row.push(subCol(7));
+	row.push(subCol(5, box1));
+	$(".content").append(subRow(row));
 	
-	{* $("[data-mask]").inputmask(); *}
+	$("[data-mask]").inputmask();
 	
-	{* if ($filter.split('=')[0] == 'order_id'){ *}
-		{* var order_id = $filter.split('=')[1]; *}
-		{* $.getJSON($url_module, { "summary": 1, "order_id": order_id }, function(result){  *}
-			{* if (!isempty_obj(result.data))  *}
-				{* form1.shollu_autofill('load', result.data);   *}
-		{* }); *}
-	{* } *}
+	if ($filter.split('=')[0] == 'invoice_id'){
+		var invoice_id = $filter.split('=')[1];
+		$.getJSON($url_module, { "summary": 1, "invoice_id": invoice_id }, function(result){ 
+			if (!isempty_obj(result.data)) 
+				form1.shollu_autofill('load', result.data);  
+		});
+	}
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>
