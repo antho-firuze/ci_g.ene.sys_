@@ -9,6 +9,15 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+<style>
+td.details-control {
+    background: url("https://raw.githubusercontent.com/DataTables/DataTables/1.10.7/examples/resources/details_open.png") no-repeat center center;
+    cursor: pointer;
+}
+tr.shown td.details-control {
+    background: url("https://raw.githubusercontent.com/DataTables/DataTables/1.10.7/examples/resources/details_close.png") no-repeat center center;
+}
+</style>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Toolbar Init *}
@@ -23,6 +32,7 @@
 	{* DataTable Init *}
 	var DataTable_Init = {
 		enable: true,
+		treeView: true,
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [],
 		columns: [
@@ -34,4 +44,4 @@
 	};
 	
 </script>
-<script src="{$.const.ASSET_URL}js/window_view.js"></script>
+<script src="{$.const.ASSET_URL}js/window_treeview.js"></script>
