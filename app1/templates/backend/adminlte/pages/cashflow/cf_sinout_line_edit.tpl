@@ -25,15 +25,16 @@
 	{* col.push(BSHelper.Combobox({ horz:false, label:"SO Line", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"list_name", idname:"order_line_id", url:"{$.php.base_url('cashflow/cf_sorder_line')}", remote: true, required: false, })); *}
 	col.push(BSHelper.Combobox({ horz:false, label:"SO Line", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"list_name", idname:"order_line_id", url:"{$.php.base_url('cashflow/cf_sorder_line')}?for_shipment=1", remote: true, required: false, }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Item Category", label_link:"{$.const.PAGE_LNK}?pageid=47", idname:"itemcat_id", url:"{$.php.base_url('inventory/m_itemcat')}", remote: true, required: true }));
+	col.push(BSHelper.Checkbox({ horz:false, label:"Is Completed", idname:"is_completed", value:0 }));
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Item Name", idname:"item_name", required: false, })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Item Size", idname:"item_size", required: false, })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"number", label:"Unit Price", idname:"price", required: false, value: 0, })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"number", label:"Quantity", idname:"qty", required: false, value: 1 })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Sub Amount", idname:"sub_amt", style: "text-align: right;", format: format_currency, required: false, value: 0, onchange:"calculate_amount()", })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"VAT Amount", idname:"vat_amt", style: "text-align: right;", format: format_currency, required: false, value: 0, onchange:"calculate_amount()", })); *}
-	col.push(BSHelper.Input({ horz:false, type:"number", label:"Sub Amount", idname:"sub_amt", style: "text-align: right;", step: ".01", required: false, value: 0, onchange:"calculate_amount()", placeholder: "0.00" }));
-	col.push(BSHelper.Input({ horz:false, type:"number", label:"VAT Amount", idname:"vat_amt", style: "text-align: right;", step: ".01", required: false, value: 0, onchange:"calculate_amount()", placeholder: "0.00" }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Total Amount", idname:"ttl_amt", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, }));
+	{* col.push(BSHelper.Input({ horz:false, type:"number", label:"Sub Amount", idname:"sub_amt", style: "text-align: right;", step: ".01", required: false, value: 0, onchange:"calculate_amount()", placeholder: "0.00" })); *}
+	{* col.push(BSHelper.Input({ horz:false, type:"number", label:"VAT Amount", idname:"vat_amt", style: "text-align: right;", step: ".01", required: false, value: 0, onchange:"calculate_amount()", placeholder: "0.00" })); *}
+	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Total Amount", idname:"ttl_amt", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, })); *}
 	row.push(subCol(6, col)); col = [];
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
@@ -79,9 +80,9 @@
 			$("#itemcat_id").shollu_cb('setValue', rawData.itemcat_id);
 			$("#seq").val(rawData.seq);
 			{* $("#qty").val(rawData.qty); *}
-			$("#sub_amt").val(rawData.sub_amt);
-			$("#vat_amt").val(rawData.vat_amt);
-			$("#ttl_amt").val(rawData.ttl_amt);
+			{* $("#sub_amt").val(rawData.sub_amt); *}
+			{* $("#vat_amt").val(rawData.vat_amt); *}
+			{* $("#ttl_amt").val(rawData.ttl_amt); *}
 		}
 	});
 	

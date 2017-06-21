@@ -198,7 +198,7 @@ function initDataTable()
 						 else
 							el_tr.append( $(tr.prop('innerHTML'))[i] );
 					 } else {
-						 el_tr.append( $($(tr.prop('innerHTML'))[i]).text(this.{}) );
+						 //el_tr.append( $($(tr.prop('innerHTML'))[i]).text(this.{}) );
 					 }
 				 });
 					/* el_tr

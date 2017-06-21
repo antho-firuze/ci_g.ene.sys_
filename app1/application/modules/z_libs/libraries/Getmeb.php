@@ -108,6 +108,8 @@ class Getmeb extends CI_Controller
 			
 			/* Request for viewlog */
 			if (isset($this->params['viewlog']) && !empty($this->params['viewlog'])) {
+				$this->c_table = $this->base_model->getValue('table', 'a_menu', 'id', $this->params['pageid'])->table;
+				
 				/* Check permission in the role */
 				$this->_check_is_allow_inrole('canviewlog');
 				$this->_get_viewlog();
@@ -421,9 +423,9 @@ class Getmeb extends CI_Controller
 	function _get_viewlog()
 	{
 		$result = [];
-		$result['table'] = $this->c_method;
+		$result['table'] = $this->c_table;
 		$result['id'] = $this->params['id'];
-		if ($info = $this->base_model->getValue('created_by, created_at, updated_by, updated_at, deleted_by, deleted_at', $this->c_method, 'id', $this->params['id'])){
+		if ($info = $this->base_model->getValue('created_by, created_at, updated_by, updated_at, deleted_by, deleted_at', $result['table'], 'id', $this->params['id'])){
 			if ($info->created_by){
 				if ($user = $this->base_model->getValue('id, name', 'a_user', 'id', $info->created_by)) {
 					$result['created_by'] 		 = $user->id;

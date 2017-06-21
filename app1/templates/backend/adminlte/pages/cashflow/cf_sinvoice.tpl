@@ -36,8 +36,10 @@
 		columns: [
 			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
-			{ width:"100px", orderable:false, data:"doc_no_inout", title:"DO No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_inout", title:"DO Date" },
+			{* { width:"100px", orderable:false, data:"doc_no_inout", title:"DO No" }, *}
+			{* { width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_inout", title:"DO Date" }, *}
+			{ width:"100px", orderable:false, data:"doc_no_order", title:"SO No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_order", title:"SO Date" },
 			{ width:"150px", orderable:false, data:"bpartner_name", title:"Customer" },
 			{ width:"200px", orderable:false, data:"description", title:"Description" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_currency(data); } },

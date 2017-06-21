@@ -41,9 +41,10 @@
 			{* { width:"100px", orderable:false, data:"item_size", title:"Item Size" }, *}
 			{* { width:"40px", orderable:false, data:"qty", title:"Qty" }, *}
 			{* { width:"100px", orderable:false, data:"price", title:"Price" }, *}
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_amt", title:"Sub Amount", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_amt", title:"VAT Amount", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"ttl_amt", title:"Total Amount", render: function(data, type, row){ return format_money(data); } },
+			{* { width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_amt", title:"Sub Amount", render: function(data, type, row){ return format_money(data); } }, *}
+			{* { width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_amt", title:"VAT Amount", render: function(data, type, row){ return format_money(data); } }, *}
+			{* { width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"ttl_amt", title:"Total Amount", render: function(data, type, row){ return format_money(data); } }, *}
+			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_completed", title:"Completed", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 	};
 	
