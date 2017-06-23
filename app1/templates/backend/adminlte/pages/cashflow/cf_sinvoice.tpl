@@ -30,7 +30,7 @@
 		tableWidth: '125%',
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
-			{ pageid: 106, subKey: 'invoice_id', title: 'Invoice Line', },
+			{* { pageid: 106, subKey: 'invoice_id', title: 'Invoice Line', }, *}
 			{ pageid: 107, subKey: 'invoice_id', title: 'Invoice Plan', },
 		],
 		columns: [

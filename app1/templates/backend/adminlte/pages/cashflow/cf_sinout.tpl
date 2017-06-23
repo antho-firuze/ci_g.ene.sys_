@@ -27,7 +27,7 @@
 	var format_currency = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
 	var DataTable_Init = {
 		enable: true,
-		tableWidth: '110%',
+		tableWidth: '125%',
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
 			{ pageid: 105, subKey: 'inout_id', title: 'Shipment Line', },
@@ -38,6 +38,7 @@
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"delivery_date", title:"Delivery Date" },
 			{ width:"100px", orderable:false, data:"doc_no_order", title:"SO No" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_order", title:"SO Date" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"etd_order", title:"SO ETD" },
 			{ width:"150px", orderable:false, data:"bpartner_name", title:"Customer" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 			{* { width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_currency(data); } }, *}

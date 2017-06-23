@@ -125,7 +125,8 @@ class Z_db extends CI_Controller {
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
-		$fields['delivery_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['etd'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['eta'] = ['type' => 'DATE', 'null' => TRUE];
 		
 		$fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
@@ -150,10 +151,8 @@ class Z_db extends CI_Controller {
 		$fields['item_code'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
 		$fields['item_name'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
 		$fields['item_size'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
-		
 		$fields['qty'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		$fields['price'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		
 		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
@@ -228,10 +227,8 @@ class Z_db extends CI_Controller {
 		$fields['item_code'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
 		$fields['item_name'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
 		$fields['item_size'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
-		
 		$fields['qty'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
 		$fields['price'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		
 		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
@@ -248,8 +245,12 @@ class Z_db extends CI_Controller {
 		
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
-		$fields['inout_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];	// not in used, change reference to order_id
 		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['plan_type'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['order_plan_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['order_plan_clearance_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['order_plan_import_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['inout_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];	// not in used, change reference to order_id
 		$fields['inout_ids'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];	// example of shipment_id : 1,2,3,4
 		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
@@ -257,6 +258,7 @@ class Z_db extends CI_Controller {
 		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
 		
+		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];

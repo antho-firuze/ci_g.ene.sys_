@@ -31,7 +31,7 @@ Requisition:
 
 PO:
 - munculkan requsition ETA pada saat entry
-- tambah "PO ETA"
+(v) - tambah "PO ETA"
 - hidden quantity
 
 PO Plan:
@@ -39,7 +39,7 @@ PO Plan:
 
 Material Receipt:
 - munculkan PO ETA pada saat entry
-- mr line, ditambah satu field is_complete/partial, hidden all amount. (belum dibuat pengecekannya)
+(v) - mr line, ditambah satu field is_complete/partial, hidden all amount. (belum dibuat pengecekannya)
 
 
 Outbound/Inbound: => diganti menjadi stock movement
