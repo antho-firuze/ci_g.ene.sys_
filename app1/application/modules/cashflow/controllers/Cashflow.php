@@ -279,6 +279,7 @@ class Cashflow extends Getmeb
 			
 			if ($this->r_method == 'POST') {
 				$datas['is_sotrx'] = '1';
+				$datas['orgtrx_id'] = $this->session->orgtrx_id;
 				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
 			} else {
 				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
@@ -619,12 +620,38 @@ class Cashflow extends Getmeb
 				}
 			}
 			
-			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
+			if (isset($this->params['for_invoice_cus']) && !empty($this->params['for_invoice_cus'])) {
 				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
 				// $this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
 					// and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = f1.id $having) and f1.order_id = t1.id)";
+				$this->params['where_custom'] = "exists (
+					select distinct(order_id) from (
+						select * from cf_order_plan t1
+						where is_active = '1' and is_deleted = '0'
+						and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id)
+					) as t2 where t2.order_id = t1.id
+				)";
+			}
+			
+			if (isset($this->params['for_invoice_ven']) && !empty($this->params['for_invoice_ven'])) {
+				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
 				// $this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
-					// and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = f1.id))";
+					// and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = f1.id $having) and f1.order_id = t1.id)";
+				$this->params['where_custom'] = "exists (
+					select distinct(order_id) from (
+						select * from cf_order_plan t1
+						where is_active = '1' and is_deleted = '0'
+						and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id)
+						union
+						select * from cf_order_plan_clearance t1
+						where is_active = '1' and is_deleted = '0'
+						and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_clearance_id = t1.id)
+						union
+						select * from cf_order_plan_import t1
+						where is_active = '1' and is_deleted = '0'
+						and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_import_id = t1.id)
+					) as t2 where t2.order_id = t1.id
+				)";
 			}
 			
 			if (isset($this->params['for_request']) && !empty($this->params['for_request'])) {
@@ -736,6 +763,11 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
+				// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+				$this->params['where_custom'] = "not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id)";
+			}
 			
 			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
 				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total, coalesce(plan_cl_total,0) as plan_cl_total, coalesce(plan_im_total,0) as plan_im_total', 'cf_order', 'id',$this->params['order_id']);
