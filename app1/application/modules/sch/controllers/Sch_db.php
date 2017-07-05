@@ -32,87 +32,53 @@ class Z_db extends CI_Controller {
 		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 	}
 	
-	function table_fa_bank()
-	{
-		$fields = $this->field_00_Main();
-		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
-		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
-		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
-		return $fields;
-	}
-	
-	function table_c_greeting()
-	{
-		$fields = $this->field_00_Main();
-		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
-		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
-		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
-		return $fields;
-	}
-	
-	function table_c_bpartner()
+	function table_sch_config()
 	{
 		$fields = $this->field_00_Main();
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
 		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		
-		$fields['parent_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['greeting_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['first_name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['last_name'] 	= ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['website'] 	= ['type' => 'VARCHAR', 'constraint' => '120', 'null' => TRUE];
-		$fields['email'] 	= ['type' => 'VARCHAR', 'constraint' => '120', 'null' => TRUE];
-		$fields['phone'] 	= ['type' => 'VARCHAR', 'constraint' => '120', 'null' => TRUE];
-		$fields['fax'] 	= ['type' => 'VARCHAR', 'constraint' => '120', 'null' => TRUE];
-		/* Marketing area */
-		$fields['is_customer'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
-		$fields['is_prospect'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
-		$fields['is_salesrep'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
-		$fields['is_manufacturer'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
-		$fields['is_sotaxexempt'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
-		$fields['salesrep_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['number_employees'] = ['type' => 'NUMERIC', 'constraint' => '10', 'null' => TRUE];
-		$fields['so_creditstatus'] = ['type' => 'CHAR', 'constraint' => '1', 'null' => TRUE];
-		$fields['so_creditlimit'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['so_creditused'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['so_pricelist_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['invoice_rule'] = 	['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['delivery_rule'] = 	['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['deliveryvia_rule'] = 	['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['freightcost_rule'] = 	['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		/* Purchasing area */
-		$fields['is_vendor'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
-		$fields['is_potaxexempt'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
-		$fields['po_pricelist_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		/* Finance area */
-		$fields['taxid'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
+		$fields['photo_path'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
 		return $fields;
 	}
 	
-	function table_c_bpartner_location()
+	function table_sch_config_yearly()
 	{
 		$fields = $this->field_00_Main();
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
 		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		
-		$fields['bpartner_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['address'] = ['type' => 'TEXT', 'null' => TRUE];
-		$fields['phone'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['fax'] 	= ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
-		$fields['handphone'] = 	['type' => 'DATE', 'null' => TRUE];
+		$fields['year_class_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['spp_amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		return $fields;
 	}
 	
-	function table_c_bpartner_sosial()
+	function table_sch_year_class()
 	{
 		$fields = $this->field_00_Main();
-		$fields['bpartner_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['sosial_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['sosial_url'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
+	}
+	
+	function table_sch_parent_type()
+	{
+		/* Ayah Kandung/Tiri/Angkat/Wali */
+		/* Ibu Kandung/Tiri/Angkat/Wali */
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['gender_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_sch_study_group()
+	{
+		
 	}
 	
 	function field_00_Main()
