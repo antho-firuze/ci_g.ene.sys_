@@ -27,9 +27,6 @@ class Cashflow extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function cf_ar_ap()
@@ -46,9 +43,6 @@ class Cashflow extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -67,9 +61,6 @@ class Cashflow extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function cf_ar_ap_plan()
@@ -87,9 +78,6 @@ class Cashflow extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function cf_charge_type()
@@ -106,9 +94,6 @@ class Cashflow extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -190,9 +175,6 @@ class Cashflow extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function cf_pinout()
@@ -218,9 +200,6 @@ class Cashflow extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -250,9 +229,6 @@ class Cashflow extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -580,9 +556,6 @@ class Cashflow extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function cf_movement_line()
@@ -599,9 +572,6 @@ class Cashflow extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -673,7 +643,12 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
+			if ($this->params['event'] == 'pre_post'){
+				$this->mixed_data['is_sotrx'] = '1';
+				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
+			}
+			
+			/* $datas = $this->_pre_update_records(TRUE);
 			
 			if ($this->r_method == 'POST') {
 				$datas['is_sotrx'] = '1';
@@ -689,7 +664,7 @@ class Cashflow extends Getmeb
 			if ($this->r_method == 'POST')
 				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
 			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+				$this->xresponse(TRUE, ['message' => $this->messages()]); */
 		}
 	}
 	
@@ -785,7 +760,19 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
+			if ($this->params['event'] == 'pre_post_put'){
+				$this->mixed_data['is_plan'] = 1;
+				if (! $this->{$this->mdl}->cf_order_valid_amount($this->mixed_data)){ 
+					$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+				}
+				unset($this->mixed_data['is_plan']);
+			}
+			
+			if ($this->params['event'] == 'post_post_put'){
+			}
+			
+			
+			/* $datas = $this->_pre_update_records(TRUE);
 			
 			$datas['is_plan'] = 1;
 			if (! $this->{$this->mdl}->cf_order_valid_amount($datas)){ 
@@ -810,7 +797,7 @@ class Cashflow extends Getmeb
 			if ($this->r_method == 'POST')
 				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
 			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+				$this->xresponse(TRUE, ['message' => $this->messages()]); */
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
@@ -1110,9 +1097,6 @@ class Cashflow extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function cf_request_line()
@@ -1142,9 +1126,6 @@ class Cashflow extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function cf_request_type()
@@ -1161,9 +1142,6 @@ class Cashflow extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -1189,9 +1167,6 @@ class Cashflow extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	

@@ -23,7 +23,7 @@
 	{* DataTable Init *}
 	var DataTable_Init = {
 		enable: true,
-		tableWidth: '110%',
+		tableWidth: '125%',
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
 			{ pageid: 108, subKey: 'request_id', title: 'Request Line', },

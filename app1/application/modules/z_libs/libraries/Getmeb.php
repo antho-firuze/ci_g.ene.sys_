@@ -19,6 +19,7 @@ class Getmeb extends CI_Controller
 	/* FOR AUTOLOAD MODEL */
 	public $mdl;
 	/* FOR ADDITIONAL CRUD FIXED DATA */
+	public $mixed_data = array();
 	public $fixed_data = array();
 	public $create_log = array();
 	public $update_log = array();
@@ -144,6 +145,45 @@ class Getmeb extends CI_Controller
 			$this->params = json_decode($this->input->raw_input_stream);
 			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
 			
+			$this->_pre_update_records();
+			
+			/* Trigger events before POST & PUT */
+			$this->params['event'] = 'pre_post_put';
+			$this->{$this->c_method}();
+			
+			/* Trigger events before POST */
+			$this->params['event'] = 'pre_post';
+			$this->{$this->c_method}();
+			
+			/* Trigger events before PUT */
+			$this->params['event'] = 'pre_put';
+			$this->{$this->c_method}();
+			
+			// $this->_go_update_records($this->mixed_data);
+			if ($this->r_method == 'POST')
+				$result = $this->insertRecord($this->c_table, $this->mixed_data, TRUE, TRUE);
+			else
+				$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$this->params->id], TRUE);				
+			
+			/* Trigger events after POST & PUT */
+			$this->params['event'] = 'post_post_put';
+			$this->{$this->c_method}();
+			
+			/* Trigger events before POST */
+			$this->params['event'] = 'post_post';
+			$this->{$this->c_method}();
+			
+			/* Trigger events before PUT */
+			$this->params['event'] = 'post_put';
+			$this->{$this->c_method}();
+			
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+			if ($this->r_method == 'POST')
+				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
+			else
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 		
 		/* This Request for DELETE Data */
@@ -498,13 +538,14 @@ class Getmeb extends CI_Controller
 			}
 		}
 		
-		if ($return) 
-			return $datas;
+		$this->mixed_data = $datas;
+		// if ($return) 
+			// return $datas;
 			
-		$this->_go_update_records($datas);
+		// $this->_go_update_records($datas);
 	}
 	
-	function _go_update_records($datas)
+	/* function _go_update_records($datas)
 	{
 		if ($this->r_method == 'POST')
 			$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
@@ -518,7 +559,7 @@ class Getmeb extends CI_Controller
 			$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
 		else
 			$this->xresponse(TRUE, ['message' => $this->messages()]);
-	}
+	} */
 	
 	function _upload_file()
 	{
