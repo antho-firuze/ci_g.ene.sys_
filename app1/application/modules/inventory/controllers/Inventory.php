@@ -30,9 +30,6 @@ class Inventory extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function m_itemcat()
@@ -53,9 +50,6 @@ class Inventory extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -78,9 +72,6 @@ class Inventory extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function m_measure()
@@ -101,9 +92,6 @@ class Inventory extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	

@@ -65,7 +65,7 @@
 				return false;
 				
 			$.extend(data, { 'newline':newLine });
-			$.ajax({ url: $url_module, data: JSON.stringify(data), method: 'PUT', dataType: 'json',
+			$.ajax({ method: 'PUT', url: $url_module, data: JSON.stringify(data), dataType: 'json',
 				success: function(data){
 					dataTable1.ajax.reload( null, false );
 				},

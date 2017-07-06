@@ -111,7 +111,6 @@ class Systems_Model extends CI_model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.client_id, t1.user_org_id, t1.user_orgtrx_id, t1.user_role_id, t1.is_active, t1.code, t1.name, coalesce(t1.code, '')||' '||t1.name as code_name, t1.description, t1.email, t1.last_login, t1.is_online, t1.supervisor_id,	t1.bpartner_id, t1.is_fullbpaccess, t1.is_expired, t1.ip_address, t1.photo_file";
 		$params['table'] 	= "a_user as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -120,7 +119,6 @@ class Systems_Model extends CI_model
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.org_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t2.swg_margin, t1.is_active";
 		$params['table'] 	= $this->c_method." as t1";
 		$params['join'][] 	= ['a_org as t2', 't1.org_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		$params['where']['t2.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -130,7 +128,6 @@ class Systems_Model extends CI_model
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.is_active, t1.org_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, (select coalesce(code,'') ||'_'|| name from a_user where id = t1.user_id) as user_name, (select coalesce(x2.code,'') ||'_'|| x2.name from a_user_org x1 inner join a_org x2 on x1.org_id = x2.id where x1.id = t1.user_org_id) as org_name";
 		$params['table'] 	= $this->c_method." as t1";
 		$params['join'][] 	= ['a_org as t2', 't1.org_id = t2.id', 'inner'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		$params['where']['t2.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -140,7 +137,6 @@ class Systems_Model extends CI_model
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.role_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active";
 		$params['table'] 	= $this->c_method." as t1";
 		$params['join'][] 	= ['a_role as t2', 't1.role_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		$params['where']['t2.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -150,7 +146,6 @@ class Systems_Model extends CI_model
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.substitute_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, to_char(t1.valid_from, '".$this->session->date_format."') as valid_from, to_char(t1.valid_to, '".$this->session->date_format."') as valid_to, t1.description";
 		$params['table'] 	= $this->c_method." as t1";
 		$params['join'][] 	= ['a_user as t2', 't1.user_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		$params['where']['t2.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec($params);
@@ -160,7 +155,6 @@ class Systems_Model extends CI_model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec($params);
 	}
@@ -177,7 +171,6 @@ class Systems_Model extends CI_model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, (select coalesce(code,'') ||'_'|| name from a_menu where id = t1.parent_id) as parent_name";
 		$params['table'] 	= "(select id as grp, * from a_menu where is_parent = '1' union all	select parent_id as grp, * from a_menu where is_parent = '0') as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec($params);
 	}
@@ -234,7 +227,6 @@ class Systems_Model extends CI_model
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.menu_id, t2.code, t2.name, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t2.is_parent, (select coalesce(code,'') ||'_'|| name from a_menu where id = t2.parent_id limit 1) as parent_name, t2.type, t1.permit_form, t1.permit_process, t1.permit_window";
 		$params['table'] 	= "a_role_menu as t1";
 		$params['join'][] = ['a_menu t2', 't1.menu_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted']	= '0';
 		$params['where']['t2.is_deleted']	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -244,7 +236,6 @@ class Systems_Model extends CI_model
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.dashboard_id, t2.code, t2.name, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t2.type";
 		$params['table'] 	= $this->c_method." as t1";
 		$params['join'][] = ['a_dashboard t2', 't1.dashboard_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted']	= '0';
 		$params['where']['t2.is_deleted']	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -254,7 +245,6 @@ class Systems_Model extends CI_model
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.process_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active";
 		$params['table'] 	= $this->c_method." as t1";
 		$params['join'][] = ['a_process t2', 't1.process_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted']	= '0';
 		$params['where']['t2.is_deleted']	= '0';
 		return $this->base_model->mget_rec($params);
 	}
@@ -264,7 +254,6 @@ class Systems_Model extends CI_model
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, coalesce(t2.code,'') ||'_'|| t2.name as orgtype_name, t1.is_active, (select name from a_org where id = t1.parent_id limit 1) as parent_name";
 		$params['table'] 	= $this->c_method." as t1";
 		$params['join'][] 	= ['a_orgtype as t2', 't1.orgtype_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -319,7 +308,6 @@ class Systems_Model extends CI_model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -327,7 +315,6 @@ class Systems_Model extends CI_model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -337,7 +324,6 @@ class Systems_Model extends CI_model
 		$params['table'] 	= $this->c_method." as t1";
 		// $params['join'][] 	= ['c_currency as cc', 't1.currency_id = cc.id', 'left'];
 		// $params['join'][] 	= ['a_user as au4', 't1.supervisor_id = au4.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		
 		return $this->base_model->mget_rec($params);
 	}
@@ -367,7 +353,6 @@ class Systems_Model extends CI_model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -375,7 +360,6 @@ class Systems_Model extends CI_model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -383,7 +367,6 @@ class Systems_Model extends CI_model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -391,7 +374,6 @@ class Systems_Model extends CI_model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	

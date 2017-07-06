@@ -133,6 +133,13 @@ class Base_Model extends CI_Model
 				}
 			}
 		}
+
+		/* Special feature for showing deleted records */
+		if (key_exists('xdel', $this->params) && ($this->params['xdel'] == '1') && ($this->session->user_id == 11)){
+			$this->db->where('t1.is_deleted', '1');
+		} else {
+			$this->db->where('t1.is_deleted', '0');
+		}
 		
 		if ($counter){
 			if (! $query = $this->db->get() ){

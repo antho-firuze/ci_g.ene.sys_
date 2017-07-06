@@ -13,7 +13,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -21,7 +20,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select name from cf_account where id = t1.account_id) as account_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
 		$params['table'] 	= "cf_ar_ap as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -29,7 +27,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= $this->c_table." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -37,7 +34,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
 		$params['table'] 	= $this->c_table." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -45,7 +41,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -57,7 +52,6 @@ class Cashflow_Model extends CI_Model
 			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order, to_char(t2.etd, '".$this->session->date_format."') as etd_order";
 			$params['join'][] = ['cf_order as t2', 't1.order_id = t2.id', 'left'];
 		}
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -65,7 +59,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_inout where id = t1.inout_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
 		$params['table'] 	= "cf_inout_line as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -77,7 +70,6 @@ class Cashflow_Model extends CI_Model
 			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order";
 			$params['join'][] = ['cf_order as t2', 't1.order_id = t2.id', 'left'];
 		}
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -85,7 +77,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_inout where id = t1.inout_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
 		$params['table'] 	= "cf_inout_line as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -100,7 +91,6 @@ class Cashflow_Model extends CI_Model
 			$params['join'][] = ['cf_order as t2', 't1.order_id = t2.id', 'left'];
 			$params['join'][] = ['cf_order_plan as t3', 't1.order_plan_id = t3.id', 'left'];
 		}
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -108,7 +98,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name";
 		$params['table'] 	= "cf_invoice_line as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -116,7 +105,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
 		$params['table'] 	= "cf_invoice_plan as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -128,7 +116,6 @@ class Cashflow_Model extends CI_Model
 			$params['select'] .= ", t2.doc_no as doc_no_inout, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_inout";
 			$params['join'][] = ['cf_inout as t2', 't1.inout_id = t2.id', 'left'];
 		}
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -136,7 +123,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name";
 		$params['table'] 	= "cf_invoice_line as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -144,7 +130,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
 		$params['table'] 	= "cf_invoice_plan as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -152,7 +137,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.delivery_date, '".$this->session->date_format."') as delivery_date, to_char(t1.received_date, '".$this->session->date_format."') as received_date";
 		$params['table'] 	= $this->c_table." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -160,7 +144,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= $this->c_table." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -168,7 +151,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.etd, '".$this->session->date_format."') as etd";
 		$params['table'] 	= "cf_order as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -178,7 +160,6 @@ class Cashflow_Model extends CI_Model
 		// $params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_order where id = t1.order_id) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
 		// $params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select name from m_itemcat where id = t1.itemcat_id)) as list_name";
 		$params['table'] 	= "cf_order_line as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -186,7 +167,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
 		$params['table'] 	= "cf_order_plan as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -198,7 +178,6 @@ class Cashflow_Model extends CI_Model
 			$params['select'] .= ", t2.doc_no as doc_no_requisition, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_requisition";
 			$params['join'][] = ['cf_requisition as t2', 't1.requisition_id = t2.id', 'left'];
 		}
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -206,7 +185,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_order where id = t1.order_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
 		$params['table'] 	= "cf_order_line as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -214,7 +192,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
 		$params['table'] 	= "cf_order_plan as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -222,7 +199,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
 		$params['table'] 	= "cf_order_plan_clearance as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -230,7 +206,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
 		$params['table'] 	= "cf_order_plan_import as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -242,7 +217,6 @@ class Cashflow_Model extends CI_Model
 			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order";
 			$params['join'][] = ['cf_order as t2', 't1.order_id = t2.id', 'left'];
 		}
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -250,7 +224,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_request where id = t1.request_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
 		$params['table'] 	= "cf_request_line as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -258,7 +231,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -270,7 +242,6 @@ class Cashflow_Model extends CI_Model
 			$params['select'] .= ", t2.doc_no as doc_no_request, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_request";
 			$params['join'][] = ['cf_request as t2', 't1.request_id = t2.id', 'left'];
 		}
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -278,7 +249,6 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_requisition where id = t1.requisition_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
 		$params['table'] 	= "cf_requisition_line as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	

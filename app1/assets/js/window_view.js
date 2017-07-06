@@ -263,7 +263,8 @@ function initActionMenu(tableData1, dataTable1)
 				if (!confirm(lang_confirm_delete)) {
 					return false;
 				}
-				$.ajax({ url: $url_module+"?id="+data.id, method: "DELETE", async: true, dataType: 'json',
+				var $xdel = getURLParameter("xdel") ? "&xdel=1" : "";
+				$.ajax({ url: $url_module+"?id="+data.id+$xdel, method: "DELETE", async: true, dataType: 'json',
 					success: function(data) {
 						dataTable1.ajax.reload( null, false );
 						BootstrapDialog.alert(data.message);
@@ -470,7 +471,8 @@ $('.toolbar_container').click('button', function(e){
 						var button = this;
 						button.spin();
 						
-						$.ajax({ url: $url_module+"?id="+ids.join(), method: "DELETE", async: true, dataType: 'json',
+						var $xdel = getURLParameter("xdel") ? "&xdel=1" : "";
+						$.ajax({ url: $url_module+"?id="+ids.join()+$xdel, method: "DELETE", async: true, dataType: 'json',
 							success: function(data) {
 								dialog.close();
 								dataTable1.ajax.reload( null, false );

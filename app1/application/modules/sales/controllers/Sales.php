@@ -50,9 +50,6 @@ class Sales extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function e_swg_size()
@@ -70,9 +67,6 @@ class Sales extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function e_swg_series()
@@ -89,9 +83,6 @@ class Sales extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -113,9 +104,6 @@ class Sales extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -139,9 +127,6 @@ class Sales extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -169,27 +154,26 @@ class Sales extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			if (isset($this->params->import) && !empty($this->params->import)) {
-				/* Step #1:  */
-				if (isset($this->params->step) && $this->params->step == '1') {
-					/* Check permission in the role */
-					if (! $result = $this->_import_data())
-						$this->xresponse(FALSE, ['message' => $this->messages()]);
-					else
-						$this->xresponse(TRUE, $result);
-				}
-				/* Step #2:  */
-				if (isset($this->params->step) && $this->params->step == '2') {
-					/* Check permission in the role */
-					if (! $result = $this->_import_data())
-						$this->xresponse(FALSE, ['message' => $this->messages()]);
-					else
-						$this->xresponse(TRUE, array_merge($result, ['message' => $this->lang->line('success_import_data')]));
+			if ($this->params->event == 'pre_post_put'){
+				if (isset($this->params->import) && !empty($this->params->import)) {
+					/* Step #1:  */
+					if (isset($this->params->step) && $this->params->step == '1') {
+						/* Check permission in the role */
+						if (! $result = $this->_import_data())
+							$this->xresponse(FALSE, ['message' => $this->messages()]);
+						else
+							$this->xresponse(TRUE, $result);
+					}
+					/* Step #2:  */
+					if (isset($this->params->step) && $this->params->step == '2') {
+						/* Check permission in the role */
+						if (! $result = $this->_import_data())
+							$this->xresponse(FALSE, ['message' => $this->messages()]);
+						else
+							$this->xresponse(TRUE, array_merge($result, ['message' => $this->lang->line('success_import_data')]));
+					}
 				}
 			}
-				
-				
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -225,9 +209,6 @@ class Sales extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function e_pl_swg_config()
@@ -244,9 +225,6 @@ class Sales extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	

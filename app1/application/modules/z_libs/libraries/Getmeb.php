@@ -18,12 +18,13 @@ class Getmeb extends CI_Controller
 	public $params;
 	/* FOR AUTOLOAD MODEL */
 	public $mdl;
-	/* FOR ADDITIONAL CRUD FIXED DATA */
+	/* FOR ADDITIONAL CRUD */
 	public $mixed_data = array();
 	public $fixed_data = array();
 	public $create_log = array();
 	public $update_log = array();
 	public $delete_log = array();
+	public $insert_id;
 	/* FOR GETTING ERROR MESSAGE OR SUCCESS MESSAGE */
 	public $messages = array();
 	
@@ -100,7 +101,7 @@ class Getmeb extends CI_Controller
 		if (in_array($this->r_method, ['GET'])) {
 			/* Become Array */
 			$this->params = $this->input->get();
-
+			
 			/* Parsing pageid */
 			if (isset($this->params['pageid'])) {
 				$this->pageid = explode(',', $this->params['pageid']);
@@ -109,8 +110,8 @@ class Getmeb extends CI_Controller
 			
 			/* Request for viewlog */
 			if (isset($this->params['viewlog']) && !empty($this->params['viewlog'])) {
-				$this->c_table = $this->base_model->getValue('table', 'a_menu', 'id', $this->params['pageid'])->table;
-				
+				$pageid = explode(',', $this->params['pageid']);
+				$this->c_table = $this->base_model->getValue('table', 'a_menu', 'id', end($pageid))->table;
 				/* Check permission in the role */
 				$this->_check_is_allow_inrole('canviewlog');
 				$this->_get_viewlog();
@@ -145,38 +146,42 @@ class Getmeb extends CI_Controller
 			$this->params = json_decode($this->input->raw_input_stream);
 			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
 			
+			/* Mixing the Data */
 			$this->_pre_update_records();
 			
 			/* Trigger events before POST & PUT */
-			$this->params['event'] = 'pre_post_put';
+			$this->params->event = 'pre_post_put';
 			$this->{$this->c_method}();
 			
 			/* Trigger events before POST */
-			$this->params['event'] = 'pre_post';
+			$this->params->event = 'pre_post';
 			$this->{$this->c_method}();
 			
 			/* Trigger events before PUT */
-			$this->params['event'] = 'pre_put';
+			$this->params->event = 'pre_put';
 			$this->{$this->c_method}();
 			
-			// $this->_go_update_records($this->mixed_data);
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_table, $this->mixed_data, TRUE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$this->params->id], TRUE);				
+			/* Go INSERT or UPDATE */
+			if ($this->r_method == 'POST') {
+				$result = $this->insertRecord($this->c_table, $this->mixed_data);
+				$this->insert_id = $result;
+			} else {
+				$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$this->params->id]);
+			}
 			
 			/* Trigger events after POST & PUT */
-			$this->params['event'] = 'post_post_put';
+			$this->params->event = 'post_post_put';
 			$this->{$this->c_method}();
 			
 			/* Trigger events before POST */
-			$this->params['event'] = 'post_post';
+			$this->params->event = 'post_post';
 			$this->{$this->c_method}();
 			
 			/* Trigger events before PUT */
-			$this->params['event'] = 'post_put';
+			$this->params->event = 'post_put';
 			$this->{$this->c_method}();
 			
+			/* Throwing the result to Ajax */
 			if (! $result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 
@@ -193,6 +198,9 @@ class Getmeb extends CI_Controller
 
 			/* Become Array */
 			$this->params = $this->input->get();
+			
+			/* For reverse value "is_deleted", if param "xdel" exists & user_id = 11 */
+			$this->delete_log['is_deleted'] = isset($this->params['xdel']) && ($this->params['xdel'] == 1) && ($this->session->user_id == 11) ? 0 : 1;
 			
 			/* Trigger events before delete */
 			$this->params['event'] = 'pre_delete';
@@ -516,7 +524,7 @@ class Getmeb extends CI_Controller
 		});
 	}
 
-	function _pre_update_records($return = FALSE)
+	function _pre_update_records($return = FALSE, $fixed_data = TRUE, $log = TRUE)
 	{
 		$datas = [];
 		$fields = $this->db->list_fields($this->c_table);
@@ -536,6 +544,13 @@ class Getmeb extends CI_Controller
 					$datas[$f] = $this->params->{$f};
 				} */
 			}
+		}
+		
+		if ($this->r_method == 'POST') {
+			$datas = $fixed_data ? array_merge($datas, $this->fixed_data) : $datas;
+			$datas = $log ? array_merge($datas, $this->create_log) : $datas;
+		} else {
+			$datas = $log ? array_merge($datas, $this->update_log) : $datas;
 		}
 		
 		$this->mixed_data = $datas;
@@ -978,11 +993,11 @@ class Getmeb extends CI_Controller
 		return $_output;
 	}
 
-	function insertRecord($table, $data, $fixed_data = FALSE, $create_log = FALSE)
+	function insertRecord($table, $data, $fixed_data = FALSE, $log = FALSE)
 	{
 		$data = is_object($data) ? (array) $data : $data;
 		$data = $fixed_data ? array_merge($data, $this->fixed_data) : $data;
-		$data = $create_log ? array_merge($data, $this->create_log) : $data;
+		$data = $log ? array_merge($data, $this->create_log) : $data;
 
 		if (key_exists('id', $data)) 
 			unset($data['id']);
@@ -1023,10 +1038,10 @@ class Getmeb extends CI_Controller
 		}
 	}
 	
-	function updateRecord($table, $data, $cond, $update_log = FALSE)
+	function updateRecord($table, $data, $cond, $log = FALSE)
 	{
 		$data = is_object($data) ? (array) $data : $data;
-		$data = $update_log ? array_merge($data, $this->update_log) : $data;
+		$data = $log ? array_merge($data, $this->update_log) : $data;
 		
 		$cond = is_object($cond) ? (array) $cond : $cond;
 

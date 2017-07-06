@@ -122,23 +122,15 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			if ($this->r_method == 'POST') {
-				$datas['is_sotrx'] = '1';
-				$datas['orgtrx_id'] = $this->session->orgtrx_id;
-				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['is_sotrx'] = '1';
+				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('inout_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			}
 		}
 	}
 	
@@ -201,6 +193,17 @@ class Cashflow extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['is_sotrx'] = '0';
+				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('inout_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			}
+		}
 	}
 	
 	function cf_pinout_line()
@@ -251,23 +254,15 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			if ($this->r_method == 'POST') {
-				$datas['is_sotrx'] = '1';
-				$datas['orgtrx_id'] = $this->session->orgtrx_id;
-				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['is_sotrx'] = '1';
+				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
+			}
 		}
 	}
 	
@@ -303,26 +298,11 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			if ($this->r_method == 'POST') {
-				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			if ($this->params->event == 'post_post_put'){
+				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
+				$this->params->is_line = 1;
+				$this->{$this->mdl}->cf_invoice_update_summary($this->params);
 			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			
-			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
-			
-			$this->params->is_line = 1;
-			$this->{$this->mdl}->cf_invoice_update_summary($this->params);
-			
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
@@ -354,32 +334,18 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			$datas['is_plan'] = 1;
-			if (! $this->{$this->mdl}->cf_invoice_valid_amount($datas)){ 
-				$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+			if ($this->params->event == 'pre_post_put'){
+				$this->mixed_data['is_plan'] = 1;
+				if (! $this->{$this->mdl}->cf_invoice_valid_amount($this->mixed_data)){ 
+					$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+				}
+				unset($this->mixed_data['is_plan']);
 			}
-			unset($datas['is_plan']);
-
-			if ($this->r_method == 'POST') {
-				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			if ($this->params->event == 'post_post_put'){
+				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
+				$this->params->is_plan = 1;
+				$this->{$this->mdl}->cf_invoice_update_summary($this->params);
 			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			
-			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
-			
-			$this->params->is_plan = 1;
-			$this->{$this->mdl}->cf_invoice_update_summary($this->params);
-			
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
@@ -409,22 +375,15 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			if ($this->r_method == 'POST') {
-				$datas['is_sotrx'] = '0';
-				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['is_sotrx'] = '0';
+				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
+			}
 		}
 	}
 	
@@ -454,26 +413,11 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			if ($this->r_method == 'POST') {
-				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			if ($this->params->event == 'post_post_put'){
+				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
+				$this->params->is_line = 1;
+				$this->{$this->mdl}->cf_invoice_update_summary($this->params);
 			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			
-			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
-			
-			$this->params->is_line = 1;
-			$this->{$this->mdl}->cf_invoice_update_summary($this->params);
-			
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
@@ -505,32 +449,18 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			$datas['is_plan'] = 1;
-			if (! $this->{$this->mdl}->cf_invoice_valid_amount($datas)){ 
-				$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+			if ($this->params->event == 'pre_post_put'){
+				$this->mixed_data['is_plan'] = 1;
+				if (! $this->{$this->mdl}->cf_invoice_valid_amount($this->mixed_data)){ 
+					$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+				}
+				unset($this->mixed_data['is_plan']);
 			}
-			unset($datas['is_plan']);
-
-			if ($this->r_method == 'POST') {
-				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			if ($this->params->event == 'post_post_put'){
+				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
+				$this->params->is_plan = 1;
+				$this->{$this->mdl}->cf_invoice_update_summary($this->params);
 			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			
-			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
-			
-			$this->params->is_plan = 1;
-			$this->{$this->mdl}->cf_invoice_update_summary($this->params);
-			
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
@@ -554,6 +484,17 @@ class Cashflow extends Getmeb
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['is_outbound'] = '1';
+				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('movement_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
 			}
 		}
 	}
@@ -643,28 +584,16 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			if ($this->params['event'] == 'pre_post'){
+			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_sotrx'] = '1';
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
-			
-			/* $datas = $this->_pre_update_records(TRUE);
-			
-			if ($this->r_method == 'POST') {
-				$datas['is_sotrx'] = '1';
-				$datas['orgtrx_id'] = $this->session->orgtrx_id;
-				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
 			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]); */
 		}
 	}
 	
@@ -704,26 +633,11 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			if ($this->r_method == 'POST') {
-				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			if ($this->params->event == 'post_post_put'){
+				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
+				$this->params->is_line = 1;
+				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			
-			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
-			
-			$this->params->is_line = 1;
-			$this->{$this->mdl}->cf_order_update_summary($this->params);
-			
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
@@ -760,7 +674,7 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			if ($this->params['event'] == 'pre_post_put'){
+			if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['is_plan'] = 1;
 				if (! $this->{$this->mdl}->cf_order_valid_amount($this->mixed_data)){ 
 					$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
@@ -768,36 +682,11 @@ class Cashflow extends Getmeb
 				unset($this->mixed_data['is_plan']);
 			}
 			
-			if ($this->params['event'] == 'post_post_put'){
+			if ($this->params->event == 'post_post_put'){
+				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
+				$this->params->is_plan = 1;
+				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
-			
-			
-			/* $datas = $this->_pre_update_records(TRUE);
-			
-			$datas['is_plan'] = 1;
-			if (! $this->{$this->mdl}->cf_order_valid_amount($datas)){ 
-				$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
-			}
-			unset($datas['is_plan']);
-			
-			if ($this->r_method == 'POST') {
-				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
-			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			
-			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
-			
-			$this->params->is_plan = 1;
-			$this->{$this->mdl}->cf_order_update_summary($this->params);
-			
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]); */
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
@@ -833,22 +722,18 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			if ($this->r_method == 'POST') {
-				$datas['is_sotrx'] = '0';
-				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['is_sotrx'] = '0';
+				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
+				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params['id']))->update($this->c_table.'_plan_clearance');
+				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params['id']))->update($this->c_table.'_plan_import');
+			}
 		}
 	}
 	
@@ -880,30 +765,16 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			if (! $this->{$this->mdl}->cf_order_valid_qty($datas)){ 
-				$this->xresponse(FALSE, ['message' => lang('error_qty_overload', [abs($this->session->flashdata('message'))])], 401);
+			/* if ($this->params->event == 'pre_post_put'){
+				if (! $this->{$this->mdl}->cf_order_valid_qty($this->mixed_data)){ 
+					$this->xresponse(FALSE, ['message' => lang('error_qty_overload', [abs($this->session->flashdata('message'))])], 401);
+				}
+			} */
+			if ($this->params->event == 'post_post_put'){
+				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
+				$this->params->is_line = 1;
+				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
-
-			if ($this->r_method == 'POST') {
-				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
-			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			
-			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
-			
-			$this->params->is_line = 1;
-			$this->{$this->mdl}->cf_order_update_summary($this->params);
-			
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
@@ -936,32 +807,18 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			$datas['is_plan'] = 1;
-			if (! $this->{$this->mdl}->cf_order_valid_amount($datas)){ 
-				$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+			if ($this->params->event == 'pre_post_put'){
+				$this->mixed_data['is_plan'] = 1;
+				if (! $this->{$this->mdl}->cf_order_valid_amount($this->mixed_data)){ 
+					$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+				}
+				unset($this->mixed_data['is_plan']);
 			}
-			unset($datas['is_plan']);
-			
-			if ($this->r_method == 'POST') {
-				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			if ($this->params->event == 'post_post_put'){
+				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
+				$this->params->is_plan = 1;
+				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			
-			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
-			
-			$this->params->is_plan = 1;
-			$this->{$this->mdl}->cf_order_update_summary($this->params);
-			
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
@@ -993,26 +850,11 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			if ($this->r_method == 'POST') {
-				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			if ($this->params->event == 'post_post_put'){
+				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
+				$this->params->is_plan_cl = 1;
+				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			
-			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
-			
-			$this->params->is_plan_cl = 1;
-			$this->{$this->mdl}->cf_order_update_summary($this->params);
-			
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
@@ -1044,26 +886,11 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			if ($this->r_method == 'POST') {
-				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+			if ($this->params->event == 'post_post_put'){
+				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
+				$this->params->is_plan_im = 1;
+				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			
-			$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $result;
-			
-			$this->params->is_plan_im = 1;
-			$this->{$this->mdl}->cf_order_update_summary($this->params);
-			
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
@@ -1095,6 +922,16 @@ class Cashflow extends Getmeb
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('request_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
 			}
 		}
 	}
@@ -1168,6 +1005,16 @@ class Cashflow extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('requisition_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			}
+		}
 	}
 	
 	function cf_requisition_line()
@@ -1196,27 +1043,6 @@ class Cashflow extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			// debug($datas);
-			if (! $this->{$this->mdl}->cf_requisition_valid_qty($datas)){ 
-				$this->xresponse(FALSE, ['message' => lang('error_qty_overload', [abs($this->session->flashdata('message'))])], 401);
-			}
-
-			if ($this->r_method == 'POST') {
-				$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
-			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
 	

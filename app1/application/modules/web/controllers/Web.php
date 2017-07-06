@@ -28,11 +28,6 @@ class Web extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->boolfields = ['is_active','is_parent'];
-			$this->nullfields = ['description','icon','parent_id'];
-			$this->_pre_update_records();
-		}
 	}
 	
 	function w_page()
@@ -53,11 +48,10 @@ class Web extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->params->name 			 = $this->params->title;
-			$this->params->description = $this->params->title_desc;
-			$this->boolfields = ['is_active','is_securesmtp'];
-			$this->nullfields = ['description','smtp_host','smtp_port'];
-			$this->_pre_update_records();
+			if ($this->params->event == 'pre_post_put'){
+				$this->mixed_data['name'] = $this->params->title;
+				$this->mixed_data['description'] = $this->params->title_desc;
+			}
 		}
 	}
 	

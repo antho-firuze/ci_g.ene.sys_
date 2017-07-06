@@ -26,9 +26,6 @@ class Bpm extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function c_bpartner()
@@ -45,9 +42,6 @@ class Bpm extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -66,9 +60,6 @@ class Bpm extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function c_bpartner_sosial()
@@ -85,9 +76,6 @@ class Bpm extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	

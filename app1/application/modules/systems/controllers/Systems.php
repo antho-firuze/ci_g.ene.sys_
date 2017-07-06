@@ -510,60 +510,63 @@ class Systems extends Getmeb
 			}
 		}
 		if ($this->r_method == 'POST') {
-			/* This process is for Upload Photo */
-			if (isset($this->params->userphoto) && !empty($this->params->userphoto)) {
-				if (isset($this->params->id) && $this->params->id) {
-					if (!$result = $this->_upload_file()){
-						$this->xresponse(FALSE, ['message' => $this->messages()]);
-					}
-						
-					/* If picture success upload to tmp folder */
-					/* Create random filename */
-					$this->load->helper('string');
-					$rndName = random_string('alnum', 10);
-					
-					/* Moving to desire location with rename */
-					$ext = strtolower(pathinfo($result['name'], PATHINFO_EXTENSION));
-					$new_filename = $this->session->user_photo_path.$rndName.'.'.$ext;
-					if (!is_dir($this->session->user_photo_path))
-						mkdir($this->session->user_photo_path, 0755, true);
-					rename($result["path"], $new_filename);
-				
-					/* delete old file photo */
-					$tbl = $this->base_model->getValue('photo_file', $this->c_method, 'id', $this->params->id);
-					if ($tbl && $tbl->photo_file) {
-						@unlink($this->session->user_photo_path.$tbl->photo_file);
-					}
-					// if (isset($this->params->photo_file) && $this->params->photo_file) {
-						// @unlink($this->session->user_photo_path.$this->params->photo_file);
-					// }
-					/* update to table */
-					$this->updateRecord($this->c_method, ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params->id]);
-					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => base_url().$this->session->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
-				}
-			}
+			if ($this->params->event == 'pre_post'){
 			
-			$this->load->library('z_auth/auth');
-			if (! $id = $this->auth->register($this->params->name, $this->params->password, $this->params->email, array_merge($this->fixed_data, $this->create_log)))
-				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+				/* This process is for Upload Photo */
+				if (isset($this->params->userphoto) && !empty($this->params->userphoto)) {
+					if (isset($this->params->id) && $this->params->id) {
+						if (!$result = $this->_upload_file()){
+							$this->xresponse(FALSE, ['message' => $this->messages()]);
+						}
+							
+						/* If picture success upload to tmp folder */
+						/* Create random filename */
+						$this->load->helper('string');
+						$rndName = random_string('alnum', 10);
+						
+						/* Moving to desire location with rename */
+						$ext = strtolower(pathinfo($result['name'], PATHINFO_EXTENSION));
+						$new_filename = $this->session->user_photo_path.$rndName.'.'.$ext;
+						if (!is_dir($this->session->user_photo_path))
+							mkdir($this->session->user_photo_path, 0755, true);
+						rename($result["path"], $new_filename);
+					
+						/* delete old file photo */
+						$tbl = $this->base_model->getValue('photo_file', $this->c_method, 'id', $this->params->id);
+						if ($tbl && $tbl->photo_file) {
+							@unlink($this->session->user_photo_path.$tbl->photo_file);
+						}
+						// if (isset($this->params->photo_file) && $this->params->photo_file) {
+							// @unlink($this->session->user_photo_path.$this->params->photo_file);
+						// }
+						/* update to table */
+						$this->updateRecord($this->c_method, ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params->id]);
+						$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => base_url().$this->session->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
+					}
+				}
+				
+				$this->load->library('z_auth/auth');
+				if (! $id = $this->auth->register($this->params->name, $this->params->password, $this->params->email, array_merge($this->fixed_data, $this->create_log)))
+					$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 
-			/* create avatar image */
-			$data = ['word'=>$this->params->name[0], 'img_path'=>$this->session->user_photo_path, 'img_url'=> base_url().$this->session->user_photo_path];
-			$data = create_avatar_img($data);
-			if ($data) {
-				$this->updateRecord($this->c_method, ['photo_file'=>$data['filename']], ['id' => $id]);
-			}
-			$this->xresponse(TRUE, ['id' => $id, 'message' => $this->lang->line('success_saving')]);
+				/* create avatar image */
+				$data = ['word'=>$this->params->name[0], 'img_path'=>$this->session->user_photo_path, 'img_url'=> base_url().$this->session->user_photo_path];
+				$data = create_avatar_img($data);
+				if ($data) {
+					$this->updateRecord($this->c_method, ['photo_file'=>$data['filename']], ['id' => $id]);
+				}
+				$this->xresponse(TRUE, ['id' => $id, 'message' => $this->lang->line('success_saving')]);
+			}			
 		}
 		if ($this->r_method == 'PUT') {
-			/* Reset Password*/
-			if (isset($this->params->password) && ($this->params->password != '')) {
-				$this->load->library('z_auth/auth');
-				$this->auth->reset_password($this->params->name, $this->params->password);
-				unset($this->params->password);
+			if ($this->params->event == 'pre_put'){
+				/* Reset Password*/
+				if (isset($this->params->password) && ($this->params->password != '')) {
+					$this->load->library('z_auth/auth');
+					$this->auth->reset_password($this->params->name, $this->params->password);
+					unset($this->params->password);
+				}
 			}
-			
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -591,17 +594,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, ['client_id' => DEFAULT_CLIENT_ID]), FALSE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);				
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['org_id'] = $this->params->org_id;
+			}
 		}
 	}
 	
@@ -632,17 +627,9 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, array_merge($datas, ['client_id' => DEFAULT_CLIENT_ID]), FALSE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);				
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['org_id'] = $this->params->org_id;
+			}
 		}
 	}
 	
@@ -673,9 +660,6 @@ class Systems extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function a_user_substitute()
@@ -697,9 +681,6 @@ class Systems extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -781,9 +762,6 @@ class Systems extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function a_role_menu()
@@ -822,23 +800,13 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			switch ($this->params->type){
-				case 'F': $this->params->permit_process = ''; $this->params->permit_window = ''; break;
-				case 'P': $this->params->permit_form = ''; $this->params->permit_window = ''; break;
-				case 'W': $this->params->permit_form = ''; $this->params->permit_process = ''; break;
+			if ($this->params->event == 'pre_post_put'){
+				$this->remove_empty($this->mixed_data);
 			}
-			
-			$datas = $this->_pre_update_records(TRUE);
-			
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, FALSE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			if ($this->params->event == 'pre_post'){
+				unset($this->mixed_data['client_id']);
+				unset($this->mixed_data['org_id']);
+			}
 		}
 	}
 	
@@ -879,17 +847,10 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, FALSE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			if ($this->params->event == 'pre_post'){
+				unset($this->mixed_data['client_id']);
+				unset($this->mixed_data['org_id']);
+			}
 		}
 	}
 	
@@ -934,9 +895,6 @@ class Systems extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function a_client()
@@ -953,9 +911,6 @@ class Systems extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -975,9 +930,6 @@ class Systems extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function a_domain()
@@ -996,17 +948,10 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, FALSE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);				
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			if ($this->params->event == 'pre_post'){
+				unset($this->mixed_data['client_id']);
+				unset($this->mixed_data['org_id']);
+			}
 		}
 	}
 	
@@ -1028,29 +973,20 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			if (isset($this->params->newline) && $this->params->newline != ''){
-				if (!$result = $this->updateRecord($this->c_method, ['line_no' => $this->params->newline], ['id' => $this->params->id], FALSE))
-					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-				else {
-					$this->_reorder_menu();
-					$this->xresponse(TRUE, ['message' => $this->messages()]);
+			if ($this->params->event == 'pre_put'){
+				if (isset($this->params->newline) && $this->params->newline != ''){
+					if (!$result = $this->updateRecord($this->c_method, ['line_no' => $this->params->newline], ['id' => $this->params->id], FALSE))
+						$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+					else {
+						$this->_reorder_menu();
+						$this->xresponse(TRUE, ['message' => $this->messages()]);
+					}
 				}
 			}
-			
-			$datas = $this->_pre_update_records(TRUE);
-			
-			if ($this->r_method == 'POST'){
-				$parent_id = $datas['parent_id'] ? $datas['parent_id'] : 0;
-				$datas['line_no'] = $this->db->query('select max(line_no) from a_menu where parent_id = '.$parent_id)->row()->max + 1;
-				$result = $this->insertRecord($this->c_method, $datas, TRUE, TRUE);
-			} else {
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);				
+			if ($this->params->event == 'pre_post'){
+				$parent_id = $this->mixed_data['parent_id'] ? $this->mixed_data['parent_id'] : 0;
+				$this->mixed_data['line_no'] = $this->db->query('select max(line_no) from a_menu where parent_id = '.$parent_id)->row()->max + 1;
 			}
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
 	
@@ -1090,18 +1026,10 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$datas = $this->_pre_update_records(TRUE);
-			$datas['client_id'] = $this->session->client_id;
-			
-			if ($this->r_method == 'POST')
-				$result = $this->insertRecord($this->c_method, $datas, FALSE, TRUE);
-			else
-				$result = $this->updateRecord($this->c_method, $datas, ['id'=>$this->params->id], TRUE);				
-			
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['client_id'] = $this->session->client_id;
+				unset($this->mixed_data['org_id']);
+			}
 		}
 	}
 	
@@ -1149,9 +1077,6 @@ class Systems extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function a_sequence()
@@ -1164,9 +1089,6 @@ class Systems extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -1194,9 +1116,6 @@ class Systems extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function c_currency()
@@ -1213,9 +1132,6 @@ class Systems extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -1237,9 +1153,6 @@ class Systems extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -1266,9 +1179,6 @@ class Systems extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
@@ -1297,9 +1207,6 @@ class Systems extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function c_4district()
@@ -1326,9 +1233,6 @@ class Systems extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
-		}
 	}
 	
 	function c_5village()
@@ -1354,9 +1258,6 @@ class Systems extends Getmeb
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			$this->_pre_update_records();
 		}
 	}
 	
