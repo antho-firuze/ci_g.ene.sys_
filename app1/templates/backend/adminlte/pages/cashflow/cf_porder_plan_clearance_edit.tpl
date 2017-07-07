@@ -23,7 +23,7 @@
 	var box1 = BSHelper.Box({ type:"info" });
 	var format_currency = "'alias': 'currency', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'autoGroup': true, 'autoUnmask': true";
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Line No", idname:"seq", required: false, value: 0, }));
-	col.push(BSHelper.Input({ horz:false, type:"date", label:"Doc Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"Payment Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: false, value: 0, placeholder: "0.00" }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Note", idname:"note", }));
 	row.push(subCol(6, col)); col = [];

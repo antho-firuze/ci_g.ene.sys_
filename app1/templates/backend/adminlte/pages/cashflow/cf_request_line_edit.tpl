@@ -23,12 +23,12 @@
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Line No", idname:"seq", required: false, value: 0, }));
 	{* col.push(BSHelper.Combobox({ horz:false, label:"Item", label_link:"{$.const.PAGE_LNK}?pageid=30", idname:"item_id", url:"{$.php.base_url('sales/m_pricelist_item_list')}?level=1&filter=t1.itemtype_id=1,t1.pricelist_id=", remote: true })); *}
 	{* col.push(BSHelper.Combobox({ horz:false, label:"SO Line", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"list_name", idname:"order_line_id", url:"{$.php.base_url('cashflow/cf_sorder_line')}", remote: true, required: false, })); *}
-	col.push(BSHelper.Combobox({ horz:false, label:"SO Line", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"list_name", idname:"order_line_id", url:"{$.php.base_url('cashflow/cf_sorder_line')}?for_request=1&having=qty", remote: true, required: true, }));
+	col.push(BSHelper.Combobox({ horz:false, label:"SO Line", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"list_name", idname:"order_line_id", url:"{$.php.base_url('cashflow/cf_sorder_line')}?for_request=1", remote: true, required: true, }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Item Category", label_link:"{$.const.PAGE_LNK}?pageid=47", idname:"itemcat_id", url:"{$.php.base_url('inventory/m_itemcat')}", remote: true, required: true }));
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Item Name", idname:"item_name", required: false, })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Item Size", idname:"item_size", required: false, })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"number", label:"Unit Price", idname:"price", required: false, value: 0, })); *}
-	col.push(BSHelper.Input({ horz:false, type:"number", label:"Quantity", idname:"qty", required: true, value: 1 }));
+	{* col.push(BSHelper.Input({ horz:false, type:"number", label:"Quantity", idname:"qty", required: true, value: 1 })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Sub Amount", idname:"sub_amt", style: "text-align: right;", format: format_currency, required: false, value: 0, onchange:"calculate_amount()", })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"VAT Amount", idname:"vat_amt", style: "text-align: right;", format: format_currency, required: false, value: 0, onchange:"calculate_amount()", })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"number", label:"Sub Amount", idname:"sub_amt", style: "text-align: right;", step: ".01", required: false, value: 0, onchange:"calculate_amount()", placeholder: "0.00" })); *}

@@ -23,9 +23,10 @@
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Received Date", idname:"received_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 	row.push(subCol(6, col)); col = [];
-	col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"orgtrx_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true, required: true }));
-	col.push(BSHelper.Combobox({ horz:false, label:"PO No", label_link:"{$.const.PAGE_LNK}?pageid=93", textField:"doc_no", idname:"order_id", url:"{$.php.base_url('cashflow/cf_porder')}?for_material_receipt=1", remote: true, required: false }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Customer", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_vendor='1'", remote: true, required: true }));
+	{* col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"orgtrx_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true, required: true })); *}
+	col.push(BSHelper.Combobox({ horz:false, label:"PO Doc No", label_link:"{$.const.PAGE_LNK}?pageid=93", textField:"doc_no", idname:"order_id", url:"{$.php.base_url('cashflow/cf_porder')}?for_material_receipt=1", remote: true, required: false }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"PO ETA", idname:"eta_order", cls:"auto_ymd", format:"{$.session.date_format}", required: false, disabled: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Vendor", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_vendor='1'", remote: true, required: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Reference No", idname:"doc_ref_no", required: false, required: false, }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Reference Date", idname:"doc_ref_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
 	row.push(subCol(6, col)); col = [];
@@ -45,6 +46,7 @@
 	$("#order_id").shollu_cb({
 		onSelect: function(rowData){
 			$("#bpartner_id").shollu_cb('setValue', rowData.bpartner_id);
+			$("#eta_order").val(rowData.eta);
 		}
 	});
 </script>

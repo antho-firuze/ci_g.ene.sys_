@@ -27,7 +27,7 @@
 	var format_currency = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
 	var DataTable_Init = {
 		enable: true,
-		tableWidth: '110%',
+		tableWidth: '135%',
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
 			{ pageid: 114, subKey: 'inout_id', title: 'Material Receipt Line', },
@@ -36,9 +36,10 @@
 			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"received_date", title:"Received Date" },
-			{ width:"100px", orderable:false, data:"doc_no_order", title:"PO No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_order", title:"PO Date" },
-			{ width:"150px", orderable:false, data:"bpartner_name", title:"Customer" },
+			{ width:"100px", orderable:false, data:"doc_no_order", title:"PO Doc No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_order", title:"PO Doc Date" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"eta_order", title:"PO ETA" },
+			{ width:"150px", orderable:false, data:"bpartner_name", title:"Vendor" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 			{* { width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_currency(data); } }, *}
 			{* { width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Total", render: function(data, type, row){ return format_currency(data); } }, *}

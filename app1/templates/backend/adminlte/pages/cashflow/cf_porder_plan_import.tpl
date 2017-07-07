@@ -38,7 +38,7 @@
 		],
 		columns: [
 			{ width:"25px", orderable:false, data:"seq", title:"Line" },
-			{ width:"100px", orderable:false, data:"doc_date", title:"Doc Date" },
+			{ width:"100px", orderable:false, data:"doc_date", title:"Payment Date" },
 			{ width:"250px", orderable:false, data:"note", title:"Note" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
 		],

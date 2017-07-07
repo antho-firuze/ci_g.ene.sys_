@@ -27,7 +27,7 @@
 	var format_currency = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
 	var DataTable_Init = {
 		enable: true,
-		tableWidth: '110%',
+		tableWidth: '200%',
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
 			{ pageid: 110, subKey: 'order_id', title: 'Purchase Order Line', },
@@ -38,8 +38,10 @@
 		columns: [
 			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
-			{ width:"100px", orderable:false, data:"doc_no_requisition", title:"PR No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_requisition", title:"PR Date" },
+			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"eta", title:"ETA" },
+			{ width:"100px", orderable:false, data:"doc_no_requisition", title:"PR Doc No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_requisition", title:"PR Doc Date" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"eta_requisition", title:"PR ETA" },
 			{ width:"150px", orderable:false, data:"bpartner_name", title:"Vendor" },
 			{ width:"200px", orderable:false, data:"description", title:"Description" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_currency(data); } },

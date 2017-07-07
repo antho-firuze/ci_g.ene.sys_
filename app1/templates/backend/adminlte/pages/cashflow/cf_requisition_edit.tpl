@@ -18,14 +18,15 @@
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info" });
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", required: false, required: true, }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", format: "'casing': 'upper'", required: false, required: true, }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Doc Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"ETA", idname:"eta", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 	row.push(subCol(6, col)); col = [];
-	col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"orgtrx_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true, required: true }));
+	{* col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"orgtrx_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true, required: true })); *}
 	col.push(BSHelper.Combobox({ horz:false, label:"Request No", label_link:"{$.const.PAGE_LNK}?pageid=91", textField:"doc_no", idname:"request_id", url:"{$.php.base_url('cashflow/cf_request')}?for_requisition=1,having=qty", remote: true, required: true }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Customer", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_customer='1'", remote: true, required: true, disabled: true }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"Request ETA", idname:"eta_request", cls:"auto_ymd", format:"{$.session.date_format}", required: false, disabled: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Reference No", idname:"doc_ref_no", required: false, required: false, }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Reference Date", idname:"doc_ref_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
 	row.push(subCol(6, col)); col = [];
@@ -45,6 +46,7 @@
 	$("#request_id").shollu_cb({
 		onSelect: function(rowData){
 			$("#bpartner_id").shollu_cb("setValue", rowData.bpartner_id);
+			$("#eta_request").val(rowData.eta);
 		}
 	});
 	

@@ -67,7 +67,17 @@ class Getmeb extends CI_Controller
 		define('TEMPLATE_URL', base_url().TEMPLATE_FOLDER.'/backend/'.$this->theme.'/');
 		define('TEMPLATE_PATH', '/backend/'.$this->theme.'/');
 		
-		$this->lang->load('systems/systems', (!empty($this->session->language) ? $this->session->language : 'english'));
+		/* Load language file */
+		$expectedLanguage = !empty($this->session->language) ? $this->session->language : 'english';
+		$expectedFile = strtolower(get_class($this)).'_lang.php';
+		$this->lang->load('systems/systems', $expectedLanguage);
+		if (file_exists(APPPATH."language/".$expectedLanguage."/".$expectedFile)) {
+			$this->lang->load($expectedFile, $expectedLanguage);
+		} else {
+			if (file_exists(APPPATH.'modules/'.strtolower(get_class($this))."/language/".$expectedLanguage."/".$expectedFile)) {
+				$this->lang->load(strtolower(get_class($this)), $expectedLanguage);
+			}
+		}
 		
 		$this->fixed_data = [
 			'client_id'		=> DEFAULT_CLIENT_ID,
@@ -154,12 +164,16 @@ class Getmeb extends CI_Controller
 			$this->{$this->c_method}();
 			
 			/* Trigger events before POST */
-			$this->params->event = 'pre_post';
-			$this->{$this->c_method}();
+			if ($this->r_method == 'POST') {
+				$this->params->event = 'pre_post';
+				$this->{$this->c_method}();
+			}
 			
 			/* Trigger events before PUT */
-			$this->params->event = 'pre_put';
-			$this->{$this->c_method}();
+			if ($this->r_method == 'PUT') {
+				$this->params->event = 'pre_put';
+				$this->{$this->c_method}();
+			}
 			
 			/* Go INSERT or UPDATE */
 			if ($this->r_method == 'POST') {
@@ -174,12 +188,16 @@ class Getmeb extends CI_Controller
 			$this->{$this->c_method}();
 			
 			/* Trigger events before POST */
-			$this->params->event = 'post_post';
-			$this->{$this->c_method}();
+			if ($this->r_method == 'POST') {
+				$this->params->event = 'post_post';
+				$this->{$this->c_method}();
+			}
 			
 			/* Trigger events before PUT */
-			$this->params->event = 'post_put';
-			$this->{$this->c_method}();
+			if ($this->r_method == 'PUT') {
+				$this->params->event = 'post_put';
+				$this->{$this->c_method}();
+			}
 			
 			/* Throwing the result to Ajax */
 			if (! $result)
