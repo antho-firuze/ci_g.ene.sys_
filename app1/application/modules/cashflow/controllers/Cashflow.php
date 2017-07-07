@@ -928,6 +928,20 @@ class Cashflow extends Getmeb
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
+			if ($this->params->event == 'pre_put'){
+				$header = $this->base_model->getValue('*', $this->c_method, 'id', $this->params->id);
+				$HadDetail = $this->base_model->isDataExist($this->c_method.'_line', ['request_id' => $this->params->id]);
+				// debug($this->mixed_data['request_type_id']);
+				if ($this->mixed_data['request_type_id'] != $header->request_type_id && $HadDetail) {
+					$this->xresponse(FALSE, ['data' => [], 'message' => 'lang_err: Data cannot be change, because they have details !'], 401);
+				}
+				if ($this->mixed_data['order_id'] != $header->order_id && $HadDetail) {
+					$this->xresponse(FALSE, ['data' => [], 'message' => 'lang_err: Data cannot be change, because they have details !'], 401);
+				}
+				if ($this->mixed_data['request_type_id'] !== 1){
+					$this->mixed_data['order_id'] = NULL;
+				}
+			}
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){

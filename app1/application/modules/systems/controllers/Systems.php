@@ -564,8 +564,8 @@ class Systems extends Getmeb
 				if (isset($this->params->password) && ($this->params->password != '')) {
 					$this->load->library('z_auth/auth');
 					$this->auth->reset_password($this->params->name, $this->params->password);
-					unset($this->params->password);
 				}
+				unset($this->mixed_data['password']);
 			}
 		}
 	}

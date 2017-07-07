@@ -8,7 +8,7 @@
 <!-- /.content-wrapper -->
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/inputmask.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/inputmask.date.extensions.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/jquery.inputmask.js"></script>
@@ -80,6 +80,12 @@
 	
 	$(document).ready(function(){
 		hidden_field();
+		setTimeout(function(){
+			var rt = $("#request_type_id").shollu_cb("getValue");
+			var so = $("#order_id").shollu_cb("getValue");
+			if (rt == 1) $("#request_type_id").shollu_cb("select");
+			if (so) $("#order_id").shollu_cb("select");
+		} ,2000);
 	});
 	
 </script>

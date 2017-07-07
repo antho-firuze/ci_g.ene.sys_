@@ -50,6 +50,7 @@
 		this.destroy 	= function(){ destroy(); };
 		this.getValue = function(field){ return getValue(field); };
 		this.setValue = function(val){ setValue(val); };
+		this.select 	= function(){ select(); };
 		this.disable  = function(state){ disabled(state); };
 		this.init  		= function(){ init(); };
 		
@@ -224,6 +225,7 @@
 			if (id_new === undefined) { 
 				if (id_old !== '') {
 					// console.log('1.5'); 
+					o.onSelect.call(this, o.rowData[id_old]);	
 					return hide(); 
 				}
 				// console.log('1'); 

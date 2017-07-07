@@ -209,6 +209,19 @@ class Base_Model extends CI_Model
 		return $response;
 	}
 	
+	function isDataExist($table, $where=array())
+	{
+		if (! $where) 
+			return FALSE;
+		
+		$where = array_merge(['is_deleted' => '0', 'is_active' => '1'], $where); 
+		$qry = $this->db->get_where($table, $where);
+		// debug($this->db->last_query());
+		return $qry->num_rows() > 0 
+			? TRUE 
+			: FALSE;
+	}
+	
 	/* function mget_rec_count($params = NULL)
 	{
 		$this->db->select($params['select']);
