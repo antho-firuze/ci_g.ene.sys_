@@ -33,7 +33,7 @@
 			{ id:"0", name:"Plan Cash-In" },
 		] 
 	}));
-	col.push(BSHelper.Combobox({ horz:false, label:"Plan Cash-In", textField:"note", idname:"order_plan_id", url:"{$.php.base_url('cashflow/cf_sorder_plan')}?for_invoice=1&filter=order_id=99", remote: true, required: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Payment Note", textField:"note", idname:"order_plan_id", url:"{$.php.base_url('cashflow/cf_sorder_plan')}?for_invoice=1&filter=order_id=99", remote: true, required: true }));
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00" }));
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));

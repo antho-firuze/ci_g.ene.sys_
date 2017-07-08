@@ -27,18 +27,19 @@
 	var format_currency = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
 	var DataTable_Init = {
 		enable: true,
-		tableWidth: '125%',
+		tableWidth: '175%',
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
-			{ pageid: 115, subKey: 'invoice_id', title: 'Invoice Line', },
-			{ pageid: 117, subKey: 'invoice_id', title: 'Invoice Plan', },
+			{* { pageid: 115, subKey: 'invoice_id', title: 'Invoice Line', }, *}
+			{* { pageid: 117, subKey: 'invoice_id', title: 'Invoice Plan', }, *}
 		],
 		columns: [
 			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
-			{ width:"100px", orderable:false, data:"doc_no_inout", title:"MR No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_inout", title:"MR Date" },
-			{ width:"150px", orderable:false, data:"bpartner_name", title:"Customer" },
+			{ width:"100px", orderable:false, data:"doc_no_order", title:"PO Doc No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_order", title:"PO Doc Date" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"etd_order", title:"PO ETA" },
+			{ width:"150px", orderable:false, data:"bpartner_name", title:"Vendor" },
 			{ width:"200px", orderable:false, data:"description", title:"Description" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_currency(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Total", render: function(data, type, row){ return format_currency(data); } },

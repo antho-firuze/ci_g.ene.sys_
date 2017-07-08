@@ -36,10 +36,8 @@
 		columns: [
 			{ width:"100px", orderable:false, data:"doc_no", title:"Invoice No" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Invoice Date" },
-			{* { width:"100px", orderable:false, data:"doc_no_inout", title:"DO No" }, *}
-			{* { width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_inout", title:"DO Date" }, *}
-			{ width:"100px", orderable:false, data:"doc_no_order", title:"SO No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_order", title:"SO Date" },
+			{ width:"100px", orderable:false, data:"doc_no_order", title:"SO Doc No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_order", title:"SO Doc Date" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"etd_order", title:"SO ETD" },
 			{ width:"150px", orderable:false, data:"bpartner_name", title:"Customer" },
 			{ width:"200px", orderable:false, data:"description", title:"Description" },
