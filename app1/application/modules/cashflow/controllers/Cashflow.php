@@ -387,9 +387,10 @@ class Cashflow extends Getmeb
 				} else if ($this->params->plan_type == 2){
 					$this->mixed_data['order_plan_import_id'] = $this->params->order_plan_id;
 					unset($this->mixed_data['order_plan_id']);
-				}
+				} 
 			}
 		}
+		/* test */
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');

@@ -35,6 +35,7 @@
 			{ id:"2", name:"Plan Cash-In Import" },
 		] 
 	}));
+	{* test *}
 	col.push(BSHelper.Combobox({ horz:false, label:"Payment Note", textField:"note", idname:"order_plan_id", url:"{$.php.base_url('cashflow/cf_porder_plan')}?for_invoice=1"+($act=='edt'?'':'&filter=order_id=99'), remote: true, required: true, disabled: ($act=='edt'?true:false) }));
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00" }));
 	row.push(subCol(6, col)); col = [];

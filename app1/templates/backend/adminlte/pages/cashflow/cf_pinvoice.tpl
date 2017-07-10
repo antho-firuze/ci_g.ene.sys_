@@ -48,6 +48,7 @@
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"plan_total", title:"Plan Total", render: function(data, type, row){ return format_currency(data); } },
 		],
 	};
+	{* test *}
 	
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>
