@@ -113,8 +113,13 @@ class Cashflow_Model extends CI_Model
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date";
 		$params['table'] 	= "cf_invoice as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
-			$params['select'] .= ", t2.doc_no as doc_no_inout, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_inout";
-			$params['join'][] = ['cf_inout as t2', 't1.inout_id = t2.id', 'left'];
+			// $params['select'] .= ", t2.doc_no as doc_no_inout, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_inout";
+			// $params['join'][] = ['cf_inout as t2', 't1.inout_id = t2.id', 'left'];
+			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order, to_char(t2.eta, '".$this->session->date_format."') as eta_order, t3.note as note";
+			$params['join'][] = ['cf_order as t2', 't1.order_id = t2.id', 'left'];
+			$params['join'][] = ['cf_order_plan as t3', 't1.order_plan_id = t3.id', 'left'];
+			$params['join'][] = ['cf_order_plan_clearance as t4', 't1.order_plan_id = t4.id', 'left'];
+			$params['join'][] = ['cf_order_plan_import as t5', 't1.order_plan_id = t5.id', 'left'];
 		}
 		return $this->base_model->mget_rec($params);
 	}

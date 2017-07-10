@@ -377,6 +377,18 @@ class Cashflow extends Getmeb
 				$this->mixed_data['is_sotrx'] = '0';
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
+			if ($this->params->event == 'post_post_put'){
+				$this->mixed_data['amount'] = $this->params->amount;
+				if ($this->params->plan_type == 0){
+					$this->mixed_data['order_plan_id'] = $this->params->order_plan_id;
+				} else if ($this->params->plan_type == 1){
+					$this->mixed_data['order_plan_clearance_id'] = $this->params->order_plan_id;
+					unset($this->mixed_data['order_plan_id']);
+				} else if ($this->params->plan_type == 2){
+					$this->mixed_data['order_plan_import_id'] = $this->params->order_plan_id;
+					unset($this->mixed_data['order_plan_id']);
+				}
+			}
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
@@ -651,11 +663,13 @@ class Cashflow extends Getmeb
 	function cf_sorder_plan()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE);
+			$this->_get_filtered(TRUE, TRUE, [], TRUE);
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-				$this->params['where_custom'] = "not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id)";
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+					$this->params['where_custom'] = "not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id)";
+				}
 			}
 			
 			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
@@ -802,11 +816,13 @@ class Cashflow extends Getmeb
 	function cf_porder_plan()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE);
+			$this->_get_filtered(TRUE, TRUE, [], TRUE);
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-				$this->params['where_custom'] = "not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id)";
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+					$this->params['where_custom'] = "not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id)";
+				}
 			}
 			
 			if (isset($this->params['summary']) && !empty($this->params['summary'])) {

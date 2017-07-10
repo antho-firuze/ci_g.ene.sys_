@@ -27,13 +27,13 @@
 	{* col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"orgtrx_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true, required: true })); *}
 	{* col.push(BSHelper.Combobox({ horz:false, label:"DO No", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"doc_no", idname:"inout_id", url:"{$.php.base_url('cashflow/cf_sinout')}?for_invoice=1", remote: true, required: false })); *}
 	col.push(BSHelper.Combobox({ horz:false, label:"SO No", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"doc_no", idname:"order_id", url:"{$.php.base_url('cashflow/cf_sorder')}?for_invoice_cus=1&act="+$act, remote: true, required: true, disabled: ($act=='edt'?true:false) }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Customer", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_customer='1'", remote: true, required: true, disabled: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Customer", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_customer='1'", remote: true, required: true, disabled: ($act=='edt'?true:false) }));
 	col.push(BSHelper.Combobox({ label:"Type", idname:"plan_type", required: true, value: 0, disabled: true, 
 		list:[
 			{ id:"0", name:"Plan Cash-In" },
 		] 
 	}));
-	col.push(BSHelper.Combobox({ horz:false, label:"Payment Note", textField:"note", idname:"order_plan_id", url:"{$.php.base_url('cashflow/cf_sorder_plan')}?for_invoice=1&filter=order_id=99", remote: true, required: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Payment Note", textField:"note", idname:"order_plan_id", url:"{$.php.base_url('cashflow/cf_sorder_plan')}?for_invoice=1"+($act=='edt'?'':'&filter=order_id=99'), remote: true, required: true }));
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00" }));
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
