@@ -59,9 +59,12 @@ if ( ! function_exists('datetime_db_format'))
 		/* date */
 		if (strpos($date_format, '/') !== false) {
 			list($f[0], $f[1], $f[2]) = explode('/', $date_format);
-			list($d[0], $d[1], $d[2]) = explode('/', $date);
 		} else {
 			list($f[0], $f[1], $f[2]) = explode('-', $date_format);
+		}
+		if (strpos($date, '/') !== false) {
+			list($d[0], $d[1], $d[2]) = explode('/', $date);
+		} else {
 			list($d[0], $d[1], $d[2]) = explode('-', $date);
 		}
 		$date_result = implode('-',[$d[array_search("yyyy",$f)], $d[array_search("mm",$f)], $d[array_search("dd",$f)]]);

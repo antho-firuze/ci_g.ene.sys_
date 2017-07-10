@@ -19,4 +19,6 @@
 $lang['error_amount_overload'] 		= "Error: The amount you enter is too much ! [max=%s]";
 $lang['error_qty_overload'] 		= "Error: The quantity you enter is too much ! [max=%s]";
 $lang['error_had_detail'] 		= "Error: Data cannot be change, because they have details !";
+$lang['error_requisition_eta'] 		= "Error: Requsition ETA must be under Planning ETA ! [under=%s]";
+$lang['error_po_eta'] 		= "Error: Purchase Order ETA must be under Requisition ETA ! [under=%s]";
 /* Information: info_ */

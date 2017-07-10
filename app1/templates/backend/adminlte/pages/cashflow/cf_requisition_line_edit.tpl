@@ -14,7 +14,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/jquery.inputmask.js"></script>
 {* <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script> *}
 <script>
-	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $bread = {$.php.json_encode($bread)};
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $bread = {$.php.json_encode($bread)}, $act = getURLParameter("action");
 	{* For design form interface *}
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });
@@ -22,7 +22,7 @@
 	var format_currency = "'alias': 'currency', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'autoGroup': true, 'autoUnmask': true";
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Line No", idname:"seq", required: false, value: 0, }));
 	{* col.push(BSHelper.Combobox({ horz:false, label:"Item", label_link:"{$.const.PAGE_LNK}?pageid=30", idname:"item_id", url:"{$.php.base_url('sales/m_pricelist_item_list')}?level=1&filter=t1.itemtype_id=1,t1.pricelist_id=", remote: true })); *}
-	col.push(BSHelper.Combobox({ horz:false, label:"Request Line", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"list_name", idname:"request_line_id", url:"{$.php.base_url('cashflow/cf_request_line')}?for_requisition=1&having=qty", remote: true, required: true, }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Request Line", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"list_name", idname:"request_line_id", url:"{$.php.base_url('cashflow/cf_request_line')}?for_requisition=1&act="+$act, remote: true, required: true, disabled: ($act=='edt'?true:false), }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Item Category", label_link:"{$.const.PAGE_LNK}?pageid=47", idname:"itemcat_id", url:"{$.php.base_url('inventory/m_itemcat')}", remote: true, required: true }));
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Item Name", idname:"item_name", required: false, })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Item Size", idname:"item_size", required: false, })); *}

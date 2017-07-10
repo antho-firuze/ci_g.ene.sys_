@@ -189,9 +189,12 @@ function datetime_db_format(datetime, this_format, is_datetime){
 	/* date */
 	if (date_format.indexOf('-') < 0) {
 		var f = date_format.split('/');
-		var d = date.split('/');
 	} else {
 		var f = date_format.split('-');
+	}
+	if (date.indexOf('-') < 0) {
+		var d = date.split('/');
+	} else {
 		var d = date.split('-');
 	}
 	var date_result;
