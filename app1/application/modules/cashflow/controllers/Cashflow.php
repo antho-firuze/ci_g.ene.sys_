@@ -27,10 +27,45 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_ar_ap()
+	function cf_ar()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
+			
+			$this->params['where']['is_receipt'] = '1';
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['is_receipt'] = '1';
+				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('ar_ap_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			}
+		}
+	}
+	
+	function cf_ar_line()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
+				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total', 'cf_ar_ap', 'id', $this->params['ar_ap_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -42,12 +77,31 @@ class Cashflow extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'post_post_put'){
+				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
+				$this->params->is_line = 1;
+				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->params['is_line'] = 1;
+				$this->params['invoice_id'] = $this->base_model->getValue('invoice_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->invoice_id;
+				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
+			}
+		}
 	}
 	
-	function cf_ar_ap_line()
+	function cf_ar_plan()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
+				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total', 'cf_ar_ap', 'id', $this->params['ar_ap_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -59,12 +113,69 @@ class Cashflow extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post_put'){
+				$this->mixed_data['is_plan'] = 1;
+				if (! $this->{$this->mdl}->cf_ar_ap_valid_amount($this->mixed_data)){ 
+					$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+				}
+				unset($this->mixed_data['is_plan']);
+			}
+			
+			if ($this->params->event == 'post_post_put'){
+				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
+				$this->params->is_plan = 1;
+				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->params['is_plan'] = 1;
+				$this->params['ar_ap_id'] = $this->base_model->getValue('ar_ap_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->ar_ap_id;
+				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
+			}
+		}
 	}
 	
-	function cf_ar_ap_plan()
+	function cf_ap()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
+			
+			$this->params['where']['is_receipt'] = '0';
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['is_receipt'] = '0';
+				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('ar_ap_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			}
+		}
+	}
+	
+	function cf_ap_line()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
+				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total', 'cf_ar_ap', 'id', $this->params['ar_ap_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -74,6 +185,64 @@ class Cashflow extends Getmeb
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'post_post_put'){
+				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
+				$this->params->is_line = 1;
+				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->params['is_line'] = 1;
+				$this->params['invoice_id'] = $this->base_model->getValue('invoice_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->invoice_id;
+				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
+			}
+		}
+	}
+	
+	function cf_ap_plan()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
+				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total', 'cf_ar_ap', 'id', $this->params['ar_ap_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post_put'){
+				$this->mixed_data['is_plan'] = 1;
+				if (! $this->{$this->mdl}->cf_ar_ap_valid_amount($this->mixed_data)){ 
+					$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+				}
+				unset($this->mixed_data['is_plan']);
+			}
+			
+			if ($this->params->event == 'post_post_put'){
+				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
+				$this->params->is_plan = 1;
+				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->params['is_plan'] = 1;
+				$this->params['ar_ap_id'] = $this->base_model->getValue('ar_ap_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->ar_ap_id;
+				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
 			}
 		}
 	}
@@ -692,9 +861,6 @@ class Cashflow extends Getmeb
 			if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['is_plan'] = 1;
 				if (! $this->{$this->mdl}->cf_order_valid_amount($this->mixed_data)){ 
-					// debug(lang('error_had_detail'));
-		// $this->lang->load('cashflow/cashflow', (!empty($this->session->language) ? $this->session->language : 'english'));
-		// $this->lang->load('cashflow', (!empty($this->session->language) ? $this->session->language : 'english'));
 					$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
 				}
 				unset($this->mixed_data['is_plan']);

@@ -69,7 +69,7 @@ class Cashflow_db extends CI_Controller {
 		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['pricelist_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['requisition_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE, 'unique' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
@@ -155,7 +155,7 @@ class Cashflow_db extends CI_Controller {
 		$fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
 		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE, 'unique' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
@@ -204,7 +204,7 @@ class Cashflow_db extends CI_Controller {
 		$fields['inout_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];	// not in used, change reference to order_id
 		$fields['inout_ids'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];	// example of shipment_id : 1,2,3,4
 		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE, 'unique' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
@@ -250,6 +250,43 @@ class Cashflow_db extends CI_Controller {
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_cashbank()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		
+		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['is_receipt'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE, 'unique' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['received_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['payment_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_cashbank_line()
+	{
+		$fields = $this->field_00_Main();
+		$fields['cashbank_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['account_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		
+		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_type'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -262,10 +299,12 @@ class Cashflow_db extends CI_Controller {
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['is_receipt'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
 		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE, 'unique' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
 		
 		$fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
@@ -280,8 +319,8 @@ class Cashflow_db extends CI_Controller {
 		$fields['ar_ap_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['account_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		
-		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		
 		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
@@ -297,6 +336,7 @@ class Cashflow_db extends CI_Controller {
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -322,7 +362,7 @@ class Cashflow_db extends CI_Controller {
 		$fields['request_type_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE, 'unique' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
@@ -363,7 +403,7 @@ class Cashflow_db extends CI_Controller {
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['request_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE, 'unique' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
@@ -405,7 +445,7 @@ class Cashflow_db extends CI_Controller {
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['orgto_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['request_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE, 'unique' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];

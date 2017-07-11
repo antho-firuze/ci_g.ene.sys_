@@ -16,24 +16,73 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_ar_ap($params)
+	function cf_ar($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select name from cf_account where id = t1.account_id) as account_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
 		$params['table'] 	= "cf_ar_ap as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_ar_ap_line($params)
+	function cf_ar_line($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= $this->c_table." as t1";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from cf_account where id = t1.account_id) as account_name";
+		$params['table'] 	= "cf_ar_ap_line as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_ar_ap_plan($params)
+	function cf_ar_plan($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
-		$params['table'] 	= $this->c_table." as t1";
+		$params['table'] 	= "cf_ar_ap_plan as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_ap($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
+		$params['table'] 	= "cf_ar_ap as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_ap_line($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from cf_account where id = t1.account_id) as account_name";
+		$params['table'] 	= "cf_ar_ap_line as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_ap_plan($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
+		$params['table'] 	= "cf_ar_ap_plan as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_cashbank_r($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.received_date, '".$this->session->date_format."') as received_date";
+		$params['table'] 	= "cf_cashbank as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_cashbank_r_line($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from cf_account where id = t1.account_id) as account_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
+		$params['table'] 	= "cf_cashbank_line as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_cashbank_p($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.payment_date, '".$this->session->date_format."') as payment_date";
+		$params['table'] 	= "cf_cashbank as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_cashbank_p_line($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from cf_account where id = t1.account_id) as account_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
+		$params['table'] 	= "cf_cashbank_line as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -87,7 +136,7 @@ class Cashflow_Model extends CI_Model
 		if (isset($params['level']) && $params['level'] == 1) {
 			// $params['select'] .= ", t2.doc_no as doc_no_inout, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_inout";
 			// $params['join'][] = ['cf_inout as t2', 't1.inout_id = t2.id', 'left'];
-			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order, to_char(t2.etd, '".$this->session->date_format."') as etd_order, t3.note as description";
+			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order, to_char(t2.etd, '".$this->session->date_format."') as etd_order, t3.note, t3.description";
 			$params['join'][] = ['cf_order as t2', 't1.order_id = t2.id', 'left'];
 			$params['join'][] = ['cf_order_plan as t3', 't1.order_plan_id = t3.id', 'left'];
 		}
@@ -116,7 +165,7 @@ class Cashflow_Model extends CI_Model
 		if (isset($params['level']) && $params['level'] == 1) {
 			// $params['select'] .= ", t2.doc_no as doc_no_inout, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_inout";
 			// $params['join'][] = ['cf_inout as t2', 't1.inout_id = t2.id', 'left'];
-			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order, to_char(t2.eta, '".$this->session->date_format."') as eta_order, t3.note as note";
+			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order, to_char(t2.eta, '".$this->session->date_format."') as eta_order, t3.note, t3.description";
 			$params['join'][] = ['cf_order as t2', 't1.order_id = t2.id', 'left'];
 			$params['join'][] = ['cf_order_plan as t3', 't1.order_plan_id = t3.id', 'left'];
 			$params['join'][] = ['cf_order_plan_clearance as t4', 't1.order_plan_id = t4.id', 'left'];
@@ -385,27 +434,49 @@ class Cashflow_Model extends CI_Model
 		return $response;
 	} */
 	
-	function cf_charge_update_summary($params)
+	function cf_ar_ap_update_summary($params)
 	{
 		$params = is_array($params) ? (object) $params : $params;
-		$id = isset($params->charge_id) ? 'where t1.id = '.$params->charge_id : '';
+		$id = isset($params->ar_ap_id) ? 'where t1.id = '.$params->ar_ap_id : '';
 		if (isset($params->is_line) && $params->is_line) {
-			$str = "update cf_charge t1 set (sub_total, vat_total, grand_total) = 
+			$str = "update cf_ar_ap t1 set (sub_total, vat_total, grand_total) = 
 				(
-					select coalesce(sum(sub_amt),0), coalesce(sum(vat_amt),0), coalesce(sum(ttl_amt),0) from cf_charge_line t2 
-					where t2.is_active = '1' and t2.is_deleted = '0' and t2.charge_id = t1.id
+					select coalesce(sum(sub_amt),0), coalesce(sum(vat_amt),0), coalesce(sum(ttl_amt),0) from cf_ar_ap_line t2 
+					where t2.is_active = '1' and t2.is_deleted = '0' and t2.ar_ap_id = t1.id
 				)
 				$id";
 		}
 		if (isset($params->is_plan) && $params->is_plan) {
-			$str = "update cf_charge t1 set (plan_total) = 
+			$str = "update cf_ar_ap t1 set (plan_total) = 
 				(
-					select coalesce(sum(amount),0) from cf_charge_plan t2 
-					where t2.is_active = '1' and t2.is_deleted = '0' and t2.charge_id = t1.id
+					select coalesce(sum(amount),0) from cf_ar_ap_plan t2 
+					where t2.is_active = '1' and t2.is_deleted = '0' and t2.ar_ap_id = t1.id
 				)
 				$id";
 		}
 		return $this->db->query($str);
+	}
+	
+	function cf_ar_ap_valid_amount($params)
+	{
+		/* Insert: (grand_total - plan_total) < new_amount => error */
+		/* Update: (grand_total - sum(plan_amount except current id)) < new_amount => error */
+		$params = is_array($params) ? (object) $params : $params;
+		if (! isset($params->ar_ap_id) && !$params->ar_ap_id)
+			return false;
+		
+		$id = isset($params->id) && $params->id ? 'and t2.id <> '.$params->id : '';
+		$ar_ap_id = $params->ar_ap_id;
+		if (isset($params->is_plan) && $params->is_plan) {
+			$str = "SELECT (grand_total - (select coalesce(sum(amount),0) from cf_ar_ap_plan t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.ar_ap_id = t1.id $id)) as amount 
+				from cf_ar_ap t1 where t1.id = $ar_ap_id";
+		}
+		$row = $this->db->query($str)->row();
+		if ($row->amount - $params->amount < 0) {
+			$this->session->set_flashdata('message', $row->amount);
+			return FALSE;
+		}
+		return TRUE;
 	}
 	
 	function cf_invoice_update_summary($params)

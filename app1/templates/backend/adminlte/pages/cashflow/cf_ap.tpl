@@ -9,6 +9,7 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+<script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Toolbar Init *}
@@ -21,17 +22,17 @@
 		processMenuDisable: ['btn-process1'],
 	};
 	{* DataTable Init *}
+	var format_currency = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '130%',
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
-			{ pageid: 116, subKey: 'charge_id', title: 'Charge Line', },
-			{ pageid: 118, subKey: 'charge_id', title: 'Charge Plan', },
+			{ pageid: 122, subKey: 'ar_ap_id', title: 'Acc.Payable Line', },
+			{ pageid: 123, subKey: 'ar_ap_id', title: 'Acc.Payable Plan', },
 		],
 		columns: [
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_sotrx", title:"InOut", render:function(data, type, row){ return (data=='1') ? 'I' : 'O'; } },
-			{ width:"90px", orderable:false, data:"account_name", title:"Account" },
+			{* { width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_sotrx", title:"InOut", render:function(data, type, row){ return (data=='1') ? 'I' : 'O'; } }, *}
 			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
 			{ width:"150px", orderable:false, data:"bpartner_name", title:"Business Partner" },
