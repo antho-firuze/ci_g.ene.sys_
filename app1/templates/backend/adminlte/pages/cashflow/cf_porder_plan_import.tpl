@@ -39,8 +39,9 @@
 		columns: [
 			{ width:"25px", orderable:false, data:"seq", title:"Line" },
 			{ width:"100px", orderable:false, data:"doc_date", title:"Payment Date" },
-			{ width:"250px", orderable:false, data:"note", title:"Note" },
+			{ width:"150px", orderable:false, data:"note", title:"Payment Type" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"250px", orderable:false, data:"description", title:"Description" },
 		],
 	};
 	
@@ -52,7 +53,7 @@
 	var format_currency = "'alias': 'decimal', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'rightAlign': true, 'autoGroup': true, 'autoUnmask': true";
 	{* col.push(BSHelper.Input({ horz:true, type:"text", label:"Sub Total", idname:"sub_total", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, })); *}
 	{* col.push(BSHelper.Input({ horz:true, type:"text", label:"VAT Total", idname:"vat_total", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, })); *}
-	col.push(BSHelper.Input({ horz:true, lblsize:"col-sm-4", colsize:"col-sm-8", type:"text", label:"Grand Total", idname:"grand_total", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, }));
+	col.push(BSHelper.Input({ horz:true, lblsize:"col-sm-4", colsize:"col-sm-8", type:"text", label:"Grand Total PO", idname:"grand_total", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, }));
 	col.push(BSHelper.Input({ horz:true, lblsize:"col-sm-4", colsize:"col-sm-8", type:"text", label:"Total Import", idname:"plan_im_total", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, }));
 	row.push(subCol(12, col)); col = [];
 	{* row.push(subCol(6, col)); col = []; *}

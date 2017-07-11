@@ -114,8 +114,9 @@ class Getmeb extends CI_Controller
 			
 			/* Parsing pageid */
 			if (isset($this->params['pageid'])) {
-				$this->pageid = explode(',', $this->params['pageid']);
-				$this->pageid = end($this->pageid);
+				$this->pageid = @end(explode(',', $this->params['pageid']));
+				// $this->pageid = explode(',', $this->params['pageid']);
+				// $this->pageid = end($this->pageid);
 			}
 			
 			/* Request for viewlog */

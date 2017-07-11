@@ -115,6 +115,7 @@ class Cashflow_db extends CI_Controller {
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -126,6 +127,7 @@ class Cashflow_db extends CI_Controller {
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -137,6 +139,7 @@ class Cashflow_db extends CI_Controller {
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
 	

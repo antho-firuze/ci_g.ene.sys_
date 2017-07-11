@@ -305,7 +305,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->params['is_line'] = 1;
-				$this->params['invoice_id'] = $this->base_model->getValue('invoice_id', $this->c_table, 'id', $this->params['id'])->invoice_id;
+				$this->params['invoice_id'] = $this->base_model->getValue('invoice_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->invoice_id;
 				$this->{$this->mdl}->cf_invoice_update_summary($this->params);
 			}
 		}
@@ -348,7 +348,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->params->is_plan = 1;
-				$this->params['invoice_id'] = $this->base_model->getValue('invoice_id', $this->c_table, 'id', $this->params['id'])->invoice_id;
+				$this->params['invoice_id'] = $this->base_model->getValue('invoice_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->invoice_id;
 				$this->{$this->mdl}->cf_invoice_update_summary($this->params);
 			}
 		}
@@ -433,7 +433,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->params['is_line'] = 1;
-				$this->params['invoice_id'] = $this->base_model->getValue('invoice_id', $this->c_table, 'id', $this->params['id'])->invoice_id;
+				$this->params['invoice_id'] = $this->base_model->getValue('invoice_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->invoice_id;
 				$this->{$this->mdl}->cf_invoice_update_summary($this->params);
 			}
 		}
@@ -476,7 +476,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->params->is_plan = 1;
-				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
+				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
 				$this->{$this->mdl}->cf_invoice_update_summary($this->params);
 			}
 		}
@@ -655,7 +655,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->params['is_line'] = 1;
-				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
+				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
 		}
@@ -709,7 +709,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->params['is_plan'] = 1;
-				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
+				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
 		}
@@ -814,7 +814,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->params['is_line'] = 1;
-				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
+				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
 		}
@@ -865,7 +865,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->params['is_plan'] = 1;
-				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
+				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
 		}
@@ -906,7 +906,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->params->is_plan_cl = 1;
-				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
+				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
 		}
@@ -947,7 +947,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->params->is_plan_im = 1;
-				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', $this->params['id'])->order_id;
+				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
 		}
