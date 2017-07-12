@@ -247,6 +247,72 @@ class Cashflow extends Getmeb
 		}
 	}
 	
+	function cf_cashbank_r()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			$this->params['where']['is_receipt'] = '1';
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['is_receipt'] = '1';
+				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('ar_ap_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			}
+		}
+	}
+	
+	function cf_cashbank_r_line()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
+				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total', 'cf_ar_ap', 'id', $this->params['ar_ap_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'post_post_put'){
+				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
+				$this->params->is_line = 1;
+				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->params['is_line'] = 1;
+				$this->params['invoice_id'] = $this->base_model->getValue('invoice_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->invoice_id;
+				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
+			}
+		}
+	}
+	
 	function cf_charge_type()
 	{
 		if ($this->r_method == 'GET') {
