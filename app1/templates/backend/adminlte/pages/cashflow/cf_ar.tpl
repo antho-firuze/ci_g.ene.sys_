@@ -28,8 +28,8 @@
 		tableWidth: '130%',
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
-			{ pageid: 116, subKey: 'ar_ap_id', title: 'Acc. Received Line', },
-			{ pageid: 118, subKey: 'ar_ap_id', title: 'Acc. Received Plan', },
+			{ pageid: 116, subKey: 'ar_ap_id', title: 'Inflow Line', },
+			{ pageid: 118, subKey: 'ar_ap_id', title: 'Inflow Plan', },
 		],
 		columns: [
 			{* { width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_sotrx", title:"InOut", render:function(data, type, row){ return (data=='1') ? 'I' : 'O'; } }, *}

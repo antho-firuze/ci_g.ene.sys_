@@ -196,13 +196,15 @@ class Cashflow_db extends CI_Controller {
 		
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
-		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['plan_type'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['order_plan_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['order_plan_clearance_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['order_plan_import_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['inout_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];	// not in used, change reference to order_id
-		$fields['inout_ids'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];	// example of shipment_id : 1,2,3,4
+		$fields['other_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];	
+		$fields['other_plan_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];	
+		// $fields['inout_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];	// not in used, change reference to order_id
+		// $fields['inout_ids'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];	// example of shipment_id : 1,2,3,4
 		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE, 'unique' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
@@ -210,14 +212,14 @@ class Cashflow_db extends CI_Controller {
 		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
 		
 		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
-		$fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
-		$fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
-		$fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
-		$fields['plan_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		// $fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		// $fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		// $fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		// $fields['plan_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		return $fields;
 	}
 	
-	function table_cf_invoice_line()
+	function _void__table_cf_invoice_line()
 	{
 		$fields = $this->field_00_Main();
 		$fields['invoice_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -242,7 +244,7 @@ class Cashflow_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_cf_invoice_plan()
+	function _void__table_cf_invoice_plan()
 	{
 		$fields = $this->field_00_Main();
 		$fields['invoice_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -278,6 +280,7 @@ class Cashflow_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['cashbank_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['invoice_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['account_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];

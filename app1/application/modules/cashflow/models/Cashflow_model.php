@@ -267,14 +267,14 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_porder_plan_clearance($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, t1.note as code_name";
 		$params['table'] 	= "cf_order_plan_clearance as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function cf_porder_plan_import($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, t1.note as code_name";
 		$params['table'] 	= "cf_order_plan_import as t1";
 		return $this->base_model->mget_rec($params);
 	}

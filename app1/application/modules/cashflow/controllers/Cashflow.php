@@ -555,6 +555,42 @@ class Cashflow extends Getmeb
 		}
 	}
 	
+	function cf_oinvoice()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			$this->params['level'] = 1;
+			// $this->params['where']['t1.is_sotrx'] = '1';
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post'){
+				if ($this->params->doc_type == 'inflow'){
+					$this->mixed_data['is_sotrx'] = '1';
+				}
+				if ($this->params->doc_type == 'outflow'){
+					$this->mixed_data['is_sotrx'] = '0';
+				}
+				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
+			}
+		}
+	}
+	
 	function cf_sinvoice()
 	{
 		if ($this->r_method == 'GET') {
@@ -586,7 +622,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_sinvoice_line()
+	function _void__cf_sinvoice_line()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -633,7 +669,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_sinvoice_plan()
+	function _void__cf_sinvoice_plan()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -729,7 +765,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_pinvoice_line()
+	function _void__cf_pinvoice_line()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -770,7 +806,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_pinvoice_plan()
+	function _void__cf_pinvoice_plan()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);

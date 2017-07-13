@@ -28,8 +28,8 @@
 		tableWidth: '130%',
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
-			{ pageid: 122, subKey: 'ar_ap_id', title: 'Acc.Payable Line', },
-			{ pageid: 123, subKey: 'ar_ap_id', title: 'Acc.Payable Plan', },
+			{ pageid: 122, subKey: 'ar_ap_id', title: 'Outflow Line', },
+			{ pageid: 123, subKey: 'ar_ap_id', title: 'Outflow Plan', },
 		],
 		columns: [
 			{* { width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_sotrx", title:"InOut", render:function(data, type, row){ return (data=='1') ? 'I' : 'O'; } }, *}
