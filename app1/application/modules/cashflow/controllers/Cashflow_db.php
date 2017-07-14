@@ -196,6 +196,7 @@ class Cashflow_db extends CI_Controller {
 		
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['is_receipt'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
 		$fields['plan_type'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
 		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['order_plan_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
