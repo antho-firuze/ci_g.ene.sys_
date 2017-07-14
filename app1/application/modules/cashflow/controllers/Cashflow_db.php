@@ -343,6 +343,55 @@ class Cashflow_db extends CI_Controller {
 		return $fields;
 	}
 	
+	function table_cf_other()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		
+		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['is_receipt'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE, 'unique' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
+		
+		$fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['plan_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_other_line()
+	{
+		$fields = $this->field_00_Main();
+		$fields['other_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['account_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		
+		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		
+		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_cf_other_plan()
+	{
+		$fields = $this->field_00_Main();
+		$fields['other_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		return $fields;
+	}
+	
 	/* cf_request_type: For Stock, For SO */
 	function table_cf_request_type()
 	{
