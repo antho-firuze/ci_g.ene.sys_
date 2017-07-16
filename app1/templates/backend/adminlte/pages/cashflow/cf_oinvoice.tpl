@@ -34,19 +34,15 @@
 			{* { pageid: 107, subKey: 'invoice_id', title: 'Invoice Plan', }, *}
 		],
 		columns: [
+			{ width:"30px", orderable:false, className:"dt-head-center dt-body-center", data:"is_receipt", title:"In/Out", render: function(data, type, row){ return data == '1' ? 'IN' : 'OUT'; } },
 			{ width:"100px", orderable:false, data:"doc_no", title:"Invoice No" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Invoice Date" },
-			{ width:"100px", orderable:false, data:"doc_no_order", title:"SO Doc No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_order", title:"SO Doc Date" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"etd_order", title:"SO ETD" },
-			{ width:"150px", orderable:false, data:"bpartner_name", title:"Customer" },
+			{ width:"100px", orderable:false, data:"doc_no_ar_ap", title:"AR/AP Doc No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_ar_ap", title:"AR/AP Doc Date" },
+			{ width:"150px", orderable:false, data:"bpartner_name", title:"Business Partner" },
 			{ width:"200px", orderable:false, data:"note", title:"Note" },
 			{ width:"200px", orderable:false, data:"description", title:"Description" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_currency(data); } },
-			{* { width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_currency(data); } }, *}
-			{* { width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Total", render: function(data, type, row){ return format_currency(data); } }, *}
-			{* { width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_currency(data); } }, *}
-			{* { width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"plan_total", title:"Plan Total", render: function(data, type, row){ return format_currency(data); } }, *}
 		],
 	};
 	

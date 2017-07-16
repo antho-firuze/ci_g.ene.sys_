@@ -26,14 +26,13 @@
 	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Combobox({ label:"Doc Type", idname:"doc_type", required: true, disabled: ($act=='edt'?true:false), 
 		list:[
-			{ id:"2", name:"Invoice Vendor" },
-			{ id:"3", name:"Invoice Clearance" },
-			{ id:"4", name:"Invoice Import" },
+			{ id:"5", name:"Inflow" },
+			{ id:"6", name:"Outflow" },
 		] 
 	}));
-	col.push(BSHelper.Combobox({ horz:false, label:"Doc No", label_link:"{$.const.PAGE_LNK}?pageid=93", textField:"doc_no", idname:"order_id", url:"{$.php.base_url('cashflow/cf_porder')}?for_invoice_ven=1&act="+$act, remote: true, required: true, disabled: true }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Vendor", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_vendor='1'", remote: true, required: true, disabled: true }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Payment Note", textField:"note", idname:"order_plan_id", url:"{$.php.base_url('cashflow/cf_porder_plan')}?for_invoice=1"+($act=='edt'?'':'&filter=order_id=99'), remote: true, required: true, disabled: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"AR/AP No", textField:"doc_no", idname:"ar_ap_id", url:"{$.php.base_url('cashflow/cf_ar')}?for_invoice=1&act="+$act, remote: true, required: true, disabled: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Business Partner", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}", remote: true, required: true, disabled: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Payment Note", textField:"note", idname:"ar_ap_plan_id", url:"{$.php.base_url('cashflow/cf_ar_plan')}?for_invoice=1", remote: true, required: true, disabled: true }));
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00" }));
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
@@ -51,43 +50,39 @@
 	{* INITILIZATION *}
 	var doc_type;
 	function clearVal(){
-		$("#order_id").shollu_cb('setValue', '');
-		$("#order_id").shollu_cb('disable', false);
+		$("#ar_ap_id").shollu_cb('setValue', '');
+		$("#ar_ap_id").shollu_cb('disable', false);
 		$("#bpartner_id").shollu_cb('setValue', '');
-		$("#order_plan_id").shollu_cb('setValue', '');
-		$("#order_plan_id").shollu_cb('disable', true);
+		$("#ar_ap_plan_id").shollu_cb('setValue', '');
+		$("#ar_ap_plan_id").shollu_cb('disable', true);
 		$("#amount").val(0);
 	}
 	
 	$("#doc_type").shollu_cb({
 		onSelect: function(rowData){
 			doc_type = rowData.id;
-			if (doc_type == '2')
-				$("#order_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_porder')}?for_invoice_plan=1" });
-			if (doc_type == '3')
-				$("#order_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_porder')}?for_invoice_plan_clearance=1" });
-			if (doc_type == '4')
-				$("#order_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_porder')}?for_invoice_plan_import=1" });
+			if (doc_type == '5')
+				$("#ar_ap_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_ar')}?for_invoice=1" });
+			if (doc_type == '6')
+				$("#ar_ap_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_ap')}?for_invoice=1" });
 			
 			clearVal();
 		}
 	});
-	$("#order_id").shollu_cb({
+	$("#ar_ap_id").shollu_cb({
 		onSelect: function(rowData){
 			$("#bpartner_id").shollu_cb('setValue', rowData.bpartner_id);
-			if (doc_type == '2')
-				$("#order_plan_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_porder_plan')}?for_invoice=1&filter=order_id="+rowData.id+"&act="+$act });
-			if (doc_type == '3')
-				$("#order_plan_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_porder_plan_clearance')}?for_invoice=1&filter=order_id="+rowData.id+"&act="+$act });
-			if (doc_type == '4')
-				$("#order_plan_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_porder_plan_import')}?for_invoice=1&filter=order_id="+rowData.id+"&act="+$act });
+			if (doc_type == '5')
+				$("#ar_ap_plan_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_ar_plan')}?for_invoice=1&filter=ar_ap_id="+rowData.id });
+			if (doc_type == '6')
+				$("#ar_ap_plan_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_ap_plan')}?for_invoice=1&filter=ar_ap_id="+rowData.id });
 				
-		$("#order_plan_id").shollu_cb('setValue', '');
-		$("#order_plan_id").shollu_cb('disable', false);
-		$("#amount").val(0);
+			$("#ar_ap_plan_id").shollu_cb('setValue', '');
+			$("#ar_ap_plan_id").shollu_cb('disable', false);
+			$("#amount").val(0);
 		}
 	});
-	$("#order_plan_id").shollu_cb({
+	$("#ar_ap_plan_id").shollu_cb({
 		onSelect: function(rowData){
 			$("#amount").val(rowData.amount);
 		}

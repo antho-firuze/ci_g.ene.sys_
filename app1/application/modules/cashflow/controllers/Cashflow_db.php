@@ -195,15 +195,15 @@ class Cashflow_db extends CI_Controller {
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		// $fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
 		$fields['is_receipt'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
-		$fields['plan_type'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['doc_type'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
 		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['order_plan_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['order_plan_clearance_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['order_plan_import_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['other_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];	
-		$fields['other_plan_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];	
+		$fields['ar_ap_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];	
+		$fields['ar_ap_plan_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];	
 		// $fields['inout_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];	// not in used, change reference to order_id
 		// $fields['inout_ids'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];	// example of shipment_id : 1,2,3,4
 		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -344,7 +344,7 @@ class Cashflow_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_cf_other()
+	function _void__table_cf_other()
 	{
 		$fields = $this->field_00_Main();
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
@@ -366,7 +366,7 @@ class Cashflow_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_cf_other_line()
+	function _void__table_cf_other_line()
 	{
 		$fields = $this->field_00_Main();
 		$fields['other_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -381,7 +381,7 @@ class Cashflow_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_cf_other_plan()
+	function _void__table_cf_other_plan()
 	{
 		$fields = $this->field_00_Main();
 		$fields['other_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];

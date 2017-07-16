@@ -32,6 +32,18 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
 			
+			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params['where_custom'] = "exists (
+						select distinct(ar_ap_id) from (
+							select * from cf_ar_ap_plan f1 where is_active = '1' and is_deleted = '0'
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_plan_id = f1.id $having)
+						) as t2 where t2.ar_ap_id = t1.id
+					)";
+				}
+			}
+			
 			$this->params['where']['is_receipt'] = '1';
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
@@ -103,6 +115,19 @@ class Cashflow extends Getmeb
 				$this->xresponse(TRUE, ['data' => $result]);
 			}
 			
+			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params['where_custom'] = "exists (
+						select distinct(id) from (
+							select * from cf_ar_ap_plan f1 where is_active = '1' and is_deleted = '0' and ".$this->params['filter']."
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_plan_id = f1.id $having)
+						) as t2 where t2.id = t1.id
+					)";
+					unset($this->params['filter']);
+				}
+			}
+			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -142,8 +167,17 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
 			
-			$this->params['where']['is_receipt'] = '0';
-			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params['where_custom'] = "exists (
+						select distinct(ar_ap_id) from (
+							select * from cf_ar_ap_plan f1 where is_active = '1' and is_deleted = '0'
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_plan_id = f1.id $having)
+						) as t2 where t2.ar_ap_id = t1.id
+					)";
+				}
+			}
 			
 			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
@@ -155,6 +189,8 @@ class Cashflow extends Getmeb
 				}
 			}
 			
+			$this->params['where']['is_receipt'] = '0';
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -222,6 +258,19 @@ class Cashflow extends Getmeb
 			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
 				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total', 'cf_ar_ap', 'id', $this->params['ar_ap_id']);
 				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
+			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params['where_custom'] = "exists (
+						select distinct(id) from (
+							select * from cf_ar_ap_plan f1 where is_active = '1' and is_deleted = '0' and ".$this->params['filter']."
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_plan_id = f1.id $having)
+						) as t2 where t2.id = t1.id
+					)";
+					unset($this->params['filter']);
+				}
 			}
 			
 			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
@@ -561,7 +610,7 @@ class Cashflow extends Getmeb
 			$this->_get_filtered(TRUE, TRUE);
 			
 			$this->params['level'] = 1;
-			// $this->params['where']['t1.is_sotrx'] = '1';
+			$this->params['where_in']['t1.doc_type'] = ['5', '6'];
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -575,13 +624,16 @@ class Cashflow extends Getmeb
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_post'){
-				if ($this->params->doc_type == 'inflow'){
-					$this->mixed_data['is_sotrx'] = '1';
-				}
-				if ($this->params->doc_type == 'outflow'){
-					$this->mixed_data['is_sotrx'] = '0';
-				}
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
+				
+				if ($this->params->doc_type == '5'){
+					// $this->mixed_data['is_sotrx'] = '1';
+					$this->mixed_data['is_receipt'] = '1';
+				}
+				if ($this->params->doc_type == '6'){
+					// $this->mixed_data['is_sotrx'] = '0';
+					$this->mixed_data['is_receipt'] = '0';
+				}
 			}
 		}
 		if ($this->r_method == 'DELETE') {
@@ -597,7 +649,7 @@ class Cashflow extends Getmeb
 			$this->_get_filtered(TRUE, TRUE);
 			
 			$this->params['level'] = 1;
-			$this->params['where']['t1.is_sotrx'] = '1';
+			$this->params['where']['t1.doc_type'] = '1';
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -611,15 +663,15 @@ class Cashflow extends Getmeb
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_post'){
-				$this->mixed_data['is_sotrx'] = '1';
+				$this->mixed_data['is_receipt'] = '1';
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
 		}
-		if ($this->r_method == 'DELETE') {
+		/* if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
 			}
-		}
+		} */
 	}
 	
 	function _void__cf_sinvoice_line()
@@ -718,7 +770,7 @@ class Cashflow extends Getmeb
 			$this->_get_filtered(TRUE, TRUE);
 			
 			$this->params['level'] = 1;
-			$this->params['where']['t1.is_sotrx'] = '0';
+			$this->params['where_in']['t1.doc_type'] = ['2', '3', '4'];
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			
 			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
@@ -741,28 +793,25 @@ class Cashflow extends Getmeb
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_post'){
-				$this->mixed_data['is_sotrx'] = '0';
+				$this->mixed_data['is_receipt'] = '0';
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
-				if ($this->params->plan_type == 0){
+				
+				if ($this->params->doc_type == 2){
 					$this->mixed_data['order_plan_id'] = $this->params->order_plan_id;
-				} else if ($this->params->plan_type == 1){
+				} else if ($this->params->doc_type == 3){
 					$this->mixed_data['order_plan_clearance_id'] = $this->params->order_plan_id;
 					unset($this->mixed_data['order_plan_id']);
-				} else if ($this->params->plan_type == 2){
+				} else if ($this->params->doc_type == 4){
 					$this->mixed_data['order_plan_import_id'] = $this->params->order_plan_id;
 					unset($this->mixed_data['order_plan_id']);
 				} 
 			}
-			if ($this->params->event == 'pre_post_put'){
-				// $this->mixed_data['amount'] = $this->params->amount;
-			}
 		}
-		/* test */
-		if ($this->r_method == 'DELETE') {
+		/* if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
 			}
-		}
+		} */
 	}
 	
 	function _void__cf_pinvoice_line()
@@ -909,38 +958,16 @@ class Cashflow extends Getmeb
 				}
 			}
 			
-			if (isset($this->params['for_invoice_cus']) && !empty($this->params['for_invoice_cus'])) {
-				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-				// $this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
-					// and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = f1.id $having) and f1.order_id = t1.id)";
-				$this->params['where_custom'] = "exists (
-					select distinct(order_id) from (
-						select * from cf_order_plan t1
-						where is_active = '1' and is_deleted = '0'
-						and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id)
-					) as t2 where t2.order_id = t1.id
-				)";
-			}
-			
-			if (isset($this->params['for_invoice_ven']) && !empty($this->params['for_invoice_ven'])) {
-				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-				// $this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
-					// and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = f1.id $having) and f1.order_id = t1.id)";
-				$this->params['where_custom'] = "exists (
-					select distinct(order_id) from (
-						select * from cf_order_plan t1
-						where is_active = '1' and is_deleted = '0'
-						and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id)
-						union
-						select * from cf_order_plan_clearance t1
-						where is_active = '1' and is_deleted = '0'
-						and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_clearance_id = t1.id)
-						union
-						select * from cf_order_plan_import t1
-						where is_active = '1' and is_deleted = '0'
-						and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_import_id = t1.id)
-					) as t2 where t2.order_id = t1.id
-				)";
+			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params['where_custom'] = "exists (
+						select distinct(order_id) from (
+							select * from cf_order_plan f1 where is_active = '1' and is_deleted = '0'
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = f1.id $having)
+						) as t2 where t2.order_id = t1.id
+					)";
+				}
 			}
 			
 			if (isset($this->params['for_request']) && !empty($this->params['for_request'])) {
@@ -1035,8 +1062,14 @@ class Cashflow extends Getmeb
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-					$this->params['where_custom'] = "not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id)";
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params['where_custom'] = "exists (
+						select distinct(id) from (
+							select * from cf_order_plan f1 where is_active = '1' and is_deleted = '0' and ".$this->params['filter']."
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = f1.id $having)
+						) as t2 where t2.id = t1.id
+					)";
+					unset($this->params['filter']);
 				}
 			}
 			
@@ -1085,9 +1118,47 @@ class Cashflow extends Getmeb
 			$this->_get_filtered(TRUE, TRUE);
 			
 			if (isset($this->params['for_material_receipt']) && !empty($this->params['for_material_receipt'])) {
-				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-				$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
-					and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = f1.id $having) and f1.order_id = t1.id)";
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+					$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
+						and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = f1.id $having) and f1.order_id = t1.id)";
+				}
+			}
+			
+			if (isset($this->params['for_invoice_plan']) && !empty($this->params['for_invoice_plan'])) {
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params['where_custom'] = "exists (
+						select distinct(order_id) from (
+							select * from cf_order_plan f1 where is_active = '1' and is_deleted = '0'
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = f1.id $having)
+						) as t2 where t2.order_id = t1.id
+					)";
+				}
+			}
+			
+			if (isset($this->params['for_invoice_plan_clearance']) && !empty($this->params['for_invoice_plan_clearance'])) {
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params['where_custom'] = "exists (
+						select distinct(order_id) from (
+							select * from cf_order_plan_clearance f1 where is_active = '1' and is_deleted = '0'
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_clearance_id = f1.id $having)
+						) as t2 where t2.order_id = t1.id
+					)";
+				}
+			}
+			
+			if (isset($this->params['for_invoice_plan_import']) && !empty($this->params['for_invoice_plan_import'])) {
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params['where_custom'] = "exists (
+						select distinct(order_id) from (
+							select * from cf_order_plan_import f1 where is_active = '1' and is_deleted = '0'
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_import_id = f1.id $having)
+						) as t2 where t2.order_id = t1.id
+					)";
+				}
 			}
 			
 			$this->params['level'] = 1;
@@ -1191,8 +1262,14 @@ class Cashflow extends Getmeb
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-					$this->params['where_custom'] = "not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id)";
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params['where_custom'] = "exists (
+						select distinct(id) from (
+							select * from cf_order_plan f1 where is_active = '1' and is_deleted = '0' and ".$this->params['filter']."
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = f1.id $having)
+						) as t2 where t2.id = t1.id
+					)";
+					unset($this->params['filter']);
 				}
 			}
 			
@@ -1248,8 +1325,16 @@ class Cashflow extends Getmeb
 			$this->_get_filtered(TRUE, TRUE);
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-				$this->params['where_custom'] = "not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_clearance_id = t1.id)";
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params['where_custom'] = "exists (
+						select distinct(id) from (
+							select * from cf_order_plan_clearance f1 where is_active = '1' and is_deleted = '0' and ".$this->params['filter']."
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_clearance_id = f1.id $having)
+						) as t2 where t2.id = t1.id
+					)";
+					unset($this->params['filter']);
+				}
 			}
 			
 			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
@@ -1289,8 +1374,16 @@ class Cashflow extends Getmeb
 			$this->_get_filtered(TRUE, TRUE);
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-				$this->params['where_custom'] = "not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_import_id = t1.id)";
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params['where_custom'] = "exists (
+						select distinct(id) from (
+							select * from cf_order_plan_import f1 where is_active = '1' and is_deleted = '0' and ".$this->params['filter']."
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_import_id = f1.id $having)
+						) as t2 where t2.id = t1.id
+					)";
+					unset($this->params['filter']);
+				}
 			}
 			
 			if (isset($this->params['summary']) && !empty($this->params['summary'])) {

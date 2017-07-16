@@ -109,6 +109,18 @@ class Base_Model extends CI_Model
 		$this->db->from($params['table']);
 		if ( key_exists('join', $params)) DBX::join($this, $params['join']);
 		if ( key_exists('where', $params)) $this->db->where($params['where']);
+		
+		/* sample: $this->params['where_in']['t1.doc_type'] = ['5', '6']; */
+		if ( key_exists('where_in', $params)) {
+			foreach($params['where_in'] as $k => $v){
+				$this->db->where_in($k, $v);
+			}
+		}
+		/* 
+		sample: 
+		$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
+			and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = f1.id) and f1.order_id = t1.id)";
+		 */
 		if ( key_exists('where_custom', $params)) {
 			if (is_array($params['where_custom'])){
 				foreach($params['where_custom'] as $where_custom){
@@ -120,9 +132,8 @@ class Base_Model extends CI_Model
 		}
 		if ( key_exists('like', $params)) $this->db->where($params['like']);
 		if ( key_exists('sort', $params)) $this->db->order_by($params['sort'], $params['order']);
-		// if ( key_exists('ob', $params)) 	$this->db->order_by($params['ob']);
 		
-		/* &filter=field1=value1,field2=value2... */
+		/* sample: &filter=field1=value1,field2=value2... */
 		if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
 			$array = explode(",", $this->params['filter']);
 			if (!empty($array)) {
@@ -150,8 +161,8 @@ class Base_Model extends CI_Model
 			return ($query->num_rows() > 0) ? $query->num_rows() : 0;
 		}
 		
-		/* &ob=field1,field2,field3... */
-		/* &ob=field1 desc,field2 desc,field3... */
+		/* sample: &ob=field1,field2,field3... */
+		/* sample: &ob=field1 desc,field2 desc,field3... */
 		if (key_exists('ob', $this->params) && !empty($this->params['ob'])){
 			$array = explode(",", $this->params['ob']);
 			if (!empty($array)) {
@@ -161,7 +172,7 @@ class Base_Model extends CI_Model
 			}
 		}
 		
-		/* &limit=1&offset=0 */
+		/* sample: &limit=1&offset=0 */
 		if (key_exists('limit', $this->params) && !empty($this->params['limit'])){
 			$offset = 0;
 			if (key_exists('offset', $this->params) && !empty($this->params['offset'])){

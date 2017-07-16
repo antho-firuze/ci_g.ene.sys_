@@ -26,14 +26,14 @@
 	row.push(subCol(6, col)); col = [];
 	{* col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"orgtrx_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true, required: true })); *}
 	{* col.push(BSHelper.Combobox({ horz:false, label:"DO No", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"doc_no", idname:"inout_id", url:"{$.php.base_url('cashflow/cf_sinout')}?for_invoice=1", remote: true, required: false })); *}
-	col.push(BSHelper.Combobox({ horz:false, label:"SO No", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"doc_no", idname:"order_id", url:"{$.php.base_url('cashflow/cf_sorder')}?for_invoice_cus=1&act="+$act, remote: true, required: true, disabled: ($act=='edt'?true:false) }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Customer", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_customer='1'", remote: true, required: true, disabled: ($act=='edt'?true:false) }));
-	col.push(BSHelper.Combobox({ label:"Type", idname:"plan_type", required: true, value: 0, disabled: true, 
+	col.push(BSHelper.Combobox({ label:"Doc Type", idname:"doc_type", required: true, disabled: ($act=='edt'?true:false), 
 		list:[
-			{ id:"0", name:"Plan Cash-In" },
+			{ id:"1", name:"Invoice Customer" },
 		] 
 	}));
-	col.push(BSHelper.Combobox({ horz:false, label:"Payment Note", textField:"note", idname:"order_plan_id", url:"{$.php.base_url('cashflow/cf_sorder_plan')}?for_invoice=1"+($act=='edt'?'':'&filter=order_id=99'), remote: true, required: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"SO No", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"doc_no", idname:"order_id", url:"{$.php.base_url('cashflow/cf_sorder')}?for_invoice=1&act="+$act, remote: true, required: true, disabled: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Customer", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_customer='1'", remote: true, required: true, disabled: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Payment Note", textField:"note", idname:"order_plan_id", url:"{$.php.base_url('cashflow/cf_sorder_plan')}?for_invoice=1", remote: true, required: true, disabled: true }));
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00" }));
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
@@ -49,10 +49,34 @@
 	$("[data-mask]").inputmask();
 	
 	{* INITILIZATION *}
+	var doc_type;
+	function clearVal(){
+		$("#order_id").shollu_cb('setValue', '');
+		$("#order_id").shollu_cb('disable', false);
+		$("#bpartner_id").shollu_cb('setValue', '');
+		$("#order_plan_id").shollu_cb('setValue', '');
+		$("#order_plan_id").shollu_cb('disable', true);
+		$("#amount").val(0);
+	}
+	
+	$("#doc_type").shollu_cb({
+		onSelect: function(rowData){
+			doc_type = rowData.id;
+			{* if (doc_type == '1') *}
+				{* $("#ar_ap_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_ar')}?for_invoice=1" }); *}
+			
+			clearVal();
+		}
+	});
+	
 	$("#order_id").shollu_cb({
 		onSelect: function(rowData){
 			$("#bpartner_id").shollu_cb('setValue', rowData.bpartner_id);
 			$("#order_plan_id").shollu_cb({ queryParams: { for_invoice:1, filter:"order_id="+rowData.id } });
+			
+			$("#order_plan_id").shollu_cb('setValue', '');
+			$("#order_plan_id").shollu_cb('disable', false);
+			$("#amount").val(0);
 		}
 	});
 	$("#order_plan_id").shollu_cb({
