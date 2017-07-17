@@ -24,8 +24,8 @@
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Line No", idname:"seq", required: false, value: 0, }));
 	col.push(BSHelper.Combobox({ label:"Doc Type", idname:"doc_type", required: true, disabled: ($act=='edt'?true:false), 
 		list:[
-			{ id:"2", name:"Invoice Vendor" },
-			{ id:"4", name:"Others Payment" },
+			{ id:"1", name:"Invoice Customer" },
+			{ id:"3", name:"Others Received" },
 		] 
 	}));
 	col.push(BSHelper.Combobox({ horz:false, label:"Doc No", label_link:"{$.const.PAGE_LNK}?pageid=85", textField:"code_name", idname:"invoice_id", url:"{$.php.base_url('cashflow/cf_pinvoice')}?for_cashbank=1&act="+$act, remote: true, required: true, disabled: true }));
@@ -35,7 +35,7 @@
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Payment Note", idname:"note", required: false, readonly: true }));
 	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"ori_amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00", disabled: true, hidden: ($act=='edt'?true:false) }));
-	col.push(BSHelper.Input({ horz:false, type:"number", label:"Paid Amount", idname:"amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00" }));
+	col.push(BSHelper.Input({ horz:false, type:"number", label:"Paid Amount", idname:"amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00", disabled: ($act=='edt'?true:false) }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
@@ -55,8 +55,8 @@
 	$("#doc_type").shollu_cb({
 		onSelect: function(rowData){
 			doc_type = rowData.id;
-			if (doc_type == '2') {
-				$("#invoice_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_pinvoice')}?for_cashbank=1&act="+$act });
+			if (doc_type == '1') {
+				$("#invoice_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_sinvoice')}?for_cashbank=1&act="+$act });
 				$("#invoice_id").shollu_cb('setValue', '');
 				$("#invoice_id").shollu_cb('disable', false);
 				$("#account_id").shollu_cb('setValue', 2);
@@ -66,8 +66,8 @@
 				$("#note").val("");
 				$("#description").val("");
 			}
-			if (doc_type == '4') {
-				$("#invoice_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_ap')}?for_cashbank=1&act="+$act });
+			if (doc_type == '3') {
+				$("#invoice_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_ar')}?for_cashbank=1&act="+$act });
 				$("#invoice_id").shollu_cb('setValue', '');
 				$("#invoice_id").shollu_cb('disable', false);
 				$("#account_id").shollu_cb('setValue', '');
@@ -88,22 +88,6 @@
 			$("#amount").val(rowData.amount);
 			$("#note").val(rowData.note);
 		}
-	});
-	
-	{* Only for edit mode *}
-	$(document).ready(function(){
-		setTimeout(function(){
-			if ($act == "edt") {
-				doc_type = $("#doc_type").shollu_cb('getValue');
-				console.log(doc_type);
-				if (doc_type == '2') {
-					$("#invoice_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_pinvoice')}?for_cashbank=1&act="+$act });
-				}
-				if (doc_type == '4') {
-					$("#invoice_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_ap')}?for_cashbank=1&act="+$act });
-				}
-			}
-		} ,2000);
 	});
 	
 </script>

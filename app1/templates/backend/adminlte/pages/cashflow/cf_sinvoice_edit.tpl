@@ -18,9 +18,8 @@
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info" });
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", format: "'casing': 'upper'", required: false, required: true, }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", format: "'casing': 'upper'", required: true, }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Doc Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
-	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Reference No", idname:"doc_ref_no", required: false, required: false }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Reference Date", idname:"doc_ref_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
 	row.push(subCol(6, col)); col = [];
@@ -34,7 +33,9 @@
 	col.push(BSHelper.Combobox({ horz:false, label:"SO No", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"doc_no", idname:"order_id", url:"{$.php.base_url('cashflow/cf_sorder')}?for_invoice=1&act="+$act, remote: true, required: true, disabled: true }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Customer", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_customer='1'", remote: true, required: true, disabled: true }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Payment Note", textField:"note", idname:"order_plan_id", url:"{$.php.base_url('cashflow/cf_sorder_plan')}?for_invoice=1", remote: true, required: true, disabled: true }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Payment Note", idname:"note", required: false, readonly: true, hidden: true }));
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00" }));
+	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
 	form1.append(subRow(subCol()));
@@ -57,13 +58,13 @@
 		$("#order_plan_id").shollu_cb('setValue', '');
 		$("#order_plan_id").shollu_cb('disable', true);
 		$("#amount").val(0);
+		$("#note").val("");
+		$("#description").val("");
 	}
 	
 	$("#doc_type").shollu_cb({
 		onSelect: function(rowData){
 			doc_type = rowData.id;
-			{* if (doc_type == '1') *}
-				{* $("#ar_ap_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_ar')}?for_invoice=1" }); *}
 			
 			clearVal();
 		}
@@ -72,17 +73,35 @@
 	$("#order_id").shollu_cb({
 		onSelect: function(rowData){
 			$("#bpartner_id").shollu_cb('setValue', rowData.bpartner_id);
-			$("#order_plan_id").shollu_cb({ queryParams: { for_invoice:1, filter:"order_id="+rowData.id } });
+			{* $("#order_plan_id").shollu_cb({ queryParams: { for_invoice:1, filter:"order_id="+rowData.id } }); *}
+			$("#order_plan_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_sorder_plan')}?for_invoice=1&filter=order_id="+rowData.id+"&act="+$act });
 			
 			$("#order_plan_id").shollu_cb('setValue', '');
 			$("#order_plan_id").shollu_cb('disable', false);
 			$("#amount").val(0);
+			$("#note").val("");
+			$("#description").val("");
 		}
 	});
+	
 	$("#order_plan_id").shollu_cb({
 		onSelect: function(rowData){
 			$("#amount").val(rowData.amount);
+			$("#note").val(rowData.note);
+			$("#description").val(rowData.description);
 		}
 	});
+	
+	{* Only for edit mode *}
+	$(document).ready(function(){
+		setTimeout(function(){
+			if ($act == "edt") {
+				$("#order_plan_id").removeAttr('required');
+				$("#order_plan_id").closest(".form-group").css("display", "none");
+				$("#note").closest(".form-group").css("display", "");
+			}
+		} ,2000);
+	});
+	
 </script>
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>

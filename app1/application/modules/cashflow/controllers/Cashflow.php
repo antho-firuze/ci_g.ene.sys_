@@ -31,7 +31,6 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
-			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
 					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
@@ -434,6 +433,11 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post_put'){
+				if (! $this->{$this->mdl}->cf_cashbank_valid_amount($this->mixed_data)){ 
+					$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+				}
+			}
 			if ($this->params->event == 'post_post_put'){
 				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
 				$this->params->is_line = 1;
@@ -775,9 +779,9 @@ class Cashflow extends Getmeb
 			
 			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-					// $this->params['where_custom'] = "exists (select distinct(inout_id) from cf_inout_line f1 where is_active = '1' and is_deleted = '0' 
-						// and not exists (select 1 from cf_invoice_line where is_active = '1' and is_deleted = '0' and inout_line_id = f1.id $having) and f1.inout_id = t1.id)";
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
+						and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
 				}
 			}
 			
@@ -797,13 +801,11 @@ class Cashflow extends Getmeb
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 				
 				if ($this->params->doc_type == 2){
-					$this->mixed_data['order_plan_id'] = $this->params->order_plan_id;
+					$this->mixed_data['order_plan_id'] = $this->params->plan_id;
 				} else if ($this->params->doc_type == 3){
-					$this->mixed_data['order_plan_clearance_id'] = $this->params->order_plan_id;
-					unset($this->mixed_data['order_plan_id']);
+					$this->mixed_data['order_plan_clearance_id'] = $this->params->plan_id;
 				} else if ($this->params->doc_type == 4){
-					$this->mixed_data['order_plan_import_id'] = $this->params->order_plan_id;
-					unset($this->mixed_data['order_plan_id']);
+					$this->mixed_data['order_plan_import_id'] = $this->params->plan_id;
 				} 
 			}
 		}

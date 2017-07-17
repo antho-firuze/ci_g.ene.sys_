@@ -333,7 +333,6 @@
 			default:
 				break;
 		}
-		if (o.hidden) { input.attr('style','display:none;'); return input; }
 		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
 		if (!o.label) { container.find('label').remove(); /* container.removeClass('form-group'); */ }
 		if (o.required) input.attr('required',''); 
@@ -352,6 +351,10 @@
 			container.find('.control-input').append(input).append(input2).append(help);
 		else
 			container.find('.control-input').append(input).append(help);
+		
+		// if (o.hidden) { input.attr('style','display:none;'); return input; }
+		if (o.hidden) { input.closest(".form-group").css("display", "none"); }
+		
 		return container;
 	};
 	
@@ -443,6 +446,8 @@
 		if (o.disabled) input.attr('disabled','');
 		if (o.readonly) input.attr('readonly','');
 		container.find('.control-input').append(input).append(help);
+		
+		if (o.hidden) { input.closest(".form-group").css("display", "none"); }
 		
 		input.shollu_cb({
 			url: o.url,

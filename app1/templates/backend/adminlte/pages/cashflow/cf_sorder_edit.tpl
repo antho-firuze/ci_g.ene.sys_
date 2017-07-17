@@ -19,7 +19,7 @@
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info" });
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", format: "'casing': 'upper'", required: false, required: true, }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", format: "'casing': 'upper'", required: true, }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Doc Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"ETD", idname:"etd", cls:"auto_ymd", format:"{$.session.date_format}", required: true, help:"Please fill ETD to Customer" }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
@@ -28,7 +28,7 @@
 	{* col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"orgtrx_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true, required: true })); *}
 	col.push(BSHelper.Combobox({ horz:false, label:"Customer", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_customer='1'", remote: true, required: true }));
 	{* col.push(BSHelper.Combobox({ horz:false, label:"Price List", label_link:"{$.const.PAGE_LNK}?pageid=50", idname:"pricelist_id", url:"{$.php.base_url('sales/m_pricelist')}?filter=is_sotrx='1'", remote: true, required: true })); *}
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Reference No", idname:"doc_ref_no", required: false, required: true, help:"Please fill PO Customer No", }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Reference No", idname:"doc_ref_no", required: true, help:"Please fill PO Customer No", }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Reference Date", idname:"doc_ref_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));

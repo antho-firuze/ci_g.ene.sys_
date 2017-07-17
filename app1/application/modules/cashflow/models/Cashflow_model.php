@@ -101,6 +101,25 @@ class Cashflow_Model extends CI_Model
 		return $this->db->query($str);
 	}
 	
+	function cf_cashbank_valid_amount($params)
+	{
+		/* Insert: (grand_total - plan_total) < new_amount => error */
+		/* Update: (grand_total - sum(plan_amount except current id)) < new_amount => error */
+		$params = is_array($params) ? (object) $params : $params;
+		// debug($params);
+		
+		$id = isset($params->id) && $params->id ? 'and t2.id <> '.$params->id : '';
+		$invoice_id = $params->invoice_id;
+		$str = "SELECT (amount - (select coalesce(sum(amount),0) from cf_cashbank_line t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.invoice_id = t1.id $id)) as amount 
+			from cf_invoice t1 where t1.id = $invoice_id";
+		$row = $this->db->query($str)->row();
+		if ($row->amount - $params->amount < 0) {
+			$this->session->set_flashdata('message', $row->amount);
+			return FALSE;
+		}
+		return TRUE;
+	}
+	
 	function cf_charge_type($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
@@ -151,7 +170,7 @@ class Cashflow_Model extends CI_Model
 		if (isset($params['level']) && $params['level'] == 1) {
 			// $params['select'] .= ", t2.doc_no as doc_no_inout, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_inout";
 			// $params['join'][] = ['cf_inout as t2', 't1.inout_id = t2.id', 'left'];
-			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order, to_char(t2.etd, '".$this->session->date_format."') as etd_order, t3.note, t3.description";
+			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order, to_char(t2.etd, '".$this->session->date_format."') as etd_order";
 			$params['join'][] = ['cf_order as t2', 't1.order_id = t2.id', 'left'];
 			$params['join'][] = ['cf_order_plan as t3', 't1.order_plan_id = t3.id', 'left'];
 		}
@@ -177,7 +196,7 @@ class Cashflow_Model extends CI_Model
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 		$params['table'] 	= "cf_invoice as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
-			$params['select'] .= ", t2.doc_no as doc_no_ar_ap, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_ar_ap, t3.note, t3.description";
+			$params['select'] .= ", t2.doc_no as doc_no_ar_ap, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_ar_ap, t3.note";
 			$params['join'][] = ['cf_ar_ap as t2', 't1.ar_ap_id = t2.id', 'left'];
 			$params['join'][] = ['cf_ar_ap_plan as t3', 't1.ar_ap_plan_id = t3.id', 'left'];
 		}
@@ -191,7 +210,7 @@ class Cashflow_Model extends CI_Model
 		if (isset($params['level']) && $params['level'] == 1) {
 			// $params['select'] .= ", t2.doc_no as doc_no_inout, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_inout";
 			// $params['join'][] = ['cf_inout as t2', 't1.inout_id = t2.id', 'left'];
-			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order, to_char(t2.eta, '".$this->session->date_format."') as eta_order, case when t1.order_plan_id is not null then t3.note when t1.order_plan_clearance_id is not null then t4.note when t1.order_plan_import_id is not null then t5.note else 'unknown' end as note, t3.description";
+			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order, to_char(t2.eta, '".$this->session->date_format."') as eta_order";
 			$params['join'][] = ['cf_order as t2', 't1.order_id = t2.id', 'left'];
 			$params['join'][] = ['cf_order_plan as t3', 't1.order_plan_id = t3.id', 'left'];
 			$params['join'][] = ['cf_order_plan_clearance as t4', 't1.order_plan_clearance_id = t4.id', 'left'];

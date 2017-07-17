@@ -213,6 +213,7 @@ class Cashflow_db extends CI_Controller {
 		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
 		
 		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
 		// $fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		// $fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		// $fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
