@@ -39,7 +39,7 @@
 		],
 		columns: [
 			{ width:"25px", orderable:false, data:"seq", title:"Line" },
-			{ width:"100px", orderable:false, data:"doc_type", title:"Doc Type", render: function(data, type, row){ return (data == '2') ? 'Invoice Vendor' : 'Other Payment'; } },
+			{ width:"100px", orderable:false, data:"doc_type", title:"Doc Type", render: function(data, type, row){ return (data == '1') ? 'Invoice Customer' : 'Other Received'; } },
 			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
 			{ width:"150px", orderable:false, data:"account_name", title:"Account" },

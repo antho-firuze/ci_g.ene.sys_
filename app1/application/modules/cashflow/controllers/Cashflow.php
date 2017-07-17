@@ -367,6 +367,11 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post_put'){
+				if (! $this->{$this->mdl}->cf_cashbank_valid_amount($this->mixed_data)){ 
+					$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+				}
+			}
 			if ($this->params->event == 'post_post_put'){
 				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
 				$this->params->is_line = 1;
@@ -655,6 +660,15 @@ class Cashflow extends Getmeb
 			$this->params['level'] = 1;
 			$this->params['where']['t1.doc_type'] = '1';
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			
+			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
+						and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
+				}
+			}
+			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}

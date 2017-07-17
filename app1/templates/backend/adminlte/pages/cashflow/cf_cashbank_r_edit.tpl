@@ -20,7 +20,7 @@
 	var box1 = BSHelper.Box({ type:"info" });
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", format: "'casing': 'upper'", required: true, }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Doc Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
-	col.push(BSHelper.Input({ horz:false, type:"date", label:"Payment Date", idname:"payment_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"Received Date", idname:"received_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 	{* col.push(BSHelper.Checkbox({ horz:false, label:"Is Inflow", idname:"is_sotrx", value:1, disabled: ($act == "edt" ? true : false) })); *}
 	row.push(subCol(6, col)); col = [];

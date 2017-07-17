@@ -28,14 +28,14 @@
 			{ id:"3", name:"Others Received" },
 		] 
 	}));
-	col.push(BSHelper.Combobox({ horz:false, label:"Doc No", label_link:"{$.const.PAGE_LNK}?pageid=85", textField:"code_name", idname:"invoice_id", url:"{$.php.base_url('cashflow/cf_pinvoice')}?for_cashbank=1&act="+$act, remote: true, required: true, disabled: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Doc No", label_link:"{$.const.PAGE_LNK}?pageid=85", textField:"code_name", idname:"invoice_id", url:"{$.php.base_url('cashflow/cf_sinvoice')}?for_cashbank=1&act="+$act, remote: true, required: true, disabled: true }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Account", label_link:"{$.const.PAGE_LNK}?pageid=85", textField:"code_name", idname:"account_id", url:"{$.php.base_url('cashflow/cf_account')}?filter=is_receipt='0'", remote: true, required: true, disabled: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", required: false, readonly: true, hidden: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc Date", idname:"doc_date", hidden: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Payment Note", idname:"note", required: false, readonly: true }));
 	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"ori_amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00", disabled: true, hidden: ($act=='edt'?true:false) }));
-	col.push(BSHelper.Input({ horz:false, type:"number", label:"Paid Amount", idname:"amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00", disabled: ($act=='edt'?true:false) }));
+	col.push(BSHelper.Input({ horz:false, type:"number", label:"Paid Amount", idname:"amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00" }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
@@ -88,6 +88,21 @@
 			$("#amount").val(rowData.amount);
 			$("#note").val(rowData.note);
 		}
+	});
+	
+	{* Only for edit mode *}
+	$(document).ready(function(){
+		setTimeout(function(){
+			if ($act == "edt") {
+				doc_type = $("#doc_type").shollu_cb('getValue');
+				if (doc_type == '1') {
+					$("#invoice_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_sinvoice')}?for_cashbank=1&act="+$act });
+				}
+				if (doc_type == '3') {
+					$("#invoice_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_ar')}?for_cashbank=1&act="+$act });
+				}
+			}
+		} ,2000);
 	});
 	
 </script>

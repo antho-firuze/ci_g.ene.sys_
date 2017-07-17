@@ -95,7 +95,6 @@
 		setTimeout(function(){
 			if ($act == "edt") {
 				doc_type = $("#doc_type").shollu_cb('getValue');
-				console.log(doc_type);
 				if (doc_type == '2') {
 					$("#invoice_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_pinvoice')}?for_cashbank=1&act="+$act });
 				}
