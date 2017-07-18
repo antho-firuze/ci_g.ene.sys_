@@ -23,7 +23,10 @@
 	var box1 = BSHelper.Box({ type:"info" });
 	var format_currency = "'alias': 'currency', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'autoGroup': true, 'autoUnmask': true";
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Line No", idname:"seq", required: false, value: 0, }));
-	col.push(BSHelper.Input({ horz:false, type:"date", label:"Payment Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"Invoice Plan Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
+	col.push(BSHelper.Input({ horz:false, type:"number", label:"Customer TOP (Days)", idname:"top", style: "text-align: right;", step: ".01", required: false, value: 0, placeholder: "0", readonly: true }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"Received Plan Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
+	{* col.push(BSHelper.Input({ horz:false, type:"date", label:"Payment Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true })); *}
 	col.push(BSHelper.Combobox({ label:"Type", idname:"note", required: true, value: 0, disabled: ($act=='edt'?true:false), 
 		list:[
 			{ id:"DP", name:"Down Payment" },
@@ -32,6 +35,7 @@
 			{ id:"Progress", name:"Progress" },
 			{ id:"Inspector", name:"Inspector" },
 			{ id:"Shipment", name:"Shipment" },
+			{ id:"Complete", name:"Complete" },
 		] 
 	}));
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: false, value: 0, placeholder: "0.00" }));

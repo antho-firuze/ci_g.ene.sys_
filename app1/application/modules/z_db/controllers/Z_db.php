@@ -87,6 +87,8 @@ class Z_db extends CI_Controller {
 		$fields['po_pricelist_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		/* Finance area */
 		$fields['taxid'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
+		$fields['so_top'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE, 'default' => '0'];
+		$fields['po_top'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE, 'default' => '0'];
 		return $fields;
 	}
 	

@@ -31,7 +31,7 @@
 	col.push(BSHelper.Combobox({ horz:false, label:"Doc No", label_link:"{$.const.PAGE_LNK}?pageid=85", textField:"code_name", idname:"invoice_id", url:"{$.php.base_url('cashflow/cf_pinvoice')}?for_cashbank=1&act="+$act, remote: true, required: true, disabled: true }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Account", label_link:"{$.const.PAGE_LNK}?pageid=85", textField:"code_name", idname:"account_id", url:"{$.php.base_url('cashflow/cf_account')}?filter=is_receipt='0'", remote: true, required: true, disabled: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", required: false, readonly: true, hidden: true }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc Date", idname:"doc_date", hidden: true }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"Doc Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false, hidden: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Payment Note", idname:"note", required: false, readonly: true }));
 	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"ori_amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00", disabled: true, hidden: ($act=='edt'?true:false) }));
@@ -51,12 +51,16 @@
 	$("[data-mask]").inputmask();
 	
 	{* INITILIZATION *}
-	var doc_type;
+	var doc_type, cashbank_id;
+	var $filter = getURLParameter("filter");
 	$("#doc_type").shollu_cb({
 		onSelect: function(rowData){
 			doc_type = rowData.id;
+			if ($filter.split('=')[0] == 'order_id'){
+				cashbank_id = $filter.split('=')[1];
+			}
 			if (doc_type == '2') {
-				$("#invoice_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_pinvoice')}?for_cashbank=1&act="+$act });
+				$("#invoice_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_pinvoice')}?for_cashbank=1&cashbank_id="+cashbank_id+"&act="+$act });
 				$("#invoice_id").shollu_cb('setValue', '');
 				$("#invoice_id").shollu_cb('disable', false);
 				$("#account_id").shollu_cb('setValue', 2);
@@ -67,7 +71,7 @@
 				$("#description").val("");
 			}
 			if (doc_type == '4') {
-				$("#invoice_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_ap')}?for_cashbank=1&act="+$act });
+				$("#invoice_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_oinvoice')}?for_cashbank=1&cashbank_id="+cashbank_id+"&act="+$act });
 				$("#invoice_id").shollu_cb('setValue', '');
 				$("#invoice_id").shollu_cb('disable', false);
 				$("#account_id").shollu_cb('setValue', '');

@@ -98,7 +98,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->params['is_line'] = 1;
-				$this->params['invoice_id'] = $this->base_model->getValue('invoice_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->invoice_id;
+				$this->params['ar_ap_id'] = $this->base_model->getValue('ar_ap_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->ar_ap_id;
 				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
 			}
 		}
@@ -243,7 +243,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->params['is_line'] = 1;
-				$this->params['invoice_id'] = $this->base_model->getValue('invoice_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->invoice_id;
+				$this->params['ar_ap_id'] = $this->base_model->getValue('ar_ap_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->ar_ap_id;
 				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
 			}
 		}
@@ -620,6 +620,7 @@ class Cashflow extends Getmeb
 			
 			$this->params['level'] = 1;
 			$this->params['where_in']['t1.doc_type'] = ['5', '6'];
+			$this->params['where_in']['t1.doc_type'] = ['5', '6'];
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -663,6 +664,7 @@ class Cashflow extends Getmeb
 			
 			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					// debug($this->params);
 					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
 					$this->params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
 						and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
