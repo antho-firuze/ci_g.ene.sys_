@@ -218,6 +218,7 @@ class Cashflow_db extends CI_Controller {
 		// $fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		// $fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		// $fields['plan_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['account_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		return $fields;
 	}
 	

@@ -21,4 +21,5 @@ $lang['error_qty_overload'] 		= "Error: The quantity you enter is too much ! [ma
 $lang['error_had_detail'] 		= "Error: Data cannot be change, because they have details !";
 $lang['error_requisition_eta'] 		= "Error: Requsition ETA must be under Planning ETA ! [under=%s]";
 $lang['error_po_eta'] 		= "Error: Purchase Order ETA must be under Requisition ETA ! [under=%s]";
+$lang['error_duplicate_doc_no'] 		= "Error: This Doc No already exists !";
 /* Information: info_ */

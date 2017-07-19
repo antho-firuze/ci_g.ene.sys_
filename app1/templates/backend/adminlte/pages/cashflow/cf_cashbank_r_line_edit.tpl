@@ -91,6 +91,7 @@
 			$("#ori_amount").val(rowData.amount);
 			$("#amount").val(rowData.amount);
 			$("#note").val(rowData.note);
+			$("#description").val(rowData.description);
 		}
 	});
 	

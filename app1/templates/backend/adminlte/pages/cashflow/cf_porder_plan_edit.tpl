@@ -32,6 +32,7 @@
 			{ id:"Progress", name:"Progress" },
 			{ id:"Inspector", name:"Inspector" },
 			{ id:"Shipment", name:"Shipment" },
+			{ id:"Complete", name:"Complete" },
 		] 
 	}));
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: false, value: 0, placeholder: "0.00" }));

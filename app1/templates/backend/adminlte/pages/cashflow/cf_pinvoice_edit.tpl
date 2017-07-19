@@ -18,23 +18,26 @@
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info" });
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", format: "'casing': 'upper'", required: true, }));
-	col.push(BSHelper.Input({ horz:false, type:"date", label:"Doc Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Reference No", idname:"doc_ref_no", required: false, required: false, }));
-	col.push(BSHelper.Input({ horz:false, type:"date", label:"Reference Date", idname:"doc_ref_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
-	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Combobox({ label:"Doc Type", idname:"doc_type", required: true, disabled: ($act=='edt'?true:false), 
 		list:[
 			{ id:"2", name:"Invoice Vendor" },
 			{ id:"3", name:"Invoice Clearance" },
-			{ id:"4", name:"Invoice Import" },
+			{ id:"4", name:"Invoice Custom Duty" },
 		] 
 	}));
-	col.push(BSHelper.Combobox({ horz:false, label:"Doc No", label_link:"{$.const.PAGE_LNK}?pageid=93", textField:"doc_no", idname:"order_id", url:"{$.php.base_url('cashflow/cf_porder')}?for_invoice=1&act="+$act, remote: true, required: true, disabled: true }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Vendor", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_vendor='1'", remote: true, required: true, disabled: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Doc No", label_link:"{$.const.PAGE_LNK}?pageid=93", textField:"code_name", idname:"order_id", url:"{$.php.base_url('cashflow/cf_porder')}?for_invoice=1&act="+$act, remote: true, required: true, disabled: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Vendor", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_vendor='1'", remote: true, required: true, disabled: ($act=='edt'?false:true) }));
+	col.push(BSHelper.Input({ horz:false, type:"number", label:"Vendor TOP (Days)", idname:"po_top", style: "text-align: right;", step: ".01", required: false, value: 0, placeholder: "0", readonly: true }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"PO ETA", idname:"eta_po", cls:"auto_ymd", format:"{$.session.date_format}", required: false, disabled: true }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", format: "'casing': 'upper'", required: true, }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"Doc Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"Payment Plan Date", idname:"payment_plan_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
+	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Combobox({ horz:false, label:"Payment Note", textField:"note", idname:"plan_id", url:"{$.php.base_url('cashflow/cf_porder_plan')}?for_invoice=1", remote: true, required: ($act=='edt'?false:true), disabled: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Payment Note", idname:"note", required: false, readonly: true, hidden: true }));
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00" }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Reference No", idname:"doc_ref_no", required: false, required: false, }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"Reference Date", idname:"doc_ref_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
@@ -79,6 +82,8 @@
 	$("#order_id").shollu_cb({
 		onSelect: function(rowData){
 			$("#bpartner_id").shollu_cb('setValue', rowData.bpartner_id);
+			$("#bpartner_id").shollu_cb('disable', false);
+			$("#eta_po").val(rowData.eta);
 			if (doc_type == '2')
 				$("#plan_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_porder_plan')}?for_invoice=1&filter=order_id="+rowData.id+"&act="+$act });
 			if (doc_type == '3')
@@ -91,6 +96,14 @@
 			$("#amount").val(0);
 			$("#note").val("");
 			$("#description").val("");
+			
+			$("#bpartner_id").shollu_cb('select');
+		}
+	});
+	
+	$("#bpartner_id").shollu_cb({
+		onSelect: function(rowData){
+			$("#po_top").val(rowData.po_top);
 		}
 	});
 	

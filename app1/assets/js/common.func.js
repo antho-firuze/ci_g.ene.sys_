@@ -143,8 +143,9 @@ function format_dmy(tdate){
 	return (d<10?('0'+d):d)+'/'+(m<10?('0'+m):m)+'/'+y;
 }
 
-function format_ymd(tdate){
+function format_ymd(tdate, format){
 	if(typeof(tdate)==='undefined') tdate = 0;
+	if(typeof(format)==='undefined') format = 'dd/mm/yyyy';
 	if (tdate==0)
 	{
 		var f = new Date();

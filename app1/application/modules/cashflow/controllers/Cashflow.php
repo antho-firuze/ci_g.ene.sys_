@@ -56,6 +56,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_receipt'] = '1';
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
@@ -201,6 +215,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_receipt'] = '0';
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
@@ -334,6 +362,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_receipt'] = '1';
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
@@ -405,6 +447,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_receipt'] = '0';
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
@@ -500,6 +556,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_sotrx'] = '1';
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
@@ -572,6 +642,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_sotrx'] = '0';
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
@@ -633,6 +717,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 				
@@ -682,9 +780,24 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_receipt'] = '1';
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
+				$this->mixed_data['account_id'] = 1;
 			}
 		}
 		/* if ($this->r_method == 'DELETE') {
@@ -812,9 +925,24 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_receipt'] = '0';
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
+				$this->mixed_data['account_id'] = 2;
 				
 				if ($this->params->doc_type == 2){
 					$this->mixed_data['order_plan_id'] = $this->params->plan_id;
@@ -932,6 +1060,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_outbound'] = '1';
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
@@ -1008,6 +1150,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_sotrx'] = '1';
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
@@ -1027,11 +1183,11 @@ class Cashflow extends Getmeb
 			$this->_get_filtered(TRUE, TRUE, [], TRUE);
 			
 			if (isset($this->params['for_shipment']) && !empty($this->params['for_shipment'])) {
-				$inout_id = isset($this->params['inout_id']) && $this->params['inout_id'] ? $this->params['inout_id'] : 0;
-				// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
-				$this->params['where_custom'][] = "order_id = (select order_id from cf_inout where id = $inout_id)";
-				// $this->params['where_custom'][] = "not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and inout_id = $inout_id $having)";
-				$this->params['where_custom'][] = "not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id)";
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$inout_id = isset($this->params['inout_id']) && $this->params['inout_id'] ? $this->params['inout_id'] : 0;
+					$this->params['where_custom'][] = "order_id = (select order_id from cf_inout where id = $inout_id)";
+					$this->params['where_custom'][] = "not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id)";
+				}
 			}
 			
 			if (isset($this->params['for_request']) && !empty($this->params['for_request'])) {
@@ -1077,6 +1233,12 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE, [], TRUE);
+			
+			if (isset($this->params['get_custom_field']) && !empty($this->params['get_custom_field'])) {
+				$qry = "select to_char(t1.etd, '".$this->session->date_format."') as etd, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top from cf_order t1 where t1.id = ".$this->params['order_id'];
+				$result = $this->db->query($qry)->row_array();
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
@@ -1137,9 +1299,9 @@ class Cashflow extends Getmeb
 			
 			if (isset($this->params['for_material_receipt']) && !empty($this->params['for_material_receipt'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
 					$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
-						and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = f1.id $having) and f1.order_id = t1.id)";
+						and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = f1.id) and f1.order_id = t1.id)";
 				}
 			}
 			
@@ -1193,6 +1355,21 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+					// debug($this->params);
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_sotrx'] = '0';
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
@@ -1441,9 +1618,11 @@ class Cashflow extends Getmeb
 			$this->_get_filtered(TRUE, TRUE);
 			
 			if (isset($this->params['for_requisition']) && !empty($this->params['for_requisition'])) {
-				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-				$this->params['where_custom'] = "exists (select distinct(request_id) from cf_request_line f1 where is_active = '1' and is_deleted = '0' 
-					and not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and request_line_id = f1.id $having) and f1.request_id = t1.id)";
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+					$this->params['where_custom'] = "exists (select distinct(request_id) from cf_request_line f1 where is_active = '1' and is_deleted = '0' 
+						and not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and request_line_id = f1.id) and f1.request_id = t1.id)";
+				}
 			}
 			
 			$this->params['level'] = 1;
@@ -1459,6 +1638,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
@@ -1492,9 +1685,8 @@ class Cashflow extends Getmeb
 			if (isset($this->params['for_requisition']) && !empty($this->params['for_requisition'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
 					$requisition_id = isset($this->params['requisition_id']) && $this->params['requisition_id'] ? $this->params['requisition_id'] : 0;
-					$this->params['select'] = "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_request where id = t1.request_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
 					$this->params['where_custom'][] = "request_id = (select request_id from cf_requisition where id = $requisition_id)";
-					// $this->params['where_custom'][] = "(t1.qty - (select coalesce(sum(qty),0) from cf_requisition_line where is_active = '1' and is_deleted = '0' and request_line_id = t1.id)) > 0";
+					$this->params['where_custom'][] = "not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and request_line_id = t1.id)";
 				}
 			}
 			
@@ -1538,9 +1730,11 @@ class Cashflow extends Getmeb
 			$this->_get_filtered(TRUE, TRUE);
 			
 			if (isset($this->params['for_purchase_order']) && !empty($this->params['for_purchase_order'])) {
-				// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-				// $this->params['where_custom'] = "exists (select distinct(requisition_id) from cf_requisition_line f1 where is_active = '1' and is_deleted = '0' 
-					// and not exists (select 1 from cf_order_line where is_active = '1' and is_deleted = '0' and requisition_line_id = f1.id $having) and f1.requisition_id = t1.id)";
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+					$this->params['where_custom'] = "exists (select distinct(requisition_id) from cf_requisition_line f1 where is_active = '1' and is_deleted = '0' 
+						and not exists (select 1 from cf_order_line where is_active = '1' and is_deleted = '0' and requisition_line_id = f1.id) and f1.requisition_id = t1.id)";
+				}
 			}
 			
 			$this->params['level'] = 1;
@@ -1556,6 +1750,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
