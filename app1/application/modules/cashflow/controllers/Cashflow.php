@@ -31,9 +31,10 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
+			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.ttl_amt';
 					$this->params['where_custom'] = "exists (
 						select distinct(ar_ap_id) from (
 							select * from cf_ar_ap_plan f1 where is_active = '1' and is_deleted = '0'
@@ -82,7 +83,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_ar_line()
+	function _void__cf_ar_line()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -130,7 +131,7 @@ class Cashflow extends Getmeb
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.ttl_amt';
 					$this->params['where_custom'] = "exists (
 						select distinct(id) from (
 							select * from cf_ar_ap_plan f1 where is_active = '1' and is_deleted = '0' and ".$this->params['filter']."
@@ -152,13 +153,13 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			if ($this->params->event == 'pre_post_put'){
+			/* if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['is_plan'] = 1;
 				if (! $this->{$this->mdl}->cf_ar_ap_valid_amount($this->mixed_data)){ 
 					$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
 				}
 				unset($this->mixed_data['is_plan']);
-			}
+			} */
 			
 			if ($this->params->event == 'post_post_put'){
 				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
@@ -182,7 +183,7 @@ class Cashflow extends Getmeb
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.ttl_amt';
 					$this->params['where_custom'] = "exists (
 						select distinct(ar_ap_id) from (
 							select * from cf_ar_ap_plan f1 where is_active = '1' and is_deleted = '0'
@@ -241,7 +242,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_ap_line()
+	function _void__cf_ap_line()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -289,7 +290,7 @@ class Cashflow extends Getmeb
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.ttl_amt';
 					$this->params['where_custom'] = "exists (
 						select distinct(id) from (
 							select * from cf_ar_ap_plan f1 where is_active = '1' and is_deleted = '0' and ".$this->params['filter']."
@@ -321,13 +322,13 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			if ($this->params->event == 'pre_post_put'){
+			/* if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['is_plan'] = 1;
 				if (! $this->{$this->mdl}->cf_ar_ap_valid_amount($this->mixed_data)){ 
 					$this->xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
 				}
 				unset($this->mixed_data['is_plan']);
-			}
+			} */
 			
 			if ($this->params->event == 'post_post_put'){
 				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
@@ -704,8 +705,36 @@ class Cashflow extends Getmeb
 			
 			$this->params['level'] = 1;
 			$this->params['where_in']['t1.doc_type'] = ['5', '6'];
-			$this->params['where_in']['t1.doc_type'] = ['5', '6'];
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			
+			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					// $this->params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
+						// and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
+
+					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params['cashbank_id']);
+					$params['select']	= "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+					$having = isset($params['having']) && $params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$params['where']['bpartner_id'] = $cashbank->bpartner_id;
+					$params['where']['is_receipt'] = $cashbank->is_receipt;
+					$params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
+						and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
+					$params['table'] 	= "cf_invoice as t1";
+					$result['data'] = $this->base_model->mget_rec($params);
+					$this->xresponse(TRUE, $result);
+				} else {
+					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params['cashbank_id']);
+					$params['select']	= "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+					$having = isset($params['having']) && $params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$params['where']['bpartner_id'] = $cashbank->bpartner_id;
+					$params['where']['is_receipt'] = $cashbank->is_receipt;
+					$params['table'] 	= "cf_invoice as t1";
+					$result['data'] = $this->base_model->mget_rec($params);
+					$this->xresponse(TRUE, $result);
+				}
+			}
+			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -1455,6 +1484,12 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE, [], TRUE);
 			
+			if (isset($this->params['get_custom_field']) && !empty($this->params['get_custom_field'])) {
+				$qry = "select to_char(t1.eta, '".$this->session->date_format."') as eta, (select po_top from c_bpartner where id = t1.bpartner_id) as po_top from cf_order t1 where t1.id = ".$this->params['order_id'];
+				$result = $this->db->query($qry)->row_array();
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
 					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
@@ -1519,6 +1554,12 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
 			
+			if (isset($this->params['get_custom_field']) && !empty($this->params['get_custom_field'])) {
+				$qry = "select to_char(t1.eta, '".$this->session->date_format."') as eta, (select po_top from c_bpartner where id = t1.bpartner_id) as po_top from cf_order t1 where t1.id = ".$this->params['order_id'];
+				$result = $this->db->query($qry)->row_array();
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
 					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
@@ -1567,6 +1608,12 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['get_custom_field']) && !empty($this->params['get_custom_field'])) {
+				$qry = "select to_char(t1.eta, '".$this->session->date_format."') as eta, (select po_top from c_bpartner where id = t1.bpartner_id) as po_top from cf_order t1 where t1.id = ".$this->params['order_id'];
+				$result = $this->db->query($qry)->row_array();
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {

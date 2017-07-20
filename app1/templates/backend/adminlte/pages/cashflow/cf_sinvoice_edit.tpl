@@ -114,7 +114,7 @@
 		var date_unformatted = datetime_db_format($(this).val(), dt_format);
 		var so_top = $("#so_top").val();
 		if ($act != 'edt')
-			$("#received_plan_date").val(moment(date_unformatted).add(so_top, 'days').format(dt_format.toUpperCase()));
+			$("#received_plan_date").val(moment(date_unformatted).add(so_top, 'days').format(dt_format.toUpperCase())).trigger('change');
 	});
 
 </script>

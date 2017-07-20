@@ -39,13 +39,13 @@
 		],
 		columns: [
 			{ width:"25px", orderable:false, data:"seq", title:"Line" },
-			{ width:"100px", orderable:false, data:"doc_type", title:"Doc Type", render: function(data, type, row){ return (data == '2') ? 'Invoice Vendor' : 'Other Payment'; } },
-			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
+			{* { width:"100px", orderable:false, data:"doc_type", title:"Doc Type", render: function(data, type, row){ return (data == '2') ? 'Invoice Vendor' : 'Other Payment'; } }, *}
+			{ width:"100px", orderable:false, data:"invoice_no", title:"Invoice No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"invoice_date", title:"Invoice Date" },
 			{ width:"150px", orderable:false, data:"account_name", title:"Account" },
 			{ width:"250px", orderable:false, data:"note", title:"Note" },
-			{ width:"250px", orderable:false, data:"description", title:"Description" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"250px", orderable:false, data:"description", title:"Description" },
 		],
 	};
 	

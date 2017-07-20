@@ -38,9 +38,14 @@
 		],
 		columns: [
 			{ width:"25px", orderable:false, data:"seq", title:"Line" },
-			{ width:"100px", orderable:false, data:"doc_date", title:"Doc Date" },
-			{ width:"150px", orderable:false, data:"note", title:"Payment Type" },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"150px", orderable:false, data:"bpartner_name", title:"Business Partner" },
+			{ width:"150px", orderable:false, data:"account_name", title:"Account" },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Invoice Plan Date" },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-center", data:"received_plan_date", title:"Received Plan Date" },
+			{ width:"150px", orderable:false, data:"note", title:"Note" },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_amt", title:"Sub Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_amt", title:"VAT Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"ttl_amt", title:"Total Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 		],
 	};

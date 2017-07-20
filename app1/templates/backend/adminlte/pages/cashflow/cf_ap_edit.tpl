@@ -23,7 +23,8 @@
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 	{* col.push(BSHelper.Checkbox({ horz:false, label:"Is Inflow", idname:"is_sotrx", value:1, disabled: ($act == "edt" ? true : false) })); *}
 	row.push(subCol(6, col)); col = [];
-	col.push(BSHelper.Combobox({ horz:false, label:"Business Partner", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_vendor='1'", remote: true, required: true, disabled: ($act == "edt" ? true : false) }));
+	{* col.push(BSHelper.Combobox({ horz:false, label:"Business Partner", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_vendor='1'", remote: true, required: true, disabled: ($act == "edt" ? true : false) })); *}
+	col.push(BSHelper.Combobox({ horz:false, label:"Department", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"department_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=4&parent_id={$.session.orgtrx_id}", remote: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Reference No", idname:"doc_ref_no", required: false, required: false, }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Reference Date", idname:"doc_ref_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
 	row.push(subCol(6, col)); col = [];

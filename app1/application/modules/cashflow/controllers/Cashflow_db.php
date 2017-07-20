@@ -113,6 +113,8 @@ class Cashflow_db extends CI_Controller {
 		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['received_plan_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['payment_plan_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
@@ -125,6 +127,8 @@ class Cashflow_db extends CI_Controller {
 		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['received_plan_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['payment_plan_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
@@ -137,6 +141,8 @@ class Cashflow_db extends CI_Controller {
 		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['received_plan_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['payment_plan_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
@@ -305,8 +311,9 @@ class Cashflow_db extends CI_Controller {
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['department_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		// $fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['is_receipt'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
-		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE, 'unique' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
@@ -319,7 +326,7 @@ class Cashflow_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_cf_ar_ap_line()
+	function _void__table_cf_ar_ap_line()
 	{
 		$fields = $this->field_00_Main();
 		$fields['ar_ap_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -338,11 +345,17 @@ class Cashflow_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['ar_ap_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['account_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
-		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
-		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['received_plan_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['payment_plan_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
 	
