@@ -73,6 +73,7 @@ class Cashflow_db extends CI_Controller {
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
 		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['expected_dt_cust'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['etd'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['eta'] = ['type' => 'DATE', 'null' => TRUE];
 		

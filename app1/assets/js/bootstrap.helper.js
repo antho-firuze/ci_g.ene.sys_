@@ -495,7 +495,8 @@
 					o.value = o.value?o.value:'N/A';
 			}
 		}
-		return $('<dt />').html(o.title).add($('<dd />').html(o.value));
+		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
+		return $('<dt />').html(o.label).add($('<dd />').html(o.value));
 	};
 	
 	BSHelper.Table = function(options){

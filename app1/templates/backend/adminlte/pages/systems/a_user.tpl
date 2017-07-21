@@ -26,7 +26,9 @@
 	var DataTable_Init = {
 		enable: true,
 		act_menu: { copy: true, edit: true, delete: true },
-		add_menu: [{ name: 'reset_login_attempt', title: 'Reset Login Attempt' }, ],
+		add_menu: [
+			{ name: 'reset_login_attempt', title: 'Reset Login Attempt' }, 
+		],
 		sub_menu: [
 			{ pageid: 31, subKey: 'user_id', title: 'Role Access', },
 			{ pageid: 32, subKey: 'user_id', title: 'Organization' },

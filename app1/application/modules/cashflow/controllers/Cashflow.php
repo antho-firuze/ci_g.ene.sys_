@@ -1321,6 +1321,23 @@ class Cashflow extends Getmeb
 		}
 	}
 	
+	function cf_sorder_etd()
+	{
+		if ($this->r_method == 'GET') {
+			// $this->_get_filtered(TRUE, TRUE);
+			debug($this->params);
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->cf_sorder($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+	
 	function cf_porder()
 	{
 		if ($this->r_method == 'GET') {
