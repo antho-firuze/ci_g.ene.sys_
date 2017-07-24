@@ -9,7 +9,11 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/inputmask/inputmask.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/inputmask/inputmask.date.extensions.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/inputmask/jquery.inputmask.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Toolbar Init *}
@@ -58,75 +62,75 @@
 	
 	{* Update SO ETD *}
 	function update_so_etd(data) {
-		console.log(data);
-		var msg_body = subRow(), col = [], a = [];
-		col.push("<h3>Sales Order : "+data.doc_no+"</h3>");
-		col.push("<br>");
+		{* console.log(data); *}
+		var col = [], row = [], a = [];
+		var form1 = BSHelper.Form({ autocomplete:"off" });
+		col.push("<h3>Sales Order : <br>"+data.doc_no+"</h3>");
 		a.push(BSHelper.LineDesc({ label:"Doc Date", value: data.doc_date }));
 		a.push(BSHelper.LineDesc({ label:"Customer", value: data.bpartner_name }));
 		a.push(BSHelper.LineDesc({ label:"Reference No", value: data.doc_ref_no }));
 		a.push(BSHelper.LineDesc({ label:"Reference Date", value: data.doc_ref_date }));
 		a.push(BSHelper.LineDesc({ label:"Expected DT Customer", value: data.expected_dt_cust }));
 		col.push( $('<dl class="dl-horizontal">').append(a) ); a = [];
-		{* col.push( "<center><h2><span>"+accounting.formatMoney(sell_price, '', 2, ".", ",")+"/PCS</span></h2></center>" ); *}
-		msg_body.append( subCol(12, col ) );
-		BootstrapDialog.show({ title: 'Update SO ETD', type: BootstrapDialog.TYPE_DANGER, message: msg_body,
+		col.push(BSHelper.Input({ horz:false, type:"date", label:"ETD", idname:"etd", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
+		row.push(subCol(12, col)); col = [];
+		form1.append(subRow(row));
+		
+		form1.find("[data-mask]").inputmask();
+
+		BootstrapDialog.show({ title: 'Update SO ETD', type: BootstrapDialog.TYPE_SUCCESS, size: BootstrapDialog.SIZE_SMALL,
+			message: form1,
 			buttons: [{
-				{* icon: 'glyphicon glyphicon-send', *}
-				{* cssClass: 'btn-danger', *}
-				label: 'Submit',
-				action: function(dialog) {
+				cssClass: 'btn-primary', label: 'Submit', action: function(dialog) {
 					var button = this;
-					button.spin();
 					
-					$.ajax({ url: '{$.php.base_url('systems/a_loginattempt')}', method: "OPTIONS", async: true, dataType: 'json',
-						data: JSON.stringify({ loginattempt:1, id:ids.join() }),
-						success: function(data) {
-							dialog.close();
-							dataTable1.ajax.reload( null, false );
-							BootstrapDialog.alert(data.message);
-						},
-						error: function(data) {
-							if (data.status==500){
-								var message = data.statusText;
-							} else {
-								var error = JSON.parse(data.responseText);
-								var message = error.message;
+					form1.validator().on('submit', function(e){
+						if (e.isDefaultPrevented()) { return false;	} 
+						
+						console.log(dialog.getModalBody().find('input').val());
+						{* console.log(dialog.getModalBody().find('[name="etd"]').val()); *}
+						return false;
+						
+						button.spin();
+						$.ajax({ url: $url_module+'_etd', method: "OPTIONS", async: true, dataType: 'json',
+							data: form1.serializeJSON(),
+							success: function(data) {
+								dialog.close();
+								dataTable1.ajax.reload( null, false );
+								BootstrapDialog.alert(data.message);
+							},
+							error: function(data) {
+								if (data.status==500){
+									var message = data.statusText;
+								} else {
+									var error = JSON.parse(data.responseText);
+									var message = error.message;
+								}
+								button.stopSpin();
+								dialog.enableButtons(true);
+								dialog.setClosable(true);
+								BootstrapDialog.show({ closable: false, type:'modal-danger', title:'Notification', message:message, 
+									buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],
+								});
 							}
-							button.stopSpin();
-							dialog.enableButtons(true);
-							dialog.setClosable(true);
-							BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
-						}
-					});
+						});
+						return false;
+					}).submit();
+					
+					return false;
 				}
 			}, {
-				label: 'Cancel', action: function(dialog) { dialog.close(); }
+				label: 'Cancel', cssClass: 'btn-danger', action: function(dialog) { dialog.close(); }
 			}],
 			onshown: function(dialog) {
 				{**}
+				{* dialog.getModalBody().find("[data-mask]").inputmask(); *}
+				$(document).on("ajaxComplete", function(e){
+					$(":input").inputmask();
+				});			
 			}
 		});
 		return false;
-		
-		if (!confirm("{$.php.lang('confirm_rla')}")) {
-			return false;
-		}
-		$.ajax({ url: '{$.php.base_url('systems/a_loginattempt')}', method: "OPTIONS", async: true, dataType: 'json',
-			data: JSON.stringify({ loginattempt:1, id:data.id }),
-			success: function(data) {
-				BootstrapDialog.alert(data.message);
-			},
-			error: function(data) {
-				if (data.status==500){
-					var message = data.statusText;
-				} else {
-					var error = JSON.parse(data.responseText);
-					var message = error.message;
-				}
-				BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
-			}
-		});
 	};
 	
 </script>

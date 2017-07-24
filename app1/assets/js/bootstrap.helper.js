@@ -349,6 +349,7 @@
 		
 		if (thetype.toLowerCase() == 'date') 
 			container.find('.control-input').append(input).append(input2).append(help);
+			// container.find('.control-input').append(input).append(help);
 		else
 			container.find('.control-input').append(input).append(help);
 		
