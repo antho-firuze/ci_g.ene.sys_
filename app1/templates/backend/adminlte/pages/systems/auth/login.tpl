@@ -116,7 +116,7 @@
 			{* beforeSend: function(xhr) { form.find('[type="submit"]').attr("disabled", "disabled"); }, *}
 			{* complete: function(xhr, data) {	setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled");	},1000); }, *}
 			success: function(data) {
-				alert("Login success !");
+				{* alert("Login success !"); *}
 				if (data.status) {
 					store('lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}', 0);
 					var url = "{$.session.referred_index !: $.const.APPS_LNK}";

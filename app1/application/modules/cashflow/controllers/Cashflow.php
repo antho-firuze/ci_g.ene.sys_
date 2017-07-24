@@ -1323,18 +1323,18 @@ class Cashflow extends Getmeb
 	
 	function cf_sorder_etd()
 	{
-		if ($this->r_method == 'GET') {
-			// $this->_get_filtered(TRUE, TRUE);
-			debug($this->params);
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
+		if ($this->r_method == 'OPTIONS') {
+			$id = $this->params->id;
+			unset($this->params->id);
+			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
 			
-			if (! $result['data'] = $this->{$this->mdl}->cf_sorder($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
+			$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$id]);
+			
+			/* Throwing the result to Ajax */
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+			$this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
 	

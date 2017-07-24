@@ -36,9 +36,6 @@
 		add_menu: [
 			{ name: 'update_so_etd', title: 'Update SO ETD' }, 
 		],
-		{* add_menu: [ *}
-			{* { pageid: 127, subKey: 'order_id', title: 'Update ETD' }, *}
-		{* ], *}
 		sub_menu: [
 			{ pageid: 99, subKey: 'order_id', title: 'Order Line', },
 			{ pageid: 100, subKey: 'order_id', title: 'Order Plan' },
@@ -59,10 +56,7 @@
 		],
 	};
 	
-	
-	{* Update SO ETD *}
 	function update_so_etd(data) {
-		{* console.log(data); *}
 		var col = [], row = [], a = [];
 		var form1 = BSHelper.Form({ autocomplete:"off" });
 		col.push("<h3>Sales Order : <br>"+data.doc_no+"</h3>");
@@ -72,32 +66,33 @@
 		a.push(BSHelper.LineDesc({ label:"Reference Date", value: data.doc_ref_date }));
 		a.push(BSHelper.LineDesc({ label:"Expected DT Customer", value: data.expected_dt_cust }));
 		col.push( $('<dl class="dl-horizontal">').append(a) ); a = [];
-		col.push(BSHelper.Input({ horz:false, type:"date", label:"ETD", idname:"etd", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
+		col.push(BSHelper.Input({ horz:false, type:"date", label:"ETD", idname:"etd", cls:"auto_ymd", format:"{$.session.date_format}", value: data.etd, required: true }));
 		row.push(subCol(12, col)); col = [];
 		form1.append(subRow(row));
 		
 		form1.find("[data-mask]").inputmask();
-
-		BootstrapDialog.show({ title: 'Update SO ETD', type: BootstrapDialog.TYPE_SUCCESS, size: BootstrapDialog.SIZE_SMALL,
-			message: form1,
-			buttons: [{
-				cssClass: 'btn-primary', label: 'Submit', action: function(dialog) {
+		form1.on('submit', function(e){ e.preventDefault(); });
+		
+		BootstrapDialog.show({
+			title: 'Update SO ETD', type: BootstrapDialog.TYPE_SUCCESS, size: BootstrapDialog.SIZE_SMALL, message: form1, 
+			buttons:[{ 
+				cssClass: 'btn-primary', label: 'Submit', hotkey: 13, action: function(dialog) {
 					var button = this;
 					
-					form1.validator().on('submit', function(e){
-						if (e.isDefaultPrevented()) { return false;	} 
-						
-						console.log(dialog.getModalBody().find('input').val());
-						console.log(dialog.getModalBody().find('[name="etd"]').val());
-						return false;
-						
+					if (form1.validator('validate').has('.has-error').length === 0) {
 						button.spin();
+						button.disable();
+						
+						form1.append(BSHelper.Input({ type:"hidden", idname:"id", value:data.id }));
+						
 						$.ajax({ url: $url_module+'_etd', method: "OPTIONS", async: true, dataType: 'json',
 							data: form1.serializeJSON(),
 							success: function(data) {
-								dialog.close();
+								BootstrapDialog.show({ closable: false, message:data.message, 
+									buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],
+								});
 								dataTable1.ajax.reload( null, false );
-								BootstrapDialog.alert(data.message);
+								dialog.close();
 							},
 							error: function(data) {
 								if (data.status==500){
@@ -107,34 +102,25 @@
 									var message = error.message;
 								}
 								button.stopSpin();
-								dialog.enableButtons(true);
-								dialog.setClosable(true);
+								button.enable();
 								BootstrapDialog.show({ closable: false, type:'modal-danger', title:'Notification', message:message, 
 									buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],
 								});
 							}
 						});
-						return false;
-					}).submit();
-					
-					return false;
+					}
 				}
 			}, {
 				label: 'Cancel', cssClass: 'btn-danger', action: function(dialog) { dialog.close(); }
 			}],
 			onshown: function(dialog) {
-				{**}
-				{* dialog.getModalBody().find("[data-mask]").inputmask(); *}
-				setTimeout(function(){
-					$("[data-mask]").inputmask();
-					dialog.getModalBody().find("[data-mask]").inputmask();
-				},1000);
-				{* $(document).on("ajaxComplete", function(e){
-					$(":input").inputmask();
-				});	 *}		
+				{* /* This class is for auto conversion from dmy to ymd */ *}
+				$(".auto_ymd").on('change', function(){
+					$('input[name="'+$(this).attr('id')+'"]').val( datetime_db_format($(this).val(), $(this).attr('data-format')) );
+				}).trigger('change');
 			}
 		});
-		return false;
+		
 	};
 	
 </script>

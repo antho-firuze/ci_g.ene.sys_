@@ -246,6 +246,11 @@ class Getmeb extends CI_Controller
 			$this->params = json_decode($this->input->raw_input_stream);
 			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
 			
+			/* Check is in params have a variable "is_allow" */
+			// if (isset($this->params->is_allow) && !empty($this->params->is_allow)) {
+				// $this->xresponse(TRUE, ['is_allow' => 1]);
+			// }
+			
 			/* Request for Export Data */
 			if (isset($this->params->export) && !empty($this->params->export)) {
 				/* Check permission in the role */
@@ -373,7 +378,8 @@ class Getmeb extends CI_Controller
 		/* Check menu active & permission on the table a_role_menu */
 		$allow = $this->base_model->getValue('permit_form, permit_process, permit_window', 'a_role_menu', ['role_id', 'menu_id', 'is_active', 'is_deleted'], [$this->session->role_id, $menu['id'], '1', '0']);
 		if (!$allow)
-			$this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] <b>not found</b> or <b>not active</b> in [a_role_menu] !', $menu['name'])]);
+			// $this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] <b>not found</b> or <b>not active</b> in [a_role_menu] !', $menu['name'])]);
+			$this->xresponse(FALSE, ['message' => sprintf('Permission [%s] <b>not found</b> or <b>not active</b> in [a_role_menu] !', $menu['name'])], 401);
 		
 		/* Permission for view */
 		if ($this->r_method == 'GET' && $allow)

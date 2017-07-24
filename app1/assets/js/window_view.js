@@ -513,3 +513,7 @@ $(window).on('hashchange', function(e){
 	history.replaceState ("", document.title, e.originalEvent.oldURL);
 });
 
+/* This class is for auto conversion from dmy to ymd */
+$(".auto_ymd").on('change', function(){
+	$('input[name="'+$(this).attr('id')+'"]').val( datetime_db_format($(this).val(), $(this).attr('data-format')) );
+});

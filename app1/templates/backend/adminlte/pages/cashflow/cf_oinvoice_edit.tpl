@@ -28,7 +28,7 @@
 	col.push(BSHelper.Combobox({ horz:false, label:"AR/AP Plan", textField:"code_name", idname:"ar_ap_plan_id", url:"{$.php.base_url('cashflow/cf_ar_plan')}?for_invoice=1", remote: true, required: true, disabled: true }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Business Partner", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}", remote: true, required: true, disabled: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Note", idname:"note", required: true, readonly: true }));
-	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00" }));
+	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00", readonly: true }));
 	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", format: "'casing': 'upper'", required: true, }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Doc Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));

@@ -36,6 +36,7 @@
 			{ id:"Progress", name:"Progress" },
 			{ id:"Inspector", name:"Inspector" },
 			{ id:"Shipment", name:"Shipment" },
+			{ id:"Retension", name:"Retension" },
 			{ id:"Complete", name:"Complete" },
 		] 
 	}));
