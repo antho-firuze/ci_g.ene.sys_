@@ -88,7 +88,7 @@
 						if (e.isDefaultPrevented()) { return false;	} 
 						
 						console.log(dialog.getModalBody().find('input').val());
-						{* console.log(dialog.getModalBody().find('[name="etd"]').val()); *}
+						console.log(dialog.getModalBody().find('[name="etd"]').val());
 						return false;
 						
 						button.spin();
@@ -125,9 +125,13 @@
 			onshown: function(dialog) {
 				{**}
 				{* dialog.getModalBody().find("[data-mask]").inputmask(); *}
-				$(document).on("ajaxComplete", function(e){
+				setTimeout(function(){
+					$("[data-mask]").inputmask();
+					dialog.getModalBody().find("[data-mask]").inputmask();
+				},1000);
+				{* $(document).on("ajaxComplete", function(e){
 					$(":input").inputmask();
-				});			
+				});	 *}		
 			}
 		});
 		return false;
