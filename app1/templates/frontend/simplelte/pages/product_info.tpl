@@ -42,9 +42,10 @@
             <div class="box-header with-border">
               <h3 class="box-title">Product</h3>
             </div>
-            <div class="box-body">
-							<a id="productpicture" href="{$.php.base_url()}upload/images/swg/{$type}.jpg">
-								<img class="img-center" style="width: 100%;" src="{$.php.base_url()}upload/images/swg/{$type}.jpg" alt="Product picture">
+            <div class="box-body"> 
+							<a id="productpicture" href="{$.php.base_url()}upload/images/swg/{$type}_{$inner_ring}_{$outer_ring}_{$hoop}_{$filler}.jpg">
+								{* <img class="img-center" style="width: 100%;" src="{$.php.base_url()}upload/images/swg/{$type}.jpg" alt="Product picture"> *}
+								<img class="img-center" style="width: 100%;" src="{$.php.base_url()}upload/images/swg/{$type}_{$inner_ring}_{$outer_ring}_{$hoop}_{$filler}.jpg" alt="Product picture">
 							</a>
             </div>
             <!-- /.box-body -->
