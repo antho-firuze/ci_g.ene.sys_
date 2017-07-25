@@ -125,7 +125,7 @@
 				}
 			},
 			error: function(data, status, errThrown) {
-				alert("Login error !");
+				{* alert("Login error !"); *}
 				setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled"); },1000);
 				if (data.status==500){
 					var message = data.statusText;

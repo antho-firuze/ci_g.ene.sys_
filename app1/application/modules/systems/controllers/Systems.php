@@ -6,7 +6,8 @@ class Systems extends Getmeb
 {
 	function __construct() {
 		/* Exeption list methods is not required login */
-		$this->exception_method = ['x_auth','x_forgot','x_login','x_logout','x_reload'];
+		$this->exception_method = ['x_auth','x_forgot','x_login','x_logout','x_reload','a_org_parent_list','a_menu_parent_list','','x_page','x_logout'];
+		// $this->exception_method = ['x_auth','x_forgot','x_login','x_logout','x_reload','a_org_parent_list','a_menu_parent_list','a_user_config'];
 		parent::__construct();
 		
 	}
@@ -1018,7 +1019,111 @@ class Systems extends Getmeb
 				$this->_pre_export_data();
 			}
 			
-			$this->params['ob'] = 'orgtype_id';
+			// $this->params['ob'] = 'orgtype_id';
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['client_id'] = $this->session->client_id;
+				unset($this->mixed_data['org_id']);
+			}
+		}
+	}
+	
+	function a_org_company()
+	{
+		$this->identity_keys = ['name', 'parent_id'];
+		
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, FALSE);
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			// $this->params['ob'] = 'orgtype_id';
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['client_id'] = $this->session->client_id;
+				unset($this->mixed_data['org_id']);
+			}
+		}
+	}
+	
+	function a_org_location()
+	{
+		$this->identity_keys = ['name', 'parent_id'];
+		
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, FALSE);
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			// $this->params['ob'] = 'orgtype_id';
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['client_id'] = $this->session->client_id;
+				unset($this->mixed_data['org_id']);
+			}
+		}
+	}
+	
+	function a_org_department()
+	{
+		$this->identity_keys = ['name', 'parent_id'];
+		
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, FALSE);
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			// $this->params['ob'] = 'orgtype_id';
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['client_id'] = $this->session->client_id;
+				unset($this->mixed_data['org_id']);
+			}
+		}
+	}
+	
+	function a_org_division()
+	{
+		$this->identity_keys = ['name', 'parent_id'];
+		
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, FALSE);
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			// $this->params['ob'] = 'orgtype_id';
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {

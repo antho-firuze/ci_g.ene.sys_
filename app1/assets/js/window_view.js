@@ -287,7 +287,14 @@ function initActionMenu(tableData1, dataTable1)
 				/* Set Main Title & code_name to Cookies */
 				$pageid = '?pageid='+$pageid+','+$el.attr('data-pageid');
 				if ($filter){
-					$filter = '&filter='+$filter+','+$el.attr('data-subKey') + '=' + data.id;
+					var subKey = $filter.split('=')[0];
+					if (subKey == $el.attr('data-subKey')){
+						/* for parent & child subKey. Ex. Using field "parent_id" */
+						$filter = '&filter='+$el.attr('data-subKey') + '=' + data.id;
+					} else {
+						/* for master & detail using multiple subKey. Ex. Master key: "id", subKey #1: "user_id", subKey #2: "access_id", ....etc. */
+						$filter = '&filter='+$filter+','+$el.attr('data-subKey') + '=' + data.id;
+					}
 				} else {
 					$filter = '&filter='+$el.attr('data-subKey') + '=' + data.id;
 				}

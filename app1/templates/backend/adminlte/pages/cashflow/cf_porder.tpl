@@ -33,7 +33,7 @@
 			{ pageid: 110, subKey: 'order_id', title: 'Purchase Order Line', },
 			{ pageid: 111, subKey: 'order_id', title: 'Purchase Order Plan' },
 			{ pageid: 112, subKey: 'order_id', title: 'Purchase Order Plan Clearance' },
-			{ pageid: 113, subKey: 'order_id', title: 'Purchase Order Plan Import' },
+			{ pageid: 113, subKey: 'order_id', title: 'Purchase Order Plan Custom Duty' },
 		],
 		columns: [
 			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },

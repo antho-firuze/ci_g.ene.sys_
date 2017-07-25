@@ -109,6 +109,7 @@ class Getmeb extends CI_Controller
 		$this->_check_is_login();
 		/* This Request for GETTING/VIEWING Data */
 		if (in_array($this->r_method, ['GET'])) {
+			
 			/* Become Array */
 			$this->params = $this->input->get();
 			
@@ -118,6 +119,9 @@ class Getmeb extends CI_Controller
 				// $this->pageid = explode(',', $this->params['pageid']);
 				// $this->pageid = end($this->pageid);
 			}
+			
+			/* Must be checking permission before next process */
+			$this->_check_is_allow();
 			
 			/* Request for viewlog */
 			if (isset($this->params['viewlog']) && !empty($this->params['viewlog'])) {
@@ -357,11 +361,12 @@ class Getmeb extends CI_Controller
 	
 	function _check_is_allow()
 	{
-		/* This process is for bypass methods which do not need to login */
-		if (count($this->exception_method) > 0){
-			if (in_array($this->c_method, $this->exception_method))
-				return;
-		}
+		// debug($this->pageid);
+		// debug($this->c_method);
+		
+		/* Trick for transition after login, which calling class "systems" without method. */
+		if (! $this->c_method)
+			return array();
 		
 		/* Check menu existance on the table a_menu */
 		if ($this->pageid)
@@ -369,8 +374,15 @@ class Getmeb extends CI_Controller
 		else
 			$menu = $this->base_model->getValueArray('*', 'a_menu', ['client_id','method'], [DEFAULT_CLIENT_ID, $this->c_method]);
 		
-		if (!$menu)
-			$this->backend_view('pages/404', ['message' => 'Menu not found !']);
+		if (!$menu){
+			/* This process is for bypass methods which do not need to login */
+			if (count($this->exception_method) > 0){
+				if (in_array($this->c_method, $this->exception_method))
+					return $menu;
+			} else {
+				$this->backend_view('pages/404', ['message' => 'Menu not found !']);
+			}
+		}
 		
 		/* Set this menu using this table */
 		$this->c_table = $menu['table'];

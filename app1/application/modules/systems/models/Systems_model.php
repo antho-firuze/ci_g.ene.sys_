@@ -252,8 +252,45 @@ class Systems_Model extends CI_model
 	function a_org($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, coalesce(t2.code,'') ||'_'|| t2.name as orgtype_name, t1.is_active, (select name from a_org where id = t1.parent_id limit 1) as parent_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		$params['join'][] 	= ['a_orgtype as t2', 't1.orgtype_id = t2.id', 'left'];
+		$params['where']['orgtype_id'] = 1;
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function a_org_company($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, coalesce(t2.code,'') ||'_'|| t2.name as orgtype_name, t1.is_active, (select name from a_org where id = t1.parent_id limit 1) as parent_name";
+		$params['table'] 	= $this->c_table." as t1";
+		$params['join'][] 	= ['a_orgtype as t2', 't1.orgtype_id = t2.id', 'left'];
+		$params['where']['orgtype_id'] = 2;
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function a_org_location($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, coalesce(t2.code,'') ||'_'|| t2.name as orgtype_name, t1.is_active, (select name from a_org where id = t1.parent_id limit 1) as parent_name";
+		$params['table'] 	= $this->c_table." as t1";
+		$params['join'][] 	= ['a_orgtype as t2', 't1.orgtype_id = t2.id', 'left'];
+		$params['where']['orgtype_id'] = 3;
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function a_org_department($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, coalesce(t2.code,'') ||'_'|| t2.name as orgtype_name, t1.is_active, (select name from a_org where id = t1.parent_id limit 1) as parent_name";
+		$params['table'] 	= $this->c_table." as t1";
+		$params['join'][] 	= ['a_orgtype as t2', 't1.orgtype_id = t2.id', 'left'];
+		$params['where']['orgtype_id'] = 4;
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function a_org_division($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, coalesce(t2.code,'') ||'_'|| t2.name as orgtype_name, t1.is_active, (select name from a_org where id = t1.parent_id limit 1) as parent_name";
+		$params['table'] 	= $this->c_table." as t1";
+		$params['join'][] 	= ['a_orgtype as t2', 't1.orgtype_id = t2.id', 'left'];
+		$params['where']['orgtype_id'] = 5;
 		return $this->base_model->mget_rec($params);
 	}
 	
