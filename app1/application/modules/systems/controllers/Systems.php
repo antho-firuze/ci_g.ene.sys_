@@ -7,7 +7,6 @@ class Systems extends Getmeb
 	function __construct() {
 		/* Exeption list methods is not required login */
 		$this->exception_method = ['x_auth','x_forgot','x_login','x_logout','x_reload','a_org_parent_list','a_menu_parent_list','','x_page','x_logout'];
-		// $this->exception_method = ['x_auth','x_forgot','x_login','x_logout','x_reload','a_org_parent_list','a_menu_parent_list','a_user_config'];
 		parent::__construct();
 		
 	}
@@ -34,6 +33,9 @@ class Systems extends Getmeb
 				foreach($result as $key => $val){
 					$result[$key]->value = 0;
 					if ($val->query) {
+						
+						$val->query = $this->translate_variable($val->query);
+						
 						if (!$qry = $this->db->query($val->query)) {
 							$result[$key]->value = 0;
 							// debugf($this->db->error()['message']);
@@ -598,6 +600,16 @@ class Systems extends Getmeb
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['org_id'] = $this->params->org_id;
 			}
+			
+			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
+				$result = $this->updateRecord('a_user', ['user_org_id' => $this->params->user_org_id], ['id'=>$this->params->user_id]);
+				
+				/* Throwing the result to Ajax */
+				if (! $result)
+					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			}
 		}
 	}
 	
@@ -659,6 +671,18 @@ class Systems extends Getmeb
 				$this->xresponse(FALSE, $result);
 			} else {
 				$this->xresponse(TRUE, $result);
+			}
+		}
+		if ($this->r_method == 'PUT') {
+			
+			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
+				$result = $this->updateRecord('a_user', ['user_role_id' => $this->params->user_role_id], ['id'=>$this->params->user_id]);
+				
+				/* Throwing the result to Ajax */
+				if (! $result)
+					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
 			}
 		}
 	}

@@ -17,6 +17,7 @@
 	var box1 = BSHelper.Box({ type:"info" });
 	col.push(BSHelper.Combobox({ horz:false, label:"Role", label_link:"{$.const.PAGE_LNK}?pageid=21", idname:"role_id", url:"{$.php.base_url('systems/a_role')}", remote: true }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
+	{* col.push(BSHelper.Checkbox({ horz:false, label:"Set As Default", idname:"is_default", value:1 })); *}
 	row.push(subCol(6, col)); col = [];
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));

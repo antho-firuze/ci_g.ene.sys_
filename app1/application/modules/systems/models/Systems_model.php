@@ -116,45 +116,38 @@ class Systems_Model extends CI_model
 	
 	function a_user_org($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.org_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t2.swg_margin, t1.is_active";
-		$params['table'] 	= $this->c_method." as t1";
-		$params['join'][] 	= ['a_org as t2', 't1.org_id = t2.id', 'left'];
-		$params['where']['t2.is_deleted'] 	= '0';
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, (select count(user_org_id) from a_user where id = t1.user_id and user_org_id = t1.id) as is_default";
+		$params['table'] 	= $this->c_table." as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function a_user_orgtrx($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.is_active, t1.org_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, (select coalesce(code,'') ||'_'|| name from a_user where id = t1.user_id) as user_name, (select coalesce(x2.code,'') ||'_'|| x2.name from a_user_org x1 inner join a_org x2 on x1.org_id = x2.id where x1.id = t1.user_org_id) as org_name";
-		$params['table'] 	= $this->c_method." as t1";
-		$params['join'][] 	= ['a_org as t2', 't1.org_id = t2.id', 'inner'];
-		$params['where']['t2.is_deleted'] 	= '0';
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.is_active, t1.org_id, (select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, (select coalesce(code,'') ||'_'|| name from a_user where id = t1.user_id) as user_name, (select coalesce(x2.code,'') ||'_'|| x2.name from a_user_org x1 inner join a_org x2 on x1.org_id = x2.id where x1.id = t1.user_org_id) as org_name";
+		$params['table'] 	= $this->c_table." as t1";
+		// $params['join'][] 	= ['a_org as t2', 't1.org_id = t2.id', 'inner'];
+		// $params['where']['t2.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function a_user_role($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.role_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active";
-		$params['table'] 	= $this->c_method." as t1";
-		$params['join'][] 	= ['a_role as t2', 't1.role_id = t2.id', 'left'];
-		$params['where']['t2.is_deleted'] 	= '0';
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select coalesce(code,'') ||'_'|| name from a_role where id = t1.role_id) as code_name, (select count(user_role_id) from a_user where id = t1.user_id and user_role_id = t1.id) as is_default";
+		$params['table'] 	= $this->c_table." as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function a_user_substitute($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.substitute_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, to_char(t1.valid_from, '".$this->session->date_format."') as valid_from, to_char(t1.valid_to, '".$this->session->date_format."') as valid_to, t1.description";
-		$params['table'] 	= $this->c_method." as t1";
-		$params['join'][] 	= ['a_user as t2', 't1.user_id = t2.id', 'left'];
-		$params['where']['t2.is_deleted'] 	= '0';
-		
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select coalesce(code,'') ||'_'|| name from a_user where id = t1.user_id) as code_name, to_char(t1.valid_from, '".$this->session->date_format."') as valid_from, to_char(t1.valid_to, '".$this->session->date_format."') as valid_to";
+		$params['table'] 	= $this->c_table." as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function a_user_config($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		
 		return $this->base_model->mget_rec($params);
 	}
@@ -162,7 +155,7 @@ class Systems_Model extends CI_model
 	function a_user_recent($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		
 		return $this->base_model->mget_rec($params);
 	}
@@ -171,7 +164,6 @@ class Systems_Model extends CI_model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, (select coalesce(code,'') ||'_'|| name from a_menu where id = t1.parent_id) as parent_name";
 		$params['table'] 	= "(select id as grp, * from a_menu where is_parent = '1' union all	select parent_id as grp, * from a_menu where is_parent = '0') as t1";
-		
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -234,7 +226,7 @@ class Systems_Model extends CI_model
 	function a_role_dashboard($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.dashboard_id, t2.code, t2.name, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t2.type";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		$params['join'][] = ['a_dashboard t2', 't1.dashboard_id = t2.id', 'left'];
 		$params['where']['t2.is_deleted']	= '0';
 		return $this->base_model->mget_rec($params);
@@ -243,7 +235,7 @@ class Systems_Model extends CI_model
 	function a_role_process($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.process_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		$params['join'][] = ['a_process t2', 't1.process_id = t2.id', 'left'];
 		$params['where']['t2.is_deleted']	= '0';
 		return $this->base_model->mget_rec($params);
@@ -344,21 +336,21 @@ class Systems_Model extends CI_model
 	function a_sequence($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function a_orgtype($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function a_role($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, (select name from c_currency where id = t1.currency_id limit 1) as currency_name, (select name from a_user where id = t1.supervisor_id limit 1) as supervisor_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		// $params['join'][] 	= ['c_currency as cc', 't1.currency_id = cc.id', 'left'];
 		// $params['join'][] 	= ['a_user as au4', 't1.supervisor_id = au4.id', 'left'];
 		
@@ -382,42 +374,42 @@ class Systems_Model extends CI_model
 	function a_system($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function a_client($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function a_dashboard($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function a_domain($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function a_info($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function c_currency($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		
 		return $this->base_model->mget_rec($params);
 	}
@@ -425,7 +417,7 @@ class Systems_Model extends CI_model
 	function c_1country($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		
 		return $this->base_model->mget_rec($params);
 	}
@@ -433,7 +425,7 @@ class Systems_Model extends CI_model
 	function c_2province($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		
 		return $this->base_model->mget_rec($params);
 	}
@@ -441,7 +433,7 @@ class Systems_Model extends CI_model
 	function c_3city($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		
 		return $this->base_model->mget_rec($params);
 	}
@@ -449,7 +441,7 @@ class Systems_Model extends CI_model
 	function c_4district($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		
 		return $this->base_model->mget_rec($params);
 	}
@@ -457,7 +449,7 @@ class Systems_Model extends CI_model
 	function c_5village($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= $this->c_table." as t1";
 		
 		return $this->base_model->mget_rec($params);
 	}

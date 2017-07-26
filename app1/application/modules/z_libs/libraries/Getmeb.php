@@ -361,9 +361,6 @@ class Getmeb extends CI_Controller
 	
 	function _check_is_allow()
 	{
-		// debug($this->pageid);
-		// debug($this->c_method);
-		
 		/* Trick for transition after login, which calling class "systems" without method. */
 		if (! $this->c_method)
 			return array();
@@ -383,6 +380,11 @@ class Getmeb extends CI_Controller
 				$this->backend_view('pages/404', ['message' => 'Menu not found !']);
 			}
 		}
+		
+		// debug($this->session->role_id);
+		if (! $this->session->role_id)
+			// redirect('systems/x_profile');
+			$this->single_view('pages/systems/auth/select_role');
 		
 		/* Set this menu using this table */
 		$this->c_table = $menu['table'];
@@ -1398,6 +1400,17 @@ class Getmeb extends CI_Controller
 			}
     }
     return $ret;
+	}
+	
+	function translate_variable($str)
+	{
+		$vars = array(
+			'{client_id}'	=> $this->session->client_id,
+			'{org_id}'		=> $this->session->org_id,
+			'{orgtrx_id}'		=> $this->session->orgtrx_id,
+		);
+		
+		return str_replace(array_keys($vars), $vars, $str);
 	}
 	
 	function single_view($content, $data=[])
