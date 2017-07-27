@@ -153,6 +153,13 @@
 	});
 	{* End: Populate data to form *}
 	
+	$("#user_org_id").shollu_cb({ 
+		onSelect: function(rowData){
+			console.log('aaaaa');
+			$("#user_orgtrx_id").shollu_cb('setValue', '');
+		}
+	});
+	
 	{* Init data for custom element (combogrid, button etc.) *}
 	var uploader = new plupload.Uploader({ url: $url_module, runtimes:"html5",
 		filters: { max_file_size: "2mb", mime_types: [{ title:"Image files", extensions:"jpg,gif,png" }] },

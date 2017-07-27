@@ -86,7 +86,7 @@
         <div class="col-md-6">
           <button type="submit" class="btn btn-primary btn-flat">Submit</button>
 					&nbsp;
-          <button type="submit" class="btn btn-danger btn-flat">Cancel</button>
+          <button type="button" id="btn-cancel" class="btn btn-danger btn-flat">Cancel</button>
         </div>
         <!-- /.col -->
       </div>
@@ -110,6 +110,8 @@
 		},
 	});
 	$("#user_orgtrx_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_orgtrx')}?identify=1&filter=user_id=0", idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, });
+	
+	$("#btn-cancel").on("click", function(){ window.location.replace("{$.const.LOGOUT_LNK}"); });
 	
 	form.submit( function(e) {
 		e.preventDefault();
