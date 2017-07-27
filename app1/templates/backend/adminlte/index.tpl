@@ -45,9 +45,9 @@
 	var lang_confirm_delete = "{$.php.lang('confirm_delete')}";
 	var lang_confirm_copy = "{$.php.lang('confirm_copy')}";
 	var lang_notif_choose_record = "{$.php.lang('notif_choose_record')}";
-	store($skin, "{$.session.skin !: 'skin-purple'}");
+	store($skin, "{$.session.skin !: $.session.default_skin}");
 	store($sidebar, "{$.session.sidebar !: ''}");
-	store($screen_timeout, "{$.session.screen_timeout !: 60000}");
+	store($screen_timeout, "{$.session.screen_timeout !: $.session.default_screen_timeout}");
 </script>
 <script src="{$.const.TEMPLATE_URL}plugins/jQuery/jquery-3.2.0.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/idletimer/idle-timer.min.js"></script>

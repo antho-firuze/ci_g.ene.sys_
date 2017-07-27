@@ -104,7 +104,7 @@ class Getmeb extends CI_Controller
 			// /* Check permission in the role */
 			// $this->_check_is_allow_inrole('canexport');
 		// }
-
+		
 		/* This process is running before checking request method */
 		$this->_check_is_login();
 		/* This Request for GETTING/VIEWING Data */
@@ -120,8 +120,10 @@ class Getmeb extends CI_Controller
 				// $this->pageid = end($this->pageid);
 			}
 			
-			/* Must be checking permission before next process */
-			$this->_check_is_allow();
+			if (! isset($this->params['identify'])) {
+				/* Must be checking permission before next process */
+				$this->_check_is_allow();
+			}
 			
 			/* Request for viewlog */
 			if (isset($this->params['viewlog']) && !empty($this->params['viewlog'])) {
@@ -154,12 +156,12 @@ class Getmeb extends CI_Controller
 		
 		/* This Request for INDERT & UPDATE Data */
 		if (in_array($this->r_method, ['POST','PUT'])) {
-			/* Must be checking permission before next process */
-			$this->_check_is_allow();
-			
 			/* Become Object */
 			$this->params = json_decode($this->input->raw_input_stream);
 			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
+			
+			/* Must be checking permission before next process */
+			$this->_check_is_allow();
 			
 			/* Mixing the Data */
 			$this->_pre_update_records();
@@ -261,6 +263,12 @@ class Getmeb extends CI_Controller
 				$this->_check_is_allow_inrole('canexport');
 				$this->_pre_export_data();
 			}
+		}
+		/* This Request special for Selection Role Window */
+		if (in_array($this->r_method, ['PATCH'])) {
+			/* Become Object */
+			$this->params = json_decode($this->input->raw_input_stream);
+			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
 		}
 	}
 	

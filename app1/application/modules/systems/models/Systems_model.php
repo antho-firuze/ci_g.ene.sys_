@@ -82,7 +82,7 @@ class Systems_Model extends CI_model
 		$client = $this->base_model->getValueArray('name as client_name', 'a_client', 'id', $user['client_id']);
 		$org = $this->base_model->getValueArray('name as org_name, supervisor_id as org_supervisor_id, address_map as org_address_map, phone as org_phone, fax as org_fax, email as org_email, website as org_website, swg_margin', 'a_org', 'id', $user_org['org_id']);
 		$role = $this->base_model->getValueArray('name as role_name, supervisor_id as role_supervisor_id, amt_approval, is_canexport, is_canreport, is_canapproveowndoc, is_accessallorgs, is_useuserorgaccess', 'a_role', 'id', $user_role['role_id']);
-		$system = $this->base_model->getValueArray('api_token, head_title, page_title, logo_text_mn, logo_text_lg, date_format, time_format, datetime_format, user_photo_path, personnel_photo_path, max_file_upload, group_symbol, decimal_symbol, negative_front_symbol, negative_back_symbol, number_digit_decimal', 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID]);
+		$system = $this->base_model->getValueArray('api_token, head_title, page_title, logo_text_mn, logo_text_lg, date_format, time_format, datetime_format, user_photo_path, personnel_photo_path, max_file_upload, group_symbol, decimal_symbol, negative_front_symbol, negative_back_symbol, number_digit_decimal, default_skin, default_layout, default_screen_timeout, default_language', 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID]);
 		$user_config = $this->base_model->getValue('attribute, value', 'a_user_config', 'user_id', $user_id);
 		$userconfig = [];
 		if ($user_config) {
@@ -117,14 +117,17 @@ class Systems_Model extends CI_model
 	function a_user_org($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, (select count(user_org_id) from a_user where id = t1.user_id and user_org_id = t1.id) as is_default";
-		$params['table'] 	= $this->c_table." as t1";
+		$params['table'] 	= $this->c_method." as t1";
+		// $params['table'] 	= $this->c_table." as t1";
+		// $params['table'] 	= "a_user_org as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function a_user_orgtrx($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.is_active, t1.org_id, (select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, (select coalesce(code,'') ||'_'|| name from a_user where id = t1.user_id) as user_name, (select coalesce(x2.code,'') ||'_'|| x2.name from a_user_org x1 inner join a_org x2 on x1.org_id = x2.id where x1.id = t1.user_org_id) as org_name";
-		$params['table'] 	= $this->c_table." as t1";
+		$params['table'] 	= $this->c_method." as t1";
+		// $params['table'] 	= $this->c_table." as t1";
 		// $params['join'][] 	= ['a_org as t2', 't1.org_id = t2.id', 'inner'];
 		// $params['where']['t2.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
@@ -133,7 +136,9 @@ class Systems_Model extends CI_model
 	function a_user_role($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select coalesce(code,'') ||'_'|| name from a_role where id = t1.role_id) as code_name, (select count(user_role_id) from a_user where id = t1.user_id and user_role_id = t1.id) as is_default";
-		$params['table'] 	= $this->c_table." as t1";
+		$params['table'] 	= $this->c_method." as t1";
+		// $params['table'] 	= $this->c_table." as t1";
+		// $params['table'] 	= "a_user_role as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	

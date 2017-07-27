@@ -6,7 +6,7 @@ class Systems extends Getmeb
 {
 	function __construct() {
 		/* Exeption list methods is not required login */
-		$this->exception_method = ['x_auth','x_forgot','x_login','x_logout','x_reload','a_org_parent_list','a_menu_parent_list','','x_page','x_logout'];
+		$this->exception_method = ['x_auth','x_forgot','x_login','x_logout','x_reload','a_org_parent_list','a_menu_parent_list','','x_page','x_logout','x_role_selector'];
 		parent::__construct();
 		
 	}
@@ -1386,6 +1386,23 @@ class Systems extends Getmeb
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+	
+	function x_role_selector()
+	{
+		if ($this->r_method == 'PATCH') {
+			if (isset($this->params->identify) && !empty($this->params->identify)) {
+				unset($this->params->identify);
+				// debug($this->params);
+				
+				$result = $this->updateRecord('a_user', $this->params, ['id'=>$this->session->user_id], FALSE);
+				
+				if (! $result)
+					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
 			}
 		}
 	}

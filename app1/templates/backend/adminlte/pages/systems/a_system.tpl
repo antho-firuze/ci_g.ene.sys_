@@ -118,6 +118,54 @@
 				a = []; col = [];
 				a.push(BSHelper.Input({ type:"text", label:"User Photo Path", idname:"user_photo_path", required: true, placeholder:"string(200)" }));
 				a.push(BSHelper.Input({ type:"text", label:"Personnel Photo Path", idname:"personnel_photo_path", required: true, placeholder:"string(200)" }));
+				a.push(BSHelper.Combobox({ label:"Default Layout", idname:"default_layout", required: true,
+					list:[
+						{ id:"layout-boxed", name:"Boxed" },
+						{ id:"layout-fixed", name:"Fixed" },
+						{ id:"sidebar-collapse", name:"Sidebar Collapse" },
+					]
+				}));
+				a.push(BSHelper.Combobox({ label:"Default Skin Color", idname:"default_skin", required: true,
+					list:[
+						{ id:"skin-blue", name:"Blue" },
+						{ id:"skin-black", name:"Black" },
+						{ id:"skin-red", name:"Red" },
+						{ id:"skin-yellow", name:"Yellow" },
+						{ id:"skin-purple", name:"Purple" },
+						{ id:"skin-green", name:"Green" },
+						{ id:"skin-blue-light", name:"Blue Light" },
+						{ id:"skin-black-light", name:"Black Light" },
+						{ id:"skin-red-light", name:"Red Light" },
+						{ id:"skin-yellow-light", name:"Yellow Light" },
+						{ id:"skin-purple-light", name:"Purple Light" },
+						{ id:"skin-green-light", name:"Green Light" },
+					] 
+				}));
+				a.push(BSHelper.Combobox({ label:"Default Screen Timeout", idname:"default_screen_timeout", required: true,
+					list:[
+						{ id:"60000", name:"1 minute" },
+						{ id:"120000", name:"2 minutes" },
+						{ id:"180000", name:"3 minutes" },
+						{ id:"300000", name:"5 minutes" },
+						{ id:"600000", name:"10 minutes" },
+						{ id:"900000", name:"15 minutes" },
+						{ id:"1200000", name:"20 minutes" },
+						{ id:"1500000", name:"25 minutes" },
+						{ id:"1800000", name:"30 minutes" },
+						{ id:"2700000", name:"45 minutes" },
+						{ id:"3600000", name:"1 hour" },
+						{ id:"7200000", name:"2 hours" },
+						{ id:"10800000", name:"3 hours" },
+						{ id:"14400000", name:"4 hours" },
+						{ id:"18000000", name:"5 hours" },
+					] 
+				}));
+				a.push(BSHelper.Combobox({ label:"Default Language", idname:"default_language", required: true,
+					list:[
+						{ id:"english", name:"English" },
+						{* { id:"indonesia", name:"Indonesia" }, *}
+					] 
+				}));
 				col.push(subCol(6, a));
 				return subRow(col);
 			} },

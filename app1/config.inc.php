@@ -69,6 +69,7 @@ define('CACHE_FCPATH', FCPATH . CACHE_FOLDER);
 define('APPS_LNK', BASE_URL.'systems');
 define('PAGE_LNK', BASE_URL.'systems/x_page');
 define('AUTH_LNK', BASE_URL.'systems/x_auth');
+define('ROLE_SELECTOR_LNK', BASE_URL.'systems/x_role_selector');
 define('LOGIN_LNK', BASE_URL.'systems/x_login');
 define('LOGOUT_LNK', BASE_URL.'systems/x_logout');
 define('U_CONFIG_LNK', BASE_URL.'systems/a_user_config');

@@ -36,6 +36,8 @@
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
+<script src="{$.const.ASSET_URL}js/common.extend.func.js"></script>
+<script src="{$.const.ASSET_URL}js/bootstrap.helper.js"></script>
 
 </head>
 <body class="hold-transition login-page">
@@ -49,14 +51,28 @@
     <p class="login-box-msg">Select Role</p>
 
     <form>
-      <div class="form-group has-feedback">
-        <span class="glyphicon glyphicon-user form-control-feedback"></span>
-        <input type="text" class="form-control" placeholder="User Name" name="username" required>
-      </div>
-      <div class="form-group has-feedback">
-        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-        <input type="password" class="form-control" placeholder="Password" name="password" required>
-      </div>
+			<div class="form-group">
+				<label class="control-label" for="user_role_id">Role</label>
+				<div class="control-input">
+					<input type="text" class="form-control" placeholder="Select Role" id="user_role_id" name="user_role_id" required>
+					<small class="form-text text-muted help-block with-errors"></small>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label" for="user_org_id">Organization/Company</label>
+				<div class="control-input">
+					<input type="text" class="form-control" placeholder="Select Organization" id="user_org_id" name="user_org_id" required>
+					<small class="form-text text-muted help-block with-errors"></small>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label" for="user_orgtrx_id">Location</label>
+				<div class="control-input">
+					<input type="text" class="form-control" placeholder="Select Location" id="user_orgtrx_id" name="user_orgtrx_id" required>
+					<small class="form-text text-muted help-block with-errors"></small>
+				</div>
+			</div>
+			<br>
       <div class="row">
         <div class="col-md-6">
           <div class="checkbox icheck">
@@ -75,25 +91,6 @@
         <!-- /.col -->
       </div>
     </form>
-
-	{if (isset($facebook) || isset($gplus))}
-		<div class="social-auth-links text-center">
-		  <p>- OR -</p>
-		{if (isset($facebook))}
-		  <a href="#" class="btn btn-block btn-social btn-facebook btn-flat"><i class="fa fa-facebook"></i> Sign in using
-			Facebook</a>
-		{/if}
-		{if (isset($gplus))}
-		  <a href="#" class="btn btn-block btn-social btn-google btn-flat"><i class="fa fa-google-plus"></i> Sign in using
-			Google+</a>
-		{/if}
-		</div>
-	{/if}
-    <!-- /.social-auth-links -->
-	
-    {* Click <a href="{$.const.FORGOT_LNK}">here</a> if you forgot your password, or back to <a href="{$.const.HOME_LNK}">frontend</a>.<br> *}
-    {* <a href="register.html" class="text-center">Register a new membership</a> *}
-	
   </div>
   <!-- /.login-box-body -->
 </div>
@@ -105,40 +102,44 @@
 <script>
 	var form = $("form");
 	$(document).ajaxStart(function() { Pace.restart(); });
-	$("[name='remember']")
-		.iCheck({ checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue', increaseArea: '20%' })
-		.iCheck('uncheck');
+	
+	$("#user_role_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_role')}?identify=1&filter=user_id="+{$.session.user_id}, idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, });
+	$("#user_org_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_org')}?identify=1&filter=user_id="+{$.session.user_id}, idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, 
+		onSelect: function(rowData){
+			$("#user_orgtrx_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_orgtrx')}?identify=1&filter=user_id="+{$.session.user_id}+"&user_org_id="+rowData.id, idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, });
+		},
+	});
+	$("#user_orgtrx_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_orgtrx')}?identify=1&filter=user_id=0", idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, });
 	
 	form.submit( function(e) {
 		e.preventDefault();
-		var rememberme = $("[name='remember']").prop('checked') ? 1 : 0;
+		
+		{* console.log(form.serializeJSON()); return false; *}
 		
 		form.find('[type="submit"]').attr("disabled", "disabled");
+		form.append(BSHelper.Input({ type:"hidden", idname:"identify", value:1 }));
 		
-		$.ajax({ url:"{$.const.AUTH_LNK}?login=1", method:"GET", async:true, dataType:'json',
-			headers: { "X-AUTH": "Basic " + btoa($("[name='username']").val() + ":" + $("[name='password']").val()) },
-			data: { "rememberme":rememberme },
-			{* beforeSend: function(xhr) { form.find('[type="submit"]').attr("disabled", "disabled"); }, *}
-			{* complete: function(xhr, data) {	setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled");	},1000); }, *}
+		$.ajax({ url:"{$.const.ROLE_SELECTOR_LNK}", method:"PATCH", async:true, dataType:'json',
+			data: form.serializeJSON(),
 			success: function(data) {
-				{* alert("Login success !"); *}
 				if (data.status) {
-					store('lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}', 0);
-					var url = "{$.session.referred_index !: $.const.APPS_LNK}";
-					window.location.replace(url);
-					{* window.location = url; *}
+					var url = window.location.href;
+					$.getJSON('{$.const.RELOAD_LNK}', '', function(data){ window.location.replace(url); });
 				}
 			},
 			error: function(data, status, errThrown) {
-				{* alert("Login error !"); *}
-				setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled"); },1000);
 				if (data.status==500){
 					var message = data.statusText;
 				} else {
 					var error = JSON.parse(data.responseText);
 					var message = error.message;
 				}
-				BootstrapDialog.alert({ type:'modal-danger', title:'Error ('+data.status+') :', message:message });
+				{* setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled"); },1000); *}
+				form.find("[type='submit']").prop( "disabled", false );
+				BootstrapDialog.show({ message:message, closable: false, type:'modal-danger', title:'Notification', 
+					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef) { dialogRef.close();	} }],
+				});
+				{* BootstrapDialog.alert({ type:'modal-danger', title:'Error ('+data.status+') :', message:message }); *}
 			}
 		});
 	}); 
