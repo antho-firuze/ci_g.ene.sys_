@@ -22,7 +22,7 @@
 	
 	{* For design form interface *}
 	var col = [], row = [];	
-	var form1 = BSHelper.Form({ autocomplete:"off" });	
+	var form1 = BSHelper.Form({ autocomplete:"off", idname:"form1" });	
 	var form2 = BSHelper.Form({ autocomplete:"off", idname:"form2" });	
 	var form3 = BSHelper.Form({ autocomplete:"off", idname:"form3" });	
 	var box1 = BSHelper.Box({ type:"info" });
@@ -38,14 +38,15 @@
 		.append( $('<li class="list-group-item" />')
 			.append( BSHelper.Combobox({ horz:false, label:"Role (Default)", idname:"user_role_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_role')}?filter=user_id="+{$.session.user_id}, remote: true, required:true }) ) )
 		.append( $('<li class="list-group-item" />')
-			.append( BSHelper.Combobox({ horz:false, label:"Organization (Default)", idname:"user_org_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_org')}?filter=user_id="+{$.session.user_id}, remote: true, required:true }) ) )
+			.append( BSHelper.Combobox({ horz:false, label:"Organization (Default)", idname:"user_org_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_org')}?level=1&filter=user_id="+{$.session.user_id}, remote: true, required:true }) ) )
 		.append( $('<li class="list-group-item" />')
-			.append( BSHelper.Combobox({ horz:false, label:"Location (Default)", idname:"user_orgtrx_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_orgtrx')}?filter=user_id="+{$.session.user_id}, remote: true, required:true }) ) )
+			.append( BSHelper.Combobox({ horz:false, label:"Location (Default)", idname:"user_orgtrx_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_orgtrx')}?level=1&filter=user_id="+{$.session.user_id}, remote: true, required:true }) ) )
   );
-	col.push( BSHelper.Button({ type:"button", label:"Reload", idname:"btn_reload",
+	col.push( BSHelper.Button({ type:"submit", label:"Save & Reload", idname:"btn_reload" }) );
+	{* col.push( BSHelper.Button({ type:"submit", label:"Save & Reload", idname:"btn_reload",
 		onclick:"var last_url = window.location.href;
 			$.getJSON('{$.const.RELOAD_LNK}', '', function(data){ window.location.replace(last_url); });" 
-	}) ); 
+	}) );  *}
 	form1.append(subRow(subCol(12, col)));
 	box1.find('.box-body').append(form1);
 
@@ -54,10 +55,7 @@
 			{	title:"General Setup", idname:"tab-gen", 
 				content:function(){
 					col = [];
-					col.push(BSHelper.Input({ type:"hidden", idname:"table", value:"a_user" }));
-					col.push(BSHelper.Input({ type:"hidden", idname:"id" }));
 					col.push(BSHelper.Input({ type:"hidden", idname:"photo_file" }));
-					
 					col.push(BSHelper.Input({ type:"text", label:"Code", idname:"code" }));
 					col.push(BSHelper.Input({ type:"text", label:"Name", idname:"name", required: true }));
 					col.push(BSHelper.Input({ type:"textarea", label:"Description", idname:"description" }));
@@ -70,7 +68,6 @@
 			{	title:"Configuration", idname:"tab-dat", 
 				content:function(){
 					col = []; 
-					col.push(BSHelper.Input({ type:"hidden", idname:"table", value:"a_user_config" }));
 					col.push(BSHelper.Combobox({ label:"Layout", idname:"layout", required: true,
 						list:[
 							{ id:"layout-boxed", name:"Boxed" },
@@ -144,21 +141,18 @@
 			form2.shollu_autofill('load', result.data.rows[0]);  
 			
 			$("#user_orgtrx_id").shollu_cb({ queryParams: { "filter": "user_id="+{$.session.user_id}+",user_org_id="+result.data.rows[0].user_org_id }});
+			
+			form1.validator('update');
+			form2.validator('update');
 		}
 	});
 	$.getJSON("{$.php.base_url('systems/a_user_config')}", '', function(result){ 
 		if (!isempty_obj(result.data)) {
 			form3.shollu_autofill('load', result.data);  
+			form3.validator('update');
 		}
 	});
 	{* End: Populate data to form *}
-	
-	$("#user_org_id").shollu_cb({ 
-		onSelect: function(rowData){
-			console.log('aaaaa');
-			$("#user_orgtrx_id").shollu_cb('setValue', '');
-		}
-	});
 	
 	{* Init data for custom element (combogrid, button etc.) *}
 	var uploader = new plupload.Uploader({ url: $url_module, runtimes:"html5",
@@ -189,40 +183,50 @@
 	uploader.init();
 
 	{* Event on Element *}
-	form1.find('input').each(function(e){
-		var id;
-		if (id = $(this).attr('id')){
-			$(this).shollu_cb({ 
-				onSelect: function(rowData){ 
-					if (rowData.id){
-						var data = {}; data["table"] = "a_user"; data[id] = rowData.id;
-						$.ajax({ url: $url_module, method:"PUT", data: JSON.stringify(data) });	
-					}
-					if (id == 'user_org_id'){
-						$("#user_orgtrx_id").shollu_cb({ queryParams: { "filter": "user_id="+{$.session.user_id}+",user_org_id="+rowData.id }});
-					}
-				}
-			});
+	$("#user_org_id").shollu_cb({ 
+		onSelect: function(rowData){ 
+			$("#user_orgtrx_id").shollu_cb('setValue', '');
+			$("#user_orgtrx_id").shollu_cb({ queryParams: { "level":1, "filter": "user_id="+ {$.session.user_id} +",user_org_id="+rowData.id } });
 		}
 	});
 	
 	{* Form submit action *}
 	$(document.body).find('form').each(function(e){
-		if ($.inArray($(this).attr('id'), ["form2","form3"]) != -1){
-		
-			{* console.log($(this).attr('id')); *}
+		if ($.inArray($(this).attr('id'), ["form1","form2","form3"]) != -1){
+			
 			$(this).validator().on('submit', function (e) {
 				{* e.stopPropagation; *}
 				if (e.isDefaultPrevented()) { return false;	} 
 				
-				$(this).find("[type='submit']").prop( "disabled", true );
+				{* $(this).find("[type='submit']").prop( "disabled", true ); *}
+				
+				if ($(this).attr('id') == 'form1'){
+					$(this).append( BSHelper.Input({ type:"hidden", idname:"change_user_role", value:1 }) );
+				} else if ($(this).attr('id') == 'form2'){
+					$(this).append( BSHelper.Input({ type:"hidden", idname:"update_user_profile", value:1 }) );
+				} else if ($(this).attr('id') == 'form3'){
+					$(this).append( BSHelper.Input({ type:"hidden", idname:"update_user_config", value:1 }) );
+				}
 				
 				$.ajax({ url: $url_module, method:"PUT", async: true, dataType:'json',
 					data: $(this).serializeJSON(),
 					success: function(data) {
-						{* console.log(data); *}
-						BootstrapDialog.alert(data.message);
-						$(this).find("[type='submit']").prop( "disabled", false );
+						{* if ($(this).attr('id') == 'form1'){ *}
+							{* $.getJSON('{$.const.RELOAD_LNK}', '', function(data){ window.location.replace(window.location.href); }); *}
+							{* return false; *}
+						{* } *}
+					
+						BootstrapDialog.show({ message:data.message, closable: false,
+							buttons: [{ label: 'OK', hotkey: 13, 
+								action: function(dialogRef) {
+									$.getJSON('{$.const.RELOAD_LNK}', '', function(data){ window.location.replace(window.location.href); });
+								} 
+							}],
+						});
+						{* $(this).find("[type='submit']").prop( "disabled", false ); *}
+						{* BootstrapDialog.alert(data.message); *}
+						{* form2.validator('update'); *}
+						{* form3.validator('update'); *}
 					},
 					error: function(data) {
 						if (data.status==500){
@@ -231,8 +235,15 @@
 							var error = JSON.parse(data.responseText);
 							var message = error.message;
 						}
-						$(this).find("[type='submit']").prop( "disabled", false );
-						BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+						{* $(this).find("[type='submit']").prop( "disabled", false ); *}
+						BootstrapDialog.show({ message:message, closable: false, type:'modal-danger', title:'Notification', 
+							buttons: [{ label: 'OK', hotkey: 13, 
+								action: function(dialogRef) {
+									dialogRef.close();
+								} 
+							}],
+						});
+						{* BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message }); *}
 					}
 				});
 

@@ -300,27 +300,25 @@ class Systems extends Getmeb
 		
 		if ($this->r_method == 'PUT') {
 			/* This line is for update default user role & user org */
-			if (isset($this->params->user_role_id) && ($this->params->user_role_id != '')) {
-				if (! $this->updateRecord($this->params->table, ['user_role_id' => $this->params->user_role_id], ['id' => $this->session->user_id]))
+			if (isset($this->params->change_user_role) && !empty($this->params->change_user_role)) {
+				$this->_pre_update_records('a_user', FALSE, FALSE);
+				if (! $this->updateRecord('a_user', $this->mixed_data, ['id' => $this->session->user_id], FALSE))
 					$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
 
 				$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 			}
-			if (isset($this->params->user_org_id) && ($this->params->user_org_id != '')) {
-				if (! $this->updateRecord($this->params->table, ['user_org_id' => $this->params->user_org_id], ['id' => $this->session->user_id]))
-					$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
-
-				$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
-			}
-			if (isset($this->params->user_orgtrx_id) && ($this->params->user_orgtrx_id != '')) {
-				if (! $this->updateRecord($this->params->table, ['user_orgtrx_id' => $this->params->user_orgtrx_id], ['id' => $this->session->user_id]))
+			
+			/* This line is for update user info */
+			if (isset($this->params->update_user_profile) && !empty($this->params->update_user_profile)) {
+				$this->_pre_update_records('a_user', FALSE, TRUE);
+				if (! $this->updateRecord('a_user', $this->mixed_data, ['id' => $this->session->user_id], FALSE))
 					$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
 
 				$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 			}
 			
 			/* This line is for update user config */
-			if (isset($this->params->table) && ($this->params->table == 'a_user_config')) {
+			if (isset($this->params->update_user_config) && !empty($this->params->update_user_config)) {
 				$result = [];
 				foreach($this->params as $k => $v) {
 					$data['value'] 		 = $v;
@@ -330,12 +328,12 @@ class Systems extends Getmeb
 					/* update to session */
 					$this->session->set_userdata([$k => $v]);
 					/* update config to database */
-					$qry = $this->db->get_where($this->params->table, $cond, 1);
+					$qry = $this->db->get_where('a_user_config', $cond, 1);
 					if ($qry->num_rows() > 0) {
-						if (!$this->updateRecord($this->params->table, $data, $cond, TRUE))
+						if (!$this->updateRecord('a_user_config', $data, $cond, TRUE))
 							$result[$k] = $this->messages();	// Trapping error
 					} else {
-						if (!$this->insertRecord($this->params->table, array_merge($data, $cond), FALSE, TRUE))
+						if (!$this->insertRecord('a_user_config', array_merge($data, $cond), FALSE, TRUE))
 							$result[$k] = $this->messages();	// Trapping error
 					}
 				}
@@ -344,29 +342,6 @@ class Systems extends Getmeb
 				} else {
 					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 				}
-			}
-			
-			/* This line is for update user info */
-			if (isset($this->params->table) && ($this->params->table == 'a_user')) {
-				$fields = $this->db->list_fields($this->params->table);
-				$this->boolfields = [];
-				$this->nullfields = [];
-				foreach($fields as $f){
-					if (key_exists($f, $this->params)){
-						if (in_array($f, $this->boolfields)){
-							$datas[$f] = empty($this->params->{$f}) ? 0 : 1; 
-						} 
-						elseif (in_array($f, $this->nullfields)){
-							$datas[$f] = ($this->params->{$f}=='') ? NULL : $this->params->{$f}; 
-						} else {
-							$datas[$f] = $this->params->{$f};
-						}
-					}
-				}
-				if (! $this->updateRecord($this->params->table, array_merge($datas, $this->update_log), ['id' => $this->params->id]))
-					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-				else
-					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 			}
 		}
 		

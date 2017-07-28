@@ -77,7 +77,7 @@ class Systems_Model extends CI_model
 	{
 		$user = $this->base_model->getValueArray('id as user_id, client_id, user_org_id, user_orgtrx_id, user_role_id, name as user_name, email as user_email, description as user_description, photo_file as user_photo_file, supervisor_id as user_supervisor_id, bpartner_id, is_fullbpaccess', 'a_user', 'id', $user_id);
 		$user_org = $this->base_model->getValueArray('org_id', 'a_user_org', 'id', $user['user_org_id']);
-		$user_orgtrx = $this->base_model->getValueArray('org_id as orgtrx_id', 'a_user_orgtrx', 'id', $user['user_orgtrx_id']);
+		$user_orgtrx = $this->base_model->getValueArray('org_id as orgtrx_id, (select name from a_org where id = a_user_orgtrx.org_id) as location_name', 'a_user_orgtrx', 'id', $user['user_orgtrx_id']);
 		$user_role = $this->base_model->getValueArray('role_id', 'a_user_role', ['id','is_active','is_deleted'], [$user['user_role_id'], '1', '0']);
 		$client = $this->base_model->getValueArray('name as client_name', 'a_client', 'id', $user['client_id']);
 		$org = $this->base_model->getValueArray('name as org_name, supervisor_id as org_supervisor_id, address_map as org_address_map, phone as org_phone, fax as org_fax, email as org_email, website as org_website, swg_margin', 'a_org', 'id', $user_org['org_id']);
@@ -118,6 +118,9 @@ class Systems_Model extends CI_model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, (select count(user_org_id) from a_user where id = t1.user_id and user_org_id = t1.id) as is_default";
 		$params['table'] 	= $this->c_method." as t1";
+		if (isset($params['level']) && $params['level'] == 1) {
+			$params['join'][] = ['a_org as t2', 't1.org_id = t2.id', 'left'];
+		}
 		// $params['table'] 	= $this->c_table." as t1";
 		// $params['table'] 	= "a_user_org as t1";
 		return $this->base_model->mget_rec($params);
@@ -127,6 +130,9 @@ class Systems_Model extends CI_model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.is_active, t1.org_id, (select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, (select coalesce(code,'') ||'_'|| name from a_user where id = t1.user_id) as user_name, (select coalesce(x2.code,'') ||'_'|| x2.name from a_user_org x1 inner join a_org x2 on x1.org_id = x2.id where x1.id = t1.user_org_id) as org_name";
 		$params['table'] 	= $this->c_method." as t1";
+		if (isset($params['level']) && $params['level'] == 1) {
+			$params['join'][] = ['a_org as t2', 't1.org_id = t2.id', 'left'];
+		}
 		// $params['table'] 	= $this->c_table." as t1";
 		// $params['join'][] 	= ['a_org as t2', 't1.org_id = t2.id', 'inner'];
 		// $params['where']['t2.is_deleted'] 	= '0';

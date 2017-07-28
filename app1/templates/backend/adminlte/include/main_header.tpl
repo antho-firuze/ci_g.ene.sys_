@@ -140,29 +140,21 @@
               <!-- Menu Body -->
               <li class="user-body">
 			    <div class="row">
-                  <div class="col-xs-4 text-left">
-                    Client:
-                  </div>
-                  <div class="col-xs-8 text-left">
-                    <a href="#">{$.session.client_name}</a>
-                  </div>
-				</div>
+						<div class="col-xs-4 text-left">Client: </div>
+						<div class="col-xs-8 text-left"><a href="#">{$.session.client_name}</a></div>
+					</div>
 			    <div class="row">
-                  <div class="col-xs-4 text-left">
-                    Organization:
-                  </div>
-                  <div class="col-xs-8 text-left">
-                    <a href="#">{$.session.org_name}</a>
-                  </div>
-				</div>
+						<div class="col-xs-4 text-left">Org/Company: </div>
+						<div class="col-xs-8 text-left"><a href="#">{$.session.org_name}</a></div>
+					</div>
 			    <div class="row">
-                  <div class="col-xs-4 text-left">
-                    Role:
-                  </div>
-                  <div class="col-xs-8 text-left">
-                    <a href="#">{$.session.role_name}</a>
-                  </div>
-				</div>
+						<div class="col-xs-4 text-left">Location: </div>
+						<div class="col-xs-8 text-left"><a href="#">{$.session.location_name}</a></div>
+					</div>
+			    <div class="row">
+						<div class="col-xs-4 text-left">Role: </div>
+						<div class="col-xs-8 text-left"><a href="#">{$.session.role_name}</a></div>
+					</div>
                 <!-- /.row -->
               </li>
               <!-- Menu Footer-->

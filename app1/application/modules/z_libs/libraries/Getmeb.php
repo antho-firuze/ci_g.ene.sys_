@@ -571,10 +571,11 @@ class Getmeb extends CI_Controller
 		});
 	}
 
-	function _pre_update_records($return = FALSE, $fixed_data = TRUE, $log = TRUE)
+	// function _pre_update_records($return = FALSE, $fixed_data = TRUE, $log = TRUE)
+	function _pre_update_records($table = NULL, $fixed_data = TRUE, $log = TRUE)
 	{
 		$datas = [];
-		$fields = $this->db->list_fields($this->c_table);
+		$fields = $this->db->list_fields( $table ? $table : $this->c_table );
 		foreach($fields as $f){
 			if (key_exists($f, $this->params)){
 				/* Check if any exists allow null fields */
