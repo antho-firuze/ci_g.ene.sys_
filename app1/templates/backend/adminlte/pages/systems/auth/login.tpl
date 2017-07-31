@@ -119,7 +119,7 @@
 				{* alert("Login success !"); *}
 				if (data.status) {
 					store('lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}', 0);
-					var url = "{$.session.referred_index !: $.const.APPS_LNK}";
+					var url = "{$.session.referred_index !: $.const.APPS_LNK}" == window.location.href ? "{$.const.APPS_LNK}" : "{$.session.referred_index}";
 					window.location.replace(url);
 					{* window.location = url; *}
 				}

@@ -102,11 +102,15 @@
 <script>
 	var form = $("form");
 	$(document).ajaxStart(function() { Pace.restart(); });
+	var user = "{$.session.user_id}" != "" ? "user_id={$.session.user_id}" : "";
 	
-	$("#user_role_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_role')}?identify=1&filter=user_id="+{$.session.user_id}, idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, });
-	$("#user_org_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_org')}?identify=1&filter=user_id="+{$.session.user_id}, idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, 
+	if (user == "")
+		window.location.replace("{$.const.LOGOUT_LNK}");
+		
+	$("#user_role_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_role')}?identify=1&filter="+user, idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, });
+	$("#user_org_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_org')}?identify=1&filter="+user, idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, 
 		onSelect: function(rowData){
-			$("#user_orgtrx_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_orgtrx')}?identify=1&filter=user_id="+{$.session.user_id}+"&user_org_id="+rowData.id, idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, });
+			$("#user_orgtrx_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_orgtrx')}?identify=1&filter="+user+"&user_org_id="+rowData.id, idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, });
 		},
 	});
 	$("#user_orgtrx_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_orgtrx')}?identify=1&filter=user_id=0", idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, });
