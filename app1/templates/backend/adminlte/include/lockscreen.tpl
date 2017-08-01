@@ -78,8 +78,9 @@
 	form_lck.submit( function(e) {
 		e.preventDefault();
 		
-		$.ajax({ url: "{$.const.AUTH_LNK}?unlock=1", method: "GET", async: true, dataType: 'json',
+		$.ajax({ url: "{$.const.AUTH_LNK}", method: "UNLOCK", async: true, dataType: 'json',
 			headers: { "X-AUTH": "Basic " + btoa(form_lck.find("input[name='name']").val() + ":" + form_lck.find("input[name='password']").val())	},
+			data: JSON.stringify({ "unlock":1 }),
 			beforeSend: function(xhr) {	form_lck.find('[type="submit"]').attr("disabled", "disabled"); },
 			complete: function(xhr, data) {
 				setTimeout(function(){ form_lck.find('[type="submit"]').removeAttr("disabled");	},1000);

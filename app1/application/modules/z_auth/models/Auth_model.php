@@ -416,6 +416,18 @@ class Auth_model extends CI_Model
 		return $user;
 	}
 
+	public function forgotten_password_remove($id)
+	{
+		$update = array(
+		    'forgotten_password_code' => null,
+		    'forgotten_password_time' => null
+		);
+
+		$this->db->update($this->tables['users'], $update, array('id' => $id));
+
+		return $this->db->affected_rows() == 1;
+	}
+
 	/**
 	 * reset password
 	 *

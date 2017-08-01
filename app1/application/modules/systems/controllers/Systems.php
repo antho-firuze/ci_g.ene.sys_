@@ -6,7 +6,7 @@ class Systems extends Getmeb
 {
 	function __construct() {
 		/* Exeption list methods is not required login */
-		$this->exception_method = ['x_auth','x_forgot','x_login','x_logout','x_reload','a_org_parent_list','a_menu_parent_list','','x_page','x_logout','x_role_selector'];
+		$this->exception_method = ['x_forgot','x_reset','x_login','x_logout','x_reload','x_page','x_role_selector','a_menu_parent_list'];
 		parent::__construct();
 		
 	}
@@ -74,10 +74,32 @@ class Systems extends Getmeb
 		}
 	}
 	
+	function x_forgot()
+	{
+		$this->single_view('pages/systems/auth/forgot');
+	}
+	
+	function x_reset()
+	{
+		$this->load->library('z_auth/auth');
+		
+		/* This line for validating forgot code */
+		if (isset($this->params['code']) && $this->params['code']) {
+			/* Checking forgotten code */
+			if (($user = $this->auth->forgotten_password_complete($this->params['code'])) === FALSE ) {
+				$this->session->set_flashdata('message', '<b>'.$this->auth->errors().'</b>');
+				redirect(BASE_URL.'frontend/not_found');
+			}
+			
+			/* Goto reset page */
+			$this->single_view('pages/systems/auth/reset', is_array($user) ? $user : (array)$user);
+		}
+	}
+	
 	function x_auth()
 	{
 		$this->load->library('z_auth/auth');
-
+		
 		/* This line for processing forgot password */
 		if (isset($this->params['forgot']) && $this->params['forgot']) {
 			//run the forgotten password method to email an activation code to the user
@@ -88,38 +110,33 @@ class Systems extends Getmeb
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
 			
-			/* Trapping user_agent, ip address & status */
-			$this->{$this->mdl}->_save_useragent($this->params['email'], 'Forgot Password Success');
-		
 			/* Trying to sending email */
-			$message = AUTH_LNK."?code=".$user->forgotten_password_code;
-			if(! send_mail(NULL, $user->email, 'Your Reset Password Link', $message)) {
+			$body = "Hai ".$user->name.", <br><br>";
+			$body .= "This is your Reset Password Link Address : <br><br>".RESET_LNK."?code=".$user->forgotten_password_code."<br><br>";
+			$body .= "Please click link above for reset your password.<br><br>";
+			$body .= "Warning: This link is valid about 1 hour, start from your received this email, and can be use only one time.<br><br>";
+			$body .= "Thank you,<br><br>";
+			$body .= "System.";
+			$message = $body;
+			if($result = send_mail_systems(NULL, $user->email, 'Your Reset Password Link', $message) !== TRUE) {
+				$this->{$this->mdl}->_save_useragent($this->params['email'], 'Forgot Password: Reset Link failed delivered !', $this->session->flashdata('message'));
 				$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')], 401);
 			}
 			
+			/* Trapping user_agent, ip address & status */
+			$this->{$this->mdl}->_save_useragent($this->params['email'], 'Forgot Password: Reset Link succeeded delivered !');
+		
 			/* success */
 			$this->xresponse(TRUE, ['message' => 'The link for reset your password has been sent to your email.']);
 		}
 		
-		/* This line for validating forgot code */
-		if (isset($this->params['code']) && $this->params['code']) {
-			/* Checking forgotten code */
-			if (($user = $this->auth->forgotten_password_complete($this->params['code'])) === FALSE ) {
-				$this->session->set_flashdata('message', '<b>'.$this->auth->errors().'</b>');
-				redirect(BASE_URL.'frontend/not_found');
-			}
-			
-			/* Marking the session for resetting password  */
-			$this->session->set_userdata(['allow-reset' => true]);
-			
-			/* Goto reset page */
-			$this->single_view('pages/systems/auth/reset', is_array($user) ? $user : (array)$user);
-		}
-		
 		/* This line for processing reset password */
 		if (isset($this->params['reset']) && $this->params['reset']) {
-			if (!$this->session->userdata('allow-reset'))
-				$this->x_login();
+			
+			/* Check code for expiration */
+			if (($user = $this->auth->forgotten_password_complete($this->params['code'])) === FALSE ) {
+				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+			}
 			
 			$http_auth = $this->input->server('HTTP_X_AUTH');
 			if ($http_auth !== NULL)
@@ -138,16 +155,17 @@ class Systems extends Getmeb
 				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
 			
-			/* Unset session allow-reset */
-			$this->session->unset_userdata('allow-reset');
-
+			/* Remove forgotten_password_code & forgotten_password_time */
+			$this->auth->forgotten_password_remove($user_id);
+			
 			/* Trapping user_agent, ip address & status */
 			$this->{$this->mdl}->_save_useragent($username, 'Reset Password Success');
 		
 			/* Store configuration to session */
 			$this->{$this->mdl}->_store_config($user_id);
 			
-			$this->xresponse(TRUE, ['message' => $this->auth->messages()]);
+			$url = APPS_LNK;
+			$this->xresponse(TRUE, ['message' => $this->auth->messages(), 'url' => $url]);
 		}
 		
 		/* This line for authentication login page */
@@ -182,7 +200,9 @@ class Systems extends Getmeb
 			/* Store configuration to session */
 			$this->{$this->mdl}->_store_config($user_id);
 			
-			$this->xresponse(TRUE, ['message' => 'Login Success !']);
+			$url = $this->session->referred_index == $this->params['current_url'] ? APPS_LNK : $this->session->referred_index;
+			$url = $url ? $url : APPS_LNK;
+			$this->xresponse(TRUE, ['message' => 'Login Success !', 'url' => $url]);
 		}
 
 		/* This line for unlock the screen */
@@ -452,11 +472,6 @@ class Systems extends Getmeb
 			$this->backend_view($menu['path'].$menu['method'], $menu);
 		}
 		$this->backend_view('pages/404', ['message'=>'']);
-	}
-	
-	function x_forgot()
-	{
-		$this->single_view('pages/systems/auth/forgot');
 	}
 	
 	function a_loginattempt()

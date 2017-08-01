@@ -105,24 +105,39 @@ class Getmeb extends CI_Controller
 			// $this->_check_is_allow_inrole('canexport');
 		// }
 		
-		/* This process is running before checking request method */
-		$this->_check_is_login();
-		/* This Request for GETTING/VIEWING Data */
+		/* This method for Login, unlock screen */
+		if (in_array($this->r_method, ['UNLOCK', 'LOCK'])) {
+			/* Become Object */
+			$this->params = json_decode($this->input->raw_input_stream);
+			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
+			$this->params = (array)$this->params;
+		} 
+		
+		/* This method for Selection Role Window */
+		if (in_array($this->r_method, ['PATCH'])) {
+			/* Become Object */
+			$this->params = json_decode($this->input->raw_input_stream);
+			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
+		}
+		
+		/* This method for GETTING/VIEWING Data & Document */
 		if (in_array($this->r_method, ['GET'])) {
 			
 			/* Become Array */
 			$this->params = $this->input->get();
 			
+			/* This process is for bypass methods which do not need to login */
+			if (count($this->exception_method) > 0){
+				if (! in_array($this->c_method, $this->exception_method)){
+					$this->_check_is_allow();
+				}
+			}
+		
 			/* Parsing pageid */
 			if (isset($this->params['pageid'])) {
 				$this->pageid = @end(explode(',', $this->params['pageid']));
 				// $this->pageid = explode(',', $this->params['pageid']);
 				// $this->pageid = end($this->pageid);
-			}
-			
-			if (! isset($this->params['identify'])) {
-				/* Must be checking permission before next process */
-				$this->_check_is_allow();
 			}
 			
 			/* Request for viewlog */
@@ -264,12 +279,6 @@ class Getmeb extends CI_Controller
 				$this->_pre_export_data();
 			}
 		}
-		/* This Request special for Selection Role Window */
-		if (in_array($this->r_method, ['PATCH'])) {
-			/* Become Object */
-			$this->params = json_decode($this->input->raw_input_stream);
-			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
-		}
 	}
 	
 	/* This procedure is for cleaning a tmp file & tmp_tables */
@@ -348,20 +357,13 @@ class Getmeb extends CI_Controller
 	
 	function _check_is_login()
 	{
-		/* This process is for bypass methods which do not need to login */
-		if (count($this->exception_method) > 0){
-			if (in_array($this->c_method, $this->exception_method)){
-				return TRUE;
-			}
-		}
-		
 		/* Check the session data for user_id */
-		if (!$this->session->userdata('user_id')) {
+		if (! $this->session->userdata('user_id')) {
 			/* set reference url to session */
 			setURL_Index();
 			/* forward to login page */
-			// $this->x_login();
-			redirect(LOGIN_LNK);
+			$this->x_login();
+			// redirect(LOGIN_LNK);
 			exit();
 		}
 		return TRUE;
@@ -372,6 +374,8 @@ class Getmeb extends CI_Controller
 		/* Trick for transition after login, which calling class "systems" without method. */
 		if (! $this->c_method)
 			return array();
+		
+		$this->_check_is_login();
 		
 		/* Check menu existance on the table a_menu */
 		if ($this->pageid)
@@ -388,6 +392,10 @@ class Getmeb extends CI_Controller
 				$this->backend_view('pages/404', ['message' => 'Menu not found !']);
 			}
 		}
+		
+		/* This params for x_role_selection */
+		if (in_array('identify', (array)$this->params))
+			return TRUE;
 		
 		// debug($this->session->role_id);
 		if (! $this->session->role_id)

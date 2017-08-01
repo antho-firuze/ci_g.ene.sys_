@@ -33,7 +33,8 @@
 <script src="{$.const.TEMPLATE_URL}plugins/pace/pace.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/iCheck/icheck.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-dialog/js/bootstrap-dialog.min.js"></script>
-<script src="{$.const.ASSET_URL}js/window_edit.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
+{* <script src="{$.const.ASSET_URL}js/window_edit.js"></script> *}
 
 </head>
 <body class="hold-transition login-page">
@@ -44,7 +45,7 @@
   </div>
   <!-- /.login-logo -->
   <div class="login-box-body">
-    <p class="login-box-msg">Reset your password</p>
+    <p class="login-box-msg">Reset your password here</p>
 
     <form>
       <div class="form-group has-feedback">
@@ -105,21 +106,23 @@
 </div>
 
 <script>
-	var form = $("form");
+	var form = $("form"), $code = getURLParameter("code");
 	$(document).ajaxStart(function() { Pace.restart(); });
 	
 	form.validator().on('submit', function(e) {
 		if (e.isDefaultPrevented()) { return false;	} 
 		
-		$.ajax({ url:"{$.const.AUTH_LNK}?reset=1", method:"GET", async:true, dataType:'json',
+		$.ajax({ url:"{$.const.AUTH_LNK}", method:"UNLOCK", async:true, dataType:'json',
 			headers: { "X-AUTH": "Basic " + btoa($("[name='username']").val() + ":" + $("[name='password']").val()) },
+			data: JSON.stringify({ "reset":1, "code":$code }),
 			beforeSend: function(xhr) { form.find('[type="submit"]').attr("disabled", "disabled"); },
 			complete: function(xhr, data) {	setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled");	},1000); },
 			success: function(data) {
 				if (data.status) {
 					store('lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}', 0);
 					BootstrapDialog.alert(data.message, function(){
-						window.location.replace("{$.const.APPS_LNK}");
+						window.location.replace(data.url);
+						{* window.location.replace("{$.const.APPS_LNK}"); *}
 					});
 				}
 			},
@@ -131,7 +134,15 @@
 					var message = error.message;
 				}
 				setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled"); },1000);
-				BootstrapDialog.alert({ type:'modal-danger', title:'Error ('+data.status+') :', message:message });
+				BootstrapDialog.show({ message:message, closable: false, type:'modal-danger', title:'Notification', 
+					buttons: [{ label: 'OK', hotkey: 13, 
+						action: function(dialogRef) {
+							dialogRef.close();
+							window.location.replace("{$.const.LOGIN_LNK}");
+						} 
+					}],
+				});
+				{* BootstrapDialog.alert({ type:'modal-danger', title:'Error ('+data.status+') :', message:message }); *}
 			}
 		});
 		

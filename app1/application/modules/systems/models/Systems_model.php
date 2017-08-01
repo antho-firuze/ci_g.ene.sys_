@@ -18,7 +18,7 @@ class Systems_Model extends CI_model
 		return call_user_func_array( array($this, $method), $arguments);
 	} */
 	
-	function _save_useragent($account, $status = 'Login Success')
+	function _save_useragent($account, $status = 'Login Success', $desc = null)
 	{
 		/* Check is account as user_name */
 		$query = $this->db->get_where('a_user', ['name' => $account], 1);
@@ -36,6 +36,7 @@ class Systems_Model extends CI_model
 		$data['user_id'] = $user_id;
 		$data['created_at'] = date('Y-m-d H:i:s');
 		$data['status'] = $status;
+		$data['description'] = $desc;
 
 		$data['ip_address'] = $_SERVER['REMOTE_ADDR'];
 		if (! in_array($data['ip_address'], ['::1','127.0.0.1']) && ! is_private_ip($data['ip_address'])) {

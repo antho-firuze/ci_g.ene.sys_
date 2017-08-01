@@ -108,32 +108,37 @@
 		e.preventDefault();
 		var rememberme = $("[name='remember']").prop('checked') ? 1 : 0;
 		
-		form.find('[type="submit"]').attr("disabled", "disabled");
+		{* form.find('[type="submit"]').attr("disabled", "disabled"); *}
 		
-		$.ajax({ url:"{$.const.AUTH_LNK}?login=1", method:"GET", async:true, dataType:'json',
+		$.ajax({ url:"{$.const.AUTH_LNK}", method:"UNLOCK", async:true, dataType:'json',
 			headers: { "X-AUTH": "Basic " + btoa($("[name='username']").val() + ":" + $("[name='password']").val()) },
-			data: { "rememberme":rememberme },
-			{* beforeSend: function(xhr) { form.find('[type="submit"]').attr("disabled", "disabled"); }, *}
-			{* complete: function(xhr, data) {	setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled");	},1000); }, *}
+			data: JSON.stringify({ "login":1, "rememberme":rememberme, "current_url":window.location.href }),
+			beforeSend: function(xhr) { form.find('[type="submit"]').attr("disabled", "disabled"); },
 			success: function(data) {
 				{* alert("Login success !"); *}
 				if (data.status) {
 					store('lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}', 0);
-					var url = "{$.session.referred_index !: $.const.APPS_LNK}" == window.location.href ? "{$.const.APPS_LNK}" : "{$.session.referred_index}";
-					window.location.replace(url);
-					{* window.location = url; *}
+					window.location.replace(data.url);
+					{* window.location = data.url; *}
 				}
 			},
 			error: function(data, status, errThrown) {
 				{* alert("Login error !"); *}
-				setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled"); },1000);
 				if (data.status==500){
 					var message = data.statusText;
 				} else {
 					var error = JSON.parse(data.responseText);
 					var message = error.message;
 				}
-				BootstrapDialog.alert({ type:'modal-danger', title:'Error ('+data.status+') :', message:message });
+				setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled"); },1000);
+				BootstrapDialog.show({ message:message, closable: false, type:'modal-danger', title:'Notification', 
+					buttons: [{ label: 'OK', hotkey: 13, 
+						action: function(dialogRef) {
+							dialogRef.close();
+						} 
+					}],
+				});
+				{* BootstrapDialog.alert({ type:'modal-danger', title:'Error ('+data.status+') :', message:message }); *}
 			}
 		});
 	}); 

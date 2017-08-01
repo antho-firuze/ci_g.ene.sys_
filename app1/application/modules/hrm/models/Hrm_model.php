@@ -13,7 +13,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -21,7 +20,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -29,7 +27,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -37,7 +34,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -45,7 +41,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -53,7 +48,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -61,7 +55,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -69,7 +62,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -77,7 +69,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -85,7 +76,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -93,7 +83,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -101,7 +90,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -109,7 +97,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -117,7 +104,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -125,7 +111,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -133,7 +118,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -141,7 +125,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -149,7 +132,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -157,7 +139,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -165,7 +146,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -173,7 +153,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -181,7 +160,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -189,7 +167,6 @@ class Hrm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -199,7 +176,6 @@ class Hrm_Model extends CI_Model
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1)
 			$params['join'][] = ['hr_personnel as t2', 't1.personnel_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -209,7 +185,6 @@ class Hrm_Model extends CI_Model
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1)
 			$params['join'][] = ['hr_personnel as t2', 't1.personnel_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -219,7 +194,6 @@ class Hrm_Model extends CI_Model
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1)
 			$params['join'][] = ['hr_personnel as t2', 't1.personnel_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -229,7 +203,6 @@ class Hrm_Model extends CI_Model
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1)
 			$params['join'][] = ['hr_personnel as t2', 't1.personnel_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -239,7 +212,6 @@ class Hrm_Model extends CI_Model
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1)
 			$params['join'][] = ['hr_personnel as t2', 't1.personnel_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -249,7 +221,6 @@ class Hrm_Model extends CI_Model
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1)
 			$params['join'][] = ['hr_personnel as t2', 't1.personnel_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -259,7 +230,6 @@ class Hrm_Model extends CI_Model
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1)
 			$params['join'][] = ['hr_personnel as t2', 't1.personnel_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -269,7 +239,6 @@ class Hrm_Model extends CI_Model
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1)
 			$params['join'][] = ['hr_personnel as t2', 't1.personnel_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -279,7 +248,6 @@ class Hrm_Model extends CI_Model
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1)
 			$params['join'][] = ['hr_personnel as t2', 't1.personnel_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -289,7 +257,6 @@ class Hrm_Model extends CI_Model
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1)
 			$params['join'][] = ['hr_personnel as t2', 't1.personnel_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -299,7 +266,6 @@ class Hrm_Model extends CI_Model
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1)
 			$params['join'][] = ['hr_personnel as t2', 't1.personnel_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -309,7 +275,6 @@ class Hrm_Model extends CI_Model
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1)
 			$params['join'][] = ['hr_personnel as t2', 't1.personnel_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -319,7 +284,6 @@ class Hrm_Model extends CI_Model
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1)
 			$params['join'][] = ['hr_personnel as t2', 't1.personnel_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -329,7 +293,6 @@ class Hrm_Model extends CI_Model
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1)
 			$params['join'][] = ['hr_personnel as t2', 't1.personnel_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	

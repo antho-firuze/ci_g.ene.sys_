@@ -96,8 +96,8 @@
 	form.submit( function(e) {
 		e.preventDefault();
 		
-		$.ajax({ url:"{$.const.AUTH_LNK}?forgot=1", method:"GET", async:true, dataType:'json',
-			data: { "email":$("[name='email']").val() },
+		$.ajax({ url:"{$.const.AUTH_LNK}", method:"UNLOCK", async:true, dataType:'json',
+			data: JSON.stringify({ "forgot":1, "email":$("[name='email']").val() }),
 			beforeSend: function(xhr) { form.find('[type="submit"]').attr("disabled", "disabled"); },
 			complete: function(xhr, data) {	setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled");	},1000); },
 			success: function(data) {

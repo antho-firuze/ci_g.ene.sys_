@@ -30,7 +30,7 @@ function setToolbarBtn(btnList)
 											'</div>'+
 										'</div>');
 	var buttons = {
-		"btn-new": 			{group:1, id:"btn-new", title:"New", bstyle:"btn-success", icon:"glyphicon glyphicon-plus"},
+		"btn-new": 			{group:1, id:"btn-new", title:"New (Press Insert)", bstyle:"btn-success", icon:"glyphicon glyphicon-plus"},
 		"btn-copy": 		{group:1, id:"btn-copy", title:"Copy", bstyle:"btn-success", icon:"glyphicon glyphicon-duplicate"},
 		"btn-refresh": 	{group:1, id:"btn-refresh", title:"Refresh", bstyle:"btn-success", icon:"glyphicon glyphicon-refresh"},
 		"btn-delete": 	{group:1, id:"btn-delete", title:"Batch Delete", bstyle:"btn-danger", icon:"glyphicon glyphicon-trash"},
@@ -523,4 +523,11 @@ $(window).on('hashchange', function(e){
 /* This class is for auto conversion from dmy to ymd */
 $(".auto_ymd").on('change', function(){
 	$('input[name="'+$(this).attr('id')+'"]').val( datetime_db_format($(this).val(), $(this).attr('data-format')) );
+});
+
+$(window).on('keyup', function(e){
+	/* Insert */
+	if (e.keyCode == 45) {
+		$("#btn-new").trigger('click');
+	}
 });

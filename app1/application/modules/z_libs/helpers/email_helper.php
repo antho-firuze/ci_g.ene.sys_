@@ -3,22 +3,20 @@
 // MAIL
 if ( ! function_exists('send_mail'))
 {
-	function send_mail( $email_from=NULL, $email_to=NULL, $subject=NULL, $message=NULL ) {
+	function send_mail_systems( $email_from=NULL, $email_to=NULL, $subject=NULL, $message=NULL ) {
 		$ci = get_instance();
 		
 		$ci->load->library('email');
 		$config = [];
-		$config = $ci->base_model->getValueArray('protocol, smtp_host, smtp_port, smtp_user, smtp_pass, smtp_timeout, charset, mailtype, priority', 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID]);
+		$config = $ci->base_model->getValueArray('head_title, protocol, smtp_host, smtp_port, smtp_user, smtp_pass, smtp_timeout, charset, mailtype, priority', 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID]);
 		$config['useragent'] = 'CodeIgniter';
 		$config['newline'] 	 = "\r\n";
 		$ci->email->initialize($config);
 
 		$ci->email->clear();
 		
-		$email_from = $email_from ? $email_from : [$config['smtp_user'], '[SYSTEM APPS]'];
-		$ci->email->from($email_from);
+		$ci->email->from($email_from, $config['head_title']);
 		$ci->email->to($email_to); 
-		// $ci->email->bcc('hertanto@fajarbenua.co.id');
 		$ci->email->subject($subject);
 		$ci->email->message($message);	
 

@@ -77,6 +77,7 @@ define('SRCMENU_LNK', BASE_URL.'systems/x_srcmenu');
 define('PROFILE_LNK', BASE_URL.'systems/x_profile');
 define('RELOAD_LNK', BASE_URL.'systems/x_reload');
 define('FORGOT_LNK', BASE_URL.'systems/x_forgot');
+define('RESET_LNK', BASE_URL.'systems/x_reset');
 define('HOME_LNK', BASE_URL.'frontend');
 define('INFOLST_LNK', BASE_URL.'frontend/infolist');
 
