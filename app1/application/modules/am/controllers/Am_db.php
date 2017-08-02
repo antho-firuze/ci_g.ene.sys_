@@ -38,6 +38,7 @@ class Am_db extends CI_Controller {
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
 		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['day_before'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		return $fields;
 	}
 	

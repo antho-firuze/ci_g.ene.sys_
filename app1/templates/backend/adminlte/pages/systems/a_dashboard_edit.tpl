@@ -8,7 +8,7 @@
 <!-- /.content-wrapper -->
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $bread = {$.php.json_encode($bread)};
 	{* For design form interface *}
@@ -29,8 +29,53 @@
 	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Link", idname:"link", }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Query", idname:"query", }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Icon", idname:"icon", }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Color", idname:"color", }));
+	col.push(BSHelper.Combobox({ label:"Icon", idname:"icon", 
+		list:[
+			{ id:"ion ion-cube", name:"cube" },
+			{ id:"ion ion-document", name:"document" },
+			{ id:"ion ion-document-text", name:"document-text" },
+			{ id:"ion ion-person", name:"person" },
+			{ id:"ion ion-person-stalker", name:"person-stalker" },
+			{ id:"ion ion-leaf", name:"leaf" },
+			{ id:"ion ion-speedometer", name:"speedometer" },
+		] 
+	}));
+	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Icon", idname:"icon", })); *}
+	col.push(BSHelper.Combobox({ label:"Color", idname:"color", 
+		list:[
+			{ id:"bg-aqua", name:"aqua" },
+			{ id:"bg-aqua-active", name:"aqua-active" },
+			{ id:"bg-green", name:"green" },
+			{ id:"bg-green-active", name:"green-active" },
+			{ id:"bg-yellow", name:"yellow" },
+			{ id:"bg-yellow-active", name:"yellow-active" },
+			{ id:"bg-red", name:"red" },
+			{ id:"bg-red-active", name:"red-active" },
+			{ id:"bg-blue", name:"blue" },
+			{ id:"bg-blue-active", name:"blue-active" },
+			{ id:"bg-light-blue", name:"light-blue" },
+			{ id:"bg-light-blue-active", name:"light-blue-active" },
+			{* { id:"bg-navy", name:"navy" }, *}
+			{* { id:"bg-navy-active", name:"navy-active" }, *}
+			{* { id:"bg-teal", name:"teal" }, *}
+			{* { id:"bg-teal-active", name:"teal-active" }, *}
+			{* { id:"bg-olive", name:"olive" }, *}
+			{* { id:"bg-olive-active", name:"olive-active" }, *}
+			{* { id:"bg-lime", name:"lime" }, *}
+			{* { id:"bg-lime-active", name:"lime-active" }, *}
+			{* { id:"bg-orange", name:"orange" }, *}
+			{* { id:"bg-orange-active", name:"orange-active" }, *}
+			{* { id:"bg-fuchsia", name:"fuchsia" }, *}
+			{* { id:"bg-fuchsia-active", name:"fuchsia-active" }, *}
+			{* { id:"bg-purple", name:"purple" }, *}
+			{* { id:"bg-purple-active", name:"purple-active" }, *}
+			{* { id:"bg-maroon", name:"maroon" }, *}
+			{* { id:"bg-maroon-active", name:"maroon-active" }, *}
+			{* { id:"bg-black", name:"black" }, *}
+			{* { id:"bg-black-active", name:"black-active" }, *}
+		] 
+	}));
+	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Color", idname:"color", })); *}
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
 	form1.append(subRow(subCol()));
