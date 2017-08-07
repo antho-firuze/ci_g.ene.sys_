@@ -208,8 +208,27 @@
 						if (Object.keys(data).length > 0){ lookup(data) } 
 					});
 				}, 100);
+				
 			} else {
-				lookup(o.list);
+			
+				if (typeof(text) == 'string')
+					text = text.toUpperCase();
+				
+				var listArr1 = $.grep(o.list, function(val) {
+					if (typeof(val[o.idField]) == 'string')
+						return val[o.idField].toUpperCase().indexOf(text) >= 0;
+				 else
+						return val[o.idField] == text;
+				});
+				
+				var listArr2 = $.grep(o.list, function(val) {
+					if (typeof(val[o.textField]) == 'string')
+						return val[o.textField].toUpperCase().indexOf(text) >= 0;
+				 else
+						return val[o.textField] == text;
+				});
+				
+				lookup($.extend({}, listArr1, listArr2));
 			}
 		}
 	
