@@ -254,10 +254,18 @@ function initActionMenu(tableData1, dataTable1)
 				if (!confirm(lang_confirm_copy)) {
 					return false;
 				}
-				window.location.href = getURLOrigin()+window.location.search+"&action=cpy&id="+data.id;
+				/* BUG::Show the history double */
+				// window.location.href = getURLOrigin()+window.location.search+"&action=cpy&id="+data.id;
+				
+				/* Fix the history double issue */
+				window.location.replace(getURLOrigin()+window.location.search+"&action=cpy&id="+data.id);
 				break;
 			case 'edit':
-				window.location.href = getURLOrigin()+window.location.search+"&action=edt&id="+data.id;
+				/* BUG::Show the history double */
+				// window.location.href = getURLOrigin()+window.location.search+"&action=edt&id="+data.id;
+				
+				/* Fix the history double issue */
+				window.location.replace(getURLOrigin()+window.location.search+"&action=edt&id="+data.id);
 				break;
 			case 'delete':
 				if (!confirm(lang_confirm_delete)) {
@@ -299,7 +307,11 @@ function initActionMenu(tableData1, dataTable1)
 					$filter = '&filter='+$el.attr('data-subKey') + '=' + data.id;
 				}
 				var url = $BASE_URL+"systems/x_page"+$pageid+$filter;
-				window.location.href = url;
+				/* BUG::Show the history double */
+				// window.location.href = url;
+				
+				/* Fix the history double issue */
+				window.location.replace(url);
 				break;
 		}
 	}
@@ -383,7 +395,10 @@ function initCheckList(tableData1, dataTable1){
 /* ========================================= */
 // $( document ).ready(function() {
 	/* Start :: Init for Title, Breadcrumb */
-	$bread.unshift({ icon:"fa fa-dashboard", title:"Dashboard", link: "window.location.href = '"+$APPS_LNK+"'" });
+	// console.log($bread);
+	// console.log($bread.length);
+	$(document).prop('title', $HEAD_TITLE+' > '+$bread[$bread.length-1].title);
+	$bread.unshift({ icon:"fa fa-dashboard", title:"Dashboard", link: "window.location.replace('"+$APPS_LNK+"')" });
 	$(".content").before(BSHelper.PageHeader({ 
 		bc_list: $bread
 	}));
@@ -500,7 +515,7 @@ $('.toolbar_container').click('button', function(e){
 						});
 					}
 				}, {
-						label: 'Close',
+						label: 'Cancel',
 						action: function(dialog) { dialog.close(); }
 				}],
 				onshown: function(dialog) {
@@ -516,8 +531,13 @@ $('.toolbar_container').click('button', function(e){
 	}
 });
 
+/* Tricky for removing hash-tags(#), while any link added '#' to the URL. Ex: Calling BootstrapDialog, etc. */
 $(window).on('hashchange', function(e){
+	// console.log('hashchange');
+	// console.log(document.title);
+	// console.log(e.originalEvent.oldURL);
 	history.replaceState ("", document.title, e.originalEvent.oldURL);
+	window.history.back();
 });
 
 /* This class is for auto conversion from dmy to ymd */

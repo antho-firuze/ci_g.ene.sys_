@@ -22,7 +22,7 @@
 	
 	var SWContent = BSHelper.SmartWizard({
 		dataList: [
-			{	title:"Select & Upload File", idname:"step-1", content: function(){
+			{	title:"Select & Upload File", idname:"step-uploading", content: function(){
 				row = [];
 				col.push(BSHelper.Combobox({ label:"File Type", idname:"filetype", required: true, value: 'xls',
 					list:[
@@ -46,7 +46,28 @@
 				row.push(subCol(6, col)); col = [];
 				return subRow(row);
 			} },
-			{	title:"Mapping Fields", idname:"step-2", content: function(){
+			{	title:"Format Options", idname:"step-formatting", content: function(){
+				row = [];
+				{* Format options *}
+				col.push(BSHelper.Combobox({ label:"Date Order", idname:"date_order", required: true, value:"MDY", 
+					list:[
+						{ id:"MDY", name:"MDY" },
+						{ id:"DMY", name:"DMY" },
+						{ id:"YMD", name:"YMD" },
+						{ id:"YDM", name:"YDM" },
+						{ id:"DYM", name:"DYM" },
+						{ id:"MYD", name:"MYD" },
+					] 
+				}));
+				col.push(BSHelper.Input({ horz:false, type:"text", label:"Date Delimiter", idname:"date_delimiter", required: true, value:"/" }));
+				col.push(BSHelper.Input({ horz:false, type:"text", label:"Time Delimiter", idname:"time_delimiter", required: true, value:":" }));
+				col.push(BSHelper.Input({ horz:false, type:"text", label:"Decimal Symbol", idname:"decimal_symbol", required: true, value:"." }));
+				col.push(BSHelper.Button({ type:"button", label:"Next", idname:"btn_next" }));
+				row.push(subCol(6, col)); col = [];
+				row.push(subCol(6, col)); col = [];
+				return subRow(row);
+			} },
+			{	title:"Mapping Fields", idname:"step-mapping-field", content: function(){
 				row = [];
 				col.push("Session Failed !<br><br>");
 				col.push(BSHelper.Button({ type:"button", label:"Reset Process", idname:"btn_reset" }));
@@ -54,7 +75,7 @@
 				row.push(subCol(6, col)); col = [];
 				return subRow(row);
 			} },
-			{	title:"Import Data", idname:"step-3", content: function(){
+			{	title:"Import Data", idname:"step-importing-data", content: function(){
 				row = [];
 				col.push("Session Failed !<br><br>");
 				col.push(BSHelper.Button({ type:"button", label:"Reset Process", idname:"btn_reset" }));
@@ -92,6 +113,7 @@
 		uploader.start();
 	});
 	
+	$("button[name='btn_next']").click(function(e){ $(".smartwizard").smartWizard("next"); });
 	$("button[name='btn_reset']").click(function(e){ $(".smartwizard").smartWizard("reset"); });
 	
 	
@@ -122,13 +144,13 @@
 				},
 				FileUploaded: function(up, file, info) {
 					var response = $.parseJSON(info.response);
-					{* console.log(response); *}
+					console.log(response);
 					if (response.status) { 
-						$("#filename").parent().find("small").html("File Uploaded !");
-						
-						set_field_sync(response.table_fields, response.tmp_fields);
+						$("#filename").parent().find("small").html(response.message);
 						
 						setTimeout(function(){
+							{* preparation for field mapping *}
+							set_mapping_field(response.table_fields, response.tmp_fields);
 							$("#btn_uploadfile").prop("disabled", true);
 							$(".smartwizard").smartWizard("next");
 							paceOptions = {	ajax: false	};
@@ -164,8 +186,8 @@
 		
 	});
 	
-	function set_field_sync(fields, tmp_fields){
-		var form2 = BSHelper.Form({ autocomplete:"off", idname:"form-2" });	
+	function set_mapping_field(fields, tmp_fields){
+		var form3 = BSHelper.Form({ autocomplete:"off", idname:"form-mapping-field" });	
 		var tmp_list = [];
 		$.each(tmp_fields, function(i, val){
 			tmp_list[i] = { id:val, name:val };
@@ -181,29 +203,29 @@
 		row.push(subRow()); col = [];
 		col.push(BSHelper.Button({ type:"submit", label:"Submit" }));
 		row.push(subCol(6, col)); col = [];
-		$("#step-2").empty();
-		$("#step-2").append(form2.append(subRow(row)));
+		$("#step-mapping-field").empty();
+		$("#step-mapping-field").append(form3.append(subRow(row)));
 		
-		form2.validator().on('submit', function(e) {
+		form3.validator().on('submit', function(e) {
 			if (e.isDefaultPrevented()) { return false;	} 
 			
 			$(".smartwizard").smartWizard("next");
-			set_step2();
+			set_final_step();
 			return false;
 		});
 	}
 	
-	function set_step2(){
+	function set_final_step(){
 		row = []; col = [];
 		col.push(BSHelper.Button({ type:"button", label:"Start Import", idname:"btn_startimport" }));
 		row.push(subCol(12, col)); col = [];
-		$("#step-3").empty();
-		$("#step-3").append(subRow(row));
+		$("#step-importing-data").empty();
+		$("#step-importing-data").append(subRow(row));
 		
 		$("#btn_startimport").click(function(e){
 			e.stopPropagation();
 			
-			var data = $("#form-2").serializeOBJ();
+			var data = $("#form-mapping-field").serializeOBJ();
 			data = { import:1, step:2, pageid:$pageid, filter:$filter, ob:$ob, filetype:$("#filetype").shollu_cb("getValue"), importtype:$("#importtype").shollu_cb("getValue"), fields:data };
 			
 			$(this).prop('disabled', true);
@@ -221,7 +243,7 @@
 							col.push("<br><br>");
 							col.push(BSHelper.Button({ type:"button", label:"Close", cls:"btn-danger", onclick:"window.history.back();" }));
 							row.push(subCol(12, col)); col = [];
-							$("#step-3").append(subRow(row).hide().fadeIn(1000));
+							$("#step-importing-data").append(subRow(row).hide().fadeIn(1000));
 							window.open(result.file_url);
 						}, 1000);
 					} else {

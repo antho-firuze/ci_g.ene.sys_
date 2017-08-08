@@ -48,11 +48,13 @@ $lang['error_wrong_file_xls']   = 'Error: Wrong file excel !. The fields is not 
 $lang['error_due_date']   		= 'Error: Due date is coincide with holidays. Please change the due date !';
 $lang['error_add_currency_rate'] = 'Error: This Currency has already exists on database. <br>Use Edit/Update for changing the Rates !';
 $lang['error_export_data']					= 'Export Data Failed !';
-$lang['error_import_data']					= 'Import Data Failed !';
 $lang['error_generate_img'] = 'Generate image failed !';
 $lang['error_upload'] = 'Upload %s failed !';
 $lang['error_permit_menu'] = 'You don\'t have permission to access this menu !';
 $lang['error_permit_crud'] = 'You don\'t have permission to do this action !';
+
+$lang['error_import_no_header']		= 'This data has no header !';
+$lang['error_import_data']				= 'Import Data Failed !';
 
 /* Notification: notif_ & success_  */
 $lang['notif_choose_record'] 		= 'Please chosed the record !';

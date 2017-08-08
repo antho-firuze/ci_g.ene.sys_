@@ -178,6 +178,16 @@ class Getmeb extends CI_Controller
 			/* Must be checking permission before next process */
 			$this->_check_is_allow();
 			
+			/* Request for import */
+			if (isset($this->params->import) && !empty($this->params->import)) {
+				
+				/* Trigger events before import */
+				$this->params->event = 'pre_import';
+				$this->{$this->c_method}();
+				
+				$this->_import_data();
+			}
+			
 			/* Mixing the Data */
 			$this->_pre_update_records();
 			
@@ -911,8 +921,9 @@ class Getmeb extends CI_Controller
 					$fields['status'] = ['type' => 'text', 'null' => TRUE];
 					$this->dbforge->add_field($fields);
 					if (! $result = $this->dbforge->create_table($tmp_table)){
-						$this->set_message('no_header_fields');
-						return FALSE;
+						// $this->set_message('no_header_fields');
+						// return FALSE;
+						$this->xresponse(FALSE, ['message' => $this->lang->line('error_import_no_header')], 401);
 					}
 					// debug($fields);
 				} else {
@@ -929,7 +940,8 @@ class Getmeb extends CI_Controller
 			/* Getting fields from tmp_table */
 			$tmp_fields = $this->db->list_fields($tmp_table);
 			$tmp_fields = array_diff($tmp_fields, ['tmp_id', 'status']);
-			return ['tmp_fields' => array_values($tmp_fields), 'table_fields' => $this->imported_fields];
+			// return ['tmp_fields' => array_values($tmp_fields), 'table_fields' => $this->imported_fields];
+			$this->xresponse(TRUE, ['message' => 'Uploading the file is succeeded !', 'tmp_fields' => array_values($tmp_fields), 'table_fields' => $this->imported_fields]);
 		}
 		
 		if (isset($this->params->step) && $this->params->step == '2') {

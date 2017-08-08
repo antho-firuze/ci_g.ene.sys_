@@ -15,6 +15,7 @@ var $id = getURLParameter("id"), $act = getURLParameter("action"), $filter = get
 /* ========================================= */
 // $( document ).ready(function() {
 	/* Start :: Init for Title, Breadcrumb */
+	$(document).prop('title', $HEAD_TITLE+' > '+$bread[$bread.length-1].title);
 	$bread.unshift({ icon:"fa fa-dashboard", title:"Dashboard", link: "window.location.href = '"+$APPS_LNK+"'" });
 	$(".content").before(BSHelper.PageHeader({ 
 		bc_list: $bread

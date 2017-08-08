@@ -41,6 +41,7 @@
 	var $BASE_URL = '{$.php.base_url()}';
 	var $APPS_LNK = '{$.const.APPS_LNK}';
 	var $TEMPLATE_URL = '{$.const.TEMPLATE_URL}';
+	var $HEAD_TITLE = '{$.session.head_title}';
 	{* Defined Language *}
 	var lang_confirm_delete = "{$.php.lang('confirm_delete')}";
 	var lang_confirm_copy = "{$.php.lang('confirm_copy')}";

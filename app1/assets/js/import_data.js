@@ -21,6 +21,7 @@ var id = getURLParameter("id"),
 
 // $( document ).ready(function() {
 	/* Start :: Init for Title, Breadcrumb */
+	$(document).prop('title', $HEAD_TITLE+' > '+$bread[$bread.length-1].title);
 	$(".content").before(BSHelper.PageHeader({ 
 		bc_list: $bread
 	}));

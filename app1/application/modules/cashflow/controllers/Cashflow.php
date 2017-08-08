@@ -56,6 +56,14 @@ class Cashflow extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
+		if ($this->r_method == 'POST') {
+			/* This POST Method is used for Import */
+			if ($this->params->event == 'pre_import'){
+				$this->identity_keys = ['doc_no'];
+				$this->imported_fields = ['org_id','orgtrx_id','department_id','description','is_receipt','doc_no','doc_date','doc_ref_no','doc_ref_date'];
+				$this->validations = ['org_id' => 'a_org', 'orgtrx_id' => 'a_org'];
+			}
+		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* Check duplicate doc_no */
 			if ($this->params->event == 'pre_post_put'){

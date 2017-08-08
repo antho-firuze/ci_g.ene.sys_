@@ -32,9 +32,9 @@
 			{ pageid: 123, subKey: 'ar_ap_id', title: 'Outflow Plan', },
 		],
 		columns: [
-			{ width:"100px", orderable:false, data:"department_name", title:"Department" },
 			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
+			{ width:"100px", orderable:false, data:"department_name", title:"Department" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_currency(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Total", render: function(data, type, row){ return format_currency(data); } },
