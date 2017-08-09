@@ -428,8 +428,18 @@ class Systems extends Getmeb
 
 					/* Last menu on bc */
 					if (count($menus) == $i+1) {
+						if (isset($this->params['action']) && $this->params['action'] == 'imp'){
+							$link = 'javascript:history.go(-'.(count($menus)-$i).')';
+							$title = $menus[$i]->title;
+							$bc[] = ['pageid' => $menus[$i]->id, 'icon' => $menus[$i]->icon, 'title' => $title, 'title_desc' => $menus[$i]->title_desc, 'link' => $link];
+						}
+						if (isset($this->params['action']) && $this->params['action'] == 'exp'){
+							$link = 'javascript:history.go(-'.(count($menus)-$i).')';
+							$title = $menus[$i]->title;
+							$bc[] = ['pageid' => $menus[$i]->id, 'icon' => $menus[$i]->icon, 'title' => $title, 'title_desc' => $menus[$i]->title_desc, 'link' => $link];
+						}
 						$link = ''; 
-						$actions = ['new'=>'(New)', 'edt'=>'(Edit)', 'cpy'=>'(Copy)'];
+						$actions = ['new'=>'(New)', 'edt'=>'(Edit)', 'cpy'=>'(Copy)', 'imp'=>'(Import)', 'exp'=>'(Export)'];
 						$act_name = isset($this->params['action']) && isset($actions[$this->params['action']]) ? ' '.$actions[$this->params['action']] : '';
 						$title = $menus[$i]->title.$act_name;
 					}
@@ -908,6 +918,24 @@ class Systems extends Getmeb
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST')) {
+			if ($this->params->event == 'pre_post'){
+				if (isset($this->params->send_mail_test) && !empty($this->params->send_mail_test)) {
+					/* Trying to sending email */
+					$body = "Hai ".$this->session->user_name.", <br><br>";
+					$body .= "This is Email Testing from ".$this->session->head_title.".<br><br><br>";
+					$body .= "Please do not reply this email.<br><br>";
+					$body .= "Thank you,<br>";
+					$body .= "Your's Systems.";
+					$message = $body;
+					if($result = send_mail_systems(NULL, $this->session->user_email, 'Email Testing From '.$this->session->head_title, $message) !== TRUE) {
+						$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')], 401);
+					}
+					/* success */
+					$this->xresponse(TRUE, ['message' => 'Testing Mail has been sent to your email address.']);
+				}
 			}
 		}
 	}

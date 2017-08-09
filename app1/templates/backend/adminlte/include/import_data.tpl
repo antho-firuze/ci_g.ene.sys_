@@ -26,8 +26,9 @@
 				row = [];
 				col.push(BSHelper.Combobox({ label:"File Type", idname:"filetype", required: true, value: 'xls',
 					list:[
-						{ id:"xls", name:"Excel File (.xls)" },
-						{ id:"csv", name:"Comma Separated Values File (.csv)" },
+						{ id:"xls", name:"Excel 97-2003 Workbook (*.xls)" },
+						{ id:"xlsx", name:"Excel 2007-newer Workbook (*.xlsx)" },
+						{ id:"csv", name:"Comma Separated Values File (*.csv)" },
 					] 
 				}));
 				col.push(BSHelper.Combobox({ label:"Import Type", idname:"importtype", required: true, value: 'insert',
@@ -40,7 +41,7 @@
 				col.push(BSHelper.Button({ type:"button", label:"Select File", idname:"btn_selectfile" }));
 				col.push("&nbsp;&nbsp;");
 				col.push(BSHelper.Button({ type:"button", label:"Upload File", idname:"btn_uploadfile" }));
-				col.push("<br><br>");
+				col.push("&nbsp;&nbsp;");
 				col.push(BSHelper.Button({ type:"button", label:"Cancel", cls:"btn-danger", onclick:"window.history.back();" }));
 				row.push(subCol(6, col)); col = [];
 				row.push(subCol(6, col)); col = [];
@@ -49,19 +50,22 @@
 			{	title:"Format Options", idname:"step-formatting", content: function(){
 				row = [];
 				{* Format options *}
-				col.push(BSHelper.Combobox({ label:"Date Order", idname:"date_order", required: true, value:"MDY", 
+				col.push(BSHelper.Combobox({ label:"Date Format", idname:"date_format", required: true, value:"yyyy-mm-dd", 
 					list:[
-						{ id:"MDY", name:"MDY" },
-						{ id:"DMY", name:"DMY" },
-						{ id:"YMD", name:"YMD" },
-						{ id:"YDM", name:"YDM" },
-						{ id:"DYM", name:"DYM" },
-						{ id:"MYD", name:"MYD" },
+						{ id:"yyyy-mm-dd", name:"yyyy-mm-dd" },
+						{ id:"dd/mm/yyyy", name:"dd/mm/yyyy" },
+						{ id:"mm/dd/yyyy", name:"mm/dd/yyyy" },
+						{ id:"dd-mm-yyyy", name:"dd-mm-yyyy" },
+						{ id:"mm-dd-yyyy", name:"mm-dd-yyyy" },
+						{ id:"dd/mm/yyyy hh:mm", name:"dd/mm/yyyy hh:mm" },
+						{ id:"mm/dd/yyyy hh:mm", name:"mm/dd/yyyy hh:mm" },
+						{ id:"dd-mm-yyyy hh:mm", name:"dd-mm-yyyy hh:mm" },
+						{ id:"mm-dd-yyyy hh:mm", name:"mm-dd-yyyy hh:mm" },
 					] 
 				}));
-				col.push(BSHelper.Input({ horz:false, type:"text", label:"Date Delimiter", idname:"date_delimiter", required: true, value:"/" }));
-				col.push(BSHelper.Input({ horz:false, type:"text", label:"Time Delimiter", idname:"time_delimiter", required: true, value:":" }));
-				col.push(BSHelper.Input({ horz:false, type:"text", label:"Decimal Symbol", idname:"decimal_symbol", required: true, value:"." }));
+				{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Date Delimiter", idname:"date_delimiter", required: true, value:"/" })); *}
+				{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Time Delimiter", idname:"time_delimiter", required: true, value:":" })); *}
+				{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Decimal Symbol", idname:"decimal_symbol", required: true, value:"." })); *}
 				col.push(BSHelper.Button({ type:"button", label:"Next", idname:"btn_next" }));
 				row.push(subCol(6, col)); col = [];
 				row.push(subCol(6, col)); col = [];
@@ -77,8 +81,7 @@
 			} },
 			{	title:"Import Data", idname:"step-importing-data", content: function(){
 				row = [];
-				col.push("Session Failed !<br><br>");
-				col.push(BSHelper.Button({ type:"button", label:"Reset Process", idname:"btn_reset" }));
+				col.push(BSHelper.Button({ type:"button", label:"Start Import", idname:"btn_startimport" }));
 				row.push(subCol(6, col)); col = [];
 				row.push(subCol(6, col)); col = [];
 				return subRow(row);
@@ -93,6 +96,8 @@
 		onSelect: function(rowData){
 			if (rowData.id == 'xls')
 				filetype = [{ title:"Excel files", extensions:"xls" }];
+			else if (rowData.id == 'xlsx')
+				filetype = [{ title:"Excel files", extensions:"xlsx" }];
 			else
 				filetype = [{ title:"CSV files", extensions:"csv" }];
 			
@@ -108,8 +113,8 @@
 		}
 			
 		console.log('Uploading the file...');
-		paceOptions = {	ajax: true };
-		Pace.restart();
+		{* For manually pace start *}
+		Pace.stop(); Pace.bar.render();
 		uploader.start();
 	});
 	
@@ -130,7 +135,9 @@
 			uploader.destroy();
 		} 
 		
-		uploader = new plupload.Uploader({ url: $url_module, runtimes:"html5",
+		{* uploader = new plupload.Uploader({ url: "{$.php.base_url()}test/upload_file", runtimes:"html5", chunk_size : "50000", *}
+		uploader = new plupload.Uploader({ url: $url_module, runtimes:"html5", 
+			chunk_size : "50kb",
 			filters: { max_file_size: "{$.session.max_file_upload}", mime_types: filetype },
 			browse_button: "btn_selectfile", 
 			multi_selection: false,
@@ -148,19 +155,31 @@
 					if (response.status) { 
 						$("#filename").parent().find("small").html(response.message);
 						
+						Pace.bar.update(100); 
 						setTimeout(function(){
 							{* preparation for field mapping *}
 							set_mapping_field(response.table_fields, response.tmp_fields);
+							$("#filetype").shollu_cb("disable", true);
+							$("#btn_selectfile").prop("disabled", true);
 							$("#btn_uploadfile").prop("disabled", true);
 							$(".smartwizard").smartWizard("next");
-							paceOptions = {	ajax: false	};
+							Pace.stop();
 						}, 500);
 					} else {
 						BootstrapDialog.alert(response.message);
+						restart_plupload();
+						$(".smartwizard").smartWizard("reset");
 					}
+				},
+				UploadProgress: function(up, file) {
+					if (file.percent == 100)
+						file.percent = 97;
+					Pace.bar.update(file.percent); 
 				},
 				Error: function(up, err) {
 					console.log('Plupload Error');
+					restart_plupload();
+					Pace.stop();
 					$(".smartwizard").smartWizard("reset");
 					document.getElementById('console').appendChild(document.createTextNode("\nError #" + err.code + ": " + err.message));
 				}
@@ -201,7 +220,7 @@
 			}
 		});
 		row.push(subRow()); col = [];
-		col.push(BSHelper.Button({ type:"submit", label:"Submit" }));
+		col.push(BSHelper.Button({ type:"submit", label:"Next" }));
 		row.push(subCol(6, col)); col = [];
 		$("#step-mapping-field").empty();
 		$("#step-mapping-field").append(form3.append(subRow(row)));
@@ -210,62 +229,58 @@
 			if (e.isDefaultPrevented()) { return false;	} 
 			
 			$(".smartwizard").smartWizard("next");
-			set_final_step();
 			return false;
 		});
 	}
 	
-	function set_final_step(){
-		row = []; col = [];
-		col.push(BSHelper.Button({ type:"button", label:"Start Import", idname:"btn_startimport" }));
-		row.push(subCol(12, col)); col = [];
-		$("#step-importing-data").empty();
-		$("#step-importing-data").append(subRow(row));
+	$("#btn_startimport").click(function(e){
+		e.stopPropagation();
 		
-		$("#btn_startimport").click(function(e){
-			e.stopPropagation();
-			
-			var data = $("#form-mapping-field").serializeOBJ();
-			data = { import:1, step:2, pageid:$pageid, filter:$filter, ob:$ob, filetype:$("#filetype").shollu_cb("getValue"), importtype:$("#importtype").shollu_cb("getValue"), fields:data };
-			
-			$(this).prop('disabled', true);
-			
-			console.log('Importing on progress...');
-			paceOptions = {	ajax: true };
-			Pace.restart();
-			
-			$.ajax({ url: $url_module, method: "POST", data: data, 
-				success: function(result){ 
-					if (result.status) {
-						setTimeout(function(){
-							col.push("<br><br>");
-							col.push(result.message);
-							col.push("<br><br>");
-							col.push(BSHelper.Button({ type:"button", label:"Close", cls:"btn-danger", onclick:"window.history.back();" }));
-							row.push(subCol(12, col)); col = [];
-							$("#step-importing-data").append(subRow(row).hide().fadeIn(1000));
-							window.open(result.file_url);
-						}, 1000);
-					} else {
-						BootstrapDialog.alert(result.message);
-						$(this).prop('disabled', false);
-					}
-				},
-				error: function(data) {
-					if (data.status==500){
-						var message = data.statusText;
-					} else {
-						var error = JSON.parse(data.responseText);
-						var message = error.message;
-					}
+		var data = $("#form-mapping-field").serializeOBJ();
+		data = { 
+			import:1, step:2, pageid:$pageid, filter:$filter, ob:$ob, 
+			filetype: $("#filetype").shollu_cb("getValue"), 
+			importtype: $("#importtype").shollu_cb("getValue"), 
+			date_format: $("#date_format").shollu_cb("getValue"),
+			fields:data };
+		
+		$(this).prop('disabled', true);
+		
+		console.log('Importing on progress...');
+		paceOptions = {	ajax: true };
+		Pace.restart();
+		
+		$.ajax({ url: $url_module, method: "POST", data: data, 
+			success: function(result){ 
+				if (result.status) {
+					setTimeout(function(){
+						col.push("<br><br>");
+						col.push(result.message);
+						col.push("<br><br>");
+						col.push(BSHelper.Button({ type:"button", label:"Close", cls:"btn-danger", onclick:"window.history.back();" }));
+						row.push(subCol(12, col)); col = [];
+						$("#step-importing-data").append(subRow(row).hide().fadeIn(1000));
+						window.open(result.file_url);
+					}, 1000);
+				} else {
+					BootstrapDialog.alert(result.message);
 					$(this).prop('disabled', false);
-					BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
 				}
-			});
-			paceOptions = {	ajax: false };
-
+			},
+			error: function(data) {
+				if (data.status==500){
+					var message = data.statusText;
+				} else {
+					var error = JSON.parse(data.responseText);
+					var message = error.message;
+				}
+				$(this).prop('disabled', false);
+				BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+			}
 		});
-	}
+		paceOptions = {	ajax: false };
+
+	});
 	
 </script>
 <script src="{$.const.TEMPLATE_URL}plugins/SmartWizard/js/jquery.smartWizard.min.js"></script>

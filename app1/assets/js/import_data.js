@@ -13,7 +13,7 @@ var id = getURLParameter("id"),
 	$filter = getURLParameter("filter"),
 	$ob = getURLParameter("ob"),
 	act = getURLParameter("action"),
-	act_name = "(Import Data...)";
+	act_name = "(Importing Data To Database)";
 /* 
 /* ========================================= */
 /* Default init for Header									 */
@@ -21,7 +21,10 @@ var id = getURLParameter("id"),
 
 // $( document ).ready(function() {
 	/* Start :: Init for Title, Breadcrumb */
+	// console.log($bread);
+	// console.log($bread.length);
 	$(document).prop('title', $HEAD_TITLE+' > '+$bread[$bread.length-1].title);
+	$bread.unshift({ icon:"fa fa-dashboard", title:"Dashboard", link: "window.location.replace('"+$APPS_LNK+"')" });
 	$(".content").before(BSHelper.PageHeader({ 
 		bc_list: $bread
 	}));

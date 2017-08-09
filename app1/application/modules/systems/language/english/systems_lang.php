@@ -53,8 +53,9 @@ $lang['error_upload'] = 'Upload %s failed !';
 $lang['error_permit_menu'] = 'You don\'t have permission to access this menu !';
 $lang['error_permit_crud'] = 'You don\'t have permission to do this action !';
 
-$lang['error_import_no_header']		= 'This data has no header !';
-$lang['error_import_data']				= 'Import Data Failed !';
+$lang['error_import_no_header']		= 'Error: This data has no header !';
+$lang['error_import_data']				= 'Error: Import Data Failed !';
+$lang['error_import_download_result']	= 'Error: Result data failed to download !';
 
 /* Notification: notif_ & success_  */
 $lang['notif_choose_record'] 		= 'Please chosed the record !';
@@ -65,7 +66,7 @@ $lang['success_delete_undo'] 	= 'Undo Deleting Data Successfully !';
 $lang['success_chg_pwd'] 		= 'New Password has been activated, and after this you will logout !';
 $lang['success_rst_pwd'] 		= 'Password has been reset successfully !';
 $lang['success_rla'] 		= 'Login attempt has been cleared !';
-$lang['success_import_data']	= 'Import Data Finish !';
+$lang['success_import_data']	= 'Importing Data Completed Successfully !';
 
 /* Information: info_ */
 $lang['info_blablabla'] 		= 'This is blablabla !';

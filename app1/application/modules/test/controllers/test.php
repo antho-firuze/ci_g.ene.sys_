@@ -15,6 +15,70 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
+	function arr_explode()
+	{
+		$filter['id'] = 123;
+		$filter['doc_no'] = 'DOC_123';
+		// echo implode(', ', $filter); 
+		echo http_build_query($filter,'',', ');
+	}
+	
+	function get_field_type()
+	{
+		$fields = $this->db->field_data('cf_ar_ap');
+		// $date_field = [];
+		foreach ($fields as $field)
+		{
+			// var_dump($field);
+			if ($field->type == 'date')
+				$date_fields[] = $field->name;
+			// echo $field->name;
+			// echo $field->type;
+			// echo $field->max_length;
+			// echo $field->primary_key;
+		}	
+		if (isset($date_fields)){
+			// echo "ada";
+			foreach($date_fields as $f){
+				echo $f;echo "<br>";
+			}
+		} else
+			echo "tada";
+		// var_dump($date_field);
+	}
+	
+	function upload_file()
+	{
+		/* get the params & files (special for upload file) */
+		$files = $_FILES;
+		
+		@ini_set( 'upload_max_size' , "2mb" );
+		@ini_set( 'post_max_size', "2mb" );
+		@ini_set( 'max_execution_time', '300' );
+		
+		// if ($this->r_method == 'POST') {
+			if (isset($files['file']['name']) && $files['file']['name']) {
+				/* Load the library */
+				require_once APPPATH."/third_party/Plupload/PluploadHandler.php"; 
+				$ph = new PluploadHandler(array(
+					'target_dir' => FCPATH.'var/tmp/',
+					'allow_extensions' => 'jpg,jpeg,png,gif,xls,xlsx,csv,doc,docx,ppt,pptx,pdf,zip,rar',
+					'debug' => true,
+				));
+				$ph->sendNoCacheHeaders();
+				$ph->sendCORSHeaders();
+				/* And Do Upload */
+				if (!$result = $ph->handleUpload()) {
+					debug($ph->getErrorMessage());
+					return FALSE;
+				}
+				/* Result Output in array : array('name', 'path', 'chunk', 'size') */
+				var_dump($result);
+				exit();
+			}
+		// }
+	}
+	
 	
 	
 	function drop_table_tmp()

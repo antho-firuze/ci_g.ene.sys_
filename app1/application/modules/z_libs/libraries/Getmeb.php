@@ -43,6 +43,10 @@ class Getmeb extends CI_Controller
 	public $imported_fields = [];		// ['code','name','description']
 	/* FOR VALIDATE IDENTITY FIELDS TO MASTER TABLE */
 	public $validations = [];				// ['user_id' => 'a_user', 'item_id' => 'm_item']
+	/* FOR VALIDATE FOREIGN KEY */
+	public $validation_fk = [];					// ['user_id' => 'a_user', 'item_id' => 'm_item']
+	/* FOR VALIDATE DATE COLUMN/FIELD */
+	// public $validation_date = [];				// ['doc_date','doc_ref_date']
 	/* ========================================= */
 	/* This variable for UPLOAD & DOWNLOAD files */
 	/* ========================================= */
@@ -653,22 +657,32 @@ class Getmeb extends CI_Controller
 		@ini_set( 'post_max_size', $this->max_file_upload );
 		@ini_set( 'max_execution_time', '300' );
 		
-		if ($this->r_method == 'POST') {
-			if (isset($files['file']['name']) && $files['file']['name']) {
-				/* Load the library */
-				require_once APPPATH."/third_party/Plupload/PluploadHandler.php"; 
-				$ph = new PluploadHandler(array(
-					'target_dir' => $this->tmp_dir,
-					'allow_extensions' => $this->allow_ext
-				));
-				$ph->sendNoCacheHeaders();
-				$ph->sendCORSHeaders();
-				/* And Do Upload */
-				if (!$result = $ph->handleUpload()) {
-					$this->set_message($ph->getErrorMessage());
-					return FALSE;
-				}
-				/* Result Output in array : array('name', 'path', 'chunk', 'size') */
+		if (isset($files['file']['name']) && $files['file']['name']) {
+			/* Load the library */
+			require_once APPPATH."/third_party/Plupload/PluploadHandler.php"; 
+			$ph = new PluploadHandler(array(
+				'target_dir' => $this->tmp_dir,
+				'allow_extensions' => $this->allow_ext,
+				'debug' => false,
+			));
+			$ph->sendNoCacheHeaders();
+			$ph->sendCORSHeaders();
+			/* And Do Upload */
+			if (!$result = $ph->handleUpload()) {
+				// $this->set_message($ph->getErrorMessage());
+				// return FALSE;
+				$this->xresponse(FALSE, ['message' => $ph->getErrorMessage()], 401);
+			}
+			/* Result Output in array : array('name', 'path', 'chunk', 'size') */
+			// return $result;
+			
+			/* For checking is any file chunking or not in plupload plugins */
+			if (isset($this->params->chunks)) {
+				if (!$this->params->chunks || $this->params->chunk == $this->params->chunks - 1)
+					return $result;
+				else
+					$this->xresponse(TRUE, $result);
+			} else {
 				return $result;
 			}
 		}
@@ -881,10 +895,7 @@ class Getmeb extends CI_Controller
 	{
 		if (isset($this->params->step) && $this->params->step == '1') {
 			/* Received the file to be import */
-			if (!$result = $this->_upload_file()){
-				/* Upload file failed ! */
-				return FALSE;
-			}
+			$result = $this->_upload_file();
 			
 			/* Check file type */
 			$this->load->library('z_libs/Excel');
@@ -961,73 +972,124 @@ class Getmeb extends CI_Controller
 					$tmp_id = ['tmp_id' => $values['tmp_id']];
 					unset($values['tmp_id'], $values['status'], $values['id']);
 					
+					/* Check Date/Time validity */
+					/* Retrieve field date from current table */
+					$fields = $this->db->field_data($this->c_table);
+					foreach($fields as $field) {
+						if ($field->type == 'date')
+							$date_fields[] = $field->name;
+					}	
+					/* If exists field date */
+					if (isset($date_fields)) {
+						$is_valid_date = true;
+						foreach($date_fields as $field){
+							/* If Field Date is not NULL */
+							if ($values[$field]){
+								/* Convert Date/Time to Database date format [yyyy-mm-dd] */
+								if ($this->params->date_format != 'yyyy-mm-dd') {
+									if ($return = datetime_db_format($values[$field], $this->params->date_format, FALSE) == FALSE){
+										$this->db->update($this->session->tmp_table, ['status' => sprintf("Error: Column [%s], unsupported date format !.", $values[$field])], $tmp_id);
+										$this->db->flush_cache();
+										$is_valid_date = false;
+									} 
+								} else {
+									$return = $values[$field];
+								}
+								/* Double check date with php native */
+								$dateTime = DateTime::createFromFormat('Y-m-d', $return);
+								$errors = DateTime::getLastErrors();
+								if (!$dateTime || !empty($errors['warning_count'])) {
+									$this->db->update($this->session->tmp_table, ['status' => sprintf("Error: Column [%s], date format is invalid.", $values[$field])], $tmp_id);
+									$this->db->flush_cache();
+									$is_valid_date = false;
+								}
+							} else {
+								$values[$field] = NULL;
+							}
+						}
+						if (!$is_valid_date) 
+							continue;
+					}
+					
 					/* ============================ Insert cluster ============================ */
 					if ($this->params->importtype == 'insert') {
 						
-						/* Validation rule */
+						/* Validation Identity Key */
+						if ($this->identity_keys){
+							/* Build filter with identity field */
+							foreach($this->identity_keys as $field) {	$identity[$field] = $values[$field]; }
+							$filter['is_deleted'] = '0';
+							if ($this->db->where( array_merge($filter, $identity) )->get($this->c_table)->num_rows() > 0) {
+								$this->db->update($this->session->tmp_table, ['status' => sprintf("[%s] is already exists !", http_build_query($identity,'',', '))], $tmp_id);
+								$this->db->flush_cache();
+								continue;
+							}
+						}
+						
+						/* Validation Foreign Key */
 						if ($this->validations){
 							$is_valid = true;
 							foreach($this->validations as $k => $v) {
 								if ($this->db->where('id', $values[$k])->get($v)->num_rows() < 1) {
 									$this->db->update($this->session->tmp_table, ['status' => sprintf("[%s = %s] doesn't exists on table [%s]", $k, $values[$k], $v)], $tmp_id);
+									$this->db->flush_cache();
 									$is_valid = false;
 								}
-								$this->db->flush_cache();
 							}
 							if (!$is_valid) 
 								continue;
 						}
 						
+						/* Adding column [id] */
+						$this->load->dbforge();
+						$fields['id'] = ['type' => 'INT', 'constraint' => 9];
+						$this->dbforge->modify_column($this->session->tmp_table, $fields);
 						
 						/* Start the Insert Process */
-						if (!$result = $this->insertRecord($this->c_method, $values, TRUE, TRUE)) {
+						if (!$result = $this->insertRecord($this->c_table, $values, TRUE, TRUE)) {
 							$this->db->update($this->session->tmp_table, ['status' => $this->messages(FALSE)], $tmp_id);
 						}
+						
+						$this->db->update($this->session->tmp_table, ['status' => 'OK', 'id' => $result], $tmp_id);
+						$this->db->flush_cache();
 					} 
 					
 					/* ============================ Update cluster ============================ */
 					if ($this->params->importtype == 'update') {
 						
-						/* Build identity_keys, this is a mandatory for update query */
+						/* Validation Identity Key */
 						if ($this->identity_keys){
-							$val = [];
-							foreach($this->identity_keys as $k => $v){
-								if (isset($values[$v])){
-									$val[$v] = $values[$v];
-								}
-							}
-						} else {
-							$this->set_message('Failed: Method ['.$this->c_method.'] the identity_keys was not set !');
-							return FALSE;
-						}
-							
-						/* Check existing record in target table */
-						$fk = $this->db->get_where($this->c_method, array_merge($val, ['is_active' => '1', 'is_deleted' => '0']), 1);
-						if ($fk->num_rows() < 1){
-
-							$this->db->update($this->session->tmp_table, ['status' => 'This line is not exist !'], $tmp_id);
-						} else {
-
-							/* Start the Update Process */
-							if (!$result = $this->updateRecord($this->c_method, $values, array_merge($val, ['is_active' => '1', 'is_deleted' => '0']), TRUE)) {
-								$this->db->update($this->session->tmp_table, ['status' => $this->messages(FALSE)], $tmp_id);
+							/* Build filter with identity field */
+							foreach($this->identity_keys as $field) {	$identity[$field] = $values[$field]; }
+							$filter['is_deleted'] = '0';
+							if ($this->db->where( array_merge($filter, $identity) )->get($this->c_table)->num_rows() < 1) {
+								$this->db->update($this->session->tmp_table, ['status' => sprintf("[%s] doesn't exists !", http_build_query($identity,'',', '))], $tmp_id);
+								$this->db->flush_cache();
+								continue;
 							}
 						}
+						
+						/* Start the Update Process */
+						if (!$result = $this->updateRecord($this->c_table, $values, array_merge($filter, $identity), TRUE)) {
+							$this->db->update($this->session->tmp_table, ['status' => $this->messages(FALSE)], $tmp_id);
+						}
+						
+						$this->db->update($this->session->tmp_table, ['status' => 'OK'], $tmp_id);
+						$this->db->flush_cache();
 					}
 				}
 					
 				/* Export the result to CSV and throw to client */
-				$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.'.$this->params->filetype;
+				$filename = 'result_'.$this->c_table.'_'.date('YmdHi').'.'.$this->params->filetype;
 				$fields = $this->db->list_fields($this->session->tmp_table);
 				$fields = array_diff($fields, ['tmp_id']);
 				$this->db->select($fields);
 				$qry = $this->db->get($this->session->tmp_table);
 				if (! $result = $this->_export_data($qry, $filename, $this->params->filetype, TRUE)) {
-					$this->set_message('export_data_failed');
-					return FALSE;
+					$this->xresponse(FALSE, ['message' => $this->lang->line('error_import_download_result')], 401);
 				}
 				
-				return $result;
+				$this->xresponse(TRUE, ['message' => $this->lang->line('success_import_data')]);
 			}
 		}
 	}

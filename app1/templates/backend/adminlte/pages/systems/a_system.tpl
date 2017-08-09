@@ -111,6 +111,8 @@
 						{ id:"sendmail", name:"sendmail" },
 					] 
 				}));
+				a.push("<br>");
+				a.push(BSHelper.Button({ type:"button", label:"Test Send Main", idname:"btn_sendmail" }));
 				col.push(subCol(6, a));
 				return subRow(col);
 			} },
@@ -191,6 +193,29 @@
 	{* End: Populate data to form *}
 	
 	{* Event *}
+	$("#btn_sendmail").click(function(e){
+		e.stopPropagation();
+		$("#btn_sendmail").prop( "disabled", true );
+		
+		$.ajax({ url: $url_module, method:"POST", async: true, dataType:'json',
+			data: JSON.stringify({ "send_mail_test":1 }),
+			success: function(data) {
+				{* console.log(data); *}
+				BootstrapDialog.alert(data.message);
+				$("#btn_sendmail").prop( "disabled", false );
+			},
+			error: function(data) {
+				if (data.status==500){
+					var message = data.statusText;
+				} else {
+					var error = JSON.parse(data.responseText);
+					var message = error.message;
+				}
+				$("#btn_sendmail").prop( "disabled", false );
+				BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+			}
+		});
+	});
 	
 	{* Form submit action *}
 	form1.validator().on('submit', function (e) {
