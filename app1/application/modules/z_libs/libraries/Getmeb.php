@@ -953,6 +953,14 @@ class Getmeb extends CI_Controller
 		}
 		
 		if (isset($this->params->step) && $this->params->step == '2') {
+			/* For import type [insert], adding column id_new */
+			if ($this->params->importtype == 'insert') {
+				/* Adding column [id] */
+				$this->load->dbforge();
+				$fields['id_new'] = ['type' => 'INT', 'constraint' => 9];
+				$this->dbforge->add_column($this->session->tmp_table, $fields);
+			}
+			
 			/* fields syncronization with target table */
 			$tmp_fields = $this->db->list_fields($this->session->tmp_table);
 			$params_flip = array_flip($this->params->fields);
@@ -967,15 +975,17 @@ class Getmeb extends CI_Controller
 			if($qry->num_rows() > 0){
 				foreach($qry->result_array() as $key => $values){
 					$tmp_id = ['tmp_id' => $values['tmp_id']];
-					unset($values['tmp_id'], $values['status'], $values['id']);
+					unset($values['tmp_id'], $values['status'], $values['id'], $values['id_new']);
 					
-					/* Check Date/Time validity */
+					/* ============================ Validation Date/Time Format */
 					/* Retrieve field date from current table */
 					$fields = $this->db->field_data($this->c_table);
 					foreach($fields as $field) {
 						if ($field->type == 'date')
 							$date_fields[] = $field->name;
 					}	
+					/* Compare result to imported_fields, only grab which exist in the imported_fields */
+					$date_fields = array_intersect($date_fields, $this->imported_fields);
 					/* If exists field date */
 					if (isset($date_fields)) {
 						$is_valid_date = true;
@@ -985,7 +995,7 @@ class Getmeb extends CI_Controller
 								/* Convert Date/Time to Database date format [yyyy-mm-dd] */
 								if ($this->params->date_format != 'yyyy-mm-dd') {
 									if ($return = datetime_db_format($values[$field], $this->params->date_format, FALSE) == FALSE){
-										$this->db->update($this->session->tmp_table, ['status' => sprintf("Error: Column [%s], unsupported date format !.", $values[$field])], $tmp_id);
+										$this->db->update($this->session->tmp_table, ['status' => sprintf("Error: Unsupported Date Format, Column [%s].", $field)], $tmp_id);
 										$this->db->flush_cache();
 										$is_valid_date = false;
 									} 
@@ -996,7 +1006,7 @@ class Getmeb extends CI_Controller
 								$dateTime = DateTime::createFromFormat('Y-m-d', $return);
 								$errors = DateTime::getLastErrors();
 								if (!$dateTime || !empty($errors['warning_count'])) {
-									$this->db->update($this->session->tmp_table, ['status' => sprintf("Error: Column [%s], date format is invalid.", $values[$field])], $tmp_id);
+									$this->db->update($this->session->tmp_table, ['status' => sprintf("Error: Date Format, Column [%s].", $field)], $tmp_id);
 									$this->db->flush_cache();
 									$is_valid_date = false;
 								}
@@ -1008,6 +1018,26 @@ class Getmeb extends CI_Controller
 							continue;
 					}
 					
+					/* ============================ Validation Foreign Key */
+					if ($this->validation_fk){
+						$is_valid = true;
+						foreach($this->validation_fk as $k => $v) {
+							if ($result = $this->db->where('id', $values[$k])->get($v)) {
+								if ($result->num_rows() < 1) {
+									$this->db->update($this->session->tmp_table, ['status' => sprintf("Error: FK, [%s] doesn't exists !", $k)], $tmp_id);
+									$this->db->flush_cache();
+									$is_valid = false;
+								}
+							} else {
+								$this->db->update($this->session->tmp_table, ['status' => sprintf("Error: FK, [%s] doesn't exists !", $k)], $tmp_id);
+								$this->db->flush_cache();
+								$is_valid = false;
+							}
+						}
+						if (!$is_valid) 
+							continue;
+					}
+						
 					/* ============================ Insert cluster ============================ */
 					if ($this->params->importtype == 'insert') {
 						
@@ -1017,37 +1047,19 @@ class Getmeb extends CI_Controller
 							foreach($this->identity_keys as $field) {	$identity[$field] = $values[$field]; }
 							$filter['is_deleted'] = '0';
 							if ($this->db->where( array_merge($filter, $identity) )->get($this->c_table)->num_rows() > 0) {
-								$this->db->update($this->session->tmp_table, ['status' => sprintf("[%s] is already exists !", urldecode(http_build_query($identity,'',', ')))], $tmp_id);
+								// $this->db->update($this->session->tmp_table, ['status' => sprintf("[%s] is already exists !", urldecode(http_build_query($identity,'',', ')))], $tmp_id);
+								$this->db->update($this->session->tmp_table, ['status' => sprintf("Error: [%s] already exists !", implode(', ', array_keys($identity)))], $tmp_id);
 								$this->db->flush_cache();
 								continue;
 							}
 						}
-						
-						/* Validation Foreign Key */
-						if ($this->validation_fk){
-							$is_valid = true;
-							foreach($this->validation_fk as $k => $v) {
-								if ($this->db->where('id', $values[$k])->get($v)->num_rows() < 1) {
-									$this->db->update($this->session->tmp_table, ['status' => sprintf("[%s = %s] doesn't exists on table [%s]", $k, $values[$k], $v)], $tmp_id);
-									$this->db->flush_cache();
-									$is_valid = false;
-								}
-							}
-							if (!$is_valid) 
-								continue;
-						}
-						
-						/* Adding column [id] */
-						$this->load->dbforge();
-						$fields['id'] = ['type' => 'INT', 'constraint' => 9];
-						$this->dbforge->modify_column($this->session->tmp_table, $fields);
 						
 						/* Start the Insert Process */
 						if (!$result = $this->insertRecord($this->c_table, $values, TRUE, TRUE)) {
 							$this->db->update($this->session->tmp_table, ['status' => $this->messages(FALSE)], $tmp_id);
 						}
 						
-						$this->db->update($this->session->tmp_table, ['status' => 'OK', 'id' => $result], $tmp_id);
+						$this->db->update($this->session->tmp_table, ['status' => 'OK', 'id_new' => $result], $tmp_id);
 						$this->db->flush_cache();
 					} 
 					
@@ -1060,7 +1072,8 @@ class Getmeb extends CI_Controller
 							foreach($this->identity_keys as $field) {	$identity[$field] = $values[$field]; }
 							$filter['is_deleted'] = '0';
 							if ($this->db->where( array_merge($filter, $identity) )->get($this->c_table)->num_rows() < 1) {
-								$this->db->update($this->session->tmp_table, ['status' => sprintf("[%s] doesn't exists !", urldecode(http_build_query($identity,'',', ')))], $tmp_id);
+								// $this->db->update($this->session->tmp_table, ['status' => sprintf("[%s] doesn't exists !", urldecode(http_build_query($identity,'',', ')))], $tmp_id);
+								$this->db->update($this->session->tmp_table, ['status' => sprintf("Error: [%s] doesn't exists !", implode(', ', array_keys($identity)))], $tmp_id);
 								$this->db->flush_cache();
 								continue;
 							}
@@ -1076,7 +1089,7 @@ class Getmeb extends CI_Controller
 					}
 				}
 					
-				/* Export the result to CSV and throw to client */
+				/* Export the result to client */
 				$filename = 'result_'.$this->c_table.'_'.date('YmdHi').'.'.$this->params->filetype;
 				$fields = $this->db->list_fields($this->session->tmp_table);
 				$fields = array_diff($fields, ['tmp_id']);

@@ -533,11 +533,15 @@ $('.toolbar_container').click('button', function(e){
 
 /* Tricky for removing hash-tags(#), while any link added '#' to the URL. Ex: Calling BootstrapDialog, etc. */
 $(window).on('hashchange', function(e){
+	// var hash = location.hash.replace(/^#/, '');
+	// var hash = location.href.indexOf('#');
+	// console.log(hash);
 	// console.log('hashchange');
 	// console.log(document.title);
 	// console.log(e.originalEvent.oldURL);
 	history.replaceState ("", document.title, e.originalEvent.oldURL);
-	// window.history.back();
+	// if (hash >= -1)
+		// window.history.back();
 });
 
 /* This class is for auto conversion from dmy to ymd */

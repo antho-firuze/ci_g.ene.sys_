@@ -17,10 +17,20 @@ class Test extends CI_Controller {
 	
 	function arr_explode()
 	{
-		$filter['id'] = 123;
+		/* $filter['id'] = 123;
 		$filter['doc_no'] = 'DOC_123';
 		// echo implode(', ', $filter); 
-		echo urldecode(http_build_query($filter,'',', '));
+		echo implode(', ', array_keys($filter)); 
+		// echo urldecode(http_build_query($filter,'',', ')); */
+		
+		/* $fields = $this->db->list_fields('z_ax2tc');
+		$fields = array_diff($fields, ['tmp_id']);
+		var_dump($fields); */
+		
+		$arr1 = ['a','b','c'];
+		$arr2 = ['b','d'];
+		$arr3 = array_intersect($arr2, $arr1);
+		var_dump($arr3);
 	}
 	
 	function get_field_type()
@@ -79,7 +89,12 @@ class Test extends CI_Controller {
 		// }
 	}
 	
-	
+	function modify_column()
+	{
+		$this->load->dbforge();
+		$fields['id'] = ['type' => 'INT', 'constraint' => 9];
+		$this->dbforge->add_column('z_ax2tc', $fields);
+	}
 	
 	function drop_table_tmp()
 	{

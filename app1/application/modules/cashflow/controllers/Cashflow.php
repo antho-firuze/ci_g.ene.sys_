@@ -30,7 +30,7 @@ class Cashflow extends Getmeb
 	function cf_ar()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE);
+			$this->_get_filtered(TRUE, TRUE, ['doc_no']);
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
@@ -159,6 +159,12 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* This Event is used for Import */
+			if ($this->params->event == 'pre_import'){
+				$this->identity_keys 		= ['ar_ap_id'];
+				$this->imported_fields 	= ['ar_ap_id','account_id','bpartner_id','seq','doc_date','received_plan_date','description','sub_amt','ttl_amt','vat_amt','note'];
+				$this->validation_fk 		= ['ar_ap_id' => 'cf_ar_ap', 'account_id' => 'cf_account', 'bpartner_id' => 'c_bpartner'];
+			}
 			/* if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['is_plan'] = 1;
 				if (! $this->{$this->mdl}->cf_ar_ap_valid_amount($this->mixed_data)){ 
