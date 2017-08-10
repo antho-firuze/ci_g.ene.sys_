@@ -66,7 +66,7 @@ $lang['success_delete_undo'] 	= 'Undo Deleting Data Successfully !';
 $lang['success_chg_pwd'] 		= 'New Password has been activated, and after this you will logout !';
 $lang['success_rst_pwd'] 		= 'Password has been reset successfully !';
 $lang['success_rla'] 		= 'Login attempt has been cleared !';
-$lang['success_import_data']	= 'Importing Data Completed Successfully !';
+$lang['success_import_data']	= 'Importing Data Completed Successfully !<br><br>Note: See the result for more info.';
 
 /* Information: info_ */
 $lang['info_blablabla'] 		= 'This is blablabla !';

@@ -20,7 +20,7 @@ class Test extends CI_Controller {
 		$filter['id'] = 123;
 		$filter['doc_no'] = 'DOC_123';
 		// echo implode(', ', $filter); 
-		echo http_build_query($filter,'',', ');
+		echo urldecode(http_build_query($filter,'',', '));
 	}
 	
 	function get_field_type()

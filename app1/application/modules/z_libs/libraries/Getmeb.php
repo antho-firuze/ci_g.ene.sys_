@@ -41,12 +41,8 @@ class Getmeb extends CI_Controller
 	public $protected_fields = [];	// ['user_org_id','user_role_id','api_token','password']
 	/* FOR DECLARE MANDATORY IMPORTED FIELDS */
 	public $imported_fields = [];		// ['code','name','description']
-	/* FOR VALIDATE IDENTITY FIELDS TO MASTER TABLE */
-	public $validations = [];				// ['user_id' => 'a_user', 'item_id' => 'm_item']
 	/* FOR VALIDATE FOREIGN KEY */
 	public $validation_fk = [];					// ['user_id' => 'a_user', 'item_id' => 'm_item']
-	/* FOR VALIDATE DATE COLUMN/FIELD */
-	// public $validation_date = [];				// ['doc_date','doc_ref_date']
 	/* ========================================= */
 	/* This variable for UPLOAD & DOWNLOAD files */
 	/* ========================================= */
@@ -767,7 +763,7 @@ class Getmeb extends CI_Controller
 			$objPHPExcel->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
 		}
 		
-		if ($filetype == 'xls') {
+		if (in_array($filetype, ['xls', 'xlsx'])) {
 			if ($return){
 				$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
 				$objWriter->save($this->tmp_dir.$filename);
@@ -1020,16 +1016,16 @@ class Getmeb extends CI_Controller
 							foreach($this->identity_keys as $field) {	$identity[$field] = $values[$field]; }
 							$filter['is_deleted'] = '0';
 							if ($this->db->where( array_merge($filter, $identity) )->get($this->c_table)->num_rows() > 0) {
-								$this->db->update($this->session->tmp_table, ['status' => sprintf("[%s] is already exists !", http_build_query($identity,'',', '))], $tmp_id);
+								$this->db->update($this->session->tmp_table, ['status' => sprintf("[%s] is already exists !", urldecode(http_build_query($identity,'',', ')))], $tmp_id);
 								$this->db->flush_cache();
 								continue;
 							}
 						}
 						
 						/* Validation Foreign Key */
-						if ($this->validations){
+						if ($this->validation_fk){
 							$is_valid = true;
-							foreach($this->validations as $k => $v) {
+							foreach($this->validation_fk as $k => $v) {
 								if ($this->db->where('id', $values[$k])->get($v)->num_rows() < 1) {
 									$this->db->update($this->session->tmp_table, ['status' => sprintf("[%s = %s] doesn't exists on table [%s]", $k, $values[$k], $v)], $tmp_id);
 									$this->db->flush_cache();
@@ -1063,7 +1059,7 @@ class Getmeb extends CI_Controller
 							foreach($this->identity_keys as $field) {	$identity[$field] = $values[$field]; }
 							$filter['is_deleted'] = '0';
 							if ($this->db->where( array_merge($filter, $identity) )->get($this->c_table)->num_rows() < 1) {
-								$this->db->update($this->session->tmp_table, ['status' => sprintf("[%s] doesn't exists !", http_build_query($identity,'',', '))], $tmp_id);
+								$this->db->update($this->session->tmp_table, ['status' => sprintf("[%s] doesn't exists !", urldecode(http_build_query($identity,'',', ')))], $tmp_id);
 								$this->db->flush_cache();
 								continue;
 							}
@@ -1089,7 +1085,8 @@ class Getmeb extends CI_Controller
 					$this->xresponse(FALSE, ['message' => $this->lang->line('error_import_download_result')], 401);
 				}
 				
-				$this->xresponse(TRUE, ['message' => $this->lang->line('success_import_data')]);
+				$result['message'] = $this->lang->line('success_import_data');
+				$this->xresponse(TRUE, $result);
 			}
 		}
 	}

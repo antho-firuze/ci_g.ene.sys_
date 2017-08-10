@@ -151,7 +151,7 @@
 				},
 				FileUploaded: function(up, file, info) {
 					var response = $.parseJSON(info.response);
-					console.log(response);
+					{* console.log(response); *}
 					if (response.status) { 
 						$("#filename").parent().find("small").html(response.message);
 						
@@ -238,28 +238,32 @@
 		
 		var data = $("#form-mapping-field").serializeOBJ();
 		data = { 
-			import:1, step:2, pageid:$pageid, filter:$filter, ob:$ob, 
+			import:1, step:2, pageid: $pageid, filter: $filter, ob: $ob, 
 			filetype: $("#filetype").shollu_cb("getValue"), 
 			importtype: $("#importtype").shollu_cb("getValue"), 
 			date_format: $("#date_format").shollu_cb("getValue"),
-			fields:data };
+			fields: data 
+		};
 		
 		$(this).prop('disabled', true);
 		
 		console.log('Importing on progress...');
-		paceOptions = {	ajax: true };
-		Pace.restart();
+		{* For manually pace start *}
+		Pace.stop(); Pace.bar.render();
 		
 		$.ajax({ url: $url_module, method: "POST", data: data, 
 			success: function(result){ 
 				if (result.status) {
+					Pace.bar.update(100); 
 					setTimeout(function(){
+						col = []; row = [];
 						col.push("<br><br>");
 						col.push(result.message);
 						col.push("<br><br>");
 						col.push(BSHelper.Button({ type:"button", label:"Close", cls:"btn-danger", onclick:"window.history.back();" }));
 						row.push(subCol(12, col)); col = [];
 						$("#step-importing-data").append(subRow(row).hide().fadeIn(1000));
+						Pace.stop();
 						window.open(result.file_url);
 					}, 1000);
 				} else {
@@ -275,11 +279,10 @@
 					var message = error.message;
 				}
 				$(this).prop('disabled', false);
+				Pace.stop();
 				BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
 			}
 		});
-		paceOptions = {	ajax: false };
-
 	});
 	
 </script>
