@@ -537,7 +537,7 @@ $(window).on('hashchange', function(e){
 	// console.log(document.title);
 	// console.log(e.originalEvent.oldURL);
 	history.replaceState ("", document.title, e.originalEvent.oldURL);
-	window.history.back();
+	// window.history.back();
 });
 
 /* This class is for auto conversion from dmy to ymd */

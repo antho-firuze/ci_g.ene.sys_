@@ -93,6 +93,7 @@
 								});
 								dataTable1.ajax.reload( null, false );
 								dialog.close();
+								window.history.back(); 
 							},
 							error: function(data) {
 								if (data.status==500){
@@ -104,14 +105,14 @@
 								button.stopSpin();
 								button.enable();
 								BootstrapDialog.show({ closable: false, type:'modal-danger', title:'Notification', message:message, 
-									buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],
+									buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); window.history.back(); } }],
 								});
 							}
 						});
 					}
 				}
 			}, {
-				label: 'Cancel', cssClass: 'btn-danger', action: function(dialog) { dialog.close(); }
+				label: 'Cancel', cssClass: 'btn-danger', action: function(dialog) { dialog.close(); window.history.back(); }
 			}],
 			onshown: function(dialog) {
 				{* /* This class is for auto conversion from dmy to ymd */ *}
