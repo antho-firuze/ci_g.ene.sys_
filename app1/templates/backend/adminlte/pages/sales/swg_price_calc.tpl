@@ -54,7 +54,7 @@
 	col_r.append(BSHelper.Input({ type:"hidden", idname:"hoop_price" }));
 	col_r.append(BSHelper.Combobox({ label:"Material FILLER", idname:"filler_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: true, remote: true }));
 	col_r.append(BSHelper.Input({ type:"hidden", idname:"filler_price" }));
-	col_r.append(BSHelper.Combobox({ label:"Branch", idname:"branch_id", url:"{$.php.base_url('sales/a_user_org')}", required: true, remote: true }));
+	col_r.append(BSHelper.Combobox({ label:"Branch", idname:"branch_id", url:"{$.php.base_url('systems/a_user_org')}", required: true, remote: true }));
 	col_r.append(BSHelper.Input({ type:"hidden", idname:"swg_margin" }));
 	a = [];
 	a.push( BSHelper.Button({ type:"submit", label:"Submit", cls:"btn-primary" }) );
@@ -169,6 +169,24 @@
 		if (e.isDefaultPrevented()) { return false;	} 
 		
 		formContent.find("[type='submit']").prop( "disabled", true );
+		
+				var curr = 'IDR';
+				var qty = $('#qty').val();
+				var sell_price = 1250;
+				var sell_price_total = sell_price * qty;
+				var $content = subRow(), a = [];
+				a.push( "<center><h2>Selling Price ("+curr+"): </h2></center>" );
+				a.push( "<center><h2><span>"+accounting.formatMoney(sell_price, '', 2, ".", ",")+"/PCS</span></h2></center>" );
+				a.push( "<br>" );
+				if (qty > 1){
+					a.push( "<center><h2><span>"+accounting.formatMoney(sell_price_total, '', 2, ".", ",")+" @"+qty+" PCS</span></h2></center>" );
+					a.push( "<br>" );
+				}
+				$content.append( subCol(12, a ) );
+				BootstrapDialog.show({ type:BootstrapDialog.TYPE_PRIMARY, title:'Result !', message:$content });
+				formContent.find("[type='submit']").prop( "disabled", false );
+		
+		return false;
 		
 		$.ajax({ url: $url_module, method: "POST", async: true, dataType: 'json',
 			data: formContent.serializeJSON(),

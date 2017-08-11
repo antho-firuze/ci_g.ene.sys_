@@ -96,6 +96,32 @@ class Systems_db extends CI_Controller {
 		return $fields;
 	}
 	
+	/* A listing for temporary table name for import process */
+	function table_a_tmp_tables()
+	{
+		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
+		$fields['created_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
+		$fields['time'] 	= ['type' => 'INT', 'constraint' => '64', 'default' => 0];
+		return $fields;
+	}
+	
+	/* A listing for temporary import/export process */
+	function table_a_tmp_progress()
+	{
+		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
+		$fields['created_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
+		$fields['created_by'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
+		$fields['percent'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['finished_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
+		$fields['duration'] = ['type' => 'TIME', 'null' => TRUE];
+		$fields['start_time'] 	= ['type' => 'INT', 'constraint' => '64', 'default' => 0];
+		$fields['stop_time'] 	= ['type' => 'INT', 'constraint' => '64', 'default' => 0];
+		$fields['duration_time'] = ['type' => 'INT', 'constraint' => '64', 'default' => 0];
+		return $fields;
+	}
+	
 	function field_00_Main()
 	{
 		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];

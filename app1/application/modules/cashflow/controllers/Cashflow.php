@@ -161,7 +161,7 @@ class Cashflow extends Getmeb
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* This Event is used for Import */
 			if ($this->params->event == 'pre_import'){
-				$this->identity_keys 		= ['ar_ap_id'];
+				$this->identity_keys 		= ['ar_ap_id','seq'];
 				$this->imported_fields 	= ['ar_ap_id','account_id','bpartner_id','seq','doc_date','received_plan_date','description','sub_amt','ttl_amt','vat_amt','note'];
 				$this->validation_fk 		= ['ar_ap_id' => 'cf_ar_ap', 'account_id' => 'cf_account', 'bpartner_id' => 'c_bpartner'];
 			}
