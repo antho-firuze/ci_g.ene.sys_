@@ -48,6 +48,7 @@
 			{* { width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_currency(data); } }, *}
 			{* { width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"plan_total", title:"Plan Total", render: function(data, type, row){ return format_currency(data); } }, *}
 		],
+		order: ['id desc'],
 	};
 	
 </script>

@@ -43,6 +43,7 @@
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 		],
+		order: ['seq'],
 	};
 	
 	{* For design form interface *}

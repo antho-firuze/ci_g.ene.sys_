@@ -49,7 +49,7 @@
 		var link = o.link ? '<a href="'+o.link+'" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>' : '<div class="small-box-footer">&nbsp;</div>';
 		return $('<div class="col-lg-3 col-xs-6">'+
 								'<div class="small-box '+o.color+'">'+
-									'<div class="inner"><h3>'+o.value+'</h3><p>'+o.title+'</p></div>'+
+									'<div class="inner"><h3>'+o.value+'</h3><p style="white-space: nowrap;">'+o.title+'</p></div>'+
 									'<div class="icon"><i class="'+o.icon+'"></i></div>'+
 									link +
 								'</div>'+

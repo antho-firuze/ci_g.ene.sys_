@@ -51,6 +51,7 @@
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"plan_cl_total", title:"Plan Total (CL)", render: function(data, type, row){ return format_currency(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"plan_im_total", title:"Plan Total (IM)", render: function(data, type, row){ return format_currency(data); } },
 		],
+		order: ['id desc'],
 	};
 	
 </script>

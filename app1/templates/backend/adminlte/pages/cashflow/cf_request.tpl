@@ -38,6 +38,7 @@
 			{ width:"100px", orderable:false, data:"bpartner_name", title:"Customer" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 		],
+		order: ['id desc'],
 	};
 	
 </script>

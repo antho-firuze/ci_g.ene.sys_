@@ -973,6 +973,18 @@ class Systems extends Getmeb
 				$this->xresponse(TRUE, $result);
 			}
 		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_put'){
+				if (isset($this->params->newline) && $this->params->newline != ''){
+					if (!$result = $this->updateRecord($this->c_method, ['line_no' => $this->params->newline], ['id' => $this->params->id], FALSE))
+						$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+					else {
+						$this->_reorder_dashboard();
+						$this->xresponse(TRUE, ['message' => $this->messages()]);
+					}
+				}
+			}
+		}
 	}
 	
 	function a_domain()

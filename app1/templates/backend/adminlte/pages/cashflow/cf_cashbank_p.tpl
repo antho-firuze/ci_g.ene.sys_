@@ -39,6 +39,7 @@
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_currency(data); } },
 		],
+		order: ['id desc'],
 	};
 	
 </script>

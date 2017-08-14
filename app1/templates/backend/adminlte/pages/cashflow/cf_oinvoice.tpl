@@ -44,6 +44,7 @@
 			{ width:"200px", orderable:false, data:"description", title:"Description" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_currency(data); } },
 		],
+		order: ['id desc'],
 	};
 	
 </script>

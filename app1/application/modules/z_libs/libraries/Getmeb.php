@@ -869,6 +869,26 @@ class Getmeb extends CI_Controller
 		return $menu;
 	}
 	
+	function _reorder_dashboard()
+	{
+		$line = 1; $lineh = 1; $parent_id = -1;
+		
+		foreach($this->_get_menu(FALSE) as $k => $v){
+			if ($v->is_parent == 1){
+				if ($parent_id != $v->parent_id){
+					$line = 1;
+					$lineh = 1;
+				}
+				$this->db->update('a_dashboard', ['line_no' => $lineh], ['id' => $v->id]);
+				$lineh++;
+				$parent_id = $v->parent_id;
+				continue;
+			}
+			$this->db->update('a_dashboard', ['line_no' => $line], ['id' => $v->id]);
+			$line++;
+		}
+	}
+
 	function _reorder_menu()
 	{
 		$line = 1; $lineh = 1; $parent_id = -1;
