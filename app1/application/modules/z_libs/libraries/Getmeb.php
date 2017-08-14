@@ -953,6 +953,19 @@ class Getmeb extends CI_Controller
 		}
 		
 		if (isset($this->params->step) && $this->params->step == '2') {
+			/* Create process id on table a_tmp_process */
+			/* 
+			$data = [
+				'name' => 'Process name',
+				'percent' => 5,
+				'start_time' => time(),
+			];
+			if (!$return = $this->db->insert('a_tmp_process', array_merge($data, $this->create_log))) {
+				$this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
+			} 
+			$id_process = $this->db->insert_id();
+			*/
+			 
 			/* For import type [insert], adding column id_new */
 			if ($this->params->importtype == 'insert') {
 				/* Adding column [id] */

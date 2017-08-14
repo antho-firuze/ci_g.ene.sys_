@@ -107,7 +107,7 @@ class Systems_db extends CI_Controller {
 	}
 	
 	/* A listing for temporary import/export process */
-	function table_a_tmp_progress()
+	function table_a_tmp_process()
 	{
 		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
 		$fields['created_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
@@ -119,6 +119,7 @@ class Systems_db extends CI_Controller {
 		$fields['start_time'] 	= ['type' => 'INT', 'constraint' => '64', 'default' => 0];
 		$fields['stop_time'] 	= ['type' => 'INT', 'constraint' => '64', 'default' => 0];
 		$fields['duration_time'] = ['type' => 'INT', 'constraint' => '64', 'default' => 0];
+		$fields['message'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
 	

@@ -54,8 +54,8 @@
 	col_r.append(BSHelper.Input({ type:"hidden", idname:"hoop_price" }));
 	col_r.append(BSHelper.Combobox({ label:"Material FILLER", idname:"filler_item_id", url:"{$.php.base_url('sales/m_pricelist_item')}?filter=t1.pricelist_id=0,t1.pricelist_version_id=0", required: true, remote: true }));
 	col_r.append(BSHelper.Input({ type:"hidden", idname:"filler_price" }));
-	col_r.append(BSHelper.Combobox({ label:"Branch", idname:"branch_id", url:"{$.php.base_url('systems/a_user_org')}", required: true, remote: true }));
-	col_r.append(BSHelper.Input({ type:"hidden", idname:"swg_margin" }));
+	{* col_r.append(BSHelper.Combobox({ label:"Branch", idname:"branch_id", url:"{$.php.base_url('systems/a_user_org')}", required: true, remote: true })); *}
+	{* col_r.append(BSHelper.Input({ type:"hidden", idname:"swg_margin" })); *}
 	a = [];
 	a.push( BSHelper.Button({ type:"submit", label:"Submit", cls:"btn-primary" }) );
 	{* a.push( '&nbsp;' ); *}

@@ -254,7 +254,8 @@
 		$.ajax({ url: $url_module, method: "POST", data: data, 
 			success: function(result){ 
 				if (result.status) {
-					Pace.bar.update(100); 
+					getProcess(result.id_process);
+					{* Pace.bar.update(100); 
 					setTimeout(function(){
 						col = []; row = [];
 						col.push("<br><br>");
@@ -265,7 +266,7 @@
 						$("#step-importing-data").append(subRow(row).hide().fadeIn(1000));
 						Pace.stop();
 						window.open(result.file_url);
-					}, 1000);
+					}, 1000); *}
 				} else {
 					BootstrapDialog.alert(result.message);
 					$(this).prop('disabled', false);
@@ -284,6 +285,32 @@
 			}
 		});
 	});
+	
+	function getProcess(id_process) {
+		$.ajax({ type: "GET",	url: $url_module,	data: { "get_process": 1, "id" : id_process },
+			success: function(result){
+				if (result.status){
+					if (result.percent < 100) {
+						Pace.bar.update(result.percent); 
+						getProcess(result.id);
+					} else {
+						Pace.bar.update(result.percent);
+						setTimeout(function(){
+							col = []; row = [];
+							col.push("<br><br>");
+							col.push(result.message);
+							col.push("<br><br>");
+							col.push(BSHelper.Button({ type:"button", label:"Close", cls:"btn-danger", onclick:"window.history.back();" }));
+							row.push(subCol(12, col)); col = [];
+							$("#step-importing-data").append(subRow(row).hide().fadeIn(1000));
+							Pace.stop();
+							window.open(result.file_url);
+						}, 1000);
+					}
+				}
+			}
+		});
+	}
 	
 </script>
 <script src="{$.const.TEMPLATE_URL}plugins/SmartWizard/js/jquery.smartWizard.min.js"></script>
