@@ -15,6 +15,29 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
+	function update_progress()
+	{
+		/* Way #1 */
+		$this->db->set('log', "log || E'\r\n' || '" .sprintf('Importing Process...[%s percent - %s row(s) of %s]', 11, 12, 100)."'", FALSE);
+		$this->db->set('duration', "finished_at - created_at", FALSE);
+		$this->db->set('duration_time', "stop_time - start_time", FALSE);
+		$this->db->update('a_tmp_process', ['percent' => 101], ['id' => 1]);
+		
+		/* Way #2 */
+		// $data = [
+			// 'percent' => 11, 
+			// 'message' => sprintf('%s row(s) processed.', 12), 
+			// 'log' => log ."|| E'\r\n' || '" .sprintf('Importing Process...[%s percent - %s row(s) of %s]', 11, 12, 100)."'", 
+			// 'status' => 'TRUE', 
+			// 'finished_at' => date('Y-m-d H:i:s'), 
+			// 'stop_time' => time()
+		// ];
+		// $this->db->update('a_tmp_process', $data, ['id' => 1]);
+		
+		echo $this->db->last_query();
+		
+	}
+	
 	function arr_explode()
 	{
 		/* $filter['id'] = 123;

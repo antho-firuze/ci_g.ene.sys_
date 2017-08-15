@@ -541,10 +541,12 @@ class Getmeb extends CI_Controller
 	
 	function _get_process()
 	{
-		if ($process = $this->base_model->getValue('*', 'a_tmp_process', 'id', $this->params['id'])){
+		usleep(100000);
+		// if ($process = $this->base_model->getValue('*', 'a_tmp_process', 'id', $this->params['id'])){
+		if ($process = $this->base_model->getValue('*', 'a_tmp_process', 'id', $this->session->id_process)){
 			$this->xresponse(TRUE, ['data' => $process]);
 		}
-		$this->xresponse(FALSE, ['message' => sprintf('Error: Retrieving process [id=%s] failed !', $this->params['id'])], 401);
+		$this->xresponse(FALSE, ['message' => sprintf('Error: Retrieving process [id=%s] failed !', $this->session->id_process)], 401);
 	}
 	
 	function _get_viewlog()
@@ -920,20 +922,42 @@ class Getmeb extends CI_Controller
 			$line++;
 		}
 	}
-
-	function _update_process($data, $id)
+	/*  
+	*		$data = [
+	*			'name'				=>	'Process Name',
+	*			'percent'			=>	10,				// 1-100
+	*			'finished_at'	=>	date('Y-m-d H:i:s'),
+	*			'start_time'	=>	time(),
+	*			'stop_time'		=>	time(),
+	*			'log'					=>	'',
+	*			'message'			=>	'',				
+	*			'status'			=>	'TRUE', 	// TRUE/FALSE
+	*		];
+	*/
+	function _update_process($data=[], $id=NULL)
 	{
 		if ($id){
-			if (!$return = $this->db->update('a_tmp_process', $data, ['id'=>$id]))) {
-				$this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
+			$this->db->set('log', "log || E'\r\n' || '".$data['log']."'", FALSE);
+			unset($data['log']);
+			if (isset($data['finished_at']) && !empty($data['finished_at'])){
+				$this->db->set('duration', "finished_at - created_at", FALSE);
+			}
+			if (isset($data['stop_time']) && !empty($data['stop_time'])){
+				$this->db->set('duration_time', "stop_time - start_time", FALSE);
+			}
+			if (!$return = $this->db->update('a_tmp_process', $data, ['id'=>$id])) {
+				// $this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
+				return FALSE;
 			} 
 		} else {
 			if (!$return = $this->db->insert('a_tmp_process', array_merge($data, $this->create_log))) {
-				$this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
+				// $this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
+				return FALSE;
 			} 
 		}
-		$id_process = $this->db->insert_id();
-		$this->xresponse(TRUE, ['id_process' => $id_process], 200, FALSE);
+		return ($id) ? $id : $this->db->insert_id();
+		// $id_process = $this->db->insert_id();
+		// $this->xresponse(TRUE, ['id_process' => $id_process], 200, FALSE);
 	}
 	
 	function _import_data()
@@ -1001,21 +1025,18 @@ class Getmeb extends CI_Controller
 		}
 		
 		if (isset($this->params->step) && $this->params->step == '2') {
-			/* Create process id on table a_tmp_process */
-			/* 
+			/* Create process id on table a_tmp_process, and throw response "id_process" to client */
 			$data = [
 				'name' => sprintf('Importing table [%s]', $this->c_table),
-				'percent' => 5,
+				'percent' => 0,
 				'start_time' => time(),
+				'message' => 'Importing process...',
 				'log' => 'Initialization',
+				'status' => 'TRUE',
 			];
-			
-			if (!$return = $this->db->insert('a_tmp_process', array_merge($data, $this->create_log))) {
-				$this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
-			} 
-			$id_process = $this->db->insert_id();
-			$this->xresponse(TRUE, ['id_process' => $id_process], 200, FALSE);
-			*/
+			$id_process = $this->_update_process($data);
+			$this->session->set_userdata('id_process', $id_process);
+			// $this->xresponse(TRUE, ['id_process' => $id_process], 200, FALSE);
 			 
 			/* For import type [insert], adding column id_new */
 			if ($this->params->importtype == 'insert') {
@@ -1036,10 +1057,27 @@ class Getmeb extends CI_Controller
 			/* Select fields with new alias */
 			$this->db->select($tmp_fields);
 			$qry = $this->db->get($this->session->tmp_table);
-			if($qry->num_rows() > 0){
+			if($ttl_rows = $qry->num_rows() > 0){
+				
+				/* ============================ Parameters for progress status */
+				$rows = 0;
+				$step = intval($ttl_rows * 0.1);
+				$progress = $step;
+				
 				foreach($qry->result_array() as $key => $values){
 					$tmp_id = ['tmp_id' => $values['tmp_id']];
 					unset($values['tmp_id'], $values['status'], $values['id'], $values['id_new']);
+					
+					/* ============================ Update progress status */
+					$rows++;
+					if ($rows == $progress){
+						$percent = intval($rows/$ttl_rows*100);
+						$this->_update_process(['percent' => $percent, 'message' => sprintf('%s row(s) processed.', $rows), 'log' => sprintf('Importing Process...[%s percent - %s row(s) of %s]', $percent, $rows, $ttl_rows), 'status' => 'TRUE'], $id_process);
+						$progress += $step;
+					} else if ($rows == $ttl_rows){
+						$percent = intval($rows/$ttl_rows*100);
+						$this->_update_process(['percent' => $percent, 'message' => sprintf('%s row(s) processed.', $rows), 'log' => sprintf('Importing Process...[%s percent - %s row(s) of %s]', $percent, $rows, $ttl_rows), 'status' => 'TRUE'], $id_process);
+					}
 					
 					/* ============================ Validation Date/Time Format */
 					/* Retrieve field date from current table */
@@ -1152,7 +1190,10 @@ class Getmeb extends CI_Controller
 						$this->db->flush_cache();
 					}
 				}
-					
+				
+				/* ============================ Update progress status */
+				$this->_update_process(['message' => 'Exporting result data...', 'log' => 'Exporting result data...', 'status' => 'TRUE'], $id_process);
+				
 				/* Export the result to client */
 				$filename = 'result_'.$this->c_table.'_'.date('YmdHi').'.'.$this->params->filetype;
 				$fields = $this->db->list_fields($this->session->tmp_table);
@@ -1160,9 +1201,11 @@ class Getmeb extends CI_Controller
 				$this->db->select($fields);
 				$qry = $this->db->get($this->session->tmp_table);
 				if (! $result = $this->_export_data($qry, $filename, $this->params->filetype, TRUE)) {
+					$this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 					$this->xresponse(FALSE, ['message' => $this->lang->line('error_import_download_result')], 401);
 				}
 				
+				$this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 				$result['message'] = $this->lang->line('success_import_data');
 				$this->xresponse(TRUE, $result);
 			}
