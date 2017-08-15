@@ -120,6 +120,9 @@ class Systems_db extends CI_Controller {
 		$fields['stop_time'] 	= ['type' => 'INT', 'constraint' => '64', 'default' => 0];
 		$fields['duration_time'] = ['type' => 'INT', 'constraint' => '64', 'default' => 0];
 		$fields['message'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['log'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['file_url'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['status'] = ['type' => 'VARCHAR', 'constraint' => '5', 'null' => TRUE];
 		return $fields;
 	}
 	

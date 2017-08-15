@@ -290,15 +290,15 @@
 		$.ajax({ type: "GET",	url: $url_module,	data: { "get_process": 1, "id" : id_process },
 			success: function(result){
 				if (result.status){
-					if (result.percent < 100) {
-						Pace.bar.update(result.percent); 
-						getProcess(result.id);
+					if (result.data.percent < 100) {
+						Pace.bar.update(result.data.percent); 
+						getProcess(result.data.id);
 					} else {
-						Pace.bar.update(result.percent);
+						Pace.bar.update(result.data.percent);
 						setTimeout(function(){
 							col = []; row = [];
 							col.push("<br><br>");
-							col.push(result.message);
+							col.push(result.data.message);
 							col.push("<br><br>");
 							col.push(BSHelper.Button({ type:"button", label:"Close", cls:"btn-danger", onclick:"window.history.back();" }));
 							row.push(subCol(12, col)); col = [];

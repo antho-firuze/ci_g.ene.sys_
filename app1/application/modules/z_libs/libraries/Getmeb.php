@@ -126,6 +126,11 @@ class Getmeb extends CI_Controller
 			/* Become Array */
 			$this->params = $this->input->get();
 			
+			/* This params for getting process status */
+			if (isset($this->params['get_process'])) {
+				$this->_get_process();
+			}
+			
 			/* This process is for bypass methods which do not need to login */
 			if (count($this->exception_method) > 0){
 				if (! in_array($this->c_method, $this->exception_method)){
@@ -534,6 +539,14 @@ class Getmeb extends CI_Controller
 		}
 	}
 	
+	function _get_process()
+	{
+		if ($process = $this->base_model->getValue('*', 'a_tmp_process', 'id', $this->params['id'])){
+			$this->xresponse(TRUE, ['data' => $process]);
+		}
+		$this->xresponse(FALSE, ['message' => sprintf('Error: Retrieving process [id=%s] failed !', $this->params['id'])], 401);
+	}
+	
 	function _get_viewlog()
 	{
 		$result = [];
@@ -908,6 +921,21 @@ class Getmeb extends CI_Controller
 		}
 	}
 
+	function _update_process($data, $id)
+	{
+		if ($id){
+			if (!$return = $this->db->update('a_tmp_process', $data, ['id'=>$id]))) {
+				$this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
+			} 
+		} else {
+			if (!$return = $this->db->insert('a_tmp_process', array_merge($data, $this->create_log))) {
+				$this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
+			} 
+		}
+		$id_process = $this->db->insert_id();
+		$this->xresponse(TRUE, ['id_process' => $id_process], 200, FALSE);
+	}
+	
 	function _import_data()
 	{
 		if (isset($this->params->step) && $this->params->step == '1') {
@@ -976,14 +1004,17 @@ class Getmeb extends CI_Controller
 			/* Create process id on table a_tmp_process */
 			/* 
 			$data = [
-				'name' => 'Process name',
+				'name' => sprintf('Importing table [%s]', $this->c_table),
 				'percent' => 5,
 				'start_time' => time(),
+				'log' => 'Initialization',
 			];
+			
 			if (!$return = $this->db->insert('a_tmp_process', array_merge($data, $this->create_log))) {
 				$this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
 			} 
 			$id_process = $this->db->insert_id();
+			$this->xresponse(TRUE, ['id_process' => $id_process], 200, FALSE);
 			*/
 			 
 			/* For import type [insert], adding column id_new */
@@ -1267,7 +1298,7 @@ class Getmeb extends CI_Controller
 		return $return;
 	}
 	
-	function xresponse($status=TRUE, $response=array(), $statusHeader=200)
+	function xresponse($status=TRUE, $response=array(), $statusHeader=200, $exit=TRUE)
 	{
 		$BM =& load_class('Benchmark', 'core');
 		
@@ -1284,7 +1315,8 @@ class Getmeb extends CI_Controller
 		header("HTTP/1.0 $statusHeader");
 		header('Content-Type: application/json');
 		echo json_encode(array_merge($output, $response));
-		exit();
+		if ($exit) 
+			exit();
 	}
 	
 	function _getMenuByRoleId($role_id)
