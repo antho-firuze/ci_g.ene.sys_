@@ -254,7 +254,6 @@
 		$.ajax({ url: $url_module, method: "POST", data: data, 
 			success: function(result){ 
 				if (result.status) {
-					{* getProcess(result.id_process); *}
 					Pace.bar.update(100); 
 					setTimeout(function(){
 						col = []; row = [];

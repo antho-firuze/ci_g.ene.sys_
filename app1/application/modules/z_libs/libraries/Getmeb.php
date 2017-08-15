@@ -1206,6 +1206,7 @@ class Getmeb extends CI_Controller
 				}
 				
 				$this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+				$this->session->unset_userdata('id_process');
 				$result['message'] = $this->lang->line('success_import_data');
 				$this->xresponse(TRUE, $result);
 			}
