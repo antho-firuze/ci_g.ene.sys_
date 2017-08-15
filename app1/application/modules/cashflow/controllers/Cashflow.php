@@ -1691,7 +1691,7 @@ class Cashflow extends Getmeb
 	function cf_request()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			if (isset($this->params['for_requisition']) && !empty($this->params['for_requisition'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
@@ -1803,7 +1803,7 @@ class Cashflow extends Getmeb
 	function cf_requisition()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select doc_no from cf_request where id = t1.request_id)','(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			if (isset($this->params['for_purchase_order']) && !empty($this->params['for_purchase_order'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {

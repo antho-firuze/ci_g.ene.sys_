@@ -289,12 +289,12 @@
 	});
 	
 	function getProcess() {
-		$.ajax({ type: "GET",	url: $url_module,	data: { "get_process": 1, "id" : id_process },
+		$.ajax({ type: "GET",	url: $url_module,	data: { "get_process": 1 },
 			success: function(result){
 				if (result.status){
 					if (result.data.percent < 100) {
 						Pace.bar.update(result.data.percent); 
-						getProcess(result.data.id);
+						getProcess();
 					} 
 				}
 			}

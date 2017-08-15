@@ -127,7 +127,7 @@ class Getmeb extends CI_Controller
 			$this->params = $this->input->get();
 			
 			/* This params for getting process status */
-			if (isset($this->params['get_process'])) {
+			if (isset($this->params['get_process']) && !empty($this->params['get_process'])) {
 				$this->_get_process();
 			}
 			
