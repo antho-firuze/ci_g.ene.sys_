@@ -284,15 +284,17 @@
 			}
 		});
 		
-		getProcess();
+		setTimeout( getProcess(), 500);
 	});
 	
 	function getProcess() {
 		$.ajax({ type: "GET",	url: $url_module,	data: { "get_process": 1 },
 			success: function(result){
+				console.log(result); 
 				if (result.status){
-					if (result.data.percent < 100) {
+					if (result.data.percent < 95) {
 						Pace.bar.update(result.data.percent); 
+						console.log(result.data.percent); 
 						getProcess();
 					} 
 				}

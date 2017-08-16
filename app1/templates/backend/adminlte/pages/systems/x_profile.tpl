@@ -68,14 +68,14 @@
 			{	title:"Configuration", idname:"tab-dat", 
 				content:function(){
 					col = []; 
-					col.push(BSHelper.Combobox({ label:"Layout", idname:"layout", required: true,
+					col.push(BSHelper.Combobox({ label:"Layout", idname:"layout", required: true, value: "layout-fixed",
 						list:[
 							{ id:"layout-boxed", name:"Boxed" },
 							{ id:"layout-fixed", name:"Fixed" },
 							{ id:"sidebar-collapse", name:"Sidebar Collapse" },
 						]
 					}));
-					col.push(BSHelper.Combobox({ label:"Skin Color", idname:"skin", required: true,
+					col.push(BSHelper.Combobox({ label:"Skin Color", idname:"skin", required: true, value: "skin-blue",
 						list:[
 							{ id:"skin-blue", name:"Blue" },
 							{ id:"skin-black", name:"Black" },
@@ -91,7 +91,7 @@
 							{ id:"skin-green-light", name:"Green Light" },
 						] 
 					}));
-					col.push(BSHelper.Combobox({ label:"Screen Timeout", idname:"screen_timeout", required: true,
+					col.push(BSHelper.Combobox({ label:"Screen Timeout", idname:"screen_timeout", required: true, value: "3600000",
 						list:[
 							{ id:"60000", name:"1 minute" },
 							{ id:"120000", name:"2 minutes" },
@@ -110,7 +110,7 @@
 							{ id:"18000000", name:"5 hours" },
 						] 
 					}));
-					col.push(BSHelper.Combobox({ label:"Language", idname:"language", required: true,
+					col.push(BSHelper.Combobox({ label:"Language", idname:"language", required: true, value: "english",
 						list:[
 							{ id:"english", name:"English" },
 							{* { id:"indonesia", name:"Indonesia" }, *}
@@ -219,7 +219,10 @@
 						BootstrapDialog.show({ message:data.message, closable: false,
 							buttons: [{ label: 'OK', hotkey: 13, 
 								action: function(dialogRef) {
-									$.getJSON('{$.const.RELOAD_LNK}', '', function(data){ window.location.replace(window.location.href); });
+									$.getJSON('{$.const.RELOAD_LNK}', '', function(data){ 
+										{* window.location.replace(window.location.href);  *}
+										window.history.back();
+									});
 								} 
 							}],
 						});

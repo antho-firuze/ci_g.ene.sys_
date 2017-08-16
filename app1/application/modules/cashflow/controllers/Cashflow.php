@@ -30,7 +30,7 @@ class Cashflow extends Getmeb
 	function cf_ar()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['doc_no']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no']);
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
@@ -228,6 +228,12 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* This Event is used for Import */
+			if ($this->params->event == 'pre_import'){
+				$this->identity_keys 		= ['doc_no'];
+				$this->imported_fields 	= ['org_id','orgtrx_id','department_id','description','is_receipt','doc_no','doc_date','doc_ref_no','doc_ref_date'];
+				$this->validation_fk 		= ['org_id' => 'a_org', 'orgtrx_id' => 'a_org'];
+			}
 			/* Check duplicate doc_no */
 			if ($this->params->event == 'pre_post_put'){
 				if ($this->params->id){
@@ -334,6 +340,12 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* This Event is used for Import */
+			if ($this->params->event == 'pre_import'){
+				$this->identity_keys 		= ['ar_ap_id','seq'];
+				$this->imported_fields 	= ['ar_ap_id','account_id','bpartner_id','seq','doc_date','payment_plan_date','description','sub_amt','ttl_amt','vat_amt','note'];
+				$this->validation_fk 		= ['ar_ap_id' => 'cf_ar_ap', 'account_id' => 'cf_account', 'bpartner_id' => 'c_bpartner'];
+			}
 			/* if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['is_plan'] = 1;
 				if (! $this->{$this->mdl}->cf_ar_ap_valid_amount($this->mixed_data)){ 
@@ -353,6 +365,29 @@ class Cashflow extends Getmeb
 				$this->params['is_plan'] = 1;
 				$this->params['ar_ap_id'] = $this->base_model->getValue('ar_ap_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->ar_ap_id;
 				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
+			}
+		}
+	}
+	
+	function cf_cashbank_balance()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['doc_no','(select name from cf_account where id = t1.account_id)']);
+			
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
 		}
 	}
@@ -713,7 +748,7 @@ class Cashflow extends Getmeb
 	function cf_oinvoice()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			$this->params['level'] = 1;
 			$this->params['where_in']['t1.doc_type'] = ['5', '6'];

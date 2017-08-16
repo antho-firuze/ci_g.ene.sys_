@@ -304,6 +304,23 @@ class Cashflow_db extends CI_Controller {
 		return $fields;
 	}
 	
+	function table_cf_cashbank_balance()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		
+		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['account_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['doc_ref_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE];
+		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		return $fields;
+	}
+	
 	/* cf_ar_ap: ar & ap */
 	function table_cf_ar_ap()
 	{

@@ -58,6 +58,13 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
+	function cf_cashbank_balance($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from cf_account where id = t1.account_id) as account_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date";
+		$params['table'] 	= "cf_cashbank_balance as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
 	function cf_cashbank_r($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.received_date, '".$this->session->date_format."') as received_date";

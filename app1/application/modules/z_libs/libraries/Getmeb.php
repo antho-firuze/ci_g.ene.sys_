@@ -939,7 +939,7 @@ class Getmeb extends CI_Controller
 		if ($id){
 			$this->db->set('log', "log || E'\r\n' || '".$data['log']."'", FALSE);
 			unset($data['log']);
-			if (isset($data['finished_at']) && !empty($data['finished_at'])){
+			if (isset($data['finished_at'])){
 				$this->db->set('duration', "finished_at - created_at", FALSE);
 			}
 			if (isset($data['stop_time']) && !empty($data['stop_time'])){
@@ -1010,6 +1010,7 @@ class Getmeb extends CI_Controller
 					/* Next, Row #2 until end is value */
 					foreach($values as $k => $v){
 						$val[$title[$k]] = !empty($v) && $v && $v != '' ? $v : NULL;
+						$val[$title[$k]] = $val[$title[$k]] == 'Y' ? '1' : $val[$title[$k]] == 'N' ? '0' : $val[$title[$k]];
 					}
 					$this->db->insert($tmp_table, $val);
 				}
@@ -1038,17 +1039,27 @@ class Getmeb extends CI_Controller
 			$this->session->set_userdata('id_process', $id_process);
 			// $this->xresponse(TRUE, ['id_process' => $id_process], 200, FALSE);
 			 
+			/* fields syncronization with target table */
+			$tmp_fields = $this->db->list_fields($this->session->tmp_table);
+			/* flip it, so it can be compare */
+			$tmp_flip = array_flip($tmp_fields);
+			$params_flip = array_flip($this->params->fields);
+			/* Compare result to imported_fields, only grab which exist in the imported_fields */
+			$tmp_fields = array_flip(array_intersect_key($tmp_flip, $params_flip));
+			/* Adding default fields */
+			$tmp_fields[] = 'tmp_id';
+			$tmp_fields[] = 'status';
+			
 			/* For import type [insert], adding column id_new */
 			if ($this->params->importtype == 'insert') {
 				/* Adding column [id] */
 				$this->load->dbforge();
 				$fields['id_new'] = ['type' => 'INT', 'constraint' => 9];
 				$this->dbforge->add_column($this->session->tmp_table, $fields);
+				/* Adding [id_new] to tmp_fields */
+				$tmp_fields[] = 'id_new';
 			}
 			
-			/* fields syncronization with target table */
-			$tmp_fields = $this->db->list_fields($this->session->tmp_table);
-			$params_flip = array_flip($this->params->fields);
 			foreach($tmp_fields as $k => $v){
 				if (isset($params_flip[$v]))
 					$tmp_fields[$k] = $v . ' as ' . $params_flip[$v];
@@ -1061,6 +1072,7 @@ class Getmeb extends CI_Controller
 				
 				/* ============================ Parameters for progress status */
 				$rows = 0;
+				$ttl_rows = $qry->num_rows();
 				$step = intval($ttl_rows * 0.1);
 				$progress = $step;
 				
