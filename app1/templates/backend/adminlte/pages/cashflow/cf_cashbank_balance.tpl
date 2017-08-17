@@ -28,17 +28,14 @@
 		tableWidth: '130%',
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
-			{* { pageid: 122, subKey: 'ar_ap_id', title: 'Outflow Line', }, *}
-			{ pageid: 123, subKey: 'ar_ap_id', title: 'Outflow Plan', },
+			{ pageid: 125, subKey: 'cashbank_id', title: 'Cash/Bank Payment Line', },
 		],
 		columns: [
-			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
-			{ width:"100px", orderable:false, data:"department_name", title:"Department" },
+			{* { width:"100px", orderable:false, data:"doc_no", title:"Doc No" }, *}
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Date" },
+			{ width:"150px", orderable:false, data:"account_name", title:"Account" },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Total", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_money(data); } },
 		],
 		order: ['id desc'],
 	};

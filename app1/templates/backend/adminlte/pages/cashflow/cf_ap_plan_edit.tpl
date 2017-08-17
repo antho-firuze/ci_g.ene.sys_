@@ -22,8 +22,8 @@
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info" });
-	var format_currency = "'alias': 'currency', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'autoGroup': true, 'autoUnmask': true";
-	col.push(BSHelper.Input({ horz:false, type:"number", label:"Line No", idname:"seq", required: false, value: 0, }));
+	var format_money = "'alias': 'currency', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'autoGroup': true, 'autoUnmask': true";
+	col.push(BSHelper.Input({ horz:false, type:"number", label:"Line No", idname:"seq", required: false, value: 0, step: "1", min: "0" }));
 	{* col.push(BSHelper.Input({ horz:false, type:"date", label:"PO ETA", idname:"po_eta", cls:"auto_ymd", format:"{$.session.date_format}", required: false, disabled: true })); *}
 	col.push(BSHelper.Combobox({ horz:false, label:"Business Partner", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_vendor='1'", remote: true, required: true, disabled: ($act == "edt" ? true : false) }));
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Business Partner TOP (Days)", idname:"po_top", style: "text-align: right;", step: ".01", required: false, value: 0, placeholder: "0", readonly: true }));
@@ -32,9 +32,9 @@
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Note", idname:"note", required: true, }));
 	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Combobox({ horz:false, label:"Account", label_link:"{$.const.PAGE_LNK}?pageid=85", textField:"code_name", idname:"account_id", url:"{$.php.base_url('cashflow/cf_account')}?filter=is_receipt='0'", remote: true, required: true }));
-	col.push(BSHelper.Input({ horz:false, type:"number", label:"Sub Amount", idname:"sub_amt", style: "text-align: right;", step: ".01", required: false, value: 0, onchange:"calculate_amount()", placeholder: "0.00" }));
-	col.push(BSHelper.Input({ horz:false, type:"number", label:"VAT Amount", idname:"vat_amt", style: "text-align: right;", step: ".01", required: false, value: 0, onchange:"calculate_amount()", placeholder: "0.00" }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Total Amount", idname:"ttl_amt", style: "text-align: right;", format: format_currency, required: false, value: 0, readonly: true, }));
+	col.push(BSHelper.Input({ horz:false, type:"number", label:"Sub Amount", idname:"sub_amt", style: "text-align: right;", step: ".01", min: "0", required: false, value: 0, onchange:"calculate_amount()", placeholder: "0.00" }));
+	col.push(BSHelper.Input({ horz:false, type:"number", label:"VAT Amount", idname:"vat_amt", style: "text-align: right;", step: ".01", min: "0", required: false, value: 0, onchange:"calculate_amount()", placeholder: "0.00" }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Total Amount", idname:"ttl_amt", style: "text-align: right;", format: format_money, required: false, value: 0, readonly: true, }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));

@@ -22,7 +22,7 @@
 		processMenuDisable: ['btn-process1'],
 	};
 	{* DataTable Init *}
-	var format_currency = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
+	var format_money = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '130%',
@@ -37,7 +37,7 @@
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"received_date", title:"Received Date" },
 			{ width:"150px", orderable:false, data:"bpartner_name", title:"Business Partner" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_currency(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_money(data); } },
 		],
 		order: ['id desc'],
 	};
