@@ -57,7 +57,7 @@ $( document ).ready(function() {
 					console.log(result);
 					window.open(result.file_url);
 					
-					setTimeout(function(){ window.history.back(); }, 500); 
+					// setTimeout(function(){ window.history.back(); }, 500); 
 				}
 			});
 
