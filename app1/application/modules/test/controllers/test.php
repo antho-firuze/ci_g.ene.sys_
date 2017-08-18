@@ -15,6 +15,13 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
+	function qry()
+	{
+		$fields = $this->db->list_fields($this->session->tmp_table);
+		$fields = array_diff($fields, ['tmp_id']);
+		var_dump($fields);
+	}
+	
 	function update_progress()
 	{
 		/* Way #1 */

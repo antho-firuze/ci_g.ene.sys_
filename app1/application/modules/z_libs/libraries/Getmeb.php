@@ -994,7 +994,7 @@ class Getmeb extends CI_Controller
 					/* Row #1, for header/title */
 					$fields['tmp_id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
 					foreach($values as $k => $v){
-						$fn = $values[$k] ? $v : $k;
+						$fn = !empty($v) && $v && $v != '' ? $v : $k;
 						$title[$k] = $fn;
 						$fields[$fn] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE];
 					}
@@ -1217,8 +1217,11 @@ class Getmeb extends CI_Controller
 					$this->xresponse(FALSE, ['message' => $this->lang->line('error_import_download_result')], 401);
 				}
 				
+				/* Update status on process table */
 				$this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+				/* Unset id_process, so can't be called again from client  */
 				$this->session->unset_userdata('id_process');
+				
 				$result['message'] = $this->lang->line('success_import_data');
 				$this->xresponse(TRUE, $result);
 			}
