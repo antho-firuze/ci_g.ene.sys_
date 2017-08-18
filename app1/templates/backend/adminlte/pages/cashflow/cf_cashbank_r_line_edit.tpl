@@ -92,8 +92,8 @@
 		onSelect: function(rowData){
 			{* $("#doc_no").val(rowData.doc_no); *}
 			{* $("#doc_date").val(rowData.doc_date); *}
-			$("#ori_amount").val(rowData.amount);
-			$("#amount").val(rowData.amount);
+			$("#ori_amount").val(rowData.net_amount);
+			$("#amount").val(rowData.net_amount);
 			$("#note").val(rowData.note);
 			$("#description").val(rowData.description);
 			$("#account_id").shollu_cb('setValue', rowData.account_id);

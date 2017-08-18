@@ -205,6 +205,7 @@ class Cashflow_db extends CI_Controller {
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		// $fields['is_sotrx'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
 		$fields['is_receipt'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['account_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_type'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
 		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['order_plan_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
@@ -221,12 +222,9 @@ class Cashflow_db extends CI_Controller {
 		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
 		
 		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['adj_amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['net_amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
-		// $fields['sub_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
-		// $fields['vat_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
-		// $fields['grand_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
-		// $fields['plan_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
-		$fields['account_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		return $fields;
 	}
 	
