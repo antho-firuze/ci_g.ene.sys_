@@ -43,6 +43,7 @@ $( document ).ready(function() {
 		
 		form.validator().on('submit', function(e) {
 			if (e.isDefaultPrevented()) { return false;	} 
+			e.preventDefault();
 			
 			form.find("[type='submit']").prop( "disabled", true );
 			
@@ -53,6 +54,7 @@ $( document ).ready(function() {
 					BootstrapDialog.alert(result.message);
 					form.find("[type='submit']").prop( "disabled", false );
 				} else {
+					console.log(result);
 					window.open(result.file_url);
 					
 					setTimeout(function(){ window.history.back(); }, 500); 
