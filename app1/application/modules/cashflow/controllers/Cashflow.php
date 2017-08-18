@@ -1931,4 +1931,35 @@ class Cashflow extends Getmeb
 		}
 	}
 	
+	function rpt_cashflow_projection()
+	{
+		if ($this->r_method == 'GET') {
+			// $this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['get_request_id']) && !empty($this->params['get_request_id'])) {
+				$result = $this->base_model->getValueArray('request_id', 'cf_requisition', 'id', $this->params['requisition_id']);
+				$this->xresponse(TRUE, ['data' => $result]);
+			}
+			
+			if (isset($this->params['for_purchase_order']) && !empty($this->params['for_purchase_order'])) {
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$order_id = isset($this->params['order_id']) && $this->params['order_id'] ? $this->params['order_id'] : 0;
+					$this->params['select'] = "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_requisition where id = t1.requisition_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
+					$this->params['where_custom'][] = "requisition_id = (select requisition_id from cf_order where id = $order_id)";
+					// $this->params['where_custom'][] = "(t1.qty - (select coalesce(sum(qty),0) from cf_order_line where is_active = '1' and is_deleted = '0' and requisition_line_id = t1.id)) > 0";
+				}
+			}
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+	
 }

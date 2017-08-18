@@ -724,7 +724,7 @@ class Getmeb extends CI_Controller
 		
 		$this->params['export'] = 1;
 		$this->params['select'] = $select;
-		if (! $result = $this->{$this->mdl}->{'get_'.$this->c_method}($this->params)){
+		if (! $result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 			$result['data'] = [];
 			$result['message'] = $this->base_model->errors();
 			$this->xresponse(FALSE, $result);
@@ -1553,12 +1553,12 @@ class Getmeb extends CI_Controller
 				SELECT 
 					id, parent_id, 0 as level, cast(id as text)
 				FROM a_menu
-				WHERE (parent_id is NULL or parent_id = 0) and is_deleted = '0' and is_active = '1' and is_submodule = '0' and type != 'P'
+				WHERE (parent_id is NULL or parent_id = 0) and is_deleted = '0' and is_active = '1' and is_submodule = '0' 
 				UNION ALL
 				SELECT 
 					mn.id, mt.id, mt.level + 1, mt.menu_active || ',' || mn.id
 				FROM a_menu mn, menu_tree mt 
-				WHERE mn.parent_id = mt.id and is_deleted = '0' and is_active = '1' and is_submodule = '0' and type != 'P'
+				WHERE mn.parent_id = mt.id and is_deleted = '0' and is_active = '1' and is_submodule = '0' 
 			) 
 			SELECT * FROM menu_tree WHERE id != 1 $cur_page ORDER BY level, parent_id;";
 		$qry = $this->db->query($str);
@@ -1583,7 +1583,7 @@ class Getmeb extends CI_Controller
 				SELECT
 					id, parent_id, (select count(distinct am.id) from a_menu as am where am.parent_id = a_menu.id) as childno, line_no, is_parent, name, icon
 				FROM a_menu
-				WHERE is_deleted = '0' and is_active = '1' and is_submodule = '0' and type != 'P' and exists(select menu_id from a_role_menu where role_id = $role_id and is_deleted = '0' and is_active = '1' and menu_id = a_menu.id)
+				WHERE is_deleted = '0' and is_active = '1' and is_submodule = '0' and exists(select menu_id from a_role_menu where role_id = $role_id and is_deleted = '0' and is_active = '1' and menu_id = a_menu.id)
 				UNION ALL
 				SELECT
 					mn.id, mn.parent_id, (select count(distinct am.id) from a_menu as am where am.parent_id = mn.id) as childno, mn.line_no, mn.is_parent, mn.name, mn.icon
