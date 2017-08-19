@@ -262,7 +262,8 @@
 	
 	BSHelper.Label = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
-		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
+		// var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
+		var lblname = o.label ? '&nbsp;<span style="color:'+(o.required ? 'red' : 'black')+';vertical-align:-webkit-baseline-middle;white-space:nowrap;">'+o.label+(o.required ? ' *' : '')+'</span>' : o.label;
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
 
 		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
@@ -272,7 +273,8 @@
 	
 	BSHelper.Input = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
-		var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
+		// var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
+		var lblname = o.label ? '&nbsp;<span style="color:'+(o.required ? 'red' : 'black')+';vertical-align:-webkit-baseline-middle;white-space:nowrap;">'+o.label+(o.required ? ' *' : '')+'</span>' : o.label;
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
 		var el = (o.type == 'textarea') ? 'textarea' : 'input';
 		var input = $('<'+el+' />', {class: "form-control", id:o.idname, name:o.idname, value:o.value}); 

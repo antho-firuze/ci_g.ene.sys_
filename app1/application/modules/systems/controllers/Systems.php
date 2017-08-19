@@ -6,7 +6,7 @@ class Systems extends Getmeb
 {
 	function __construct() {
 		/* Exeption list methods is not required login */
-		$this->exception_method = ['x_forgot','x_reset','x_login','x_logout','x_reload','x_page','x_role_selector','a_menu_parent_list','a_org_parent_list'];
+		$this->exception_method = ['x_forgot','x_reset','x_login','x_logout','x_reload','x_page','x_role_selector','a_menu_parent_list','a_org_parent_list','x_srcmenu'];
 		parent::__construct();
 		
 	}

@@ -15,18 +15,15 @@
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $bread = {$.php.json_encode($bread)}, $act = getURLParameter("action");
 	{* For design form interface *}
-	var col = [], row = [];
+	var col = [], row = [], a = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info" });
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", format: "'casing': 'upper'", required: true, }));
-	col.push(BSHelper.Input({ horz:false, type:"date", label:"Doc Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
-	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
-	{* col.push(BSHelper.Checkbox({ horz:false, label:"Is Inflow", idname:"is_sotrx", value:1, disabled: ($act == "edt" ? true : false) })); *}
+	{* col.push(BSHelper.Input({ horz:false, type:"date", label:"Period", idname:"doc_date", cls:"auto_ymd", format:"mm-yyyy", required: true })); *}
+	{* col.push(BSHelper.Input({ horz:false, type:"number", label:"Month", idname:"month", style: "text-align: right;", step: "1", min: "1", max: "12", required: true, value: 1, placeholder: "00" })); *}
+	a.push(subCol(6, BSHelper.Input({ horz: true, lblsize: "col-sm-4", colsize: "col-sm-8", type:"number", label:"Month", idname:"month", required: true, placeholder:"Month", style: "text-align: right;", step: "1", min: "1", max: "12", required: true, value: 1 })));
+	a.push(subCol(6, BSHelper.Input({ horz: true, lblsize: "col-sm-4", colsize: "col-sm-8", type:"number", label:"Year", idname:"year", required: true, placeholder:"Year", style: "text-align: right;", step: "1", min: "2010", max: "2019", required: true, value: 2017 })));
+	col.push(BSHelper.Label({ horz:false, label:"", idname:"period", required: true, elcustom:subRow(a) }));
 	row.push(subCol(6, col)); col = [];
-	{* col.push(BSHelper.Combobox({ horz:false, label:"Business Partner", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_vendor='1'", remote: true, required: true, disabled: ($act == "edt" ? true : false) })); *}
-	col.push(BSHelper.Combobox({ horz:false, label:"Department", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"department_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=4&parent_id={$.session.orgtrx_id}", remote: true }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Reference No", idname:"doc_ref_no", required: false, required: false, }));
-	col.push(BSHelper.Input({ horz:false, type:"date", label:"Reference Date", idname:"doc_ref_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
 	form1.append(subRow(subCol()));
