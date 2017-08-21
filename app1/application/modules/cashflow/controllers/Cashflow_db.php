@@ -40,19 +40,6 @@ class Cashflow_db extends CI_Controller {
 		$fields['type'] = ['type' => 'CHAR', 'constraint' => '1', 'default' => ''];
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
-		$fields['month02'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => FALSE, 'default' => '0'];
-		$fields['month01'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => FALSE, 'default' => '0'];
-		$fields['month03'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => FALSE, 'default' => '0'];
-		$fields['month04'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => FALSE, 'default' => '0'];
-		$fields['month05'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => FALSE, 'default' => '0'];
-		$fields['month06'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => FALSE, 'default' => '0'];
-		$fields['month07'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => FALSE, 'default' => '0'];
-		$fields['month08'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => FALSE, 'default' => '0'];
-		$fields['month09'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => FALSE, 'default' => '0'];
-		$fields['month10'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => FALSE, 'default' => '0'];
-		$fields['month11'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => FALSE, 'default' => '0'];
-		$fields['month12'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => FALSE, 'default' => '0'];
-		$fields['total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => FALSE, 'default' => '0'];
 		return $fields;
 	}
 	

@@ -386,8 +386,26 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate period */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_date = $this->base_model->getValue('doc_date', $this->c_table, 'id', $this->params->id)->doc_date;
+				} else {
+					$doc_date = null;
+				}
+				/* Convert to first date */
+				$params_doc_date = date_first(NULL, date('Y',strtotime($this->params->doc_date)), date('m',strtotime($this->params->doc_date)));
+				if ($doc_date != $params_doc_date) {
+						$HadSameDocDate = $this->base_model->isDataExist($this->c_table, ['doc_date' => $params_doc_date, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocDate) {
+						$period = date('m',strtotime($this->params->doc_date)).'-'.date('Y',strtotime($this->params->doc_date));
+						$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_duplicate_balance_amt'), $period)], 401);
+					}
+				}
+			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
+				$this->mixed_data['doc_date'] = date_first(NULL, date('Y',strtotime($this->params->doc_date)), date('m',strtotime($this->params->doc_date)));
 			}
 		}
 	}
@@ -1933,32 +1951,87 @@ class Cashflow extends Getmeb
 	
 	function rpt_cashflow_projection()
 	{
-		if ($this->r_method == 'GET') {
-			// $this->_get_filtered(TRUE, TRUE);
-			
-			if (isset($this->params['get_request_id']) && !empty($this->params['get_request_id'])) {
-				$result = $this->base_model->getValueArray('request_id', 'cf_requisition', 'id', $this->params['requisition_id']);
-				$this->xresponse(TRUE, ['data' => $result]);
-			}
-			
-			if (isset($this->params['for_purchase_order']) && !empty($this->params['for_purchase_order'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$order_id = isset($this->params['order_id']) && $this->params['order_id'] ? $this->params['order_id'] : 0;
-					$this->params['select'] = "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_requisition where id = t1.requisition_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
-					$this->params['where_custom'][] = "requisition_id = (select requisition_id from cf_order where id = $order_id)";
-					// $this->params['where_custom'][] = "(t1.qty - (select coalesce(sum(qty),0) from cf_order_line where is_active = '1' and is_deleted = '0' and requisition_line_id = t1.id)) > 0";
-				}
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+		if ($this->r_method == 'OPTIONS') {
+			$fdate = date_first(NULL, $this->params->fyear, $this->params->fmonth);
+			$tdate = date_first(NULL, $this->params->tyear, $this->params->tmonth);
+			/* Validation */
+			$arr = [];
+			if (($return = date_differ($fdate, $tdate)+1) < 2){
+				$date = strtotime($fdate);
+				$arr[0]['title'] = date('m',$date).date('Y',$date);
+				$arr[0]['period'] = '('.date('m',$date).','.date('Y',$date).')';
+				// $arr[0]['period'] = '('.$this->params->fmonth.','.$this->params->fyear.')';
 			} else {
-				$this->xresponse(TRUE, $result);
+				$date = strtotime($fdate);
+				for ($x = 0; $x <= $return-1; $x++) {
+					$arr[$x]['title'] = date('m',$date).date('Y',$date);
+					$arr[$x]['period'] = '('.date('m',$date).','.date('Y',$date).')';
+					$date = strtotime("+1 month", $date);
+				} 
 			}
+			$str = 'select t1.account_id, (select is_receipt from cf_account where id = t1.account_id), type, seq, description, ';
+			foreach($arr as $i =>$v){
+				$str .= '(select coalesce(sum(amount), 0) as "'.$v['title'].'"' ." from cf_invoice where is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+								and ((extract(month from received_plan_date),extract(year from received_plan_date)) = ".$v['period']." or (extract(month from payment_plan_date),extract(year from payment_plan_date)) = ".$v['period']."))";
+				if ((count($arr)-1)!=$i)
+					$str .= ', ';
+			}
+			$str .= " from cf_rpt_cashflow_projection t1 order by seq";
+			// debug($str);
+			$qry = $this->db->query($str);
+			$rows = $qry->result();
+			/* Define Variable */
+			// $amt_25 = 0;
+			// $amt_30 = 0;
+			// $amt_39 = 0;
+			// $amt_41 = 0;
+			// $amt_45 = 0;
+			// $amt_47 = 0;
+			// $amt_48 = $this->db->query("select coalesce((select amount from cf_cashbank_balance where is_active = '1' and is_deleted = '0' and doc_date = '".$fdate."'), 0) as amount")->row()->amount;
+			// $amt_49 = 0;
+			foreach($arr as $v){
+				$ttl[0][$v['title']] = 0;
+				$ttl[25][$v['title']] = 0;
+				$ttl[30][$v['title']] = 0;
+				$ttl[39][$v['title']] = 0;
+				$ttl[41][$v['title']] = 0;
+				$ttl[45][$v['title']] = 0;
+				$ttl[47][$v['title']] = $this->db->query("select coalesce((select amount from cf_cashbank_balance where is_active = '1' and is_deleted = '0' and doc_date = '".$fdate."'), 0) as amount")->row()->amount;
+				$ttl[48][$v['title']] = 0;
+				$ttl[49][$v['title']] = 0;
+			}
+			// debug($ttl);
+			/* Iteration process */
+			// debug($rows);
+			foreach($rows as $key => $val){
+				if ($val->account_id){
+					foreach($arr as $v){
+						$ttl[0][$v['title']] += $val->is_receipt == '1' ? $rows[$key]->{$v['title']} : -$rows[$key]->{$v['title']};
+						if ($val->type == 'O') $ttl[25][$v['title']] += $val->is_receipt == '1' ? $rows[$key]->{$v['title']} : -$rows[$key]->{$v['title']};
+						if ($val->type == 'I') $ttl[30][$v['title']] += $val->is_receipt == '1' ? $rows[$key]->{$v['title']} : -$rows[$key]->{$v['title']};
+						if ($val->type == 'F') $ttl[39][$v['title']] += $val->is_receipt == '1' ? $rows[$key]->{$v['title']} : -$rows[$key]->{$v['title']};
+						if ($val->type == 'Z') $ttl[45][$v['title']] += $val->is_receipt == '1' ? $rows[$key]->{$v['title']} : -$rows[$key]->{$v['title']};
+					}
+				} else {
+					foreach($arr as $v){
+						// $rows[0]['112017'] = '';
+						$rows[$key]->{$v['title']} = '';
+						if ($val->seq == 25) $rows[$key]->{$v['title']} = $ttl[$val->seq][$v['title']];
+						if ($val->seq == 30) $rows[$key]->{$v['title']} = $ttl[$val->seq][$v['title']];
+						if ($val->seq == 39) $rows[$key]->{$v['title']} = $ttl[$val->seq][$v['title']];
+						if ($val->seq == 41) $rows[$key]->{$v['title']} = $ttl[25][$v['title']] + $ttl[30][$v['title']] + $ttl[39][$v['title']];
+						if ($val->seq == 45) $rows[$key]->{$v['title']} = $ttl[$val->seq][$v['title']];
+						if ($val->seq == 47) $rows[$key]->{$v['title']} = $ttl[$val->seq][$v['title']];
+						if ($val->seq == 48) $rows[$key]->{$v['title']} = $ttl[0][$v['title']] + $ttl[47][$v['title']];
+						if ($val->seq == 49) $rows[$key]->{$v['title']} = $ttl[0][$v['title']];
+					}
+				}
+					
+				// foreach($arr as $i => $v){
+					// $arr[$i]['25']
+				// }
+			}
+			$this->xresponse(TRUE, $rows);
 		}
 	}
 	

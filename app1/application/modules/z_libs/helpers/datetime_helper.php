@@ -1,6 +1,25 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 // DATE & TIME ===========================
+if ( ! function_exists('date_differ'))
+{
+	/* date_differ('2017-01-01', '2017-12-01'); */
+	function date_differ($date1, $date2) 
+	{
+		$ts1 = strtotime($date1);
+		$ts2 = strtotime($date2);
+
+		$year1 = date('Y', $ts1);
+		$year2 = date('Y', $ts2);
+
+		$month1 = date('m', $ts1);
+		$month2 = date('m', $ts2);
+
+		$diff = (($year2 - $year1) * 12) + ($month2 - $month1);
+		return $diff;
+	}
+}
+
 if ( ! function_exists('date_first'))
 {
 	function date_first($format=NULL, $y, $m) {
