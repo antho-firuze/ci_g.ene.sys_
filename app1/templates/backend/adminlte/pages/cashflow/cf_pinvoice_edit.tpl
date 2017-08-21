@@ -28,18 +28,18 @@
 		] 
 	}));
 	col.push(BSHelper.Combobox({ horz:false, label:"Doc No", label_link:"{$.const.PAGE_LNK}?pageid=93", textField:"code_name", idname:"order_id", url:"{$.php.base_url('cashflow/cf_porder')}?for_invoice=1&act="+$act, remote: true, required: true, disabled: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Payment Note", textField:"note", idname:"plan_id", url:"{$.php.base_url('cashflow/cf_porder_plan')}?for_invoice=1", remote: true, required: ($act=='edt'?false:true), disabled: true }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Payment Note", idname:"note", required: false, readonly: true, hidden: true }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Vendor", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_vendor='1'", remote: true, required: true, disabled: ($act=='edt'?false:true) }));
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Vendor TOP (Days)", idname:"po_top", style: "text-align: right;", step: ".01", required: false, value: 0, placeholder: "0", readonly: true }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"PO ETA", idname:"po_eta", cls:"auto_ymd", format:"{$.session.date_format}", required: false, disabled: true }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", format: "'casing': 'upper'", required: true, }));
-	col.push(BSHelper.Input({ horz:false, type:"date", label:"Doc Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
-	col.push(BSHelper.Input({ horz:false, type:"date", label:"Payment Plan Date", idname:"payment_plan_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
-	row.push(subCol(6, col)); col = [];
-	col.push(BSHelper.Combobox({ horz:false, label:"Payment Note", textField:"note", idname:"plan_id", url:"{$.php.base_url('cashflow/cf_porder_plan')}?for_invoice=1", remote: true, required: ($act=='edt'?false:true), disabled: true }));
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Payment Note", idname:"note", required: false, readonly: true, hidden: true }));
-	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: true, value: 0, placeholder: "0.00", readonly: true }));
-	col.push(BSHelper.Input({ horz:false, type:"number", label:"Adjustment Amount", idname:"adj_amount", style: "text-align: right;", step: ".01", required: true, value: 0, onchange:"calculate_amount()", placeholder: "0.00" }));
+	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: false, value: 0, placeholder: "0.00", readonly: true }));
+	col.push(BSHelper.Input({ horz:false, type:"number", label:"Adjustment Amount", idname:"adj_amount", style: "text-align: right;", step: ".01", required: false, value: 0, onchange:"calculate_amount()", placeholder: "0.00", readonly: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Net Amount", idname:"net_amount", style: "text-align: right;", format: format_money, required: false, value: 0, readonly: true, placeholder: "0.00", }));
+	row.push(subCol(6, col)); col = [];
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", format: "'casing': 'upper'", required: true, }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"Invoice Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"Payment Plan Date", idname:"payment_plan_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Reference No", idname:"doc_ref_no", required: false, required: false, }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Reference Date", idname:"doc_ref_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
@@ -61,8 +61,12 @@
 	function calculate_amount(){ 
 		{* $("#ttl_amt").val( parseFloat($("#sub_amt").inputmask('unmaskedvalue')) + parseFloat($("#vat_amt").inputmask('unmaskedvalue')) ); *}
 		$("#net_amount").val( parseFloat($("#amount").val()) + parseFloat($("#adj_amount").val()) );
+		$(".auto_ymd").trigger('change');
+		form1.validator('update').validator('validate');
 	}
 	
+	$("#po_top").closest(".form-group").css("display", "none");
+
 	function clearVal(){
 		$("#order_id").shollu_cb('setValue', '');
 		$("#order_id").shollu_cb('disable', false);
@@ -105,6 +109,7 @@
 			$("#amount").val(0);
 			$("#note").val("");
 			$("#description").val("");
+			$("#doc_no").val(rowData.doc_no);
 			
 			$("#bpartner_id").shollu_cb('select');
 		}
@@ -121,6 +126,11 @@
 			$("#amount").val(rowData.amount);
 			$("#note").val(rowData.note);
 			$("#description").val(rowData.description);
+			
+			$("#doc_date").val(rowData.doc_date);
+			$("#payment_plan_date").val(rowData.payment_plan_date);
+			
+			calculate_amount();
 		}
 	});
 	
