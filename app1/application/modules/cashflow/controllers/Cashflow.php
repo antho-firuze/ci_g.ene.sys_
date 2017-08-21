@@ -191,7 +191,7 @@ class Cashflow extends Getmeb
 	function cf_ap()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['doc_no']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no']);
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
@@ -372,7 +372,7 @@ class Cashflow extends Getmeb
 	function cf_cashbank_balance()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['doc_no','(select name from cf_account where id = t1.account_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from cf_account where id = t1.account_id)']);
 			
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
@@ -413,7 +413,7 @@ class Cashflow extends Getmeb
 	function cf_cashbank_r()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			$this->params['where']['is_receipt'] = '1';
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
@@ -498,7 +498,7 @@ class Cashflow extends Getmeb
 	function cf_cashbank_p()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			$this->params['where']['is_receipt'] = '0';
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
@@ -600,7 +600,7 @@ class Cashflow extends Getmeb
 	function cf_sinout()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
@@ -686,7 +686,7 @@ class Cashflow extends Getmeb
 	function cf_pinout()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
@@ -848,7 +848,7 @@ class Cashflow extends Getmeb
 	function cf_sinvoice()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			$this->params['level'] = 1;
 			$this->params['where']['t1.doc_type'] = '1';
@@ -994,7 +994,7 @@ class Cashflow extends Getmeb
 	function cf_pinvoice()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			$this->params['level'] = 1;
 			$this->params['where_in']['t1.doc_type'] = ['2', '3', '4'];
@@ -1141,7 +1141,7 @@ class Cashflow extends Getmeb
 	function cf_movement()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -1200,7 +1200,7 @@ class Cashflow extends Getmeb
 	function cf_sorder()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			if (isset($this->params['for_shipment']) && !empty($this->params['for_shipment'])) {
 				// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
@@ -1406,7 +1406,7 @@ class Cashflow extends Getmeb
 	function cf_porder()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			if (isset($this->params['for_material_receipt']) && !empty($this->params['for_material_receipt'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
