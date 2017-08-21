@@ -834,6 +834,108 @@ class Getmeb extends CI_Controller
 		exit;
 	}
 	
+	function _export_data_array($rows, $excl_cols=[], $filename, $filetype, $return = FALSE)
+	{
+		ini_set('memory_limit', '-1');
+		$this->load->library('z_libs/Excel');
+		$objPHPExcel = new PHPExcel();
+		$objPHPExcel->getProperties()->setTitle("export")->setDescription("none");
+ 
+		$objPHPExcel->setActiveSheetIndex(0);
+		
+		// Set the Title in the first row
+		$current = 'A';
+		$col = 0;
+		$fields = [];
+		if ($excl_cols) {
+			foreach ($rows[0] as $field => $val) {
+				if (!in_array($field,$excl_cols)){
+					$columns[] = ($col == 0) ? $current : ++$current;
+					$fields[] = $field;
+					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, 1, $field);
+					$col++;
+				}
+			}
+		} else {
+			foreach ($rows[0] as $field => $val) {
+				$columns[] = ($col == 0) ? $current : ++$current;
+				$fields[] = $field;
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, 1, $field);
+				$col++;
+			}
+		}
+		
+		// Set the Data in the next row
+		$row = 2;
+		foreach($rows as $data) {
+			$col = 0;
+			foreach ($fields as $field) {
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, $row, $data->{$field});
+				$col++;
+			}
+			$row++;
+		}
+		
+		// Set the Column to Fit AutoSize
+		foreach($columns as $column) {
+			$objPHPExcel->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
+		}
+		
+		if (in_array($filetype, ['xls', 'xlsx'])) {
+			if ($return){
+				$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
+				$objWriter->save($this->tmp_dir.$filename);
+				return ['filename' => $filename, 'filepath' => $this->tmp_dir.$filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
+			}
+
+			$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
+			$objWriter->save('php://output');
+		}
+		if ($filetype == 'csv'){
+			PHPExcel_Shared_String::setDecimalSeparator('.');
+			PHPExcel_Shared_String::setThousandsSeparator(',');
+
+			if ($return){
+				$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);
+				$objWriter->save($this->tmp_dir.$filename);
+				return ['filename' => $filename, 'filepath' => $this->tmp_dir.$filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
+			}
+			
+			$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);
+			$objWriter->save('php://output');
+			
+		}
+		if ($filetype == 'pdf'){
+			$rendererName = PHPExcel_Settings::PDF_RENDERER_MPDF;
+			$rendererLibraryPath = FCPATH.'../vendor/mpdf/mpdf/src/';
+			if (!PHPExcel_Settings::setPdfRenderer($rendererName,	$rendererLibraryPath)) {
+					die(
+							'Please set the $rendererName and $rendererLibraryPath values' .
+							PHP_EOL .
+							' as appropriate for your directory structure'
+					);
+			}
+			if ($return){
+				$objWriter = new PHPExcel_Writer_PDF($objPHPExcel);
+				$objWriter->save($this->tmp_dir.$filename);
+				return ['filename' => $filename, 'filepath' => $this->tmp_dir.$filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
+			}
+			$objWriter = new PHPExcel_Writer_PDF($objPHPExcel);
+			$objWriter->save('php://output');
+		}
+		if ($filetype == 'html'){
+			if ($return){
+				$objWriter = new PHPExcel_Writer_HTML($objPHPExcel);
+				$objWriter->save($this->tmp_dir.$filename);
+				return ['filename' => $filename, 'filepath' => $this->tmp_dir.$filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
+			}
+			
+			$objWriter = new PHPExcel_Writer_HTML($objPHPExcel);
+			$objWriter->save('php://output');
+		}
+		exit;
+	}
+	
 	function _compress_file($file)
 	{
 		$zip = new ZipArchive();

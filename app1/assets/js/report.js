@@ -69,15 +69,18 @@ $( document ).ready(function() {
 			$.ajax({ url: $url_module, method: 'OPTIONS', async: true, dataType:'json',
 				data: form.serializeJSON(),
 				success: function(data) {
-					
-					BootstrapDialog.show({ message:data.message, closable: false,
+					if (data.status){
+						form.find("[type='submit']").prop( "disabled", false );
+						window.open(data.file_url);
+					}
+					/* BootstrapDialog.show({ message:data.message, closable: false,
 						buttons: [{ label: 'OK', hotkey: 13, 
 							action: function(dialogRef) {
 								window.open(result.file_url);
 								// window.history.back();
 							} 
 						}],
-					});
+					}); */
 					// var dialog = BootstrapDialog.alert(data.message, function(){
 						// window.history.back();
 					// });

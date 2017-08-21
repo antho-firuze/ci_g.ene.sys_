@@ -1969,9 +1969,9 @@ class Cashflow extends Getmeb
 					$date = strtotime("+1 month", $date);
 				} 
 			}
-			$str = 'select t1.account_id, (select is_receipt from cf_account where id = t1.account_id), type, seq, description, ';
+			$str = 'select t1.account_id, (select is_receipt from cf_account where id = t1.account_id), type, seq, description as "DESCRIPTION", ';
 			foreach($arr as $i =>$v){
-				$str .= '(select coalesce(sum(amount), 0) as "'.$v['title'].'"' ." from cf_invoice where is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+				$str .= "(select coalesce(sum(amount), 0) * (case (select is_receipt from cf_account where id = t1.account_id) when '1' then 1 else -1 end)".' as "'.$v['title'].'"' ." from cf_invoice where is_active = '1' and is_deleted = '0' and account_id = t1.account_id
 								and ((extract(month from received_plan_date),extract(year from received_plan_date)) = ".$v['period']." or (extract(month from payment_plan_date),extract(year from payment_plan_date)) = ".$v['period']."))";
 				if ((count($arr)-1)!=$i)
 					$str .= ', ';
@@ -1981,14 +1981,6 @@ class Cashflow extends Getmeb
 			$qry = $this->db->query($str);
 			$rows = $qry->result();
 			/* Define Variable */
-			// $amt_25 = 0;
-			// $amt_30 = 0;
-			// $amt_39 = 0;
-			// $amt_41 = 0;
-			// $amt_45 = 0;
-			// $amt_47 = 0;
-			// $amt_48 = $this->db->query("select coalesce((select amount from cf_cashbank_balance where is_active = '1' and is_deleted = '0' and doc_date = '".$fdate."'), 0) as amount")->row()->amount;
-			// $amt_49 = 0;
 			foreach($arr as $v){
 				$ttl[0][$v['title']] = 0;
 				$ttl[25][$v['title']] = 0;
@@ -2006,14 +1998,14 @@ class Cashflow extends Getmeb
 			foreach($rows as $key => $val){
 				if ($val->account_id){
 					foreach($arr as $v){
-						$ttl[0][$v['title']] += $val->is_receipt == '1' ? $rows[$key]->{$v['title']} : -$rows[$key]->{$v['title']};
-						if ($val->type == 'O') $ttl[25][$v['title']] += $val->is_receipt == '1' ? $rows[$key]->{$v['title']} : -$rows[$key]->{$v['title']};
-						if ($val->type == 'I') $ttl[30][$v['title']] += $val->is_receipt == '1' ? $rows[$key]->{$v['title']} : -$rows[$key]->{$v['title']};
-						if ($val->type == 'F') $ttl[39][$v['title']] += $val->is_receipt == '1' ? $rows[$key]->{$v['title']} : -$rows[$key]->{$v['title']};
-						if ($val->type == 'Z') $ttl[45][$v['title']] += $val->is_receipt == '1' ? $rows[$key]->{$v['title']} : -$rows[$key]->{$v['title']};
+						$ttl[0][$v['title']] += $rows[$key]->{$v['title']};
+						if ($val->type == 'O') $ttl[25][$v['title']] += $rows[$key]->{$v['title']};
+						if ($val->type == 'I') $ttl[30][$v['title']] += $rows[$key]->{$v['title']};
+						if ($val->type == 'F') $ttl[39][$v['title']] += $rows[$key]->{$v['title']};
+						if ($val->type == 'Z') $ttl[45][$v['title']] += $rows[$key]->{$v['title']};
 					}
 				} else {
-					foreach($arr as $v){
+					foreach($arr as $i => $v){
 						// $rows[0]['112017'] = '';
 						$rows[$key]->{$v['title']} = '';
 						if ($val->seq == 25) $rows[$key]->{$v['title']} = $ttl[$val->seq][$v['title']];
@@ -2021,17 +2013,45 @@ class Cashflow extends Getmeb
 						if ($val->seq == 39) $rows[$key]->{$v['title']} = $ttl[$val->seq][$v['title']];
 						if ($val->seq == 41) $rows[$key]->{$v['title']} = $ttl[25][$v['title']] + $ttl[30][$v['title']] + $ttl[39][$v['title']];
 						if ($val->seq == 45) $rows[$key]->{$v['title']} = $ttl[$val->seq][$v['title']];
-						if ($val->seq == 47) $rows[$key]->{$v['title']} = $ttl[$val->seq][$v['title']];
-						if ($val->seq == 48) $rows[$key]->{$v['title']} = $ttl[0][$v['title']] + $ttl[47][$v['title']];
+						
+						if ($i == 0) {
+							$cb_a = $ttl[47][$v['title']];
+							$cb_b = $ttl[0][$v['title']] + $cb_a;
+						} else {
+							$cb_a = $cb_b;
+							$cb_b = $ttl[0][$v['title']] + $cb_a;
+						}
+						if ($val->seq == 47) $rows[$key]->{$v['title']} = $cb_a;
+						if ($val->seq == 48) $rows[$key]->{$v['title']} = $cb_b;
 						if ($val->seq == 49) $rows[$key]->{$v['title']} = $ttl[0][$v['title']];
 					}
 				}
-					
-				// foreach($arr as $i => $v){
-					// $arr[$i]['25']
-				// }
 			}
-			$this->xresponse(TRUE, $rows);
+			
+			/* testing key */
+			unset($rows[42],$rows[43]);
+			// $this->xresponse(FALSE, $rows);
+			// $f = [];
+			// foreach($rows[0] as $field => $v){
+				// $f[] = $field;
+			// }
+			// $this->xresponse(TRUE, $f);
+			/* Export the result to client */
+			$filename = 'result_'.$this->c_table.'_'.date('YmdHi').'.xls';
+			// debug($filename);
+			$excl_cols = ['account_id','is_receipt','type','seq'];
+			if (! $result = $this->_export_data_array($rows, $excl_cols, $filename, 'xls', TRUE)) {
+				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+				$this->xresponse(FALSE, ['message' => $this->lang->line('error_import_download_result')], 401);
+			}
+			
+			/* Update status on process table */
+			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			/* Unset id_process, so can't be called again from client  */
+			// $this->session->unset_userdata('id_process');
+			
+			$result['message'] = $this->lang->line('success_import_data');
+			$this->xresponse(TRUE, $result);
 		}
 	}
 	
