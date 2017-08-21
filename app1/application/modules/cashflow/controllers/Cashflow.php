@@ -1942,7 +1942,7 @@ class Cashflow extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()],401);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
@@ -1960,8 +1960,10 @@ class Cashflow extends Getmeb
 				$date = strtotime($fdate);
 				$arr[0]['title'] = date('m',$date).date('Y',$date);
 				$arr[0]['period'] = '('.date('m',$date).','.date('Y',$date).')';
-				// $arr[0]['period'] = '('.$this->params->fmonth.','.$this->params->fyear.')';
 			} else {
+				if ($return > 12)
+					$this->xresponse(FALSE, ['message' => $this->lang->line('error_range_overload')],401);
+				
 				$date = strtotime($fdate);
 				for ($x = 0; $x <= $return-1; $x++) {
 					$arr[$x]['title'] = date('m',$date).date('Y',$date);
@@ -1992,7 +1994,6 @@ class Cashflow extends Getmeb
 				$ttl[48][$v['title']] = 0;
 				$ttl[49][$v['title']] = 0;
 			}
-			// debug($ttl);
 			/* Iteration process */
 			// debug($rows);
 			foreach($rows as $key => $val){
@@ -2028,17 +2029,11 @@ class Cashflow extends Getmeb
 				}
 			}
 			
-			/* testing key */
+			/* Unset account_id: 31 & 32 */
 			unset($rows[42],$rows[43]);
-			// $this->xresponse(FALSE, $rows);
-			// $f = [];
-			// foreach($rows[0] as $field => $v){
-				// $f[] = $field;
-			// }
-			// $this->xresponse(TRUE, $f);
 			/* Export the result to client */
 			$filename = 'result_'.$this->c_table.'_'.date('YmdHi').'.xls';
-			// debug($filename);
+			/* Remove this fields */
 			$excl_cols = ['account_id','is_receipt','type','seq'];
 			if (! $result = $this->_export_data_array($rows, $excl_cols, $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);

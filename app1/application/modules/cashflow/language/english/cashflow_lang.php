@@ -23,4 +23,5 @@ $lang['error_requisition_eta'] 		= "Error: Requsition ETA must be under Planning
 $lang['error_po_eta'] 		= "Error: Purchase Order ETA must be under Requisition ETA ! [under=%s]";
 $lang['error_duplicate_doc_no'] 		= "Error: This Doc No already exists !";
 $lang['error_duplicate_balance_amt'] 		= "Error: This Period [%s] already has a Balance !";
+$lang['error_range_overload'] 		= "Error: Maximal range are 12 months !";
 /* Information: info_ */
