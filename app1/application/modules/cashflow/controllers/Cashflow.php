@@ -1952,9 +1952,9 @@ class Cashflow extends Getmeb
 	function rpt_cashflow_projection()
 	{
 		if ($this->r_method == 'OPTIONS') {
+			/* Validation */
 			$fdate = date_first(NULL, $this->params->fyear, $this->params->fmonth);
 			$tdate = date_first(NULL, $this->params->tyear, $this->params->tmonth);
-			/* Validation */
 			$arr = [];
 			if (($return = date_differ($fdate, $tdate)+1) < 2){
 				$date = strtotime($fdate);
@@ -1971,6 +1971,7 @@ class Cashflow extends Getmeb
 					$date = strtotime("+1 month", $date);
 				} 
 			}
+			/* Re-quering Data */
 			$str = 'select t1.account_id, (select is_receipt from cf_account where id = t1.account_id), type, seq, description as "DESCRIPTION", ';
 			foreach($arr as $i =>$v){
 				$str .= "(select coalesce(sum(amount), 0) * (case (select is_receipt from cf_account where id = t1.account_id) when '1' then 1 else -1 end)".' as "'.$v['title'].'"' ." from cf_invoice where is_active = '1' and is_deleted = '0' and account_id = t1.account_id
@@ -1979,9 +1980,9 @@ class Cashflow extends Getmeb
 					$str .= ', ';
 			}
 			$str .= " from cf_rpt_cashflow_projection t1 order by seq";
-			// debug($str);
 			$qry = $this->db->query($str);
 			$rows = $qry->result();
+			/* Start process: Compiling Report */
 			/* Define Variable */
 			foreach($arr as $v){
 				$ttl[0][$v['title']] = 0;
@@ -1994,7 +1995,6 @@ class Cashflow extends Getmeb
 				$ttl[48][$v['title']] = 0;
 				$ttl[49][$v['title']] = 0;
 			}
-			/* Iteration process */
 			// debug($rows);
 			foreach($rows as $key => $val){
 				if ($val->account_id){
@@ -2037,7 +2037,7 @@ class Cashflow extends Getmeb
 			$excl_cols = ['account_id','is_receipt','type','seq'];
 			if (! $result = $this->_export_data_array($rows, $excl_cols, $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				$this->xresponse(FALSE, ['message' => $this->lang->line('error_import_download_result')], 401);
+				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
 			}
 			
 			/* Update status on process table */
@@ -2045,6 +2045,42 @@ class Cashflow extends Getmeb
 			/* Unset id_process, so can't be called again from client  */
 			// $this->session->unset_userdata('id_process');
 			
+			$result['message'] = $this->lang->line('success_import_data');
+			$this->xresponse(TRUE, $result);
+		}
+	}
+	
+	function rpt_cf_trace_performance_delivery()
+	{
+		if ($this->r_method == 'GET') {
+			if (isset($this->params['peek_so']) && !empty($this->params['peek_so'])) {
+				$this->_get_filtered(TRUE, TRUE, ['t1.doc_no']);
+				$this->params['where']['is_sotrx'] = '1';
+				$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+				if (! $result['data'] = $this->{$this->mdl}->cf_sorder($this->params)){
+					$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				} else {
+					$this->xresponse(TRUE, $result);
+				}
+			}
+		}
+		if ($this->r_method == 'OPTIONS') {
+			/* Validation */
+			/* Re-quering Data */
+			$str = 'select t1.account_id, (select is_receipt from cf_account where id = t1.account_id), type, seq, description as "DESCRIPTION", ';
+			debug($this->params);
+			
+			
+			/* Export the result to client */
+			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
+			if (! $result = $this->_export_data($rows, $filename, 'xls', TRUE)) {
+				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
+			}
+			/* Update status on process table */
+			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			/* Unset id_process, so can't be called again from client  */
+			// $this->session->unset_userdata('id_process');
 			$result['message'] = $this->lang->line('success_import_data');
 			$this->xresponse(TRUE, $result);
 		}

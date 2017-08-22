@@ -13,7 +13,7 @@ var id = getURLParameter("id"),
 	$filter = getURLParameter("filter"),
 	$ob = getURLParameter("ob"),
 	act = getURLParameter("action"),
-	act_name = "(Importing Data To Database)";
+	act_name = "";
 /* 
 /* ========================================= */
 /* Default init for Header									 */

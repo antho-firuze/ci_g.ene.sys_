@@ -717,7 +717,7 @@ class Getmeb extends CI_Controller
 		if (!$this->db->table_exists($menu->table))
 			$this->xresponse(FALSE, ['message' => $this->lang->line('error_export_data'), 'note' => '[pageid='.$this->pageid.'][table='.$menu->table.'] does not exists'], 401);
 
-		$protected_fields = ['id','client_id','org_id','is_deleted','created_by','updated_by','deleted_by','created_at','updated_at','deleted_at'];
+		$protected_fields = ['is_deleted','created_by','updated_by','deleted_by','deleted_at'];
 		$fields = $this->db->list_fields($menu->table);
 		$fields = array_diff($fields, array_merge($protected_fields, $this->protected_fields));
 		$select = implode(',', $fields);
