@@ -37,6 +37,11 @@ var id = getURLParameter("id"),
 /* ==================================== */
 $( document ).ready(function() {
 	
+	/* This class is for auto conversion from dmy to ymd */
+	$(".auto_ymd").on('change', function(){
+		$('input[name="'+$(this).attr('id')+'"]').val( datetime_db_format($(this).val(), $(this).attr('data-format')) );
+	});
+	
 	/* Init form */
 	$('form').each(function(e){
 		var form = $(this);

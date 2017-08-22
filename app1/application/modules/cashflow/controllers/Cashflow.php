@@ -2066,14 +2066,37 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'OPTIONS') {
 			/* Validation */
+			// debug($this->params);
+			if (empty($this->params->fdate) && empty($this->params->tdate) && empty($this->params->order_id))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('error_filling_params')],401);
+			
+			$str = "";
+			if (!empty($this->params->fdate) && !empty($this->params->tdate))
+				$str = "and doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
+			else if (!empty($this->params->fdate) && empty($this->params->tdate))
+				$str = "and doc_date >= '".$this->params->fdate."'";
+			if (!empty($this->params->order_id))
+				$str = "and id = ".$this->params->order_id;
+				
 			/* Re-quering Data */
-			$str = 'select t1.account_id, (select is_receipt from cf_account where id = t1.account_id), type, seq, description as "DESCRIPTION", ';
-			debug($this->params);
-			
-			
+			$str = "select (select name from c_bpartner where id = t1.bpartner_id) as customer_name, doc_no || '_' || doc_date as so_no, 
+				case when
+				(select count(*) as ship from cf_inout_line a1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and exists(select 1 from cf_order_line where id = a1.order_line_id and order_id = t1.id)) >= 
+				(select count(*) as line from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = t1.id group by order_id) then 'Completed' else 'Incompleted' end as so_status,
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as shipment_no from cf_inout where order_id = t1.id),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as mr_no from cf_inout a3 where exists(select 1 from cf_order a2 where exists(select 1 from cf_requisition a1 where exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id) and id = a2.requisition_id) and id = a3.order_id)),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as request_no from cf_request where order_id = t1.id),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as requisition_no from cf_requisition a1 where exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id)),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as po_no from cf_order a2 where exists(select 1 from cf_requisition a1 where exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id) and id = a2.requisition_id))
+				from cf_order t1
+				where is_active = '1' and is_deleted = '0' and is_sotrx = '1' ".$str;
+			// debug($str);
+			$qry = $this->db->query($str);
+			// $rows = $qry->result();
+			// debug($this->params);
 			/* Export the result to client */
 			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
-			if (! $result = $this->_export_data($rows, $filename, 'xls', TRUE)) {
+			if (! $result = $this->_export_data($qry, $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
 			}

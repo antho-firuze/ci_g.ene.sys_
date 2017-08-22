@@ -25,4 +25,5 @@ $lang['error_duplicate_doc_no'] 		= "Error: This Doc No already exists !";
 $lang['error_duplicate_balance_amt'] 		= "Error: This Period [%s] already has a Balance !";
 $lang['error_range_overload'] 		= "Error: Maximal range are 12 months !";
 $lang['error_downloading_report'] 		= "Error: Downloading report file [%s] failed !";
+$lang['error_filling_params'] 		= "Error: Please fill one of the columns !";
 /* Information: info_ */
