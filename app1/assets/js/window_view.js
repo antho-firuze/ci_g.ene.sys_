@@ -294,18 +294,19 @@ function initActionMenu(tableData1, dataTable1)
 			case 'sub-menu':
 				/* Set Main Title & code_name to Cookies */
 				$pageid = '?pageid='+$pageid+','+$el.attr('data-pageid');
-				if ($filter){
-					var subKey = $filter.split('=')[0];
-					if (subKey == $el.attr('data-subKey')){
+				// if ($filter){
+					// var subKey = $filter.split('=')[0];
+					// if (subKey == $el.attr('data-subKey')){
 						/* for parent & child subKey. Ex. Using field "parent_id" */
-						$filter = '&filter='+$el.attr('data-subKey') + '=' + data.id;
-					} else {
+						// $filter = '&filter='+$el.attr('data-subKey') + '=' + data.id;
+					// } else {
 						/* for master & detail using multiple subKey. Ex. Master key: "id", subKey #1: "user_id", subKey #2: "access_id", ....etc. */
-						$filter = '&filter='+$filter+','+$el.attr('data-subKey') + '=' + data.id;
-					}
-				} else {
-					$filter = '&filter='+$el.attr('data-subKey') + '=' + data.id;
-				}
+						// $filter = '&filter='+$filter+','+$el.attr('data-subKey') + '=' + data.id;
+					// }
+				// } else {
+					// $filter = '&filter='+$el.attr('data-subKey') + '=' + data.id;
+				// }
+				$filter = '&filter='+$el.attr('data-subKey') + '=' + data.id;
 				var url = $BASE_URL+"systems/x_page"+$pageid+$filter;
 				/* BUG::Show the history double */
 				// window.location.href = url;
