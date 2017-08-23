@@ -28,4 +28,5 @@ $lang['error_day_range_overload'] 		= "Error: Maximal range are %s days !";
 $lang['error_downloading_report'] 		= "Error: Downloading report file [%s] failed !";
 $lang['error_filling_params'] 		= "Error: Please fill one of the columns !";
 $lang['error_filling_params'] 		= "Error: Please fill one of the columns !";
+$lang['error_plan_had_invoiced'] 		= "Error: Cannot delete plan, because this plan has invoiced. <br>Plase Delete Invoice first for this Plan !<br><br>Invoice no: %s";
 /* Information: info_ */

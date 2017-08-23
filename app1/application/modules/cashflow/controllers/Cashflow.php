@@ -180,6 +180,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			/* Checking, is data plan already invoiced? */
+			if ($this->params['event'] == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$doc_no = [];
+				foreach($ids as $id){
+					$invoice = $this->base_model->isDataExist('cf_invoice', ['ar_ap_plan_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($invoice) {
+						$doc_no[] = $this->base_model->getValue('doc_no', 'cf_invoice', ['ar_ap_plan_id','is_active','is_deleted'], [$id,'1','0'])->doc_no;
+					}
+				}
+				if ($doc_no){
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
+				}
+			}
 			if ($this->params['event'] == 'post_delete'){
 				$this->params['is_plan'] = 1;
 				$this->params['ar_ap_id'] = $this->base_model->getValue('ar_ap_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->ar_ap_id;
@@ -361,6 +375,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			/* Checking, is data plan already invoiced? */
+			if ($this->params['event'] == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$doc_no = [];
+				foreach($ids as $id){
+					$invoice = $this->base_model->isDataExist('cf_invoice', ['ar_ap_plan_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($invoice) {
+						$doc_no[] = $this->base_model->getValue('doc_no', 'cf_invoice', ['ar_ap_plan_id','is_active','is_deleted'], [$id,'1','0'])->doc_no;
+					}
+				}
+				if ($doc_no){
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
+				}
+			}
 			if ($this->params['event'] == 'post_delete'){
 				$this->params['is_plan'] = 1;
 				$this->params['ar_ap_id'] = $this->base_model->getValue('ar_ap_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->ar_ap_id;
@@ -1396,6 +1424,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			/* Checking, is data plan already invoiced? */
+			if ($this->params['event'] == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$doc_no = [];
+				foreach($ids as $id){
+					$invoice = $this->base_model->isDataExist('cf_invoice', ['order_plan_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($invoice) {
+						$doc_no[] = $this->base_model->getValue('doc_no', 'cf_invoice', ['order_plan_id','is_active','is_deleted'], [$id,'1','0'])->doc_no;
+					}
+				}
+				if ($doc_no){
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
+				}
+			}
 			if ($this->params['event'] == 'post_delete'){
 				$this->params['is_plan'] = 1;
 				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
@@ -1659,6 +1701,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			/* Checking, is data plan already invoiced? */
+			if ($this->params['event'] == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$doc_no = [];
+				foreach($ids as $id){
+					$invoice = $this->base_model->isDataExist('cf_invoice', ['order_plan_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($invoice) {
+						$doc_no[] = $this->base_model->getValue('doc_no', 'cf_invoice', ['order_plan_id','is_active','is_deleted'], [$id,'1','0'])->doc_no;
+					}
+				}
+				if ($doc_no){
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
+				}
+			}
 			if ($this->params['event'] == 'post_delete'){
 				$this->params['is_plan'] = 1;
 				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
@@ -1720,6 +1776,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			/* Checking, is data plan already invoiced? */
+			if ($this->params['event'] == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$doc_no = [];
+				foreach($ids as $id){
+					$invoice = $this->base_model->isDataExist('cf_invoice', ['order_plan_clearance_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($invoice) {
+						$doc_no[] = $this->base_model->getValue('doc_no', 'cf_invoice', ['order_plan_clearance_id','is_active','is_deleted'], [$id,'1','0'])->doc_no;
+					}
+				}
+				if ($doc_no){
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
+				}
+			}
 			if ($this->params['event'] == 'post_delete'){
 				$this->params->is_plan_cl = 1;
 				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
@@ -1781,6 +1851,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			/* Checking, is data plan already invoiced? */
+			if ($this->params['event'] == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$doc_no = [];
+				foreach($ids as $id){
+					$invoice = $this->base_model->isDataExist('cf_invoice', ['order_plan_import_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($invoice) {
+						$doc_no[] = $this->base_model->getValue('doc_no', 'cf_invoice', ['order_plan_import_id','is_active','is_deleted'], [$id,'1','0'])->doc_no;
+					}
+				}
+				if ($doc_no){
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
+				}
+			}
 			if ($this->params['event'] == 'post_delete'){
 				$this->params->is_plan_im = 1;
 				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
@@ -2373,12 +2457,12 @@ class Cashflow extends Getmeb
 			}
 				
 			/* Re-quering Data */
-			$str = "select (select name from c_bpartner where id = t2.bpartner_id) as customer_name, t1.doc_no, t1.doc_date, t2.doc_date as invoice_plan_date, t2.received_plan_date, t2.ttl_amt as amount,
+			$str = "select (select name from c_bpartner where id = t2.bpartner_id) as customer_name, t1.doc_no, t1.doc_date, t2.doc_date as invoice_plan_date, t2.payment_plan_date, t2.ttl_amt as amount,
 				(select doc_no as invoice_no from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
 				(select adj_amount from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
 				(select net_amount from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
 				(select doc_date as invoice_date from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
-				(select received_plan_date as inv_received_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
+				(select payment_plan_date as inv_payment_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
 				(select (select doc_no as voucher_no from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id)),
 				(select amount as act_amount from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id)),
 				(select (select doc_date as act_payment_date from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id))
