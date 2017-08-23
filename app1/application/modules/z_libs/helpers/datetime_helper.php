@@ -3,8 +3,12 @@
 // DATE & TIME ===========================
 if ( ! function_exists('date_differ'))
 {
-	/* date_differ('2017-01-01', '2017-12-01'); */
-	function date_differ($date1, $date2) 
+	/* 
+	*	ex: date_differ('2017-01-01', '2017-12-01'); 
+	* 
+	* @type = 'year' or 'month' or 'day' - Default: 'month'
+	*/
+	function date_differ($date1, $date2, $type='month') 
 	{
 		$ts1 = strtotime($date1);
 		$ts2 = strtotime($date2);
@@ -15,7 +19,10 @@ if ( ! function_exists('date_differ'))
 		$month1 = date('m', $ts1);
 		$month2 = date('m', $ts2);
 
-		$diff = (($year2 - $year1) * 12) + ($month2 - $month1);
+		if ($type == 'month')
+			$diff = (($year2 - $year1) * 12) + ($month2 - $month1);
+		if ($type == 'day')
+			$diff = floor(($ts2 - $ts1) / 86400);
 		return $diff;
 	}
 }

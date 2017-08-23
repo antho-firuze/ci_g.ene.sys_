@@ -13,7 +13,6 @@ class Bpm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -21,7 +20,6 @@ class Bpm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -29,7 +27,6 @@ class Bpm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -37,7 +34,6 @@ class Bpm_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	

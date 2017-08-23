@@ -24,7 +24,7 @@
 	a.push(subCol(6, BSHelper.Input({ horz: true, lblsize: "col-sm-4", colsize: "col-sm-8", type:"date", label:"Date From", idname:"fdate", cls:"auto_ymd", format:"{$.session.date_format}", required: false })));
 	a.push(subCol(6, BSHelper.Input({ horz: true, lblsize: "col-sm-4", colsize: "col-sm-8", type:"date", label:"Date To", idname:"tdate", cls:"auto_ymd", format:"{$.session.date_format}", required: false })));
 	col.push(BSHelper.Label({ horz: false, label:"Period :", idname:"fperiod", required: false, elcustom:subRow(a) }));
-	col.push(BSHelper.Combobox({ horz:false, label:"SO No", cls:"order_id", label_link:"", textField:"doc_no", idname:"order_id", url: $url_module+"?peek_so=1", remote: true, required: false }));
+	col.push(BSHelper.Combobox({ horz:false, label:"PO No", cls:"order_id", label_link:"", textField:"doc_no", idname:"order_id", url: $url_module+"?peek_po=1", remote: true, required: false }));
 	row.push(subCol(6, col)); col = [];
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));

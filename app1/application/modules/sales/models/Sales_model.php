@@ -13,7 +13,6 @@ class Sales_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -21,7 +20,6 @@ class Sales_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -29,7 +27,6 @@ class Sales_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -37,7 +34,6 @@ class Sales_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -45,7 +41,6 @@ class Sales_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -53,7 +48,6 @@ class Sales_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_method." as t1";
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -63,7 +57,6 @@ class Sales_Model extends CI_Model
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1)
 			$params['join'][] = ['m_pricelist as t2', 't1.pricelist_id = t2.id', 'left'];
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -77,7 +70,6 @@ class Sales_Model extends CI_Model
 			$params['join'][] = ['m_pricelist as t3', 't1.pricelist_id = t3.id', 'inner'];
 			$params['join'][] = ['m_pricelist_version as t4', 't1.pricelist_version_id = t4.id', 'inner'];
 		}
-		$params['where']['t1.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -90,7 +82,6 @@ class Sales_Model extends CI_Model
 			$params['join'][] = ['m_pricelist as t3', 't1.pricelist_id = t3.id', 'inner'];
 			$params['join'][] = ['m_pricelist_version as t4', 't1.pricelist_version_id = t4.id', 'inner'];
 		}
-		$params['where']['t1.is_deleted'] 	= '0';
 		$params['where']['t1.is_active'] 	= '1';
 		$params['where']['t4.is_deleted'] 	= '0';
 		$params['where']['t4.is_active'] 	= '1';

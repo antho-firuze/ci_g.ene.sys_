@@ -1962,7 +1962,7 @@ class Cashflow extends Getmeb
 				$arr[0]['period'] = '('.date('m',$date).','.date('Y',$date).')';
 			} else {
 				if ($return > 12)
-					$this->xresponse(FALSE, ['message' => $this->lang->line('error_range_overload')],401);
+					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_month_range_overload'), 12)],401);
 				
 				$date = strtotime($fdate);
 				for ($x = 0; $x <= $return-1; $x++) {
@@ -2071,12 +2071,311 @@ class Cashflow extends Getmeb
 				$this->xresponse(FALSE, ['message' => $this->lang->line('error_filling_params')],401);
 			
 			$str = "";
-			if (!empty($this->params->fdate) && !empty($this->params->tdate))
+			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
+				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
+					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+				
 				$str = "and doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
-			else if (!empty($this->params->fdate) && empty($this->params->tdate))
+			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
+				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
+					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+				
 				$str = "and doc_date >= '".$this->params->fdate."'";
+			}
 			if (!empty($this->params->order_id))
 				$str = "and id = ".$this->params->order_id;
+				
+			/* Re-quering Data */
+			$str = "select (select name from c_bpartner where id = t1.bpartner_id) as customer_name, doc_no || '_' || doc_date as so_no, 
+				case when
+				(select count(*) as ship from cf_inout_line a1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and exists(select 1 from cf_order_line where id = a1.order_line_id and order_id = t1.id)) >= 
+				(select count(*) as line from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = t1.id group by order_id) then 'Completed' else 'Incompleted' end as so_status,
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as shipment_no from cf_inout where order_id = t1.id),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as mr_no from cf_inout a3 where exists(select 1 from cf_order a2 where exists(select 1 from cf_requisition a1 where exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id) and id = a2.requisition_id) and id = a3.order_id)),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as request_no from cf_request where order_id = t1.id),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as requisition_no from cf_requisition a1 where exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id)),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as po_no from cf_order a2 where exists(select 1 from cf_requisition a1 where exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id) and id = a2.requisition_id))
+				from cf_order t1
+				where is_active = '1' and is_deleted = '0' and is_sotrx = '1' ".$str;
+			// debug($str);
+			$qry = $this->db->query($str);
+			// $rows = $qry->result();
+			// debug($this->params);
+			/* Export the result to client */
+			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
+			if (! $result = $this->_export_data($qry, $filename, 'xls', TRUE)) {
+				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
+			}
+			/* Update status on process table */
+			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			/* Unset id_process, so can't be called again from client  */
+			// $this->session->unset_userdata('id_process');
+			$result['message'] = $this->lang->line('success_import_data');
+			$this->xresponse(TRUE, $result);
+		}
+	}
+	
+	function rpt_cf_so_plan_vs_actual()
+	{
+		if ($this->r_method == 'GET') {
+			if (isset($this->params['peek_so']) && !empty($this->params['peek_so'])) {
+				$this->_get_filtered(TRUE, TRUE, ['t1.doc_no']);
+				$this->params['where']['is_sotrx'] = '1';
+				$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+				if (! $result['data'] = $this->{$this->mdl}->cf_sorder($this->params)){
+					$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				} else {
+					$this->xresponse(TRUE, $result);
+				}
+			}
+		}
+		if ($this->r_method == 'OPTIONS') {
+			/* Validation */
+			// debug($this->params);
+			if (empty($this->params->fdate) && empty($this->params->tdate))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('error_filling_params')],401);
+			
+			$str = "";
+			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
+				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
+					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+				
+				$str = "and t1.doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
+			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
+				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
+					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+				
+				$str = "and t1.doc_date >= '".$this->params->fdate."'";
+			}
+			if (!empty($this->params->order_id))
+				$str = "and t1.id = ".$this->params->order_id;
+				
+			/* Re-quering Data */
+			$str = "select (select name from c_bpartner where id = t1.bpartner_id) as customer_name, t1.doc_no as so_no, t1.doc_date as so_date, t2.doc_date as invoice_plan_date, t2.received_plan_date as payment_plan_date, t2.amount,
+				(select doc_no as invoice_no from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
+				(select adj_amount from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
+				(select net_amount from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
+				(select doc_date as invoice_date from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
+				(select received_plan_date as inv_payment_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
+				(select (select doc_no as voucher_no from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where order_id = t2.order_id and order_plan_id = t2.id and id = a1.invoice_id)),
+				(select amount as act_amount from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where order_id = t2.order_id and order_plan_id = t2.id and id = a1.invoice_id)),
+				(select (select doc_date as act_payment_date from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where order_id = t2.order_id and order_plan_id = t2.id and id = a1.invoice_id))
+				from cf_order t1
+				inner join cf_order_plan t2 on t1.id = t2.order_id
+				where t1.is_active = '1' and t1.is_deleted = '0' and t1.is_sotrx = '1' ".$str;
+			// debug($str);
+			$qry = $this->db->query($str);
+			// $rows = $qry->result();
+			// debug($this->params);
+			/* Export the result to client */
+			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
+			if (! $result = $this->_export_data($qry, $filename, 'xls', TRUE)) {
+				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
+			}
+			/* Update status on process table */
+			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			/* Unset id_process, so can't be called again from client  */
+			// $this->session->unset_userdata('id_process');
+			$result['message'] = $this->lang->line('success_import_data');
+			$this->xresponse(TRUE, $result);
+		}
+	}
+	
+	function rpt_cf_po_plan_vs_actual()
+	{
+		if ($this->r_method == 'GET') {
+			if (isset($this->params['peek_po']) && !empty($this->params['peek_po'])) {
+				$this->_get_filtered(TRUE, TRUE, ['t1.doc_no']);
+				$this->params['where']['is_sotrx'] = '0';
+				$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+				if (! $result['data'] = $this->{$this->mdl}->cf_sorder($this->params)){
+					$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				} else {
+					$this->xresponse(TRUE, $result);
+				}
+			}
+		}
+		if ($this->r_method == 'OPTIONS') {
+			/* Validation */
+			// debug($this->params);
+			if (empty($this->params->fdate) && empty($this->params->tdate))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('error_filling_params')],401);
+			
+			$str = "";
+			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
+				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
+					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+				
+				$str = "and t1.doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
+			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
+				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
+					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+				
+				$str = "and t1.doc_date >= '".$this->params->fdate."'";
+			}
+			if (!empty($this->params->order_id))
+				$str = "and t1.id = ".$this->params->order_id;
+				
+			/* Re-quering Data */
+			$str = "select (select name from c_bpartner where id = t1.bpartner_id) as customer_name, t1.doc_no as so_no, t1.doc_date as so_date, t2.doc_date as invoice_plan_date, t2.payment_plan_date as payment_plan_date, t2.amount,
+				(select doc_no as invoice_no from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
+				(select adj_amount from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
+				(select net_amount from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
+				(select doc_date as invoice_date from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
+				(select payment_plan_date as inv_payment_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
+				(select (select doc_no as voucher_no from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where order_id = t2.order_id and order_plan_id = t2.id and id = a1.invoice_id)),
+				(select amount as act_amount from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where order_id = t2.order_id and order_plan_id = t2.id and id = a1.invoice_id)),
+				(select (select doc_date as act_payment_date from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where order_id = t2.order_id and order_plan_id = t2.id and id = a1.invoice_id))
+				from cf_order t1
+				inner join cf_order_plan t2 on t1.id = t2.order_id
+				where t1.is_active = '1' and t1.is_deleted = '0' and t1.is_sotrx = '0' ".$str;
+			// debug($str);
+			$qry = $this->db->query($str);
+			// $rows = $qry->result();
+			// debug($this->params);
+			/* Export the result to client */
+			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
+			if (! $result = $this->_export_data($qry, $filename, 'xls', TRUE)) {
+				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
+			}
+			/* Update status on process table */
+			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			/* Unset id_process, so can't be called again from client  */
+			// $this->session->unset_userdata('id_process');
+			$result['message'] = $this->lang->line('success_import_data');
+			$this->xresponse(TRUE, $result);
+		}
+	}
+	
+	function rpt_cf_other_inflow_vs_actual()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			/* Validation */
+			// debug($this->params);
+			if (empty($this->params->fdate) && empty($this->params->tdate))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('error_filling_params')],401);
+			
+			$str = "";
+			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
+				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
+					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+				
+				$str = "and t1.doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
+			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
+				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
+					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+				
+				$str = "and t1.doc_date >= '".$this->params->fdate."'";
+			}
+				
+			/* Re-quering Data */
+			$str = "select (select name from c_bpartner where id = t2.bpartner_id) as customer_name, t1.doc_no, t1.doc_date, t2.doc_date as invoice_plan_date, t2.received_plan_date, t2.ttl_amt as amount,
+				(select doc_no as invoice_no from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
+				(select adj_amount from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
+				(select net_amount from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
+				(select doc_date as invoice_date from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
+				(select received_plan_date as inv_received_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
+				(select (select doc_no as voucher_no from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id)),
+				(select amount as act_amount from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id)),
+				(select (select doc_date as act_payment_date from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id))
+				from cf_ar_ap t1
+				inner join cf_ar_ap_plan t2 on t1.id = t2.ar_ap_id
+				where t1.is_active = '1' and t1.is_deleted = '0' and t1.is_receipt = '1' ".$str;
+			// debug($str);
+			$qry = $this->db->query($str);
+			// $rows = $qry->result();
+			// debug($this->params);
+			/* Export the result to client */
+			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
+			if (! $result = $this->_export_data($qry, $filename, 'xls', TRUE)) {
+				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
+			}
+			/* Update status on process table */
+			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			/* Unset id_process, so can't be called again from client  */
+			// $this->session->unset_userdata('id_process');
+			$result['message'] = $this->lang->line('success_import_data');
+			$this->xresponse(TRUE, $result);
+		}
+	}
+	
+	function rpt_cf_other_outflow_vs_actual()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			/* Validation */
+			// debug($this->params);
+			if (empty($this->params->fdate) && empty($this->params->tdate))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('error_filling_params')],401);
+			
+			$str = "";
+			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
+				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
+					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+				
+				$str = "and t1.doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
+			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
+				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
+					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+				
+				$str = "and t1.doc_date >= '".$this->params->fdate."'";
+			}
+				
+			/* Re-quering Data */
+			$str = "select (select name from c_bpartner where id = t2.bpartner_id) as customer_name, t1.doc_no, t1.doc_date, t2.doc_date as invoice_plan_date, t2.received_plan_date, t2.ttl_amt as amount,
+				(select doc_no as invoice_no from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
+				(select adj_amount from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
+				(select net_amount from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
+				(select doc_date as invoice_date from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
+				(select received_plan_date as inv_received_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
+				(select (select doc_no as voucher_no from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id)),
+				(select amount as act_amount from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id)),
+				(select (select doc_date as act_payment_date from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id))
+				from cf_ar_ap t1
+				inner join cf_ar_ap_plan t2 on t1.id = t2.ar_ap_id
+				where t1.is_active = '1' and t1.is_deleted = '0' and t1.is_receipt = '0' ".$str;
+			// debug($str);
+			$qry = $this->db->query($str);
+			// $rows = $qry->result();
+			// debug($this->params);
+			/* Export the result to client */
+			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
+			if (! $result = $this->_export_data($qry, $filename, 'xls', TRUE)) {
+				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
+			}
+			/* Update status on process table */
+			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			/* Unset id_process, so can't be called again from client  */
+			// $this->session->unset_userdata('id_process');
+			$result['message'] = $this->lang->line('success_import_data');
+			$this->xresponse(TRUE, $result);
+		}
+	}
+	
+	function rpt_cf_daily_entry_summary()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			/* Validation */
+			// debug($this->params);
+			if (empty($this->params->fdate) && empty($this->params->tdate))
+				$this->xresponse(FALSE, ['message' => $this->lang->line('error_filling_params')],401);
+			
+			$str = "";
+			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
+				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
+					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+				
+				$str = "and doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
+			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
+				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
+					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+				
+				$str = "and doc_date >= '".$this->params->fdate."'";
+			}
 				
 			/* Re-quering Data */
 			$str = "select (select name from c_bpartner where id = t1.bpartner_id) as customer_name, doc_no || '_' || doc_date as so_no, 
