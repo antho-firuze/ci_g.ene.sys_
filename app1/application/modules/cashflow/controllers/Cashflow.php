@@ -2041,7 +2041,7 @@ class Cashflow extends Getmeb
 				$ttl[45][$v['title']] = 0;
 				$ttl[47][$v['title']] = $this->db->query("select coalesce((select amount from cf_cashbank_balance where is_active = '1' and is_deleted = '0' and doc_date = '".$fdate."'), 0) as amount")->row()->amount;
 				$ttl[48][$v['title']] = 0;
-				$ttl[49][$v['title']] = 0;
+				// $ttl[49][$v['title']] = 0;
 			}
 			// debug($rows);
 			foreach($rows as $key => $val){
@@ -2072,7 +2072,7 @@ class Cashflow extends Getmeb
 						}
 						if ($val->seq == 47) $rows[$key]->{$v['title']} = $cb_a;
 						if ($val->seq == 48) $rows[$key]->{$v['title']} = $cb_b;
-						if ($val->seq == 49) $rows[$key]->{$v['title']} = $ttl[0][$v['title']];
+						// if ($val->seq == 49) $rows[$key]->{$v['title']} = $ttl[0][$v['title']];
 					}
 				}
 			}
