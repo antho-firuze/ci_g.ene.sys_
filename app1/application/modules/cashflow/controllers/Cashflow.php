@@ -2212,7 +2212,7 @@ class Cashflow extends Getmeb
 				from cf_order t1
 				inner join cf_order_plan t2 on t1.id = t2.order_id
 				where t1.is_active = '1' and t1.is_deleted = '0' and t1.is_sotrx = '1' ".$str;
-			debug($str);
+			// debug($str);
 			$qry = $this->db->query($str);
 			// $rows = $qry->result();
 			// debug($this->params);
