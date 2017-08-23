@@ -1244,6 +1244,12 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* This Event is used for Import */
+			if ($this->params->event == 'pre_import'){
+				$this->identity_keys 		= ['doc_no'];
+				$this->imported_fields 	= ['org_id','orgtrx_id','bpartner_id','description','is_sotrx','doc_no','doc_date','doc_ref_no','doc_ref_date','etd'];
+				$this->validation_fk 		= ['org_id' => 'a_org','orgtrx_id' => 'a_org','bpartner_id' => 'c_bpartner'];
+			}
 			/* Check duplicate doc_no */
 			if ($this->params->event == 'pre_post_put'){
 				if ($this->params->id){
@@ -1308,6 +1314,12 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* This Event is used for Import */
+			if ($this->params->event == 'pre_import'){
+				$this->identity_keys 		= ['order_id','seq'];
+				$this->imported_fields 	= ['order_id','itemcat_id','seq','sub_amt','vat_amt','ttl_amt'];
+				$this->validation_fk 		= ['order_id' => 'cf_order','itemcat_id' => 'm_itemcat'];
+			}
 			if ($this->params->event == 'post_post_put'){
 				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
 				$this->params->is_line = 1;
@@ -1363,6 +1375,12 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* This Event is used for Import */
+			if ($this->params->event == 'pre_import'){
+				$this->identity_keys 		= ['order_id','seq'];
+				$this->imported_fields 	= ['order_id','seq','doc_date','amount','note','description','received_plan_date'];
+				$this->validation_fk 		= ['order_id' => 'cf_order'];
+			}
 			if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['is_plan'] = 1;
 				if (! $this->{$this->mdl}->cf_order_valid_amount($this->mixed_data)){ 
@@ -1466,6 +1484,12 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* This Event is used for Import */
+			if ($this->params->event == 'pre_import'){
+				$this->identity_keys 		= ['doc_no'];
+				$this->imported_fields 	= ['org_id','orgtrx_id','bpartner_id','description','is_sotrx','doc_no','doc_date','doc_ref_no','doc_ref_date','eta'];
+				$this->validation_fk 		= ['org_id' => 'a_org','orgtrx_id' => 'a_org','bpartner_id' => 'c_bpartner'];
+			}
 			/* Check duplicate doc_no */
 			if ($this->params->event == 'pre_post_put'){
 				if ($this->params->id){
@@ -1541,6 +1565,12 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* This Event is used for Import */
+			if ($this->params->event == 'pre_import'){
+				$this->identity_keys 		= ['order_id','seq'];
+				$this->imported_fields 	= ['order_id','itemcat_id','seq','sub_amt','vat_amt','ttl_amt'];
+				$this->validation_fk 		= ['order_id' => 'cf_order','itemcat_id' => 'm_itemcat'];
+			}
 			/* if ($this->params->event == 'pre_post_put'){
 				if (! $this->{$this->mdl}->cf_order_valid_qty($this->mixed_data)){ 
 					$this->xresponse(FALSE, ['message' => lang('error_qty_overload', [abs($this->session->flashdata('message'))])], 401);
@@ -1609,6 +1639,12 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* This Event is used for Import */
+			if ($this->params->event == 'pre_import'){
+				$this->identity_keys 		= ['order_id','seq'];
+				$this->imported_fields 	= ['order_id','seq','doc_date','amount','note','description','payment_plan_date'];
+				$this->validation_fk 		= ['order_id' => 'cf_order'];
+			}
 			if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['is_plan'] = 1;
 				if (! $this->{$this->mdl}->cf_order_valid_amount($this->mixed_data)){ 
@@ -1671,6 +1707,12 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* This Event is used for Import */
+			if ($this->params->event == 'pre_import'){
+				$this->identity_keys 		= ['order_id','seq'];
+				$this->imported_fields 	= ['order_id','seq','doc_date','amount','note','description','payment_plan_date'];
+				$this->validation_fk 		= ['order_id' => 'cf_order'];
+			}
 			if ($this->params->event == 'post_post_put'){
 				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
 				$this->params->is_plan_cl = 1;
@@ -1726,6 +1768,12 @@ class Cashflow extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* This Event is used for Import */
+			if ($this->params->event == 'pre_import'){
+				$this->identity_keys 		= ['order_id','seq'];
+				$this->imported_fields 	= ['order_id','seq','doc_date','amount','note','description','payment_plan_date'];
+				$this->validation_fk 		= ['order_id' => 'cf_order'];
+			}
 			if ($this->params->event == 'post_post_put'){
 				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
 				$this->params->is_plan_im = 1;
@@ -2092,9 +2140,9 @@ class Cashflow extends Getmeb
 				(select count(*) as line from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = t1.id group by order_id) then 'Completed' else 'Incompleted' end as so_status,
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as shipment_no from cf_inout where order_id = t1.id),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as mr_no from cf_inout a3 where exists(select 1 from cf_order a2 where exists(select 1 from cf_requisition a1 where exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id) and id = a2.requisition_id) and id = a3.order_id)),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as request_no from cf_request where order_id = t1.id),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as po_no from cf_order a2 where exists(select 1 from cf_requisition a1 where exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id) and id = a2.requisition_id)),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as requisition_no from cf_requisition a1 where exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id)),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as po_no from cf_order a2 where exists(select 1 from cf_requisition a1 where exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id) and id = a2.requisition_id))
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as request_no from cf_request where order_id = t1.id)
 				from cf_order t1
 				where is_active = '1' and is_deleted = '0' and is_sotrx = '1' ".$str;
 			// debug($str);
@@ -2152,7 +2200,7 @@ class Cashflow extends Getmeb
 				$str = "and t1.id = ".$this->params->order_id;
 				
 			/* Re-quering Data */
-			$str = "select (select name from c_bpartner where id = t1.bpartner_id) as customer_name, t1.doc_no as so_no, t1.doc_date as so_date, t2.doc_date as invoice_plan_date, t2.received_plan_date as payment_plan_date, t2.amount,
+			$str = "select (select name from c_bpartner where id = t1.bpartner_id) as customer_name, t1.doc_no as so_no, t1.doc_date as so_date, t2.note, t2.description, t2.doc_date as invoice_plan_date, t2.received_plan_date as payment_plan_date, t2.amount,
 				(select doc_no as invoice_no from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
 				(select adj_amount from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
 				(select net_amount from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
@@ -2164,7 +2212,7 @@ class Cashflow extends Getmeb
 				from cf_order t1
 				inner join cf_order_plan t2 on t1.id = t2.order_id
 				where t1.is_active = '1' and t1.is_deleted = '0' and t1.is_sotrx = '1' ".$str;
-			// debug($str);
+			debug($str);
 			$qry = $this->db->query($str);
 			// $rows = $qry->result();
 			// debug($this->params);
@@ -2219,7 +2267,7 @@ class Cashflow extends Getmeb
 				$str = "and t1.id = ".$this->params->order_id;
 				
 			/* Re-quering Data */
-			$str = "select (select name from c_bpartner where id = t1.bpartner_id) as customer_name, t1.doc_no as so_no, t1.doc_date as so_date, t2.doc_date as invoice_plan_date, t2.payment_plan_date as payment_plan_date, t2.amount,
+			$str = "select (select name from c_bpartner where id = t1.bpartner_id) as customer_name, t1.doc_no as po_no, t1.doc_date as po_date, t2.note, t2.description, t2.doc_date as invoice_plan_date, t2.payment_plan_date as payment_plan_date, t2.amount,
 				(select doc_no as invoice_no from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
 				(select adj_amount from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
 				(select net_amount from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
@@ -2381,60 +2429,61 @@ class Cashflow extends Getmeb
 			/* Re-quering Data */
 			$str = "select to_char(i.date, 'YYYY-MM-DD') as date,
 				(select count(*) as so_match from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select count(*) as so_unmatch from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select count(*) as ship_match from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select count(*) as ship_unmatch from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select count(*) as po_match from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select count(*) as po_unmatch from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select count(*) as mr_match from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select count(*) as mr_unmatch from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select count(*) as req_match from cf_request where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select count(*) as req_unmatch from cf_request where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select count(*) as pr_match from cf_requisition where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select count(*) as pr_unmatch from cf_requisition where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select count(*) as inv_c_match from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select count(*) as inv_c_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select count(*) as inv_v_match from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '2' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select count(*) as inv_v_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '2' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select count(*) as inv_if_match from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '5' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select count(*) as inv_if_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '5' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select count(*) as inv_of_match from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '6' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select count(*) as inv_of_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '6' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select count(*) as outflow_match from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select count(*) as outflow_unmatch from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select count(*) as inflow_match from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select count(*) as inflow_unmatch from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select count(*) as ar_match from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select count(*) as ar_unmatch from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select count(*) as ap_match from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
+
+				(select count(*) as so_unmatch from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select count(*) as ship_unmatch from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select count(*) as po_unmatch from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select count(*) as mr_unmatch from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select count(*) as req_unmatch from cf_request where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select count(*) as pr_unmatch from cf_requisition where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select count(*) as inv_c_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select count(*) as inv_v_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '2' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select count(*) as inv_if_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '5' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select count(*) as inv_of_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '6' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select count(*) as outflow_unmatch from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select count(*) as inflow_unmatch from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select count(*) as ar_unmatch from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select count(*) as ap_unmatch from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as so_no_match from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as so_no_unmatch from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as ship_no_match from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as ship_no_unmatch from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as po_no_match from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as po_no_unmatch from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as mr_no_match from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as mr_no_unmatch from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as req_no_match from cf_request where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as req_no_unmatch from cf_request where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as pr_no_match from cf_requisition where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as pr_no_unmatch from cf_requisition where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_c_no_match from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_c_no_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_v_no_match from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '2' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_v_no_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '2' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_if_no_match from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '5' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_if_no_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '5' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_of_no_match from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '6' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_of_no_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '6' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as outflow_no_match from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as outflow_no_unmatch from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as inflow_no_match from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as inflow_no_unmatch from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as ar_no_match from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as ar_no_unmatch from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as ap_no_match from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as so_no_unmatch from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as ship_no_unmatch from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as po_no_unmatch from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as mr_no_unmatch from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as req_no_unmatch from cf_request where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as pr_no_unmatch from cf_requisition where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_c_no_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_v_no_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '2' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_if_no_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '5' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_of_no_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '6' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as outflow_no_unmatch from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as inflow_no_unmatch from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as ar_no_unmatch from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as ap_no_unmatch from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD'))
 				from generate_series('".$fdate."', '".$tdate."', '1 day'::interval) i";
 			// debug($str);
