@@ -30,7 +30,7 @@
 			{ name: 'set_default', title: 'Set As Default' }, 
 		],
 		sub_menu: [
-			{ pageid: 104, subKey: 'user_org_id', title: 'Location/Branch', },
+			{ pageid: 104, subKey: 'user_id,user_org_id', title: 'Location/Branch', },
 		],
 		order: ['id desc'],
 		columns: [
