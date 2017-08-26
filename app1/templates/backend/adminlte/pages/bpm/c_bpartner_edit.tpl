@@ -61,6 +61,12 @@
 					row.push(subCol(6, col)); col = [];
 					col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 					col.push(BSHelper.Checkbox({ horz:false, label:"Is Sales Representative", idname:"is_salesrep", value:0 }));
+					col.push(BSHelper.Combobox({ label:"Residence", idname:"residence", required: false,  
+						list:[
+							{ id:"Domestic", name:"Domestic" },
+							{ id:"Overseas", name:"Overseas" },
+						] 
+					}));
 					row.push(subCol(6, col)); col = [];
 					a.push(subRow(row)); col = []; row = [];
 					row.push(subCol(6, col)); col = [];

@@ -601,4 +601,29 @@ class Cashflow_Model extends CI_Model
 		return TRUE;
 	}
 	
+	function cf_unmatch_crp_so_plan_vs_invoice($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params['table'] 	= "(
+			select * from cf_invoice t1 
+			where 
+			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
+			is_active = '1' and is_deleted = '0' and is_receipt = '1' and
+			adj_amount <> 0 and doc_date = (select doc_date from cf_order_plan where id=t1.order_plan_id) 
+			union all
+			select * from cf_invoice t1 
+			where 
+			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
+			is_active = '1' and is_deleted = '0' and is_receipt = '1' and
+			doc_date > (select doc_date from cf_order_plan where id=t1.order_plan_id) and adj_amount = 0
+			union all
+			select * from cf_invoice t1 
+			where 
+			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
+			is_active = '1' and is_deleted = '0' and is_receipt = '1' and
+			adj_amount <> 0 and doc_date > (select doc_date from cf_order_plan where id=t1.order_plan_id)
+			) t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
 }

@@ -38,6 +38,7 @@
 		columns: [
 			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
+			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_import", title:"Import", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"eta", title:"ETA" },
 			{ width:"100px", orderable:false, data:"doc_no_requisition", title:"PR Doc No" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_requisition", title:"PR Doc Date" },
