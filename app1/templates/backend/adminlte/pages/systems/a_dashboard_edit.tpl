@@ -39,7 +39,6 @@
 			{ id:"ion ion-speedometer", name:"speedometer" },
 		] 
 	}));
-	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Icon", idname:"icon", })); *}
 	col.push(BSHelper.Combobox({ label:"Color", idname:"color", 
 		list:[
 			{ id:"bg-aqua", name:"aqua" },
@@ -76,7 +75,6 @@
 	}));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Query", idname:"query", style:"height:200px;" }));
 	col.push(BSHelper.Button({ type:"button", label:"Testing Query", cls:"btn-danger", idname:"btn_query" }));
-	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Color", idname:"color", })); *}
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
 	form1.append(subRow(subCol()));
