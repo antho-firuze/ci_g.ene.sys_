@@ -28,6 +28,7 @@ class Systems extends Getmeb
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
+				// $this->xresponse(TRUE, ['data' => $result]);
 				foreach($result as $key => $val){
 					$result[$key]->value = 0;
 					if ($val->query) {

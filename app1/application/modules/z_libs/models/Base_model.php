@@ -131,7 +131,15 @@ class Base_Model extends CI_Model
 			}
 		}
 		if ( key_exists('like', $params)) $this->db->where($params['like']);
-		if ( key_exists('sort', $params)) $this->db->order_by($params['sort'], $params['order']);
+		// if ( key_exists('sort', $params)) $this->db->order_by($params['sort'], $params['order']);
+		if (key_exists('sort', $params) && !empty($params['sort'])){
+			$array = explode(",", $params['sort']);
+			if (!empty($array)) {
+				foreach ($array as $value) {
+					$this->db->order_by($value);
+				}
+			}
+		}
 		
 		/* sample: &filter=field1=value1,field2=value2... */
 		if (key_exists('filter', $this->params) && !empty($this->params['filter'])){

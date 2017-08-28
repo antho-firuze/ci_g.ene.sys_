@@ -380,7 +380,7 @@ class Systems_Model extends CI_model
 		$params['where']['t2.is_active'] = '1';
 		$params['where']['t2.is_deleted'] = '0';
 		// $params['order']	= "t2.type, t2.lineno";
-		$params['order']	= "t1.seq";
+		$params['sort']	= "t1.seq asc";
 		return $this->base_model->mget_rec($params);
 	}
 	
