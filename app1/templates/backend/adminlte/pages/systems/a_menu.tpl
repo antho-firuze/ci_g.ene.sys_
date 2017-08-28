@@ -48,7 +48,6 @@
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>
 <script>
-
 	$('.dataTables_wrapper').find('tbody').on('keypress keyup', '.line_no', function (e) {
 		var data = dataTable1.row( $(this).parents('tr') ).data();
 		var newLine = parseInt($(this).val());
@@ -81,5 +80,4 @@
 			});
 		}
 	});
-	
 </script>

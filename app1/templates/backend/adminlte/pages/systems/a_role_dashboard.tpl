@@ -31,6 +31,7 @@
 		columns: [
 			{ width:"150px", orderable:false, data:"code_name", title:"Dashboard" },
 			{ width:"55px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Type" },
+			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"seq", title:"Line", render:function(data, type, row){ return '<input type="number" class="seq" style="width:50px; text-align:center;" value="'+data+'">'; } },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 	};
@@ -51,3 +52,37 @@
 	
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>
+<script>
+	$('.dataTables_wrapper').find('tbody').on('keypress keyup', '.seq', function (e) {
+		var data = dataTable1.row( $(this).parents('tr') ).data();
+		var newLine = parseInt($(this).val());
+		
+		{* TAB || ESC *}
+		if (e.keyCode == 9 || e.keyCode == 27){	
+			console.log(data.seq);
+			$(this).val(data.seq);
+			return false;
+		}
+		
+		if (e.keyCode == 13 && e.type == 'keypress'){
+			if (data.seq == newLine)
+				return false;
+				
+			$.extend(data, { 'newline':newLine });
+			$.ajax({ method: 'PUT', url: $url_module, data: JSON.stringify(data), dataType: 'json',
+				success: function(data){
+					dataTable1.ajax.reload( null, false );
+				},
+				error: function(data) {
+					if (data.status==500){
+						var message = data.statusText;
+					} else {
+						var error = JSON.parse(data.responseText);
+						var message = error.message;
+					}
+					BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+				}
+			});
+		}
+	});
+</script>
