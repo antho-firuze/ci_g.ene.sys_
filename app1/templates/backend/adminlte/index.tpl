@@ -50,7 +50,7 @@
 	store($sidebar, "{$.session.sidebar !: ''}");
 	store($screen_timeout, "{$.session.screen_timeout !: $.session.default_screen_timeout}");
 </script>
-<script src="{$.const.TEMPLATE_URL}plugins/jQuery/jquery-3.2.0.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/jQuery/jquery-3.2.1.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/idletimer/idle-timer.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/pace/pace.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}bootstrap/js/bootstrap.min.js"></script>

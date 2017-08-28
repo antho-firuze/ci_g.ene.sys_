@@ -38,7 +38,8 @@
 		],
 		columns: [
 			{ width:"25px", orderable:false, data:"seq", title:"Line" },
-			{ width:"100px", orderable:false, data:"doc_date", title:"Payment Date" },
+			{ width:"100px", orderable:false, data:"doc_date", title:"Invoice Plan Date" },
+			{ width:"100px", orderable:false, data:"payment_plan_date", title:"Payment Plan Date" },
 			{ width:"150px", orderable:false, data:"note", title:"Payment Type" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },

@@ -30,7 +30,7 @@
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/bootstrap-tagsinput/bootstrap-tagsinput.css">
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/jvectormap/jquery-jvectormap-1.2.2.css">
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/jQueryUI/jquery-ui.min.js"></script>
+{* <script src="{$.const.TEMPLATE_URL}plugins/jQueryUI/jquery-ui.min.js"></script> *}
 <script src="{$.const.TEMPLATE_URL}plugins/summernote/summernote.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/datepicker/bootstrap-datepicker.js"></script>
 {* <script src="{$.const.TEMPLATE_URL}plugins/tag-it/js/tag-it.js"></script> *}
@@ -55,7 +55,7 @@
 				{* console.log(val.type); *}
 				if (val.type == 'BOX-3'){
 					var link = val.link ? $BASE_URL+val.link : '';
-					c.push(BSHelper.WidgetBox3({ title:val.name, color:val.color, value:val.value, icon:val.icon, link:link }));
+					c.push(BSHelper.WidgetBox3({ title:val.name, color:val.color, value:val.value, icon:val.icon, link:link, tooltip:val.description }));
 				}
 				if (val.type == 'BOX-7' && val.name == 'Quick Email'){
 					r.push(qemail());

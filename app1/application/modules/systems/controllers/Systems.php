@@ -24,9 +24,7 @@ class Systems extends Getmeb
 	function dashboard1()
 	{
 		if ($this->r_method == 'GET') {
-			
 			$this->params['list'] = 1;
-			$this->params['ob'] = 'line_no';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -37,15 +35,18 @@ class Systems extends Getmeb
 						$val->query = $this->translate_variable($val->query);
 						
 						if (!$qry = $this->db->query($val->query)) {
-							$result[$key]->value = 0;
+							$result[$key]->value = -1;
 							// debugf($this->db->error()['message']);
 						} else {
-							// debugf(count($qry->list_fields()));
 							if (count($qry->list_fields()) == 1) {
-								foreach($qry->list_fields() as $field){
+								if ($qry->num_rows() == 1)
+									$result[$key]->value = array_values($qry->row_array());
+								else
+									$result[$key]->value = -1;
+								/* foreach($qry->list_fields() as $field){
 									// debugf($qry->row(0)->{$field});
 									$result[$key]->value = $qry->row(0)->{$field};
-								}
+								} */
 							} else {
 								foreach($qry->result() as $k => $v){
 									$res[$v->key] = $v->val;
@@ -53,6 +54,7 @@ class Systems extends Getmeb
 								$result[$key]->value = $res;
 							}
 							$qry->free_result();
+							// debugf(count($qry->list_fields()));
 						}
 					}
 					unset($result[$key]->query);
@@ -959,10 +961,36 @@ class Systems extends Getmeb
 	
 	function a_dashboard()
 	{
+		if ($this->r_method == 'PATCH') {
+			if (isset($this->params->testing_query) && !empty($this->params->testing_query)) {
+				if ($this->params->query) {
+					$query = $this->translate_variable($this->params->query);
+					
+					// $this->xresponse(FALSE, ['message' => $query], 401);
+					
+					if (!$qry = $this->db->query($query)) {
+						$this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
+					} else {
+						// debugf(count($qry->list_fields()));
+						$result['data']['num_fields'] = count($qry->list_fields());
+						$result['data']['num_rows'] = $qry->num_rows();
+						$result['data']['field_name'] = implode(', ', $qry->list_fields());
+						if ($qry->num_rows() == 1){
+							$result['data']['row_value'] = array_values($qry->row_array());
+						} else {
+							$result['data']['row_value'] = 'Rows exceeded more than one !';
+						}
+						$result['message'] = 'OK';
+						$qry->free_result();
+					}
+					$this->xresponse(TRUE, $result);
+				}
+			}
+		}
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, FALSE);
 			
-			$this->params['ob'] = "type, line_no";
+			// $this->params['ob'] = "type, line_no";
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}

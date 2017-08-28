@@ -28,7 +28,6 @@
 	}));
 	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Link", idname:"link", }));
-	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Query", idname:"query", }));
 	col.push(BSHelper.Combobox({ label:"Icon", idname:"icon", 
 		list:[
 			{ id:"ion ion-cube", name:"cube" },
@@ -75,6 +74,8 @@
 			{ id:"bg-black-active", name:"black-active" },
 		] 
 	}));
+	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Query", idname:"query", style:"height:200px;" }));
+	col.push(BSHelper.Button({ type:"button", label:"Testing Query", cls:"btn-danger", idname:"btn_query" }));
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Color", idname:"color", })); *}
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
@@ -87,5 +88,36 @@
 	box1.find('.box-body').append(form1);
 	$(".content").append(box1);
 
+	{* INITILIZATION *}
+	$("#btn_query").on("click", function(){
+		$.ajax({ url: $url_module, method: "PATCH", async: true, dataType: 'json',
+			data: JSON.stringify({ "testing_query":1, "query":$("#query").val() }),
+			success: function(result) {
+				if (result.status){
+					var body = 'Result: '+result.message+'<br>';
+					body += '<br>field count: '+result.data.num_fields;
+					body += '<br>field name: '+result.data.field_name;
+					body += '<br>row count: '+result.data.num_rows;
+					body += '<br>row value: '+result.data.row_value;
+					{* body += '<br>message: '+result.message; *}
+					BootstrapDialog.show({ closable: false, message: body, 
+						buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],
+					});
+				}
+			},
+			error: function(result) {
+				if (result.status==500){
+					var message = result.statusText;
+				} else {
+					var error = JSON.parse(result.responseText);
+					var message = error.message;
+				}
+				BootstrapDialog.show({ closable: false, type:'modal-danger', title:'Notification', message:message, 
+					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],
+				});
+			}
+		});
+	});
+	
 </script>
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>

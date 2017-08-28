@@ -141,19 +141,19 @@
               <li class="user-body">
 			    <div class="row">
 						<div class="col-xs-4 text-left">Client: </div>
-						<div class="col-xs-8 text-left"><a href="#">{$.session.client_name}</a></div>
+						<div class="col-xs-8 text-left"><a href="#">{$.session.client_name}</a>&nbsp;<small>({$.session.client_id})</small></div>
 					</div>
 			    <div class="row">
 						<div class="col-xs-4 text-left">Org/Company: </div>
-						<div class="col-xs-8 text-left"><a href="#">{$.session.org_name}</a></div>
+						<div class="col-xs-8 text-left"><a href="#">{$.session.org_name}</a>&nbsp;<small>({$.session.org_id})</small></div>
 					</div>
 			    <div class="row">
 						<div class="col-xs-4 text-left">Location: </div>
-						<div class="col-xs-8 text-left"><a href="#">{$.session.location_name}</a></div>
+						<div class="col-xs-8 text-left"><a href="#">{$.session.location_name}</a>&nbsp;<small>({$.session.orgtrx_id})</small></div>
 					</div>
 			    <div class="row">
 						<div class="col-xs-4 text-left">Role: </div>
-						<div class="col-xs-8 text-left"><a href="#">{$.session.role_name}</a></div>
+						<div class="col-xs-8 text-left"><a href="#">{$.session.role_name}</a>&nbsp;<small>({$.session.role_id})</small></div>
 					</div>
                 <!-- /.row -->
               </li>
