@@ -2589,10 +2589,10 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_unmatch_crp_so_plan_vs_invoice()
+	function cf_unmatch_crp_so_vs_invoice()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','t1.status']);
 			
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
@@ -2607,7 +2607,7 @@ class Cashflow extends Getmeb
 		}
 	}
 
-	function cf_unmatch_cpp_po_plan_vs_invoice()
+	function cf_unmatch_cpp_po_vs_invoice()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
@@ -2808,9 +2808,9 @@ class Cashflow extends Getmeb
 	function cf_unmatch_trans_date_so_vs_shp()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(FALSE, FALSE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
 			
-			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			// $this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -2880,7 +2880,7 @@ class Cashflow extends Getmeb
 	function cf_outstanding_trans_so()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
@@ -2898,7 +2898,7 @@ class Cashflow extends Getmeb
 	function cf_outstanding_trans_po()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
@@ -2949,28 +2949,27 @@ class Cashflow extends Getmeb
 		}
 	}
 
-	function cf_match_daily_entry()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
-			
-			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-	}
-
 	function cf_unmatch_daily_entry()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(FALSE, FALSE);
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+
+	function cf_late_invoice_vs_bank_received()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no']);
 			
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
@@ -2985,28 +2984,10 @@ class Cashflow extends Getmeb
 		}
 	}
 
-	function cf_invoicing_vs_bank_payment()
+	function cf_unmatch_invoice_vs_bank_payment()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
-			
-			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function cf_invoice_vs_bank_reecive()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.payment_status']);
 			
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {

@@ -27,7 +27,7 @@
 		enable: true,
 		act_menu: { copy: false, edit: true, delete: true },
 		sub_menu: [],
-		order: ['id desc'],
+		order: ['t1.seq'],
 		columns: [
 			{ width:"150px", orderable:false, data:"code_name", title:"Dashboard" },
 			{ width:"55px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Type" },

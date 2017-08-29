@@ -852,7 +852,6 @@ class Systems extends Getmeb
 			if (isset($this->params['q']) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t2.code, t2.name, t2.description', $this->params['q']);
 
-			$this->params['ob'] = "type, line_no";
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				// $this->_pre_export_data();
 				$this->params['export'] = 1;

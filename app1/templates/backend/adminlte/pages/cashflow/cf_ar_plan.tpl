@@ -31,11 +31,9 @@
 	var format_money = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
 	var DataTable_Init = {
 		enable: true,
-		act_menu: { copy: true, edit: true, delete: true },
-		sub_menu: [
-			{* { pageid: 99, subKey: 'order_id', title: 'Order Line', }, *}
-			{* { pageid: 100, subKey: 'order_id', title: 'Order Plan' }, *}
-		],
+		act_menu: { copy: false, edit: false, delete: false },
+		sub_menu: [],
+		order: ['id desc'],
 		columns: [
 			{ width:"25px", orderable:false, data:"seq", title:"Line" },
 			{ width:"150px", orderable:false, data:"bpartner_name", title:"Business Partner" },
@@ -48,7 +46,6 @@
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"ttl_amt", title:"Total Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 		],
-		order: ['seq'],
 	};
 	
 	{* For design form interface *}

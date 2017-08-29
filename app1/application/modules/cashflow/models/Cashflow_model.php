@@ -601,89 +601,140 @@ class Cashflow_Model extends CI_Model
 		return TRUE;
 	}
 	
-	function cf_unmatch_crp_so_plan_vs_invoice($params)
+	function cf_unmatch_crp_so_vs_invoice($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
+		(select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, 
+		(select doc_no from cf_order where id = t1.order_id) as so_no, 
+		(select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, 
+		(select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
 		$params['table'] 	= "(
-			select * from cf_invoice t1 
+			select *, 'by amount' as status from cf_invoice t1 
 			where 
 			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '1' and
-			adj_amount <> 0 and doc_date = (select doc_date from cf_order_plan where id=t1.order_plan_id) 
+			is_active = '1' and is_deleted = '0' and is_receipt = '1' and extract(month from doc_date) = extract(month from current_date) and 
+			adj_amount <> 0 and doc_date = (select doc_date from cf_order_plan where is_active = '1' and is_deleted = '0' and id = t1.order_plan_id)
 			union all
-			select * from cf_invoice t1 
+			select *, 'by date' as status from cf_invoice t1 
 			where 
 			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '1' and
-			doc_date > (select doc_date from cf_order_plan where id=t1.order_plan_id) and adj_amount = 0
+			is_active = '1' and is_deleted = '0' and is_receipt = '1' and extract(month from doc_date) = extract(month from current_date) and 
+			adj_amount = 0 and doc_date > (select doc_date from cf_order_plan where is_active = '1' and is_deleted = '0' and id = t1.order_plan_id)
 			union all
-			select * from cf_invoice t1 
+			select *, 'by amount & date' as status from cf_invoice t1 
 			where 
 			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '1' and
-			adj_amount <> 0 and doc_date > (select doc_date from cf_order_plan where id=t1.order_plan_id)
+			is_active = '1' and is_deleted = '0' and is_receipt = '1' and extract(month from doc_date) = extract(month from current_date) and 
+			adj_amount <> 0 and doc_date > (select doc_date from cf_order_plan where is_active = '1' and is_deleted = '0' and id = t1.order_plan_id)
 			) t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_unmatch_cpp_po_plan_vs_invoice($params)
+	function cf_unmatch_cpp_po_vs_invoice($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select po_top from c_bpartner where id = t1.bpartner_id) as po_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
+		(select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, 
+		(select doc_no from cf_order where id = t1.order_id) as po_no, 
+		(select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as po_date, 
+		(select to_char(eta, '".$this->session->date_format."') from cf_order where id = t1.order_id) as eta, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
 		$params['table'] 	= "(
-			select * from cf_invoice t1 
+			select *, 'by amount' as status from cf_invoice t1 
 			where 
 			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			adj_amount <> 0 
+			is_active = '1' and is_deleted = '0' and is_receipt = '0' and extract(month from doc_date) = extract(month from current_date) and 
+			adj_amount <> 0 and doc_date = (select doc_date from cf_order_plan where is_active = '1' and is_deleted = '0' and id = t1.order_plan_id)
 			union all
-			select * from cf_invoice t1 
+			select *, 'by date' as status from cf_invoice t1 
 			where 
 			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			doc_date > (select doc_date from cf_order_plan where id=t1.order_plan_id)
+			is_active = '1' and is_deleted = '0' and is_receipt = '0' and extract(month from doc_date) = extract(month from current_date) and 
+			adj_amount = 0 and doc_date > (select doc_date from cf_order_plan where is_active = '1' and is_deleted = '0' and id = t1.order_plan_id)
+			union all
+			select *, 'by amount & date' as status from cf_invoice t1 
+			where 
+			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
+			is_active = '1' and is_deleted = '0' and is_receipt = '0' and extract(month from doc_date) = extract(month from current_date) and 
+			adj_amount <> 0 and doc_date > (select doc_date from cf_order_plan where is_active = '1' and is_deleted = '0' and id = t1.order_plan_id)
 			) t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function cf_unmatch_crp_oth_inflow_vs_invoice($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
+		(select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date";
 		$params['table'] 	= "(
 			select * from cf_invoice t1 
 			where 
 			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '1' and
-			doc_date > (select received_plan_date from cf_ar_ap_plan where id=t1.order_plan_id)
-			union ALL
+			is_active = '1' and is_deleted = '0' and is_receipt = '1' and extract(month from doc_date) = extract(month from current_date) and 
+			doc_date > (select received_plan_date from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and id = t1.order_plan_id)
+			union all
 			select * from cf_invoice t1 
 			where 
 			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '1' and
-			amount <> (select ttl_amt from cf_ar_ap_plan where id = t1.ar_ap_plan_id)
+			is_active = '1' and is_deleted = '0' and is_receipt = '1' and extract(month from doc_date) = extract(month from current_date) and 
+			amount <> (select ttl_amt from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and id = t1.ar_ap_plan_id)
 			) t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function cf_unmatch_cpp_oth_outflow_vs_invoice($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select po_top from c_bpartner where id = t1.bpartner_id) as po_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
+		(select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date";
 		$params['table'] 	= "(
 			select * from cf_invoice t1 
 			where 
 			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			doc_date > (select received_plan_date from cf_ar_ap_plan where id=t1.order_plan_id)
+			is_active = '1' and is_deleted = '0' and is_receipt = '0' and extract(month from doc_date) = extract(month from current_date) and 
+			doc_date > (select received_plan_date from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and id = t1.order_plan_id)
 			union ALL
 			select * from cf_invoice t1 
 			where 
 			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			amount <> (select ttl_amt from cf_ar_ap_plan where id = t1.ar_ap_plan_id)
+			is_active = '1' and is_deleted = '0' and is_receipt = '0' and extract(month from doc_date) = extract(month from current_date) and 
+			amount <> (select ttl_amt from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and id = t1.ar_ap_plan_id)
 			) t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_invoicing_so($params)
+	function cf_uninvoiced_so($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params['table'] 	= "(
+			SELECT COUNT(*) FROM cf_order f1
+			where
+			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
+			is_active = '1' AND is_deleted = '0' and is_sotrx='1'
+			AND NOT EXISTS(SELECT DISTINCT(ID) FROM cf_invoice WHERE is_active = '1' AND is_deleted = '0' AND order_id = f1.ID)
+			) t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_uninvoiced_po($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
 		$params['table'] 	= "(
@@ -702,7 +753,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_invoicing_other_inflow($params)
+	function cf_uninvoiced_other_inflow($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
 		$params['table'] 	= "(
@@ -721,26 +772,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_invoicing_po($params)
-	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
-		$params['table'] 	= "(
-			select * from cf_invoice t1 
-			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			adj_amount <> 0 
-			union all
-			select * from cf_invoice t1 
-			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			doc_date > (select doc_date from cf_order_plan where id=t1.order_plan_id)
-			) t1";
-		return $this->base_model->mget_rec($params);
-	}
-	
-	function cf_invoicing_other_outflow($params)
+	function cf_uninvoiced_other_outflow($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
 		$params['table'] 	= "(
@@ -837,19 +869,24 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_unmatch_trans_date_so_vs_shp($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		to_char(doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(etd, '".$this->session->date_format."') as etd, 
+		to_char(delivery_date, '".$this->session->date_format."') as delivery_date, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
 		$params['table'] 	= "(
-			select * from cf_invoice t1 
+			select t1.*, order_id, delivery_date from (
+			select order_id, 
+			max((select (select max(delivery_date) from cf_inout where id = f1.inout_id) as delivery_date from cf_inout_line f1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id limit 1)) as delivery_date
+			from cf_order_line t1
 			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			adj_amount <> 0 
-			union all
-			select * from cf_invoice t1 
-			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			doc_date > (select doc_date from cf_order_plan where id=t1.order_plan_id)
+			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and (select orgtrx_id from cf_order f1 where id = t1.order_id) = ".$this->session->orgtrx_id." and 
+			is_active = '1' and is_deleted = '0' and exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id) 
+			group by 1
+			) t2 inner join cf_order t1 on t2.order_id = t1.id where delivery_date > etd and extract(month from etd) = extract(month from current_date) 
 			) t1";
 		return $this->base_model->mget_rec($params);
 	}
@@ -913,143 +950,107 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_outstanding_trans_so($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top,  
+		to_char(doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(etd, '".$this->session->date_format."') as etd";
 		$params['table'] 	= "(
-			select * from cf_invoice t1 
+			select * from cf_order f1
 			where 
 			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			adj_amount <> 0 
-			union all
-			select * from cf_invoice t1 
-			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			doc_date > (select doc_date from cf_order_plan where id=t1.order_plan_id)
+			is_active = '1' and is_deleted = '0' and is_sotrx = '1' 
+			AND NOT EXISTS(SELECT 1 FROM cf_inout WHERE is_active = '1' AND is_deleted = '0'	AND order_id = f1.ID) 
 			) t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function cf_outstanding_trans_po($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select po_top from c_bpartner where id = t1.bpartner_id) as po_top,  
+		to_char(doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(eta, '".$this->session->date_format."') as eta";
 		$params['table'] 	= "(
-			select * from cf_invoice t1 
+			select * from cf_order f1
 			where 
 			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			adj_amount <> 0 
-			union all
-			select * from cf_invoice t1 
-			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			doc_date > (select doc_date from cf_order_plan where id=t1.order_plan_id)
-			) t1";
-		return $this->base_model->mget_rec($params);
-	}
-	
-	function cf_complete_trans_so($params)
-	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
-		$params['table'] 	= "(
-			select * from cf_invoice t1 
-			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			adj_amount <> 0 
-			union all
-			select * from cf_invoice t1 
-			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			doc_date > (select doc_date from cf_order_plan where id=t1.order_plan_id)
-			) t1";
-		return $this->base_model->mget_rec($params);
-	}
-	
-	function cf_complete_trans_po($params)
-	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
-		$params['table'] 	= "(
-			select * from cf_invoice t1 
-			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			adj_amount <> 0 
-			union all
-			select * from cf_invoice t1 
-			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			doc_date > (select doc_date from cf_order_plan where id=t1.order_plan_id)
-			) t1";
-		return $this->base_model->mget_rec($params);
-	}
-	
-	function cf_match_daily_entry($params)
-	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
-		$params['table'] 	= "(
-			select * from cf_invoice t1 
-			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			adj_amount <> 0 
-			union all
-			select * from cf_invoice t1 
-			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			doc_date > (select doc_date from cf_order_plan where id=t1.order_plan_id)
+			is_active = '1' and is_deleted = '0' and is_sotrx = '0' 
+			AND NOT EXISTS(SELECT 1 FROM cf_inout WHERE is_active = '1' AND is_deleted = '0'	AND order_id = f1.ID) 
 			) t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function cf_unmatch_daily_entry($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= "(
-			select * from cf_invoice t1 
-			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			adj_amount <> 0 
-			union all
-			select * from cf_invoice t1 
-			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and
-			doc_date > (select doc_date from cf_order_plan where id=t1.order_plan_id)
+			select to_char(i.date, 'YYYY-MM-DD') as date, '1'::character(1) as is_active, '0'::character(1) as is_deleted,
+			(select count(*) as so_unmatch from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+			(select count(*) as ship_unmatch from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+			(select count(*) as po_unmatch from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+			(select count(*) as mr_unmatch from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+			(select count(*) as req_unmatch from cf_request where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+			(select count(*) as pr_unmatch from cf_requisition where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+			(select count(*) as inv_c_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+			(select count(*) as inv_v_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '2' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+			(select count(*) as inv_if_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '5' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+			(select count(*) as inv_of_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '6' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+			(select count(*) as outflow_unmatch from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+			(select count(*) as inflow_unmatch from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+			(select count(*) as ar_unmatch from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
+			(select count(*) as ap_unmatch from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD'))
+			from generate_series( date_trunc('month', now()), now(), '1 day'::interval) i
 			) t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_invoicing_vs_bank_payment($params)
+	function cf_late_invoice_vs_bank_received($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
+		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date,
+		to_char(t1.received_date, '".$this->session->date_format."') as received_date";
 		$params['table'] 	= "(
-			select t1.*, t2.payment_date, (select payment_plan_date from cf_invoice t3 where id = t1.invoice_id) as payment_plan_date from cf_cashbank_line t1 
-			inner join cf_cashbank t2 on t1.cashbank_id = t2.id
+			select *, (select received_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id),
+			(select f2.doc_no as voucher_no from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id) from cf_invoice t1 
 			where 
-			t1.client_id = ".$this->session->client_id." and t1.org_id = ".$this->session->org_id." and t2.orgtrx_id = ".$this->session->orgtrx_id." and 
-			t1.is_active = '1' and t1.is_deleted = '0' and t2.is_receipt = '0' and
-			t2.payment_date > (select payment_plan_date from cf_invoice t3 where id = t1.invoice_id)
-		) t1";
+			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
+			is_active = '1' and is_deleted = '0' and is_receipt = '1' and extract(month from received_plan_date) = extract(month from current_date) and 
+			received_plan_date < (select received_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id)
+			) t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_invoice_vs_bank_reecive($params)
+	function cf_unmatch_invoice_vs_bank_payment($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, (select doc_no from cf_order where id = t1.order_id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, (select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select po_top from c_bpartner where id = t1.bpartner_id) as po_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
+		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date,
+		to_char(t1.payment_date, '".$this->session->date_format."') as payment_date";
 		$params['table'] 	= "(
-			select t1.*, t2.received_date, (select received_plan_date from cf_invoice t3 where id = t1.invoice_id) as received_plan_date from cf_cashbank_line t1 
-			inner join cf_cashbank t2 on t1.cashbank_id = t2.id
+			select *, (select payment_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id),
+			(select f2.doc_no as voucher_no from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id),
+			case 
+			when payment_plan_date < (select payment_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id) then 'Late Payment'
+			when payment_plan_date > (select payment_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id) then 'Advance Payment' end as payment_status
+			from cf_invoice t1 
 			where 
-			t1.client_id = ".$this->session->client_id." and t1.org_id = ".$this->session->org_id." and t2.orgtrx_id = ".$this->session->orgtrx_id." and 
-			t1.is_active = '1' and t1.is_deleted = '0' and t2.is_receipt = '1' and
-			t2.received_date > (select received_plan_date from cf_invoice t3 where id = t1.invoice_id)
-		) t1";
+			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
+			is_active = '1' and is_deleted = '0' and is_receipt = '0' and extract(month from received_plan_date) = extract(month from current_date) and 
+			payment_plan_date <> (select payment_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id)
+			) t1";
 		return $this->base_model->mget_rec($params);
 	}
 	

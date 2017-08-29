@@ -26,18 +26,14 @@
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '130%',
-		act_menu: { copy: true, edit: true, delete: true },
-		sub_menu: [
-			{* { pageid: 122, subKey: 'ar_ap_id', title: 'Outflow Line', }, *}
-			{ pageid: 123, subKey: 'ar_ap_id', title: 'Outflow Plan', },
-		],
+		act_menu: { copy: false, edit: false, delete: false },
+		sub_menu: [],
+		order: ['id desc'],
 		columns: [
-			{ width:"100px", orderable:false, data:"so_no", title:"Doc No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"so_date", title:"Doc Date" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"etd", title:"ETD" },
+			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
 			{ width:"100px", orderable:false, data:"bpartner_name", title:"Customer" },
 			{ width:"100px", orderable:false, data:"residence", title:"Residence" },
-			{ width:"100px", orderable:false, data:"category_name", title:"Category" },
 			{ width:"200px", orderable:false, data:"note", title:"Note" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"invoice_plan_date", title:"Invoice Plan Date" },
@@ -46,9 +42,8 @@
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"adj_amount", title:"Adj Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"net_amount", title:"Net Amount", render: function(data, type, row){ return format_money(data); } },
-			{ width:"20px", orderable:false, className:"dt-head-center dt-body-center", data:"so_top", title:"TOP" },
+			{ width:"20px", orderable:false, className:"dt-head-center dt-body-center", data:"po_top", title:"TOP" },
 		],
-		order: ['id desc'],
 	};
 	
 </script>
