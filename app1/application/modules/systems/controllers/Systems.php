@@ -457,12 +457,16 @@ class Systems extends Getmeb
 			if (isset($this->params['bread']) && count($this->params['bread']) >= 0)
 				$menu = array_merge($menu, ['bread' => $this->params['bread']]);
 			
+			
 			/* Check for action pages */
 			if (isset($this->params['action']) && !empty($this->params['action'])){
 				switch($this->params['action']) {
 					case 'new': 
 					case 'cpy': 
 					case 'edt': 
+						if (! $this->_check_path($menu['path'].$menu['method'].'_edit'))
+							$this->backend_view('pages/404', ['message'=>'']);
+						
 						$this->backend_view($menu['path'].$menu['method'].'_edit', $menu);
 						break;
 					case 'exp':

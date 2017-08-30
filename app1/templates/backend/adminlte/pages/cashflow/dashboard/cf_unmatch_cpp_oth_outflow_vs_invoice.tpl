@@ -30,19 +30,20 @@
 		sub_menu: [],
 		order: ['id desc'],
 		columns: [
-			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
+			{ width:"100px", orderable:false, data:"ap_no", title:"Doc No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"ap_date", title:"Doc Date" },
 			{ width:"100px", orderable:false, data:"bpartner_name", title:"Customer" },
 			{ width:"100px", orderable:false, data:"residence", title:"Residence" },
 			{ width:"200px", orderable:false, data:"note", title:"Note" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"invoice_plan_date", title:"Invoice Plan Date" },
 			{ width:"100px", orderable:false, data:"doc_no", title:"Invoice No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"invoice_date", title:"Invoice Date" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Invoice Date" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"adj_amount", title:"Adj Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"net_amount", title:"Net Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"20px", orderable:false, className:"dt-head-center dt-body-center", data:"po_top", title:"TOP" },
+			{ width:"100px", orderable:false, data:"status", title:"Status" },
 		],
 	};
 	

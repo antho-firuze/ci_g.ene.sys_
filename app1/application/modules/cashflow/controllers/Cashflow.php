@@ -2592,7 +2592,7 @@ class Cashflow extends Getmeb
 	function cf_unmatch_crp_so_vs_invoice()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','t1.status']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','t1.status']);
 			
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
@@ -2610,7 +2610,7 @@ class Cashflow extends Getmeb
 	function cf_unmatch_cpp_po_vs_invoice()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','t1.status']);
 			
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
@@ -2628,7 +2628,7 @@ class Cashflow extends Getmeb
 	function cf_unmatch_crp_oth_inflow_vs_invoice()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_ar_ap where id = t1.ar_ap_id)",'(select name from c_bpartner where id = t1.bpartner_id)','t1.status']);
 			
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
@@ -2646,151 +2646,7 @@ class Cashflow extends Getmeb
 	function cf_unmatch_cpp_oth_outflow_vs_invoice()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
-			
-			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function cf_invoicing_so()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
-			
-			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function cf_invoicing_other_inflow()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
-			
-			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function cf_invoicing_po()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
-			
-			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function cf_invoicing_other_outflow()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
-			
-			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function cf_incomplete_so()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
-			
-			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function cf_incomplete_po()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
-			
-			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function cf_incomplete_other_inflow()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
-			
-			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function cf_incomplete_other_outflow()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_ar_ap where id = t1.ar_ap_id)",'(select name from c_bpartner where id = t1.bpartner_id)','t1.status']);
 			
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
@@ -2810,7 +2666,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(FALSE, FALSE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
 			
-			// $this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -2826,7 +2682,7 @@ class Cashflow extends Getmeb
 	function cf_unmatch_trans_date_po_vs_mr()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
@@ -2913,42 +2769,6 @@ class Cashflow extends Getmeb
 		}
 	}
 
-	function cf_complete_trans_so()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
-			
-			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function cf_complete_trans_po()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
-			
-			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-	}
-
 	function cf_unmatch_daily_entry()
 	{
 		if ($this->r_method == 'GET') {
@@ -2988,6 +2808,150 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.payment_status']);
+			
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+
+	function cf_uninvoiced_sales_order()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+	
+	function cf_uninvoiced_purchase_order()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+	
+	function cf_uninvoiced_other_inflow()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+	
+	function cf_uninvoiced_other_outflow()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+
+	function cf_incomplete_so()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+
+	function cf_incomplete_po()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+
+	function cf_incomplete_other_inflow()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
+			
+			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+
+	function cf_incomplete_other_outflow()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
