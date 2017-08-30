@@ -2,6 +2,7 @@
 	defined('FCPATH') OR exit('No direct script access allowed'); 
 
 /* Database DSN */ 
+// define('DB_DSN', 'pgsql:host=103.20.189.24;port=5111;dbname=db_genesys;user=postgres;password=Admin123'); 
 define('DB_DSN', 'pgsql:host=103.20.189.26;port=4111;dbname=db_genesys;user=postgres;password=admin123'); 
 // define('DB_DSN', 'pgsql:host=192.168.10.250;port=5432;dbname=db_genesys;user=postgres;password=Admin123'); 
 // define('DB_DSN', 'pgsql:host=127.0.0.1;port=5433;dbname=db_genesys;user=postgres;password=admin123'); 

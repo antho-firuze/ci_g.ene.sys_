@@ -66,10 +66,14 @@
 	
 	function init_screen_timeout(){
 		var is_locked = get($lockscreen) == 1 ? true : false;
+		
 		$(document).idleTimer("destroy");
 		$(document).idleTimer({ timeout:parseInt(get($screen_timeout)), idle: is_locked });
 		if (is_locked)
 			$(document).idleTimer("pause");
+		
+		var user_state = get($lockscreen) == 1 ? "2" : "1";
+		$.ajax({ url: $BASE_URL+"z_libs/shared/set_user_state", method: "PATCH", async: true, dataType: 'json', data: JSON.stringify({ "_user_state": user_state })	});
 	}
 	
 	init_screen_timeout();
@@ -98,4 +102,6 @@
 			}
 		});  
 	});
+	
+	
 </script>

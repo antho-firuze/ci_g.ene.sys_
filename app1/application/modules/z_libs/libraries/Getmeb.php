@@ -328,6 +328,9 @@ class Getmeb extends CI_Controller
 			$this->db->where('time <', time()-60*60, FALSE);
 			$this->db->delete('a_tmp_tables');
 		}
+		
+		/* Clearing user_state status */
+		
 	}
 	
 	function _check_menu($data=[])
