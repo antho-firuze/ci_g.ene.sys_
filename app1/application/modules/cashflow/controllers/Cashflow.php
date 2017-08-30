@@ -2105,8 +2105,144 @@ class Cashflow extends Getmeb
 			}
 			/* Re-quering Data */
 			$str = 'select t1.account_id, (select is_receipt from cf_account where id = t1.account_id), type, seq, description as "DESCRIPTION", ';
-			foreach($arr as $i =>$v){
+			/* foreach($arr as $i =>$v){
 				$str .= "(select coalesce(sum(amount), 0) * (case (select is_receipt from cf_account where id = t1.account_id) when '1' then 1 else -1 end)".' as "'.$v['title'].'"' ." from cf_invoice where is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+								and ((extract(month from received_plan_date),extract(year from received_plan_date)) = ".$v['period']." or (extract(month from payment_plan_date),extract(year from payment_plan_date)) = ".$v['period']."))";
+				if ((count($arr)-1)!=$i)
+					$str .= ', ';
+			} */
+			foreach($arr as $i =>$v){
+				$str .= 
+				"(
+					select coalesce(sum(amount), 0) * (case (select is_receipt from cf_account where id = t1.account_id) when '1' then 1 else -1 end)".' as "'.$v['title'].'"' ." 
+					from cf_invoice 
+					where is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+					and ((extract(month from received_plan_date),extract(year from received_plan_date)) = ".$v['period']." or (extract(month from payment_plan_date),extract(year from payment_plan_date)) = ".$v['period'].")
+				)";
+				// if ((count($arr)-1)!=$i)
+					$str .= ', ';
+			}
+			foreach($arr as $i =>$v){
+				$str .= 
+				"(
+					select coalesce(sum(amount), 0) * (case (select is_receipt from cf_account where id = t1.account_id) when '1' then 1 else -1 end)".' as "'.$v['title'].'_actual"' ." 
+					from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id
+					where f1.is_active = '1' and f1.is_deleted = '0' and account_id = t1.account_id
+					and ((extract(month from received_date),extract(year from received_date)) = ".$v['period']." or (extract(month from payment_date),extract(year from payment_date)) = ".$v['period'].")
+				)";
+				if ((count($arr)-1)!=$i)
+					$str .= ', ';
+			}
+			$str .= " from cf_rpt_cashflow_projection t1 order by seq";
+			$qry = $this->db->query($str);
+			$rows = $qry->result();
+			/* Start process: Compiling Report */
+			/* Define Variable */
+			foreach($arr as $v){
+				$ttl[0][$v['title']] = 0;
+				$ttl[25][$v['title']] = 0;
+				$ttl[30][$v['title']] = 0;
+				$ttl[39][$v['title']] = 0;
+				$ttl[41][$v['title']] = 0;
+				$ttl[45][$v['title']] = 0;
+				$ttl[47][$v['title']] = $this->db->query("select coalesce((select amount from cf_cashbank_balance where is_active = '1' and is_deleted = '0' and doc_date = '".$fdate."'), 0) as amount")->row()->amount;
+				$ttl[48][$v['title']] = 0;
+				// $ttl[49][$v['title']] = 0;
+			}
+			foreach($arr as $v){
+				$ttl[0][$v['title'].'_actual'] = 0;
+				$ttl[25][$v['title'].'_actual'] = 0;
+				$ttl[30][$v['title'].'_actual'] = 0;
+				$ttl[39][$v['title'].'_actual'] = 0;
+				$ttl[41][$v['title'].'_actual'] = 0;
+				$ttl[45][$v['title'].'_actual'] = 0;
+				$ttl[47][$v['title'].'_actual'] = $this->db->query("select coalesce((select amount from cf_cashbank_balance where is_active = '1' and is_deleted = '0' and doc_date = '".$fdate."'), 0) as amount")->row()->amount;
+				$ttl[48][$v['title'].'_actual'] = 0;
+				// $ttl[49][$v['title']] = 0;
+			}
+			// debug($rows);
+			foreach($rows as $key => $val){
+				if ($val->account_id){
+					foreach($arr as $v){
+						$ttl[0][$v['title']] += $rows[$key]->{$v['title']};
+						$ttl[0][$v['title'].'_actual'] += $rows[$key]->{$v['title'].'_actual'};
+						if ($val->type == 'O') { $ttl[25][$v['title']] += $rows[$key]->{$v['title']}; $ttl[25][$v['title'].'_actual'] += $rows[$key]->{$v['title'].'_actual'};  }
+						if ($val->type == 'I') { $ttl[30][$v['title']] += $rows[$key]->{$v['title']}; $ttl[30][$v['title'].'_actual'] += $rows[$key]->{$v['title'].'_actual'};  }
+						if ($val->type == 'F') { $ttl[39][$v['title']] += $rows[$key]->{$v['title']}; $ttl[39][$v['title'].'_actual'] += $rows[$key]->{$v['title'].'_actual'};  }
+						if ($val->type == 'Z') { $ttl[45][$v['title']] += $rows[$key]->{$v['title']}; $ttl[45][$v['title'].'_actual'] += $rows[$key]->{$v['title'].'_actual'};  }
+					}
+				} else {
+					foreach($arr as $i => $v){
+						// $rows[0]['112017'] = '';
+						$rows[$key]->{$v['title']} = '';
+						$rows[$key]->{$v['title'].'_actual'} = '';
+						if ($val->seq == 25) { $rows[$key]->{$v['title']} = $ttl[$val->seq][$v['title']]; $rows[$key]->{$v['title'].'_actual'} = $ttl[$val->seq][$v['title'].'_actual']; }
+						if ($val->seq == 30) { $rows[$key]->{$v['title']} = $ttl[$val->seq][$v['title']]; $rows[$key]->{$v['title'].'_actual'} = $ttl[$val->seq][$v['title'].'_actual']; }
+						if ($val->seq == 39) { $rows[$key]->{$v['title']} = $ttl[$val->seq][$v['title']]; $rows[$key]->{$v['title'].'_actual'} = $ttl[$val->seq][$v['title'].'_actual']; }
+						if ($val->seq == 41) { $rows[$key]->{$v['title']} = $ttl[25][$v['title']] + $ttl[30][$v['title']] + $ttl[39][$v['title']]; $rows[$key]->{$v['title'].'_actual'} = $ttl[25][$v['title'].'_actual'] + $ttl[30][$v['title'].'_actual'] + $ttl[39][$v['title'].'_actual']; }
+						if ($val->seq == 45) { $rows[$key]->{$v['title']} = $ttl[$val->seq][$v['title']]; $rows[$key]->{$v['title'].'_actual'} = $ttl[$val->seq][$v['title'].'_actual']; }
+						
+						if ($i == 0) {
+							$cb_a = $ttl[47][$v['title']]; 				$cb_a1 = $ttl[47][$v['title'].'_actual'];
+							$cb_b = $ttl[0][$v['title']] + $cb_a; $cb_b1 = $ttl[0][$v['title'].'_actual'] + $cb_a1;
+						} else {
+							$cb_a = $cb_b;												$cb_a1 = $cb_b1;
+							$cb_b = $ttl[0][$v['title']] + $cb_a; $cb_b1 = $ttl[0][$v['title'].'_actual'] + $cb_a1;
+						}
+						if ($val->seq == 47) { $rows[$key]->{$v['title']} = $cb_a; $rows[$key]->{$v['title'].'_actual'} = $cb_a1; }
+						if ($val->seq == 48) { $rows[$key]->{$v['title']} = $cb_b; $rows[$key]->{$v['title'].'_actual'} = $cb_b1; }
+						// if ($val->seq == 49) $rows[$key]->{$v['title']} = $ttl[0][$v['title']];
+					}
+				}
+			}
+			
+			/* Unset account_id: 31 & 32 */
+			unset($rows[42],$rows[43]);
+			/* Export the result to client */
+			$filename = 'result_'.$this->c_table.'_'.date('YmdHi').'.xls';
+			/* Remove this fields */
+			$excl_cols = ['account_id','is_receipt','type','seq'];
+			if (! $result = $this->_export_data_array($rows, $excl_cols, $filename, 'xls', TRUE)) {
+				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
+			}
+			
+			/* Update status on process table */
+			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			/* Unset id_process, so can't be called again from client  */
+			// $this->session->unset_userdata('id_process');
+			
+			$result['message'] = $this->lang->line('success_import_data');
+			$this->xresponse(TRUE, $result);
+		}
+	}
+	
+	function rpt_cashflow_projection_old()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			/* Validation */
+			$fdate = date_first(NULL, $this->params->fyear, $this->params->fmonth);
+			$tdate = date_first(NULL, $this->params->tyear, $this->params->tmonth);
+			$arr = [];
+			if (($return = date_differ($fdate, $tdate)+1) < 2){
+				$date = strtotime($fdate);
+				$arr[0]['title'] = date('m',$date).date('Y',$date);
+				$arr[0]['period'] = '('.date('m',$date).','.date('Y',$date).')';
+			} else {
+				if ($return > 12)
+					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_month_range_overload'), 12)],401);
+				
+				$date = strtotime($fdate);
+				for ($x = 0; $x <= $return-1; $x++) {
+					$arr[$x]['title'] = date('m',$date).date('Y',$date);
+					$arr[$x]['period'] = '('.date('m',$date).','.date('Y',$date).')';
+					$date = strtotime("+1 month", $date);
+				} 
+			}
+			/* Re-quering Data */
+			$str = 'select t1.account_id, (select is_receipt from cf_account where id = t1.account_id), type, seq, description as "DESCRIPTION", ';
+			foreach($arr as $i =>$v){
+				$str .= "(select coalesce(sum(net_amount), 0) * (case (select is_receipt from cf_account where id = t1.account_id) when '1' then 1 else -1 end)".' as "'.$v['title'].'"' ." from cf_invoice where is_active = '1' and is_deleted = '0' and account_id = t1.account_id
 								and ((extract(month from received_plan_date),extract(year from received_plan_date)) = ".$v['period']." or (extract(month from payment_plan_date),extract(year from payment_plan_date)) = ".$v['period']."))";
 				if ((count($arr)-1)!=$i)
 					$str .= ', ';
