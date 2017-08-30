@@ -97,6 +97,7 @@ class Getmeb extends CI_Controller
 			'deleted_at'	=> date('Y-m-d H:i:s')
 		];
 
+		$this->_heartbeat();
 		$this->_clear_tmp();
 		
 		/* This process is a special case, because using multiple r_method (POST and OPTIONS). Request for Import Data */
@@ -294,6 +295,11 @@ class Getmeb extends CI_Controller
 				$this->_pre_export_data();
 			}
 		}
+	}
+	
+	function _heartbeat()
+	{
+		$this->db->update('a_user', ['heartbeat' => time()], ['id' => $this->session->user_id]);
 	}
 	
 	/* This procedure is for cleaning a tmp file & tmp_tables */
