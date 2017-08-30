@@ -15,6 +15,12 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
+	function heartbeat()
+	{
+		$return = $this->db->update('a_user', ['is_online' => '0', 'heartbeat' => null], ['(extract(epoch from now()) - heartbeat) >' => 60 * 15]);
+		debug($return);
+	}
+	
 	function qry()
 	{
 		$fields = $this->db->list_fields($this->session->tmp_table);

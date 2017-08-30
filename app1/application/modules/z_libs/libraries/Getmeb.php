@@ -301,6 +301,9 @@ class Getmeb extends CI_Controller
 	{
 		/* Note: 60(sec) x 60(min) x 2-24(hour) x 2~(day) */
 		
+		/* Clearing user_state status */
+		$this->db->update('a_user', ['is_online' => '0', 'heartbeat' => null], ['(extract(epoch from now()) - heartbeat) >' => 60 * 15]);
+
 		/* Check & Execute for every 1 hour */
 		if (!empty($cookie = $this->input->cookie('_clear_tmp'))) {
 			if ((time()-$cookie) < 60*60) 
@@ -328,9 +331,6 @@ class Getmeb extends CI_Controller
 			$this->db->where('time <', time()-60*60, FALSE);
 			$this->db->delete('a_tmp_tables');
 		}
-		
-		/* Clearing user_state status */
-		
 	}
 	
 	function _check_menu($data=[])
