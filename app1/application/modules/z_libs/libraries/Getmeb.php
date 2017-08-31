@@ -1755,6 +1755,23 @@ class Getmeb extends CI_Controller
     return $ret;
 	}
 	
+	function _get_orgtrx()
+	{
+		$str = "select f1.org_id 
+			from a_user_orgtrx f1 
+			inner join a_user_org f2 on f1.user_org_id = f2.id
+			where 
+			f1.user_id = ".$this->session->user_id." and f2.org_id = ".$this->session->org_id;
+		if (!$qry = $this->db->query($str)->result()){
+			return FALSE;
+		}
+		$arr = [];
+		foreach ($qry as $k => $v){
+			$arr[] = $v->org_id;
+		}
+		return $arr;
+	}
+	
 	function translate_variable($str)
 	{
 		$vars = array(
