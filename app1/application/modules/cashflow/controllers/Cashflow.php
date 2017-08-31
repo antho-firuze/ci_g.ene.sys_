@@ -1889,6 +1889,8 @@ class Cashflow extends Getmeb
 			$this->params['level'] = 1;
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->params['excl_cols'] = array_merge($this->protected_fields,
+				['id','client_id','org_id','orgtrx_id','is_active','code','name','bpartner_id','code_name','request_type_id','order_id']);
 				$this->_pre_export_data();
 			}
 			
@@ -2001,6 +2003,8 @@ class Cashflow extends Getmeb
 			$this->params['level'] = 1;
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->params['excl_cols'] = array_merge($this->protected_fields,
+				['id','client_id','org_id','orgtrx_id','is_active','code','name','request_id','bpartner_id','code_name']);
 				$this->_pre_export_data();
 			}
 			
