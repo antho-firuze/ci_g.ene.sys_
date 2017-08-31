@@ -821,7 +821,7 @@ class Systems extends Getmeb
 				if (! $result = $this->base_model->mget_rec($this->params))
 					$this->xresponse(FALSE, ['message' => $this->base_model->errors()]);
 				
-				$result = $this->_export_data($result, TRUE);
+				$result = $this->_export_data($result, [], TRUE);
 				$this->xresponse(TRUE, $result);
 			}
 			
@@ -867,7 +867,7 @@ class Systems extends Getmeb
 				if (! $result = $this->base_model->mget_rec($this->params))
 					$this->xresponse(FALSE, ['message' => $this->base_model->errors()]);
 				
-				$result = $this->_export_data($result, TRUE);
+				$result = $this->_export_data($result, [], TRUE);
 				$this->xresponse(TRUE, $result);
 			}
 			

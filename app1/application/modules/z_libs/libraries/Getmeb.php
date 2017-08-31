@@ -38,7 +38,7 @@ class Getmeb extends CI_Controller
 	/* FOR DEFINED IDENTITY FIELD WHICH CANNOT BE DUPLICATE */
 	public $identity_keys = ['name'];
 	/* FOR ISOLATED FIELDS WHICH CANNOT BE EXPORT */
-	public $protected_fields = [];	// ['user_org_id','user_role_id','api_token','password']
+	public $protected_fields = ['is_deleted','created_by','updated_by','deleted_by','deleted_at'];
 	/* FOR DECLARE MANDATORY IMPORTED FIELDS */
 	public $imported_fields = [];		// ['code','name','description']
 	/* FOR VALIDATE FOREIGN KEY */
@@ -723,16 +723,17 @@ class Getmeb extends CI_Controller
 		if (!$menu)
 			$this->xresponse(FALSE, ['message' => $this->lang->line('error_export_data'), 'note' => '[pageid='.$this->pageid.'] is not exists on [a_menu]'], 401);
 
-		if (!$this->db->table_exists($menu->table))
-			$this->xresponse(FALSE, ['message' => $this->lang->line('error_export_data'), 'note' => '[pageid='.$this->pageid.'][table='.$menu->table.'] does not exists'], 401);
+		// if (!$this->db->table_exists($menu->table))
+			// $this->xresponse(FALSE, ['message' => $this->lang->line('error_export_data'), 'note' => '[pageid='.$this->pageid.'][table='.$menu->table.'] does not exists'], 401);
 
-		$protected_fields = ['is_deleted','created_by','updated_by','deleted_by','deleted_at'];
-		$fields = $this->db->list_fields($menu->table);
-		$fields = array_diff($fields, array_merge($protected_fields, $this->protected_fields));
-		$select = implode(',', $fields);
+		if ($this->db->table_exists($menu->table)) {
+			$fields = $this->db->list_fields($menu->table);
+			$fields = array_diff($fields, $this->protected_fields);
+			$select = implode(',', $fields);
+			$this->params['select'] = $select;
+		}
 		
 		$this->params['export'] = 1;
-		$this->params['select'] = $select;
 		if (! $result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 			$result['data'] = [];
 			$result['message'] = $this->base_model->errors();
@@ -743,7 +744,8 @@ class Getmeb extends CI_Controller
 			return $result;
 		
 		/* Export the datas */
-		if (! $result = $this->_export_data($result, $filename, $filetype, TRUE))
+		$excl_cols = isset($this->params['excl_cols']) ? $this->params['excl_cols'] : [];
+		if (! $result = $this->_export_data($result, $excl_cols, $filename, $filetype, TRUE))
 			$this->xresponse(FALSE, ['message' => 'export_data_failed']);
 		
 		/* Compress the file */
@@ -754,7 +756,7 @@ class Getmeb extends CI_Controller
 		$this->xresponse(TRUE, $result);
 	}
 	
-	function _export_data($qry, $filename, $filetype, $return = FALSE)
+	function _export_data($qry, $excl_cols=[], $filename, $filetype, $return = FALSE)
 	{
 		ini_set('memory_limit', '-1');
 		$this->load->library('z_libs/Excel');
@@ -762,22 +764,36 @@ class Getmeb extends CI_Controller
 		$objPHPExcel->getProperties()->setTitle("export")->setDescription("none");
  
 		$objPHPExcel->setActiveSheetIndex(0);
-		
+
 		// Set the Title in the first row
 		$current = 'A';
 		$col = 0;
-		foreach ($qry->list_fields() as $field) {
-			$columns[] = ($col == 0) ? $current : ++$current;
-			$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, 1, $field);
-			$col++;
+		$fields = [];
+		if ($excl_cols) {
+			foreach ($qry->list_fields() as $field) {
+				if (!in_array($field,$excl_cols)){
+					$columns[] = ($col == 0) ? $current : ++$current;
+					$fields[] = $field;
+					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, 1, $field);
+					$col++;
+				}
+			}
+		} else {
+			foreach ($qry->list_fields() as $field) {
+				$columns[] = ($col == 0) ? $current : ++$current;
+				$fields[] = $field;
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, 1, $field);
+				$col++;
+			}
 		}
-
+		// debug($fields);
 		// Set the Data in the next row
 		$row = 2;
 		foreach($qry->result() as $data) {
 			$col = 0;
-			foreach ($qry->list_fields() as $field) {
-				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, $row, $data->$field);
+			// foreach ($qry->list_fields() as $field) {
+			foreach ($fields as $field) {
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, $row, $data->{$field});
 				$col++;
 			}
 			$row++;
@@ -1323,7 +1339,7 @@ class Getmeb extends CI_Controller
 				$fields = array_diff($fields, ['tmp_id']);
 				$this->db->select($fields);
 				$qry = $this->db->get($this->session->tmp_table);
-				if (! $result = $this->_export_data($qry, $filename, $this->params->filetype, TRUE)) {
+				if (! $result = $this->_export_data($qry, [], $filename, $this->params->filetype, TRUE)) {
 					$this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 					$this->xresponse(FALSE, ['message' => $this->lang->line('error_import_download_result')], 401);
 				}

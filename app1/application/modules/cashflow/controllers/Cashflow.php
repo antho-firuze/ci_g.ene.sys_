@@ -2371,7 +2371,7 @@ class Cashflow extends Getmeb
 			// debug($this->params);
 			/* Export the result to client */
 			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
-			if (! $result = $this->_export_data($qry, $filename, 'xls', TRUE)) {
+			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
 			}
@@ -2438,7 +2438,7 @@ class Cashflow extends Getmeb
 			// debug($this->params);
 			/* Export the result to client */
 			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
-			if (! $result = $this->_export_data($qry, $filename, 'xls', TRUE)) {
+			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
 			}
@@ -2505,7 +2505,7 @@ class Cashflow extends Getmeb
 			// debug($this->params);
 			/* Export the result to client */
 			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
-			if (! $result = $this->_export_data($qry, $filename, 'xls', TRUE)) {
+			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
 			}
@@ -2558,7 +2558,7 @@ class Cashflow extends Getmeb
 			// debug($this->params);
 			/* Export the result to client */
 			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
-			if (! $result = $this->_export_data($qry, $filename, 'xls', TRUE)) {
+			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
 			}
@@ -2611,7 +2611,7 @@ class Cashflow extends Getmeb
 			// debug($this->params);
 			/* Export the result to client */
 			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
-			if (! $result = $this->_export_data($qry, $filename, 'xls', TRUE)) {
+			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
 			}
@@ -2712,7 +2712,7 @@ class Cashflow extends Getmeb
 			// debug($this->params);
 			/* Export the result to client */
 			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
-			if (! $result = $this->_export_data($qry, $filename, 'xls', TRUE)) {
+			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
 			}
@@ -2732,6 +2732,10 @@ class Cashflow extends Getmeb
 			
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				/* Define the excluding fields */
+				$this->params['excl_cols'] = array_merge($this->protected_fields, 
+					['id','client_id','org_id','orgtrx_id','account_id','ar_ap_id','ar_ap_plan_id','bpartner_id','code','name','is_active','is_sotrx','is_receipt','order_id','order_plan_clearance_id','order_plan_import_id','order_plan_id','payment_plan_date']
+				);
 				$this->_pre_export_data();
 			}
 			
@@ -2819,42 +2823,6 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)']);
-			
-			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function cf_unmatch_trans_date_requis_vs_po()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
-			
-			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function cf_unmatch_trans_date_request_vs_requis()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)']);
 			
 			$this->params['where']['t1.orgtrx_id'] = $this->session->orgtrx_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
