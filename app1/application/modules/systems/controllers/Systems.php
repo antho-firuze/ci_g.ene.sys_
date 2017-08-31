@@ -283,7 +283,9 @@ class Systems extends Getmeb
 	
 	function x_logout()
 	{
-		// Destroy the session
+		/* Set offline to table user */
+		$this->db->update('a_user', ['is_online' => '0', 'heartbeat' => null], ['id' => $this->session->user_id]);
+		/* Destroy the session */
 		$this->session->sess_destroy();
 
 		redirect(LOGIN_LNK);
