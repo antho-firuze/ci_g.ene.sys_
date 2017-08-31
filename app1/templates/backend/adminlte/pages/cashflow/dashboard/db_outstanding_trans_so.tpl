@@ -26,21 +26,22 @@
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '130%',
-		act_menu: { copy: true, edit: true, delete: true },
-		sub_menu: [
-			{* { pageid: 122, subKey: 'ar_ap_id', title: 'Outflow Line', }, *}
-			{ pageid: 123, subKey: 'ar_ap_id', title: 'Outflow Plan', },
-		],
-		columns: [
-			{ width:"100px", orderable:false, data:"so_no", title:"Doc No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
-			{ width:"100px", orderable:false, data:"category_name", title:"Category" },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"plan_total", title:"Plan Total", render: function(data, type, row){ return format_money(data); } },
-		],
+		act_menu: { copy: false, edit: false, delete: false },
+		sub_menu: [],
 		order: ['id desc'],
+		columns: [
+			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
+			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
+			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"etd", title:"ETD" },
+			{ width:"100px", orderable:false, data:"bpartner_name", title:"Customer" },
+			{ width:"100px", orderable:false, data:"residence", title:"Residence" },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Total Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"20px", orderable:false, className:"dt-head-center dt-body-center", data:"so_top", title:"TOP" },
+		],
 	};
 	
 </script>

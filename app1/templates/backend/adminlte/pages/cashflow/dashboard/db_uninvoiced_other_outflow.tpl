@@ -28,19 +28,21 @@
 		tableWidth: '130%',
 		act_menu: { copy: false, edit: false, delete: false },
 		sub_menu: [],
+		order: ['id desc'],
 		columns: [
-			{ width:"100px", orderable:false, data:"doc_no", title:"Invoice No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"invoice_date", title:"Invoice Date" },
+			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
+			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
+			{ width:"100px", orderable:false, data:"ar_ap_no", title:"Doc No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
 			{ width:"100px", orderable:false, data:"bpartner_name", title:"Customer" },
 			{ width:"100px", orderable:false, data:"residence", title:"Residence" },
 			{ width:"200px", orderable:false, data:"note", title:"Note" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"received_plan_date", title:"Received Plan Date" },
-			{ width:"100px", orderable:false, data:"voucher_no", title:"Voucher No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"received_date", title:"Voucher Date" },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"net_amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"plan_date", title:"Invoice Plan Date" },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"ttl_amt", title:"Plant_Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"20px", orderable:false, className:"dt-head-center dt-body-center", data:"so_top", title:"TOP" },
 		],
-		order: ['id desc'],
 	};
 	
 </script>

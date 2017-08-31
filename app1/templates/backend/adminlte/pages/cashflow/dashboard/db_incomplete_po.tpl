@@ -32,6 +32,8 @@
 			{ pageid: 123, subKey: 'ar_ap_id', title: 'Outflow Plan', },
 		],
 		columns: [
+			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
+			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
 			{ width:"100px", orderable:false, data:"bpartner_name", title:"Customer" },
 			{ width:"100px", orderable:false, data:"residence", title:"Residence" },
 			{ width:"100px", orderable:false, data:"so_no", title:"Doc No" },

@@ -614,7 +614,7 @@ class Cashflow_Model extends CI_Model
 		return TRUE;
 	}
 	
-	function cf_unmatch_crp_so_vs_invoice($params)
+	function db_unmatch_crp_so_vs_invoice($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -653,7 +653,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_unmatch_cpp_po_vs_invoice($params)
+	function db_unmatch_cpp_po_vs_invoice($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -691,7 +691,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_unmatch_crp_oth_inflow_vs_invoice($params)
+	function db_unmatch_crp_oth_inflow_vs_invoice($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -727,7 +727,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_unmatch_cpp_oth_outflow_vs_invoice($params)
+	function db_unmatch_cpp_oth_outflow_vs_invoice($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -763,7 +763,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_unmatch_trans_date_so_vs_shp($params)
+	function db_unmatch_trans_date_so_vs_shp($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -790,7 +790,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_unmatch_trans_date_po_vs_mr($params)
+	function db_unmatch_trans_date_po_vs_mr($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -817,7 +817,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_outstanding_trans_so($params)
+	function db_outstanding_trans_so($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -838,7 +838,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_outstanding_trans_po($params)
+	function db_outstanding_trans_po($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -859,7 +859,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_unmatch_daily_entry($params)
+	function db_unmatch_daily_entry($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
 		$params['table'] 	= "(
@@ -883,7 +883,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_late_invoice_vs_bank_received($params)
+	function db_late_invoice_vs_bank_received($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -907,7 +907,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_unmatch_invoice_vs_bank_payment($params)
+	function db_unmatch_invoice_vs_bank_payment($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -935,7 +935,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_uninvoiced_sales_order($params)
+	function db_uninvoiced_sales_order($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -962,7 +962,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 
-	function cf_uninvoiced_purchase_order($params)
+	function db_uninvoiced_purchase_order($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -989,7 +989,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_uninvoiced_other_inflow($params)
+	function db_uninvoiced_other_inflow($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -1009,7 +1009,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 
-	function cf_uninvoiced_other_outflow($params)
+	function db_uninvoiced_other_outflow($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -1029,7 +1029,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 
-	function cf_incomplete_so($params)
+	function db_incomplete_so($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -1048,7 +1048,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_incomplete_po($params)
+	function db_incomplete_po($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -1067,7 +1067,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_incomplete_other_inflow($params)
+	function db_incomplete_other_inflow($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -1082,7 +1082,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_incomplete_other_outflow($params)
+	function db_incomplete_other_outflow($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -1097,7 +1097,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_outstanding_invoice_customer($params)
+	function db_outstanding_invoice_customer($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.received_plan_date, '".$this->session->date_format."') as Recv_plan_date, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
 		$params['table'] 	= " (
@@ -1110,7 +1110,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 
-	function cf_outstanding_invoice_supplier($params)
+	function db_outstanding_invoice_supplier($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.payment_plan_date, '".$this->session->date_format."') as Pay_plan_date, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name,case 
 			when (t1.doc_type = '2') then 'vendor' 
@@ -1128,7 +1128,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 
-	function cf_outstanding_invoice_other_inflow($params)
+	function db_outstanding_invoice_other_inflow($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.received_plan_date, '".$this->session->date_format."') as Recv_plan_date, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
 		$params['table'] 	= "(
@@ -1141,7 +1141,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 
-	function cf_outstanding_invoice_other_outflow($params)
+	function db_outstanding_invoice_other_outflow($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.payment_plan_date, '".$this->session->date_format."') as Pay_plan_date, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
 		$params['table'] 	= "(
