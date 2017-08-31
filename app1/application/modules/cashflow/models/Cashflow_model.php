@@ -1097,4 +1097,61 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
+	function cf_outstanding_invoice_customer($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.received_plan_date, '".$this->session->date_format."') as Recv_plan_date, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params['table'] 	= " (
+			select * from cf_invoice a1 where 
+			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
+			a1.is_active='1' and a1.is_deleted='0' and extract(month from a1.received_plan_date) = extract(month from current_date)
+			and a1.doc_type='1'
+			and not exists(select b1.id from cf_cashbank_line b1 where b1.is_active='1' and b1.is_deleted='0' and b1.invoice_id =a1.id )
+			) t1";
+		return $this->base_model->mget_rec($params);
+	}
+
+	function cf_outstanding_invoice_supplier($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.payment_plan_date, '".$this->session->date_format."') as Pay_plan_date, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name,case 
+			when (t1.doc_type = '2') then 'vendor' 
+			when (t1.doc_type = '3') then 'Clearence'
+			when (t1.doc_type = '4') then 'Custom Duty'
+			else ''
+			end as document_type";
+		$params['table'] 	= "(
+			select * from cf_invoice a1 where 
+			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
+			a1.is_active='1' and a1.is_deleted='0' and extract(month from a1.payment_plan_date) = extract(month from current_date)
+			and a1.doc_type='2'
+			and not exists(select b1.id from cf_cashbank_line b1 where b1.is_active='1' and b1.is_deleted='0' and b1.invoice_id =a1.id )
+			) t1";
+		return $this->base_model->mget_rec($params);
+	}
+
+	function cf_outstanding_invoice_other_inflow($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.received_plan_date, '".$this->session->date_format."') as Recv_plan_date, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params['table'] 	= "(
+			select * from cf_invoice a1 where 
+			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
+			a1.is_active='1' and a1.is_deleted='0' and extract(month from a1.received_plan_date) = extract(month from current_date)
+			and a1.doc_type='5'
+			and not exists(select b1.id from cf_cashbank_line b1 where b1.is_active='1' and b1.is_deleted='0' and b1.invoice_id =a1.id )
+			) t1";
+		return $this->base_model->mget_rec($params);
+	}
+
+	function cf_outstanding_invoice_other_outflow($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.payment_plan_date, '".$this->session->date_format."') as Pay_plan_date, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params['table'] 	= "(
+			select * from cf_invoice a1 where 
+			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
+			a1.is_active='1' and a1.is_deleted='0' and extract(month from a1.payment_plan_date) = extract(month from current_date)
+			and a1.doc_type='6'
+			and not exists(select b1.id from cf_cashbank_line b1 where b1.is_active='1' and b1.is_deleted='0' and b1.invoice_id =a1.id )
+			) t1";
+		return $this->base_model->mget_rec($params);
+	}
+
 }
