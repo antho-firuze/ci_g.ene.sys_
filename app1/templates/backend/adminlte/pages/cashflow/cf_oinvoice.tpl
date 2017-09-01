@@ -34,6 +34,8 @@
 			{* { pageid: 107, subKey: 'invoice_id', title: 'Invoice Plan', }, *}
 		],
 		columns: [
+			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
+			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
 			{ width:"30px", orderable:false, className:"dt-head-center dt-body-center", data:"is_receipt", title:"In/Out", render: function(data, type, row){ return data == '1' ? 'IN' : 'OUT'; } },
 			{ width:"100px", orderable:false, data:"doc_no", title:"Invoice No" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Invoice Date" },

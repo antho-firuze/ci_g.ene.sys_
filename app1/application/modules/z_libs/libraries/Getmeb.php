@@ -718,21 +718,7 @@ class Getmeb extends CI_Controller
 		$this->pageid = explode(',', $this->params['pageid']);
 		$this->pageid = end($this->pageid);
 		
-		/* Get the Table or use existing query */
-		if (!isset($this->params['use_query']) && !empty($this->params['use_query'])){
-			$menu = $this->base_model->getValue('*', 'a_menu', ['client_id','id'], [DEFAULT_CLIENT_ID, $this->pageid]);
-			if (!$menu)
-				$this->xresponse(FALSE, ['message' => $this->lang->line('error_export_data'), 'note' => '[pageid='.$this->pageid.'] is not exists on [a_menu]'], 401);
-
-			if ($this->db->table_exists($menu->table)) {
-				$fields = $this->db->list_fields($menu->table);
-				$fields = array_diff($fields, $this->protected_fields);
-				$select = implode(',', $fields);
-				$this->params['select'] = $select;
-			}
-		}
-		
-		$this->params['export'] = 1;
+		/* Used existing model */
 		if (! $result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 			$result['data'] = [];
 			$result['message'] = $this->base_model->errors();
@@ -742,9 +728,9 @@ class Getmeb extends CI_Controller
 		if ($return)
 			return $result;
 		
-		/* Export the datas */
-		$excl_cols = isset($this->params['excl_cols']) ? $this->params['excl_cols'] : [];
-		// $excl_cols = array_merge($excl_cols, $this->protected_fields);
+		/* Defined exclude fields/cols */
+		$excl_cols = isset($this->params['excl_cols']) ? $this->params['excl_cols'] : $this->protected_fields;
+		/* Export the data */
 		if (! $result = $this->_export_data($result, $excl_cols, $filename, $filetype, TRUE))
 			$this->xresponse(FALSE, ['message' => 'export_data_failed']);
 		

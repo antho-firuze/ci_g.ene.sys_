@@ -11,6 +11,7 @@
 var id = getURLParameter("id"), 
 	$pageid = getURLParameter("pageid"),
 	$filter = getURLParameter("filter"),
+	$q = getURLParameter("q"),
 	$ob = getURLParameter("ob"),
 	act = getURLParameter("action"),
 	act_name = "(Exporting Data From Database)";
@@ -49,7 +50,7 @@ $( document ).ready(function() {
 			
 			var data = form.serializeOBJ();
 			
-			$.getJSON( $BASE_URL+$class+'/'+$method, { export:1, pageid:$pageid, filter:$filter, ob:$ob, filetype:data.filetype, is_compress:data.is_compress }, function(result){ 
+			$.getJSON( $BASE_URL+$class+'/'+$method, { export:1, pageid:$pageid, filter:$filter, ob:$ob, q:$q, filetype:data.filetype, is_compress:data.is_compress }, function(result){ 
 				if (!result.status) {
 					BootstrapDialog.alert(result.message);
 					form.find("[type='submit']").prop( "disabled", false );

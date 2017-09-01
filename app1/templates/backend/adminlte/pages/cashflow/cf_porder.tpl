@@ -36,6 +36,8 @@
 			{ pageid: 113, subKey: 'order_id', title: 'Purchase Order Plan Custom Duty' },
 		],
 		columns: [
+			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
+			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
 			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_import", title:"Import", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },

@@ -33,6 +33,8 @@
 			{ pageid: 114, subKey: 'inout_id', title: 'Material Receipt Line', },
 		],
 		columns: [
+			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
+			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
 			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"received_date", title:"Received Date" },

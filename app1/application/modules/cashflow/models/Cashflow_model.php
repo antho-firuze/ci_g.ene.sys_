@@ -18,7 +18,10 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_ar($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from a_org where id = t1.department_id) as department_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from a_org where id = t1.department_id) as department_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 		$params['table'] 	= "cf_ar_ap as t1";
 		return $this->base_model->mget_rec($params);
 	}
@@ -39,7 +42,10 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_ap($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from a_org where id = t1.department_id) as department_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from a_org where id = t1.department_id) as department_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 		$params['table'] 	= "cf_ar_ap as t1";
 		return $this->base_model->mget_rec($params);
 	}
@@ -60,14 +66,20 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_cashbank_balance($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from cf_account where id = t1.account_id) as account_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from cf_account where id = t1.account_id) as account_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date";
 		$params['table'] 	= "cf_cashbank_balance as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
 	function cf_cashbank_r($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.received_date, '".$this->session->date_format."') as received_date";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.received_date, '".$this->session->date_format."') as received_date";
 		$params['table'] 	= "cf_cashbank as t1";
 		return $this->base_model->mget_rec($params);
 	}
@@ -81,7 +93,10 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_cashbank_p($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.payment_date, '".$this->session->date_format."') as payment_date";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.payment_date, '".$this->session->date_format."') as payment_date";
 		$params['table'] 	= "cf_cashbank as t1";
 		return $this->base_model->mget_rec($params);
 	}
@@ -136,7 +151,10 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_sinout($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.delivery_date, '".$this->session->date_format."') as delivery_date, to_char(t1.received_date, '".$this->session->date_format."') as received_date";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.delivery_date, '".$this->session->date_format."') as delivery_date, to_char(t1.received_date, '".$this->session->date_format."') as received_date";
 		$params['table'] 	= "cf_inout as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
 			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order, to_char(t2.etd, '".$this->session->date_format."') as etd_order";
@@ -154,7 +172,10 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_pinout($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.delivery_date, '".$this->session->date_format."') as delivery_date, to_char(t1.received_date, '".$this->session->date_format."') as received_date";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.delivery_date, '".$this->session->date_format."') as delivery_date, to_char(t1.received_date, '".$this->session->date_format."') as received_date";
 		$params['table'] 	= "cf_inout as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
 			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order, to_char(t2.eta, '".$this->session->date_format."') as eta_order";
@@ -172,7 +193,10 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_sinvoice($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 		$params['table'] 	= "cf_invoice as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
 			// $params['select'] .= ", t2.doc_no as doc_no_inout, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_inout";
@@ -184,23 +208,12 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function _void__cf_sinvoice_line($params)
-	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name";
-		$params['table'] 	= "cf_invoice_line as t1";
-		return $this->base_model->mget_rec($params);
-	}
-	
-	function _void__cf_sinvoice_plan($params)
-	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
-		$params['table'] 	= "cf_invoice_plan as t1";
-		return $this->base_model->mget_rec($params);
-	}
-	
 	function cf_oinvoice($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date, to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date, to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 		$params['table'] 	= "cf_invoice as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
 			$params['select'] .= ", t2.doc_no as doc_no_ar_ap, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_ar_ap, t3.note";
@@ -212,7 +225,10 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_pinvoice($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 		$params['table'] 	= "cf_invoice as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
 			// $params['select'] .= ", t2.doc_no as doc_no_inout, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_inout";
@@ -226,23 +242,12 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function _void__cf_pinvoice_line($params)
-	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name";
-		$params['table'] 	= "cf_invoice_line as t1";
-		return $this->base_model->mget_rec($params);
-	}
-	
-	function _void__cf_pinvoice_plan($params)
-	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date";
-		$params['table'] 	= "cf_invoice_plan as t1";
-		return $this->base_model->mget_rec($params);
-	}
-	
 	function cf_movement($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.delivery_date, '".$this->session->date_format."') as delivery_date, to_char(t1.received_date, '".$this->session->date_format."') as received_date";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.delivery_date, '".$this->session->date_format."') as delivery_date, to_char(t1.received_date, '".$this->session->date_format."') as received_date";
 		$params['table'] 	= $this->c_table." as t1";
 		return $this->base_model->mget_rec($params);
 	}
@@ -256,7 +261,10 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_sorder($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.etd, '".$this->session->date_format."') as etd, to_char(t1.expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.etd, '".$this->session->date_format."') as etd, to_char(t1.expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 		$params['table'] 	= "cf_order as t1";
 		return $this->base_model->mget_rec($params);
 	}
@@ -279,7 +287,10 @@ class Cashflow_Model extends CI_Model
 	
 	function cf_porder($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select po_top from c_bpartner where id = t1.bpartner_id) as po_top, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.eta, '".$this->session->date_format."') as eta, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select po_top from c_bpartner where id = t1.bpartner_id) as po_top, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.eta, '".$this->session->date_format."') as eta, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 		$params['table'] 	= "cf_order as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
 			$params['select'] .= ", t2.doc_no as doc_no_requisition, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_requisition, to_char(t2.eta, '".$this->session->date_format."') as eta_requisition";
@@ -459,45 +470,6 @@ class Cashflow_Model extends CI_Model
 		}
 		return TRUE;
 	}
-	
-	/* function cf_order_vs_inout($params)
-	{
-		$params = is_array($params) ? (object) $params : $params;
-		$id = isset($params->inout_id) && $params->inout_id ? $params->inout_id : 0;
-		$having = isset($params->having) && $params->having == 'amount' ? 'having sum(ttl_amt) = t1.ttl_amt)' : 'having sum(qty) = t1.qty)';
-		$str = "select *, ((select doc_no from cf_order where id = t1.order_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name from cf_order_line t1
-			where is_active = '1' and is_deleted = '0' and order_id = (select order_id from cf_inout where id = $id) 
-			and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and inout_id = $id $having";
-		$response['total'] = 0;
-		$response['rows']  = $this->db->query($str)->result();
-		return $response;
-	} */
-	
-	/* function cf_order_line_vs_inout_line($params)
-	{
-		$params = is_array($params) ? (object) $params : $params;
-		$id = isset($params->inout_id) && $params->inout_id ? $params->inout_id : 0;
-		$having = isset($params->having) && $params->having == 'amount' ? 'having sum(ttl_amt) = t1.ttl_amt)' : 'having sum(qty) = t1.qty)';
-		$str = "select *, ((select doc_no from cf_order where id = t1.order_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name from cf_order_line t1
-			where is_active = '1' and is_deleted = '0' and order_id = (select order_id from cf_inout where id = $id) 
-			and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and inout_id = $id $having";
-		$response['total'] = 0;
-		$response['rows']  = $this->db->query($str)->result();
-		return $response;
-	} */
-	
-	/* function cf_inout_line_vs_invoice_line($params)
-	{
-		$params = is_array($params) ? (object) $params : $params;
-		$id = isset($params->invoice_id) && $params->invoice_id ? $params->invoice_id : 0;
-		$having = isset($params->having) && $params->having == 'amount' ? 'having sum(ttl_amt) = t1.ttl_amt)' : 'having sum(qty) = t1.qty)';
-		$str = "select *, ((select doc_no from cf_inout where id = t1.inout_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name from cf_inout_line t1
-			where is_active = '1' and is_deleted = '0' and inout_id = (select inout_id from cf_invoice where id = 3) 
-			and not exists (select 1 from cf_invoice_line where is_active = '1' and is_deleted = '0' and inout_line_id = t1.id and invoice_id = $id $having";
-		$response['total'] = 0;
-		$response['rows']  = $this->db->query($str)->result();
-		return $response;
-	} */
 	
 	function cf_ar_ap_update_summary($params)
 	{

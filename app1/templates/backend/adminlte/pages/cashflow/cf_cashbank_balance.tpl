@@ -31,7 +31,8 @@
 			{ pageid: 125, subKey: 'cashbank_id', title: 'Cash/Bank Payment Line', },
 		],
 		columns: [
-			{* { width:"100px", orderable:false, data:"doc_no", title:"Doc No" }, *}
+			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
+			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Date" },
 			{ width:"150px", orderable:false, data:"account_name", title:"Account" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
