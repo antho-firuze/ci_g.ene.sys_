@@ -28,6 +28,7 @@
 		sub_menu: [
 			{ pageid: 109, subKey: 'requisition_id', title: 'Requisition Line', },
 		],
+		order: ['id desc'],
 		columns: [
 			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
 			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
@@ -41,7 +42,6 @@
 			{ width:"100px", orderable:false, data:"bpartner_name", title:"Customer" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 		],
-		order: ['id desc'],
 	};
 	
 </script>

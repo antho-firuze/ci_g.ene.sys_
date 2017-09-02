@@ -36,7 +36,7 @@
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"etd", title:"ETD" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"delivery_date", title:"Delivery Date" },
-			{ width:"100px", orderable:false, data:"bpartner_name", title:"Customer" },
+			{ width:"100px", orderable:false, data:"bpartner_name", title:"Business Partner" },
 			{ width:"100px", orderable:false, data:"residence", title:"Residence" },
 			{ width:"100px", orderable:false, data:"category_name", title:"Category" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },

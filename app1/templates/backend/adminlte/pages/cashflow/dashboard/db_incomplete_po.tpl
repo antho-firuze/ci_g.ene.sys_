@@ -34,7 +34,7 @@
 		columns: [
 			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
 			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
-			{ width:"100px", orderable:false, data:"bpartner_name", title:"Customer" },
+			{ width:"100px", orderable:false, data:"bpartner_name", title:"Business Partner" },
 			{ width:"100px", orderable:false, data:"residence", title:"Residence" },
 			{ width:"100px", orderable:false, data:"so_no", title:"Doc No" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"so_date", title:"Doc Date" },		

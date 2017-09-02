@@ -393,7 +393,12 @@ class Getmeb extends CI_Controller
 		return TRUE;
 	}
 	
-	function _check_is_allow()
+	/* 
+	*
+	*	$param1 = Default: 'json' | 'html' 
+	*
+	*/
+	function _check_is_allow($output = 'json')
 	{
 		/* Trick for transition after login, which calling class "systems" without method. */
 		if (! $this->c_method)
@@ -432,9 +437,12 @@ class Getmeb extends CI_Controller
 
 		/* Check menu active & permission on the table a_role_menu */
 		$allow = $this->base_model->getValue('permit_form, permit_process, permit_window', 'a_role_menu', ['role_id', 'menu_id', 'is_active', 'is_deleted'], [$this->session->role_id, $menu['id'], '1', '0']);
-		if (!$allow)
-			// $this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] <b>not found</b> or <b>not active</b> in [a_role_menu] !', $menu['name'])]);
-			$this->xresponse(FALSE, ['message' => sprintf('Permission [%s] <b>not found</b> or <b>not active</b> in [a_role_menu] !', $menu['name'])], 401);
+		if (!$allow) {
+			if (strtolower($output) == 'json')
+				$this->xresponse(FALSE, ['message' => sprintf('Permission [%s] <b>not found</b> or <b>not active</b> in [a_role_menu] !', $menu['name'])], 401);
+			else
+				$this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] <b>not found</b> or <b>not active</b> in [a_role_menu] !', $menu['name'])]);
+		}
 		
 		/* Permission for view */
 		if ($this->r_method == 'GET' && $allow)
@@ -444,13 +452,18 @@ class Getmeb extends CI_Controller
 			switch($allow->permit_form){
 			case '1':
 				/* Execute */
-				if (!in_array($this->r_method, ['OPTIONS']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
-					// $this->backend_view('pages/unauthorized', ['message' => '']);
+				if (!in_array($this->r_method, ['OPTIONS'])) {
+					if (strtolower($output) == 'json')
+						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+					else
+						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+				}
 				break;
 			default:
-				$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
-				// $this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu->name)]);
+				if (strtolower($output) == 'json')
+					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
+				else
+					$this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu->name)]);
 				break;
 			}
 		}
@@ -458,13 +471,18 @@ class Getmeb extends CI_Controller
 			switch($allow->permit_process){
 			case '1':
 				/* Export */
-				if (!in_array($this->r_method, ['OPTIONS']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
-					// $this->backend_view('pages/unauthorized', ['message' => '']);
+				if (!in_array($this->r_method, ['OPTIONS'])) {
+					if (strtolower($output) == 'json')
+						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+					else
+						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+				}
 				break;
 			default:
-				$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
-				// $this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu['name'])]);
+				if (strtolower($output) == 'json')
+					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
+				else
+					$this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu['name'])]);
 				break;
 			}
 		}
@@ -472,49 +490,72 @@ class Getmeb extends CI_Controller
 			switch($allow->permit_window){
 			case '1':
 				/* Only Create */
-				if (!in_array($this->r_method, ['POST']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
-					// $this->backend_view('pages/unauthorized', ['message' => '']);
+				if (!in_array($this->r_method, ['POST'])) {
+					if (strtolower($output) == 'json')
+						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+					else
+						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+				}
 				break;
 			case '2':
 				/* Only Edit */
-				if (!in_array($this->r_method, ['PUT']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
-					// $this->backend_view('pages/unauthorized', ['message' => '']);
+				if (!in_array($this->r_method, ['PUT'])) {
+					if (strtolower($output) == 'json')
+						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+					else
+						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+				}
 				break;
 			case '3':
 				/* Only Delete */
-				if (!in_array($this->r_method, ['DELETE']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
-					// $this->backend_view('pages/unauthorized', ['message' => '']);
+				if (!in_array($this->r_method, ['DELETE'])) {
+					if (strtolower($output) == 'json')
+						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+					else
+						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+				}
 				break;
 			case '4':
 				/* Can Create & Edit */
-				if (!in_array($this->r_method, ['POST','PUT']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
-					// $this->backend_view('pages/unauthorized', ['message' => '']);
+				if (!in_array($this->r_method, ['POST','PUT'])) {
+					if (strtolower($output) == 'json')
+						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+					else
+						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+				}
 				break;
 			case '5':
 				/* Can Create & Delete */
-				if (!in_array($this->r_method, ['POST','DELETE']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
-					// $this->backend_view('pages/unauthorized', ['message' => '']);
+				if (!in_array($this->r_method, ['POST','DELETE'])) {
+					if (strtolower($output) == 'json')
+						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+					else
+						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+				}
 				break;
 			case '6':
 				/* Can Edit & Delete */
-				if (!in_array($this->r_method, ['PUT','DELETE']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
-					// $this->backend_view('pages/unauthorized', ['message' => '']);
+				if (!in_array($this->r_method, ['PUT','DELETE'])) {
+					if (strtolower($output) == 'json')
+						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+					else
+						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+				}
 				break;
 			case '7':
 				/* Can All */
-				if (!in_array($this->r_method, ['POST','PUT','DELETE']))
-					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
-					// $this->backend_view('pages/unauthorized', ['message' => '']);
+				if (!in_array($this->r_method, ['POST','PUT','DELETE'])) {
+					if (strtolower($output) == 'json')
+						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+					else
+						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+				}
 				break;
 			default:
-				$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
-				// $this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu['name'])]);
+				if (strtolower($output) == 'json')
+					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
+				else
+					$this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu['name'])]);
 				break;
 			}
 		}
@@ -718,7 +759,7 @@ class Getmeb extends CI_Controller
 		$this->pageid = explode(',', $this->params['pageid']);
 		$this->pageid = end($this->pageid);
 		
-		/* Used existing model */
+		/* Used existing queries in model */
 		if (! $result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 			$result['data'] = [];
 			$result['message'] = $this->base_model->errors();

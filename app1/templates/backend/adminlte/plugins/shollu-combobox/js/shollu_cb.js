@@ -239,7 +239,7 @@
 			var name_old = $element.attr('data-'+o.textField);
 			var name_new = $menu.find('.active').data(o.textField);
 			var text = $element.val();
-			
+
 			/* Menu not selected */
 			if (id_new === undefined) { 
 				if (id_old !== '') {
@@ -262,10 +262,10 @@
 				return hide(); 
 			}
 			/* Menu selected but same with current (Nothing changed) */
-			if (id_new == id_old) {	
+			if (id_new === id_old) {	
 				if (Object.keys(o.addition).length > 0){
 					// console.log('2.1'); 
-					if (id_new == 0){
+					if (id_new === 0){
 						// console.log('2.2'); 
 						$element
 							.attr('value', id_new)
@@ -316,7 +316,7 @@
 				return hide(); 
 			}
 			/* Menu selected by keyboard or mouse */
-			if (id_new != id_old) {
+			if (id_new !== id_old) {
 				// console.log('5');
 				$element
 					.attr('value', id_new)

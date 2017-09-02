@@ -554,21 +554,9 @@ class Cashflow_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['movement_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['item_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['request_line_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['itemcat_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['measure_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['item_code'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
-		$fields['item_name'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
-		$fields['item_size'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
-		
-		$fields['qty'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		$fields['price'] = ['type' => 'NUMERIC', 'constraint' => '0', 'null' => TRUE];
-		
-		$fields['sub_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
-		$fields['vat_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
-		$fields['ttl_amt'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		return $fields;
 	}
 	

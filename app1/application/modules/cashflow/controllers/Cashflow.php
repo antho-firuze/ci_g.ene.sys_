@@ -79,48 +79,11 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_receipt'] = '1';
-				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('ar_ap_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
-			}
-		}
-	}
-	
-	function _void__cf_ar_line()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE);
-			
-			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
-				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total', 'cf_ar_ap', 'id', $this->params['ar_ap_id']);
-				$this->xresponse(TRUE, ['data' => $result]);
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			if ($this->params->event == 'post_post_put'){
-				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
-				$this->params->is_line = 1;
-				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
-			}
-		}
-		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
-				$this->params['is_line'] = 1;
-				$this->params['ar_ap_id'] = $this->base_model->getValue('ar_ap_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->ar_ap_id;
-				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
 			}
 		}
 	}
@@ -264,48 +227,11 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_receipt'] = '0';
-				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('ar_ap_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
-			}
-		}
-	}
-	
-	function _void__cf_ap_line()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE);
-			
-			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
-				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total', 'cf_ar_ap', 'id', $this->params['ar_ap_id']);
-				$this->xresponse(TRUE, ['data' => $result]);
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			if ($this->params->event == 'post_post_put'){
-				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
-				$this->params->is_line = 1;
-				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
-			}
-		}
-		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
-				$this->params['is_line'] = 1;
-				$this->params['ar_ap_id'] = $this->base_model->getValue('ar_ap_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->ar_ap_id;
-				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
 			}
 		}
 	}
@@ -432,7 +358,6 @@ class Cashflow extends Getmeb
 				}
 			}
 			if ($this->params->event == 'pre_post'){
-				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 				$this->mixed_data['doc_date'] = date_first(NULL, date('Y',strtotime($this->params->doc_date)), date('m',strtotime($this->params->doc_date)));
 			}
 		}
@@ -472,7 +397,6 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_receipt'] = '1';
-				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
 		}
 		if ($this->r_method == 'DELETE') {
@@ -557,7 +481,6 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_receipt'] = '0';
-				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
 		}
 		if ($this->r_method == 'DELETE') {
@@ -666,7 +589,6 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_sotrx'] = '1';
-				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
 		}
 		if ($this->r_method == 'DELETE') {
@@ -752,7 +674,6 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_sotrx'] = '0';
-				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
 		}
 		if ($this->r_method == 'DELETE') {
@@ -854,7 +775,6 @@ class Cashflow extends Getmeb
 				}
 			}
 			if ($this->params->event == 'pre_post'){
-				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 				
 				if ($this->params->doc_type == '5'){
 					// $this->mixed_data['is_sotrx'] = '1';
@@ -918,7 +838,6 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_receipt'] = '1';
-				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 				$this->mixed_data['account_id'] = 1;
 			}
 		}
@@ -973,7 +892,6 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_receipt'] = '0';
-				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 				$this->mixed_data['account_id'] = 2;
 				
 				if ($this->params->doc_type == 2){
@@ -992,15 +910,17 @@ class Cashflow extends Getmeb
 		} */
 	}
 	
-	function cf_movement()
+	function cf_omovement()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t2.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
 			
+			$this->params['level'] = 1;
+			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -1024,7 +944,6 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_outbound'] = '1';
-				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
 		}
 		if ($this->r_method == 'DELETE') {
@@ -1034,7 +953,66 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_movement_line()
+	function cf_omovement_line()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+	
+	function cf_imovement()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['is_outbound'] = '0';
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('movement_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			}
+		}
+	}
+	
+	function cf_imovement_line()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE);
@@ -1120,7 +1098,6 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_sotrx'] = '1';
-				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
 		}
 		if ($this->r_method == 'DELETE') {
@@ -1375,7 +1352,6 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_sotrx'] = '0';
-				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
 			if ($this->params->event == 'pre_put'){
 				$header = $this->base_model->getValue('*', $this->c_table, 'id', $this->params->id);
@@ -1707,8 +1683,31 @@ class Cashflow extends Getmeb
 			if (isset($this->params['for_requisition']) && !empty($this->params['for_requisition'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
 					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-					$this->params['where_custom'] = "exists (select distinct(request_id) from cf_request_line f1 where is_active = '1' and is_deleted = '0' 
-						and not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and request_line_id = f1.id) and f1.request_id = t1.id)";
+					/* $this->params['where_custom'] = "exists(
+						select distinct(request_id) 
+						from cf_request_line f1 where is_active = '1' and is_deleted = '0' and f1.request_id = t1.id and 
+						not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and request_line_id = f1.id)
+					)"; */
+					$this->params['where_custom'] = "exists(
+						select distinct(request_id) 
+						from cf_request_line f1 left join cf_movement_line f2 on f1.id = f2.request_line_id and f2.is_active = '1' and f2.is_deleted = '0' 
+						where f1.is_active = '1' and f1.is_deleted = '0' and f2.request_line_id is null and f1.request_id = t1.id
+					) and exists(
+						select distinct(request_id) 
+						from cf_request_line f1 left join cf_requisition_line f2 on f1.id = f2.request_line_id and f2.is_active = '1' and f2.is_deleted = '0' 
+						where f1.is_active = '1' and f1.is_deleted = '0' and f2.request_line_id is null and f1.request_id = t1.id
+					)";
+				}
+			}
+			
+			if (isset($this->params['for_outbound']) && !empty($this->params['for_outbound'])) {
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+					$this->params['where_custom'] = "exists(
+						select distinct(request_id) 
+						from cf_request_line f1 left join cf_movement_line f2 on f1.id = f2.request_line_id and f2.is_active = '1' and f2.is_deleted = '0' 
+						where f1.is_active = '1' and f1.is_deleted = '0' and f2.request_line_id is null and f1.request_id = t1.id
+					)";
 				}
 			}
 			
@@ -1742,7 +1741,6 @@ class Cashflow extends Getmeb
 				}
 			}
 			if ($this->params->event == 'pre_post'){
-				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
 			if ($this->params->event == 'pre_put'){
 				$header = $this->base_model->getValue('*', $this->c_method, 'id', $this->params->id);
@@ -1776,6 +1774,14 @@ class Cashflow extends Getmeb
 					$requisition_id = isset($this->params['requisition_id']) && $this->params['requisition_id'] ? $this->params['requisition_id'] : 0;
 					$this->params['where_custom'][] = "request_id = (select request_id from cf_requisition where id = $requisition_id)";
 					$this->params['where_custom'][] = "not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and request_line_id = t1.id)";
+				}
+			}
+			
+			if (isset($this->params['for_outbound']) && !empty($this->params['for_outbound'])) {
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$movement_id = isset($this->params['movement_id']) && $this->params['movement_id'] ? $this->params['movement_id'] : 0;
+					$this->params['where_custom'][] = "request_id = (select request_id from cf_movement where id = $movement_id)";
+					$this->params['where_custom'][] = "not exists (select 1 from cf_movement_line where is_active = '1' and is_deleted = '0' and request_line_id = t1.id)";
 				}
 			}
 			
@@ -1856,7 +1862,6 @@ class Cashflow extends Getmeb
 				}
 			}
 			if ($this->params->event == 'pre_post'){
-				$this->mixed_data['orgtrx_id'] = $this->session->orgtrx_id;
 			}
 			if ($this->params->event == 'pre_put'){
 				$header = $this->base_model->getValue('*', $this->c_method, 'id', $this->params->id);

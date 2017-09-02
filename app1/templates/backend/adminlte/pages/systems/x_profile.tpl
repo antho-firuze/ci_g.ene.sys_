@@ -68,14 +68,14 @@
 			{	title:"Configuration", idname:"tab-dat", 
 				content:function(){
 					col = []; 
-					col.push(BSHelper.Combobox({ label:"Layout", idname:"layout", required: true, value: "layout-fixed",
+					col.push(BSHelper.Combobox({ label:"Layout", idname:"layout", required: false, 
 						list:[
 							{ id:"layout-boxed", name:"Boxed" },
 							{ id:"layout-fixed", name:"Fixed" },
 							{ id:"sidebar-collapse", name:"Sidebar Collapse" },
 						]
 					}));
-					col.push(BSHelper.Combobox({ label:"Skin Color", idname:"skin", required: true, value: "skin-blue",
+					col.push(BSHelper.Combobox({ label:"Skin Color", idname:"skin", required: false, 
 						list:[
 							{ id:"skin-blue", name:"Blue" },
 							{ id:"skin-black", name:"Black" },
@@ -91,7 +91,7 @@
 							{ id:"skin-green-light", name:"Green Light" },
 						] 
 					}));
-					col.push(BSHelper.Combobox({ label:"Screen Timeout", idname:"screen_timeout", required: true, value: "3600000",
+					col.push(BSHelper.Combobox({ label:"Screen Timeout", idname:"screen_timeout", required: false, 
 						list:[
 							{ id:"60000", name:"1 minute" },
 							{ id:"120000", name:"2 minutes" },
@@ -110,10 +110,16 @@
 							{ id:"18000000", name:"5 hours" },
 						] 
 					}));
-					col.push(BSHelper.Combobox({ label:"Language", idname:"language", required: true, value: "english",
+					col.push(BSHelper.Combobox({ label:"Language", idname:"language", required: false, 
 						list:[
 							{ id:"english", name:"English" },
 							{* { id:"indonesia", name:"Indonesia" }, *}
+						] 
+					}));
+					col.push(BSHelper.Combobox({ label:"Show Branch Entry", idname:"show_branch_entry", required: false, 
+						list:[
+							{ id:"0", name:"No" },
+							{ id:"1", name:"Yes" },
 						] 
 					}));
 					form3.append(subRow(subCol(6, col)));

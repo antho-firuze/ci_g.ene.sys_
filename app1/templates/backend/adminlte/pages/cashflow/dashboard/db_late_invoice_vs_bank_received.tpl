@@ -33,7 +33,7 @@
 			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
 			{ width:"100px", orderable:false, data:"doc_no", title:"Invoice No" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"invoice_date", title:"Invoice Date" },
-			{ width:"100px", orderable:false, data:"bpartner_name", title:"Customer" },
+			{ width:"100px", orderable:false, data:"bpartner_name", title:"Business Partner" },
 			{ width:"100px", orderable:false, data:"residence", title:"Residence" },
 			{ width:"200px", orderable:false, data:"note", title:"Note" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },

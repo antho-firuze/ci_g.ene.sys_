@@ -18,6 +18,7 @@
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info" });
+	col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"orgtrx_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true, required: true, disabled: ($act=='edt'?true:false), value: {$.session.orgtrx_id}, hidden: "{$.session.show_branch_entry}"=="1" ? false : true }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Requsition No", label_link:"{$.const.PAGE_LNK}?pageid=91", textField:"code_name", idname:"requisition_id", url:"{$.php.base_url('cashflow/cf_requisition')}?for_purchase_order=1&act="+$act, remote: true, required: true }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Requsition ETA", idname:"eta_requisition", cls:"auto_ymd", format:"{$.session.date_format}", required: false, disabled: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", format: "'casing': 'upper'", required: true, }));

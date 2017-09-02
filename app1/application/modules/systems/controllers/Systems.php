@@ -417,7 +417,7 @@ class Systems extends Getmeb
 	{
 		if (isset($this->params['pageid']) && !empty($this->params['pageid'])) {
 			
-			$menu = $this->_check_is_allow();
+			$menu = $this->_check_is_allow('html');
 			
 			/* For getting breadcrumb */
 			$this->params['bread'] = [];

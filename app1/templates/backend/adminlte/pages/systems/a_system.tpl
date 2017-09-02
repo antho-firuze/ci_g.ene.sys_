@@ -168,6 +168,12 @@
 						{* { id:"indonesia", name:"Indonesia" }, *}
 					] 
 				}));
+				a.push(BSHelper.Combobox({ label:"Default Show Branch Entry", idname:"default_show_branch_entry", required: true, 
+					list:[
+						{ id:"0", name:"No" },
+						{ id:"1", name:"Yes" },
+					] 
+				}));
 				col.push(subCol(6, a));
 				return subRow(col);
 			} },

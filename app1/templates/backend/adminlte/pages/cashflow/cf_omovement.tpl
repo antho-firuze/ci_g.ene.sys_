@@ -23,12 +23,22 @@
 	{* DataTable Init *}
 	var DataTable_Init = {
 		enable: true,
+		tableWidth: '125%',
 		act_menu: { copy: true, edit: true, delete: true },
-		sub_menu: [],
+		sub_menu: [
+			{ pageid: 189, subKey: 'movement_id', title: 'Outbound Line', },
+		],
+		order: ['id desc'],
 		columns: [
-			{ width:"130px", orderable:false, data:"code_name", title:"Name" },
+			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
+			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
+			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
+			{ width:"100px", orderable:false, data:"doc_no_request", title:"Req Doc No" },
+			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_request", title:"Req Doc Date" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"eta_request", title:"Req ETA" },
+			{ width:"100px", orderable:false, data:"bpartner_name", title:"Customer" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 	};
 	
