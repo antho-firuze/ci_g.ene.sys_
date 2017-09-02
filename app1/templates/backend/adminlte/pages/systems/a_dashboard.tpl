@@ -27,51 +27,14 @@
 		enable: true,
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [],
+		order: ['id desc'],
 		columns: [
 			{ width:"130px", orderable:false, data:"code_name", title:"Name" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 			{ width:"55px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Type" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"line_no", title:"Line", render:function(data, type, row){ return '<input type="number" class="line_no" style="width:50px; text-align:center;" value="'+data+'">'; } },
 		],
-		order: ['id desc'],
 	};
 	
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>
-<script>
-
-	$('.dataTables_wrapper').find('tbody').on('keypress keyup', '.line_no', function (e) {
-		var data = dataTable1.row( $(this).parents('tr') ).data();
-		var newLine = parseInt($(this).val());
-		
-		{* TAB || ESC *}
-		if (e.keyCode == 9 || e.keyCode == 27){	
-			console.log(data.line_no);
-			$(this).val(data.line_no);
-			return false;
-		}
-		
-		if (e.keyCode == 13 && e.type == 'keypress'){
-			if (data.line_no == newLine)
-				return false;
-				
-			$.extend(data, { 'newline':newLine });
-			$.ajax({ method: 'PUT', url: $url_module, data: JSON.stringify(data), dataType: 'json',
-				success: function(data){
-					dataTable1.ajax.reload( null, false );
-				},
-				error: function(data) {
-					if (data.status==500){
-						var message = data.statusText;
-					} else {
-						var error = JSON.parse(data.responseText);
-						var message = error.message;
-					}
-					BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
-				}
-			});
-		}
-	});
-	
-</script>

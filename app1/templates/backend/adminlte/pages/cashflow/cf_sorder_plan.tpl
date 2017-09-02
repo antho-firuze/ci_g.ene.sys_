@@ -37,6 +37,7 @@
 			{* { pageid: 100, subKey: 'order_id', title: 'Order Plan' }, *}
 		],
 		columns: [
+			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"25px", orderable:false, data:"seq", title:"Line" },
 			{ width:"100px", orderable:false, data:"doc_date", title:"Invoice Plan Date" },
 			{ width:"100px", orderable:false, data:"received_plan_date", title:"Received Plan Date" },

@@ -244,7 +244,10 @@ class Systems_Model extends CI_model
 	
 	function a_role_dashboard($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.dashboard_id, t1.seq, t2.code, t2.name, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t2.type";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		t1.id, t1.role_id, t1.dashboard_id, 
+		(select coalesce(code,'') ||'_'|| name from a_role where id = t1.role_id) as role_name, 
+		t1.seq, t2.code, t2.name, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t2.type";
 		$params['table'] 	= $this->c_table." as t1";
 		$params['join'][] = ['a_dashboard t2', 't1.dashboard_id = t2.id', 'left'];
 		$params['where']['t2.is_deleted']	= '0';

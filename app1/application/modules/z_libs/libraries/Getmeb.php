@@ -1076,6 +1076,26 @@ class Getmeb extends CI_Controller
 			$line++;
 		}
 	}
+	
+	/* 
+	*
+	*	$param1 : table name
+	*	$param2 : condition ex. ['role_id' => 11]
+	*
+	*/
+	function _reorder_line($table, $cond = [])
+	{
+		$this->db->order_by('seq');
+		if (! $qry = $this->db->get_where($table, $cond))
+			return FALSE;
+		
+		// debug($qry->result());
+		$line = 1;
+		foreach($qry->result() as $k => $v){
+			$this->db->update($table, ['seq' => $line], ['id' => $v->id]);
+			$line++;
+		}
+	}
 	/*  
 	*		$data = [
 	*			'name'				=>	'Process Name',

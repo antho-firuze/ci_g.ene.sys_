@@ -38,6 +38,7 @@
 			{* { pageid: 100, subKey: 'order_id', title: 'Order Plan' }, *}
 		],
 		columns: [
+			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"25px", orderable:false, data:"seq", title:"Line" },
 			{* { width:"100px", orderable:false, data:"doc_type", title:"Doc Type", render: function(data, type, row){ return (data == '1') ? 'Invoice Customer' : 'Other Received'; } }, *}
 			{ width:"100px", orderable:false, data:"invoice_no", title:"Invoice No" },

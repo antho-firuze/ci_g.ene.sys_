@@ -35,6 +35,7 @@
 		sub_menu: [],
 		order: ['id desc'],
 		columns: [
+			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"25px", orderable:false, data:"seq", title:"Line" },
 			{ width:"150px", orderable:false, data:"bpartner_name", title:"Business Partner" },
 			{ width:"150px", orderable:false, data:"account_name", title:"Account" },

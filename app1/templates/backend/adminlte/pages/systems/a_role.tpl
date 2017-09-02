@@ -28,7 +28,7 @@
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
 			{ pageid: 36, subKey: 'role_id', title: 'Menu Access', },
-			{ pageid: 37, subKey: 'role_id', title: 'Dashboard List', },
+			{ pageid: 37, subKey: 'role_id', title: 'Dashboard Access', },
 		],
 		columns: [
 			{ width:"130px", orderable:false, data:"code_name", title:"Name" },

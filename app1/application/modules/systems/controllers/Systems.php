@@ -880,9 +880,21 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_put'){
+				// debug($this->params->role_id);
+				if (isset($this->params->newline) && $this->params->newline != ''){
+					if (!$result = $this->updateRecord($this->c_method, ['seq' => $this->params->newline], ['id' => $this->params->id], FALSE))
+						$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+					else {
+						$this->_reorder_line('a_role_dashboard', ['role_id' => $this->params->role_id]);
+						$this->xresponse(TRUE, ['message' => $this->messages()]);
+					}
+				}
+			}
 			if ($this->params->event == 'pre_post'){
 				unset($this->mixed_data['client_id']);
 				unset($this->mixed_data['org_id']);
+				$this->mixed_data['seq'] = $this->db->query('select max(seq) from a_role_dashboard where role_id = '.$this->params->role_id)->row()->max + 1;
 			}
 		}
 	}

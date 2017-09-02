@@ -29,9 +29,10 @@
 		sub_menu: [],
 		order: ['t1.seq'],
 		columns: [
+			{ width:"100px", orderable:false, data:"role_name", title:"Role" },
 			{ width:"150px", orderable:false, data:"code_name", title:"Dashboard" },
 			{ width:"55px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Type" },
-			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"seq", title:"Line", render:function(data, type, row){ return '<input type="number" class="seq" style="width:50px; text-align:center;" value="'+data+'">'; } },
+			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"seq", title:"Line", render:function(data, type, row){ return '<input type="number" class="seq" style="width:50px; text-align:center;" min="1" value="'+data+'">'; } },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 	};
@@ -59,7 +60,7 @@
 		
 		{* TAB || ESC *}
 		if (e.keyCode == 9 || e.keyCode == 27){	
-			console.log(data.seq);
+			{* console.log(data.seq); *}
 			$(this).val(data.seq);
 			return false;
 		}
@@ -68,7 +69,10 @@
 			if (data.seq == newLine)
 				return false;
 				
+			{* console.log($.extend({}, data, { 'newline':newLine })); return false; *}
 			$.extend(data, { 'newline':newLine });
+			{* console.log(data); return false; *}
+			
 			$.ajax({ method: 'PUT', url: $url_module, data: JSON.stringify(data), dataType: 'json',
 				success: function(data){
 					dataTable1.ajax.reload( null, false );
