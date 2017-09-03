@@ -409,7 +409,7 @@ class Cashflow extends Getmeb
 	function cf_cashbank_r_line()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE);
+			$this->_get_filtered(TRUE, TRUE, ['(select doc_no from cf_invoice where id = t1.invoice_id)'], TRUE);
 			
 			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
 				$result = $this->base_model->getValueArray('coalesce(grand_total,0) as grand_total', 'cf_cashbank', 'id', $this->params['cashbank_id']);
@@ -1062,6 +1062,16 @@ class Cashflow extends Getmeb
 						and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = f1.id) and f1.order_id = t1.id)";
 				}
 			}
+			
+			// $field = [];
+			// foreach($this->params['columns'] as $k => $v){
+				// $field[] = $v['data'];
+			// }
+			// $order = [];
+			// foreach($this->params['order'] as $k => $v){
+				// $order[] = $v['column'];
+			// }
+			// debug($field);
 			
 			$this->params['where']['is_sotrx'] = '1';
 			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
@@ -1951,9 +1961,11 @@ class Cashflow extends Getmeb
 				"(
 					select coalesce(sum(amount), 0) * (case (select is_receipt from cf_account where id = t1.account_id) when '1' then 1 else -1 end)".' as "'.$v['title'].'"' ." 
 					from cf_invoice 
-					where is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+					where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+					is_active = '1' and is_deleted = '0' and account_id = t1.account_id
 					and ((extract(month from received_plan_date),extract(year from received_plan_date)) = ".$v['period']." or (extract(month from payment_plan_date),extract(year from payment_plan_date)) = ".$v['period'].")
 				)";
+				$str = $this->translate_variable($str);
 				// if ((count($arr)-1)!=$i)
 					$str .= ', ';
 			}
@@ -1962,9 +1974,11 @@ class Cashflow extends Getmeb
 				"(
 					select coalesce(sum(amount), 0) * (case (select is_receipt from cf_account where id = t1.account_id) when '1' then 1 else -1 end)".' as "'.$v['title'].'_actual"' ." 
 					from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id
-					where f1.is_active = '1' and f1.is_deleted = '0' and account_id = t1.account_id
+					where f1.client_id = {client_id} and f1.org_id = {org_id} and f2.orgtrx_id in {orgtrx} and
+					f1.is_active = '1' and f1.is_deleted = '0' and account_id = t1.account_id
 					and ((extract(month from received_date),extract(year from received_date)) = ".$v['period']." or (extract(month from payment_date),extract(year from payment_date)) = ".$v['period'].")
 				)";
+				$str = $this->translate_variable($str);
 				if ((count($arr)-1)!=$i)
 					$str .= ', ';
 			}
@@ -1980,7 +1994,9 @@ class Cashflow extends Getmeb
 				$ttl[39][$v['title']] = 0;
 				$ttl[41][$v['title']] = 0;
 				$ttl[45][$v['title']] = 0;
-				$ttl[47][$v['title']] = $this->db->query("select coalesce((select amount from cf_cashbank_balance where is_active = '1' and is_deleted = '0' and doc_date = '".$fdate."'), 0) as amount")->row()->amount;
+				$str = "select coalesce((select amount from cf_cashbank_balance where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_date = '".$fdate."'), 0) as amount";
+				$str = $this->translate_variable($str);
+				$ttl[47][$v['title']] = $this->db->query($str)->row()->amount;
 				$ttl[48][$v['title']] = 0;
 				// $ttl[49][$v['title']] = 0;
 			}
@@ -1991,7 +2007,9 @@ class Cashflow extends Getmeb
 				$ttl[39][$v['title'].'_actual'] = 0;
 				$ttl[41][$v['title'].'_actual'] = 0;
 				$ttl[45][$v['title'].'_actual'] = 0;
-				$ttl[47][$v['title'].'_actual'] = $this->db->query("select coalesce((select amount from cf_cashbank_balance where is_active = '1' and is_deleted = '0' and doc_date = '".$fdate."'), 0) as amount")->row()->amount;
+				$str = "select coalesce((select amount from cf_cashbank_balance where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_date = '".$fdate."'), 0) as amount";
+				$str = $this->translate_variable($str);
+				$ttl[47][$v['title'].'_actual'] = $this->db->query($str)->row()->amount;
 				$ttl[48][$v['title'].'_actual'] = 0;
 				// $ttl[49][$v['title']] = 0;
 			}
@@ -2077,8 +2095,46 @@ class Cashflow extends Getmeb
 			/* Re-quering Data */
 			$str = 'select t1.account_id, (select is_receipt from cf_account where id = t1.account_id), type, seq, description as "DESCRIPTION", ';
 			foreach($arr as $i =>$v){
-				$str .= "(select coalesce(sum(net_amount), 0) * (case (select is_receipt from cf_account where id = t1.account_id) when '1' then 1 else -1 end)".' as "'.$v['title'].'"' ." from cf_invoice where is_active = '1' and is_deleted = '0' and account_id = t1.account_id
-								and ((extract(month from received_plan_date),extract(year from received_plan_date)) = ".$v['period']." or (extract(month from payment_plan_date),extract(year from payment_plan_date)) = ".$v['period']."))";
+				$str .= "(
+					select sum(amount)".' as "'.$v['title'].'"' ." from 
+					(
+						select coalesce(sum(amount), 0) as amount
+						from (
+							select f1.*, orgtrx_id, 1 as account_id from cf_order_plan f1 inner join cf_order f2 on f1.order_id = f2.id where f1.received_plan_date is not null --so
+						) r1 
+						where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+						is_active = '1' and is_deleted = '0' and (extract(month from received_plan_date),extract(year from received_plan_date)) = ".$v['period']." and account_id = t1.account_id
+						union all
+						select coalesce(-sum(amount), 0) as amount
+						from (
+							select f1.*, orgtrx_id, 2 as account_id from cf_order_plan f1 inner join cf_order f2 on f1.order_id = f2.id where f1.payment_plan_date is not null --po
+						) r1 
+						where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+						is_active = '1' and is_deleted = '0' and (extract(month from payment_plan_date),extract(year from payment_plan_date)) = ".$v['period']." and account_id = t1.account_id
+						union all
+						select coalesce(-sum(amount), 0) as amount
+						from (
+							select f1.*, orgtrx_id, 2 as account_id from cf_order_plan_clearance f1 inner join cf_order f2 on f1.order_id = f2.id where f1.payment_plan_date is not null --po clearance
+						) r1 
+						where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+						is_active = '1' and is_deleted = '0' and (extract(month from payment_plan_date),extract(year from payment_plan_date)) = ".$v['period']." and account_id = t1.account_id
+						union all
+						select coalesce(-sum(amount), 0) as amount
+						from (
+							select f1.*, orgtrx_id, 2 as account_id from cf_order_plan_import f1 inner join cf_order f2 on f1.order_id = f2.id where f1.payment_plan_date is not null --po custom duty
+						) r1 
+						where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+						is_active = '1' and is_deleted = '0' and (extract(month from payment_plan_date),extract(year from payment_plan_date)) = ".$v['period']." and account_id = t1.account_id
+						union all
+						select coalesce(sum(amount), 0) as amount
+						from (
+							select f1.*, orgtrx_id, (ttl_amt * case(select is_receipt from cf_account where id = f1.account_id) when '1' then 1 else -1 end) as amount from cf_ar_ap_plan f1 inner join cf_ar_ap f2 on f1.ar_ap_id = f2.id --where f1.payment_plan_date is not null --ar_ap
+						) r1 
+						where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+						is_active = '1' and is_deleted = '0' and ( (extract(month from payment_plan_date),extract(year from payment_plan_date)) = ".$v['period']." or (extract(month from received_plan_date),extract(year from received_plan_date)) = ".$v['period']." ) and account_id = t1.account_id
+					) f1
+				)";
+				$str = $this->translate_variable($str);
 				if ((count($arr)-1)!=$i)
 					$str .= ', ';
 			}
@@ -2094,7 +2150,9 @@ class Cashflow extends Getmeb
 				$ttl[39][$v['title']] = 0;
 				$ttl[41][$v['title']] = 0;
 				$ttl[45][$v['title']] = 0;
-				$ttl[47][$v['title']] = $this->db->query("select coalesce((select amount from cf_cashbank_balance where is_active = '1' and is_deleted = '0' and doc_date = '".$fdate."'), 0) as amount")->row()->amount;
+				$str = "select coalesce((select amount from cf_cashbank_balance where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_date = '".$fdate."'), 0) as amount";
+				$str = $this->translate_variable($str);
+				$ttl[47][$v['title']] = $this->db->query($str)->row()->amount;
 				$ttl[48][$v['title']] = 0;
 				// $ttl[49][$v['title']] = 0;
 			}
@@ -2300,7 +2358,8 @@ class Cashflow extends Getmeb
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as requisition_no from cf_requisition a1 where exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id)),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as request_no from cf_request where order_id = t1.id)
 				from cf_order t1
-				where is_active = '1' and is_deleted = '0' and is_sotrx = '1' ".$str;
+				where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' ".$str;
+			$str = $this->translate_variable($str);
 			// debug($str);
 			$qry = $this->db->query($str);
 			// $rows = $qry->result();
@@ -2345,31 +2404,37 @@ class Cashflow extends Getmeb
 				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
 					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
 				
-				$str = "and t1.doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
+				$str = "and t1.received_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
 			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
 					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
 				
-				$str = "and t1.doc_date >= '".$this->params->fdate."'";
+				$str = "and t1.received_plan_date >= '".$this->params->fdate."'";
 			}
 			if (!empty($this->params->order_id))
 				$str = "and t1.id = ".$this->params->order_id;
 				
 			/* Re-quering Data */
-			$str = "select (select name from c_bpartner where id = t1.bpartner_id) as customer_name, t1.doc_no as so_no, t1.doc_date as so_date, t2.note, t2.description, t2.doc_date as invoice_plan_date, t2.received_plan_date as payment_plan_date, t2.amount,
-				(select doc_no as invoice_no from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
-				(select adj_amount from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
-				(select net_amount from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
-				(select doc_date as invoice_date from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
-				(select received_plan_date as inv_payment_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
-				(select (select doc_no as voucher_no from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where order_id = t2.order_id and order_plan_id = t2.id and id = a1.invoice_id)),
-				(select amount as act_amount from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where order_id = t2.order_id and order_plan_id = t2.id and id = a1.invoice_id)),
-				(select (select doc_date as act_payment_date from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where order_id = t2.order_id and order_plan_id = t2.id and id = a1.invoice_id))
-				from cf_order t1
-				inner join cf_order_plan t2 on t1.id = t2.order_id
-				where t1.is_active = '1' and t1.is_deleted = '0' and t1.is_sotrx = '1' ".$str;
+			$str = "select 
+				(select name from a_org where id = t1.org_id) as org_name, 
+				(select name from a_org where id = t2.orgtrx_id) as orgtrx_name, 
+				(select name from c_bpartner where id = t3.bpartner_id) as customer_name,
+				t2.doc_no as so_no, t2.doc_date as so_date, t1.note, t1.description, t1.doc_date as invoice_plan_date, t1.received_plan_date as payment_plan_date, t1.amount,
+				t3.doc_no as invoice_no, t3.doc_date as invoice_date, t3.received_plan_date as inv_payment_plan_date, t3.adj_amount, t3.net_amount,
+				(select doc_no from cf_cashbank where id = t4.cashbank_id) as voucher_no, 
+				(select doc_date from cf_cashbank where id = t4.cashbank_id) as act_payment_date, 
+				t4.amount as act_amount
+				from cf_order_plan t1 
+				inner join cf_order t2 on t2.id = t1.order_id and t2.is_sotrx = '1'
+				inner join cf_invoice t3 on t3.order_plan_id = t1.id and t3.order_id = t1.order_id and t3.is_active = '1' and t3.is_deleted = '0'
+				inner join cf_cashbank_line t4 on t4.invoice_id = t3.id and t4.is_active = '1' and t4.is_deleted = '0'
+				where t1.client_id = {client_id} and t1.org_id = {org_id} and t2.orgtrx_id in {orgtrx} and 
+				t1.is_active = '1' and t1.is_deleted = '0' ".$str;
+			$str = $this->translate_variable($str);
 			// debug($str);
-			$qry = $this->db->query($str);
+			if (! $qry = $this->db->query($str))
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->db->error()['message']], 401);;
+			
 			// $rows = $qry->result();
 			// debug($this->params);
 			/* Export the result to client */
@@ -2412,31 +2477,37 @@ class Cashflow extends Getmeb
 				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
 					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
 				
-				$str = "and t1.doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
+				$str = "and t1.payment_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
 			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
 					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
 				
-				$str = "and t1.doc_date >= '".$this->params->fdate."'";
+				$str = "and t1.payment_plan_date >= '".$this->params->fdate."'";
 			}
 			if (!empty($this->params->order_id))
 				$str = "and t1.id = ".$this->params->order_id;
 				
 			/* Re-quering Data */
-			$str = "select (select name from c_bpartner where id = t1.bpartner_id) as customer_name, t1.doc_no as po_no, t1.doc_date as po_date, t2.note, t2.description, t2.doc_date as invoice_plan_date, t2.payment_plan_date as payment_plan_date, t2.amount,
-				(select doc_no as invoice_no from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
-				(select adj_amount from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
-				(select net_amount from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
-				(select doc_date as invoice_date from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
-				(select payment_plan_date as inv_payment_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = t2.order_id and order_plan_id = t2.id),
-				(select (select doc_no as voucher_no from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where order_id = t2.order_id and order_plan_id = t2.id and id = a1.invoice_id)),
-				(select amount as act_amount from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where order_id = t2.order_id and order_plan_id = t2.id and id = a1.invoice_id)),
-				(select (select doc_date as act_payment_date from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where order_id = t2.order_id and order_plan_id = t2.id and id = a1.invoice_id))
-				from cf_order t1
-				inner join cf_order_plan t2 on t1.id = t2.order_id
-				where t1.is_active = '1' and t1.is_deleted = '0' and t1.is_sotrx = '0' ".$str;
+			$str = "select 
+				(select name from a_org where id = t1.org_id) as org_name, 
+				(select name from a_org where id = t2.orgtrx_id) as orgtrx_name, 
+				(select name from c_bpartner where id = t3.bpartner_id) as customer_name,
+				t2.doc_no as so_no, t2.doc_date as so_date, t1.note, t1.description, t1.doc_date as invoice_plan_date, t1.payment_plan_date as payment_plan_date, t1.amount,
+				t3.doc_no as invoice_no, t3.doc_date as invoice_date, t3.payment_plan_date as inv_payment_plan_date, t3.adj_amount, t3.net_amount,
+				(select doc_no from cf_cashbank where id = t4.cashbank_id) as voucher_no, 
+				(select doc_date from cf_cashbank where id = t4.cashbank_id) as act_payment_date, 
+				t4.amount as act_amount
+				from cf_order_plan t1 
+				inner join cf_order t2 on t2.id = t1.order_id and t2.is_sotrx = '0'
+				inner join cf_invoice t3 on t3.order_plan_id = t1.id and t3.order_id = t1.order_id and t3.is_active = '1' and t3.is_deleted = '0'
+				inner join cf_cashbank_line t4 on t4.invoice_id = t3.id and t4.is_active = '1' and t4.is_deleted = '0'
+				where t1.client_id = {client_id} and t1.org_id = {org_id} and t2.orgtrx_id in {orgtrx} and 
+				t1.is_active = '1' and t1.is_deleted = '0' ".$str;
+			$str = $this->translate_variable($str);
 			// debug($str);
-			$qry = $this->db->query($str);
+			if (! $qry = $this->db->query($str))
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->db->error()['message']], 401);;
+			
 			// $rows = $qry->result();
 			// debug($this->params);
 			/* Export the result to client */
@@ -2487,7 +2558,8 @@ class Cashflow extends Getmeb
 				(select (select doc_date as act_payment_date from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id))
 				from cf_ar_ap t1
 				inner join cf_ar_ap_plan t2 on t1.id = t2.ar_ap_id
-				where t1.is_active = '1' and t1.is_deleted = '0' and t1.is_receipt = '1' ".$str;
+				where t1.client_id = {client_id} and t1.org_id = {org_id} and t1.orgtrx_id in {orgtrx} and t1.is_active = '1' and t1.is_deleted = '0' and t1.is_receipt = '1' ".$str;
+			$str = $this->translate_variable($str);
 			// debug($str);
 			$qry = $this->db->query($str);
 			// $rows = $qry->result();
@@ -2540,7 +2612,8 @@ class Cashflow extends Getmeb
 				(select (select doc_date as act_payment_date from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id))
 				from cf_ar_ap t1
 				inner join cf_ar_ap_plan t2 on t1.id = t2.ar_ap_id
-				where t1.is_active = '1' and t1.is_deleted = '0' and t1.is_receipt = '0' ".$str;
+				where t1.client_id = {client_id} and t1.org_id = {org_id} and t1.orgtrx_id in {orgtrx} and t1.is_active = '1' and t1.is_deleted = '0' and t1.is_receipt = '0' ".$str;
+			$str = $this->translate_variable($str);
 			// debug($str);
 			$qry = $this->db->query($str);
 			// $rows = $qry->result();

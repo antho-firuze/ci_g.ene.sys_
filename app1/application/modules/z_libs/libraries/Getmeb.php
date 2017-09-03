@@ -1807,7 +1807,7 @@ class Getmeb extends CI_Controller
 		$str = "select f1.org_id 
 			from a_user_orgtrx f1 
 			inner join a_user_org f2 on f1.user_org_id = f2.id
-			where 
+			where f1.is_active = '1' and f1.is_deleted = '0' and 
 			f1.user_id = ".$this->session->user_id." and f2.org_id = ".$this->session->org_id;
 		if (!$qry = $this->db->query($str)->result()){
 			return FALSE;
@@ -1825,6 +1825,7 @@ class Getmeb extends CI_Controller
 			'{client_id}'	=> $this->session->client_id,
 			'{org_id}'		=> $this->session->org_id,
 			'{orgtrx_id}'		=> $this->session->orgtrx_id,
+			'{orgtrx}'		=> '('.implode(',', $this->_get_orgtrx()).')',
 		);
 		
 		return str_replace(array_keys($vars), $vars, $str);

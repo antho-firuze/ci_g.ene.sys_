@@ -41,10 +41,11 @@
 			{ pageid: 100, subKey: 'order_id', title: 'Order Plan' },
 			{* { pageid: 127, subKey: 'order_id', title: 'Update ETD' }, *}
 		],
+		{* order: ['id desc'], *}
 		columns: [
 			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
 			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
-			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
+			{ width:"100px", orderable:true, data:"doc_no", title:"Doc No" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"etd", title:"ETD" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"expected_dt_cust", title:"Expected DT Customer" },
@@ -56,7 +57,6 @@
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"plan_total", title:"Plan Total", render: function(data, type, row){ return format_money(data); } },
 			{* { width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } }, *}
 		],
-		order: ['id desc'],
 	};
 	
 	function update_so_etd(data) {

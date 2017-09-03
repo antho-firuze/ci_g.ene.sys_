@@ -356,7 +356,8 @@ function initCheckList(tableData1, dataTable1){
 				else
 					dataTable1.rows().deselect();
 			} else {
-				// console.log("Debug: Head Clicked");
+				console.log("Debug: Head Clicked");
+				return false;
 				/* Prepare for sorting datatables */
 			}
 		});
