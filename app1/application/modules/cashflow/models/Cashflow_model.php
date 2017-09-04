@@ -830,12 +830,17 @@ class Cashflow_Model extends CI_Model
 		to_char(doc_date, '".$this->session->date_format."') as doc_date, 
 		to_char(etd, '".$this->session->date_format."') as etd";
 		$params['table'] 	= "(
-			select * from cf_order f1
+			select t1.*, order_id, delivery_date from (
+			select order_id, 
+			max((select (select max(delivery_date) from cf_inout where id = f1.inout_id) as delivery_date from cf_inout_line f1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id limit 1)) as delivery_date
+			from cf_order_line t1
 			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
-			is_active = '1' and is_deleted = '0' and is_sotrx = '1' 
-			AND NOT EXISTS(SELECT 1 FROM cf_inout WHERE is_active = '1' AND is_deleted = '0'	AND order_id = f1.ID) 
-			) t1";
+			client_id = {client_id} and org_id = {org_id} and (select orgtrx_id from cf_order f1 where id = t1.order_id) in {orgtrx} and 
+			is_active = '1' and is_deleted = '0' and exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id) 
+			group by 1
+			) t2 inner join cf_order t1 on t2.order_id = t1.id where delivery_date > etd and extract(month from etd) = extract(month from current_date) 
+		) t1";
+		$params['table'] = $this->translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -852,11 +857,11 @@ class Cashflow_Model extends CI_Model
 		to_char(eta, '".$this->session->date_format."') as eta";
 		$params['table'] 	= "(
 			select * from cf_order f1
-			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 			is_active = '1' and is_deleted = '0' and is_sotrx = '0' 
 			AND NOT EXISTS(SELECT 1 FROM cf_inout WHERE is_active = '1' AND is_deleted = '0'	AND order_id = f1.ID) 
-			) t1";
+		) t1";
+		$params['table'] = $this->translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
 	
