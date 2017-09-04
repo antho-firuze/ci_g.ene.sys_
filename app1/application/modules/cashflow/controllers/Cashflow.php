@@ -712,10 +712,14 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function cf_oinvoice()
+	function cf_oinvoice_old()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)',
+				"case when t1.doc_date is null then 'Projection' else 'Actual' end"]);
 			
 			$this->params['level'] = 1;
 			$this->params['where_in']['t1.doc_type'] = ['5', '6'];
@@ -793,10 +797,252 @@ class Cashflow extends Getmeb
 		}
 	}
 	
+	function cf_oinvoice_i()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)',
+				"case when t1.doc_date is null then 'Projection' else 'Actual' end"]);
+			
+			$this->params['level'] = 1;
+			$this->params['where']['t1.doc_type'] = '5';
+			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			
+			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					// $this->params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
+						// and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
+
+					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params['cashbank_id']);
+					$params['select']	= "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+					$having = isset($params['having']) && $params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$params['where']['bpartner_id'] = $cashbank->bpartner_id;
+					$params['where']['is_receipt'] = $cashbank->is_receipt;
+					$params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
+						and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
+					$params['table'] 	= "cf_invoice as t1";
+					$result['data'] = $this->base_model->mget_rec($params);
+					$this->xresponse(TRUE, $result);
+				} else {
+					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params['cashbank_id']);
+					$params['select']	= "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+					$having = isset($params['having']) && $params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$params['where']['bpartner_id'] = $cashbank->bpartner_id;
+					$params['where']['is_receipt'] = $cashbank->is_receipt;
+					$params['table'] 	= "cf_invoice as t1";
+					$result['data'] = $this->base_model->mget_rec($params);
+					$this->xresponse(TRUE, $result);
+				}
+			}
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
+			if ($this->params->event == 'pre_post'){
+				
+				if ($this->params->doc_type == '5'){
+					// $this->mixed_data['is_sotrx'] = '1';
+					$this->mixed_data['is_receipt'] = '1';
+				}
+				if ($this->params->doc_type == '6'){
+					// $this->mixed_data['is_sotrx'] = '0';
+					$this->mixed_data['is_receipt'] = '0';
+				}
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
+			}
+		}
+	}
+	
+	function cf_oinvoice_i_actualization()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			$id = $this->params->id;
+			unset($this->params->id);
+			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
+			debug($this->mixed_data);
+			$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$id]);
+			
+			/* Throwing the result to Ajax */
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+			$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
+	function cf_oinvoice_i_adjustment()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			$id = $this->params->id;
+			unset($this->params->id);
+			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
+			
+			$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$id]);
+			
+			/* Throwing the result to Ajax */
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+			$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
+	function cf_oinvoice_o()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)',
+				"case when t1.doc_date is null then 'Projection' else 'Actual' end"]);
+			
+			$this->params['level'] = 1;
+			$this->params['where']['t1.doc_type'] = '6';
+			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			
+			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					// $this->params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
+						// and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
+
+					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params['cashbank_id']);
+					$params['select']	= "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+					$having = isset($params['having']) && $params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$params['where']['bpartner_id'] = $cashbank->bpartner_id;
+					$params['where']['is_receipt'] = $cashbank->is_receipt;
+					$params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
+						and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
+					$params['table'] 	= "cf_invoice as t1";
+					$result['data'] = $this->base_model->mget_rec($params);
+					$this->xresponse(TRUE, $result);
+				} else {
+					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params['cashbank_id']);
+					$params['select']	= "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+					$having = isset($params['having']) && $params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$params['where']['bpartner_id'] = $cashbank->bpartner_id;
+					$params['where']['is_receipt'] = $cashbank->is_receipt;
+					$params['table'] 	= "cf_invoice as t1";
+					$result['data'] = $this->base_model->mget_rec($params);
+					$this->xresponse(TRUE, $result);
+				}
+			}
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				if ($this->params->id){
+					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
+				} else {
+					$doc_no = null;
+				}
+				if ($doc_no != $this->params->doc_no) {
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($HadSameDocNo) {
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+					}
+				}
+			}
+			if ($this->params->event == 'pre_post'){
+				
+				if ($this->params->doc_type == '5'){
+					// $this->mixed_data['is_sotrx'] = '1';
+					$this->mixed_data['is_receipt'] = '1';
+				}
+				if ($this->params->doc_type == '6'){
+					// $this->mixed_data['is_sotrx'] = '0';
+					$this->mixed_data['is_receipt'] = '0';
+				}
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
+			}
+		}
+	}
+	
+	function cf_oinvoice_o_actualization()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			$id = $this->params->id;
+			unset($this->params->id);
+			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
+			
+			$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$id]);
+			
+			/* Throwing the result to Ajax */
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+			$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
+	function cf_oinvoice_o_adjustment()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			$id = $this->params->id;
+			unset($this->params->id);
+			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
+			
+			$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$id]);
+			
+			/* Throwing the result to Ajax */
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+			$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
 	function cf_sinvoice()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)',
+				"case when t1.doc_date is null then 'Projection' else 'Actual' end"]);
 			
 			$this->params['level'] = 1;
 			$this->params['where']['t1.doc_type'] = '1';
@@ -848,10 +1094,48 @@ class Cashflow extends Getmeb
 		} */
 	}
 	
+	function cf_sinvoice_actualization()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			$id = $this->params->id;
+			unset($this->params->id);
+			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
+			// debug($this->mixed_data);
+			$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$id]);
+			
+			/* Throwing the result to Ajax */
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+			$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
+	function cf_sinvoice_adjustment()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			$id = $this->params->id;
+			unset($this->params->id);
+			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
+			
+			$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$id]);
+			
+			/* Throwing the result to Ajax */
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+			$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
 	function cf_pinvoice()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)',
+				"case when t1.doc_date is null then 'Projection' else 'Actual' end"]);
 			
 			$this->params['level'] = 1;
 			$this->params['where_in']['t1.doc_type'] = ['2', '3', '4'];
@@ -908,6 +1192,40 @@ class Cashflow extends Getmeb
 				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
 			}
 		} */
+	}
+	
+	function cf_pinvoice_actualization()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			$id = $this->params->id;
+			unset($this->params->id);
+			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
+			
+			$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$id]);
+			
+			/* Throwing the result to Ajax */
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+			$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
+	}
+	
+	function cf_pinvoice_adjustment()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			$id = $this->params->id;
+			unset($this->params->id);
+			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
+			
+			$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$id]);
+			
+			/* Throwing the result to Ajax */
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+			$this->xresponse(TRUE, ['message' => $this->messages()]);
+		}
 	}
 	
 	function cf_omovement()

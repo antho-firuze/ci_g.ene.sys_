@@ -204,6 +204,7 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
 		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
 		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date, 
+		case when t1.doc_date is null then 'Projection' else 'Actual' end as invoice_status,
 		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 		$params['table'] 	= "cf_invoice as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
@@ -214,7 +215,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function cf_oinvoice($params)
+	/* function cf_oinvoice($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -225,6 +226,51 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date, 
 		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date, 
 		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
+		case when t1.doc_date is null then 'Projection' else 'Actual' end as invoice_status,
+		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		$params['table'] 	= "cf_invoice as t1";
+		if (isset($params['level']) && $params['level'] == 1) {
+			$params['select'] .= ", t2.doc_no as doc_no_ar_ap, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_ar_ap, t3.note";
+			$params['join'][] = ['cf_ar_ap as t2', 't1.ar_ap_id = t2.id', 'left'];
+			$params['join'][] = ['cf_ar_ap_plan as t3', 't1.ar_ap_plan_id = t3.id', 'left'];
+		}
+		return $this->base_model->mget_rec($params);
+	} */
+	
+	function cf_oinvoice_i($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
+		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date, 
+		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
+		case when t1.doc_date is null then 'Projection' else 'Actual' end as invoice_status,
+		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		$params['table'] 	= "cf_invoice as t1";
+		if (isset($params['level']) && $params['level'] == 1) {
+			$params['select'] .= ", t2.doc_no as doc_no_ar_ap, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_ar_ap, t3.note";
+			$params['join'][] = ['cf_ar_ap as t2', 't1.ar_ap_id = t2.id', 'left'];
+			$params['join'][] = ['cf_ar_ap_plan as t3', 't1.ar_ap_plan_id = t3.id', 'left'];
+		}
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_oinvoice_o($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
+		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date, 
+		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
+		case when t1.doc_date is null then 'Projection' else 'Actual' end as invoice_status,
 		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 		$params['table'] 	= "cf_invoice as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
@@ -245,6 +291,7 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
 		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
 		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date, 
+		case when t1.doc_date is null then 'Projection' else 'Actual' end as invoice_status,
 		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 		$params['table'] 	= "cf_invoice as t1";
 		if (isset($params['level']) && $params['level'] == 1) {

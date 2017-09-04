@@ -418,7 +418,10 @@ class Getmeb extends CI_Controller
 				if (in_array($this->c_method, $this->exception_method))
 					return $menu;
 			} else {
-				$this->backend_view('pages/404', ['message' => 'Menu not found !']);
+				if (strtolower($output) == 'json')
+					$this->xresponse(FALSE, ['message' => 'Menu permission not found !'], 401);
+				else
+					$this->backend_view('pages/404', ['message' => 'Menu permission not found !']);
 			}
 		}
 		

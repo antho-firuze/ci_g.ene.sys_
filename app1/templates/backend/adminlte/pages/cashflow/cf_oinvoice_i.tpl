@@ -43,14 +43,14 @@
 			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
 			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
 			{ width:"100px", orderable:false, data:"invoice_status", title:"Status" },
+			{* { width:"30px", orderable:false, className:"dt-head-center dt-body-center", data:"is_receipt", title:"In/Out", render: function(data, type, row){ return data == '1' ? 'IN' : 'OUT'; } }, *}
 			{ width:"100px", orderable:false, data:"doc_no", title:"Invoice No" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"invoice_plan_date", title:"Invoice Plan Date" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Invoice Date" },
-			{ width:"100px", orderable:false, data:"doc_no_order", title:"PO Doc No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_order", title:"PO Doc Date" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"eta_order", title:"PO ETA" },
-			{ width:"150px", orderable:false, data:"bpartner_name", title:"Vendor" },
-			{ width:"100px", orderable:false, data:"note", title:"Payment Note" },
+			{ width:"100px", orderable:false, data:"doc_no_ar_ap", title:"AR Doc No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_ar_ap", title:"AR Doc Date" },
+			{ width:"150px", orderable:false, data:"bpartner_name", title:"Business Partner" },
+			{ width:"200px", orderable:false, data:"note", title:"Note" },
 			{ width:"200px", orderable:false, data:"description", title:"Description" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"adj_amount", title:"Adj Amount", render: function(data, type, row){ return format_money(data); } },
@@ -63,13 +63,15 @@
 		var col = [], row = [], a = [];
 		var form1 = BSHelper.Form({ autocomplete:"off" });
 		var format_money2 = "'alias': 'currency', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'autoGroup': true, 'autoUnmask': true";
-		col.push("<h3>Sales Order : <br>"+data.doc_no_order+"</h3>");
+		col.push("<h3>AR Doc No : <br>"+data.doc_no_ar_ap+"</h3>");
 		col.push("<h3>Business Partner : <br>"+data.bpartner_name+"</h3>");
 		col.push("<h3>Invoice Plan Date : <br>"+data.invoice_plan_date+"</h3>");
 		col.push( $('<dl class="dl-horizontal">').append(a) ); a = [];
 		col.push(BSHelper.Input({ horz:false, type:"text", label:"Actual Invoice No", idname:"doc_no", format: "'casing': 'upper'", value: data.doc_no, required: true }));
 		col.push(BSHelper.Input({ horz:false, type:"date", label:"Invoice date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", value: data.doc_date, required: true }));
-		col.push(BSHelper.Input({ horz:false, type:"date", label:"Payment Plan date", idname:"payment_plan_date", cls:"auto_ymd", format:"{$.session.date_format}", value: data.payment_plan_date, required: true }));
+		col.push(BSHelper.Input({ horz:false, type:"date", label:"Received Plan date", idname:"received_plan_date", cls:"auto_ymd", format:"{$.session.date_format}", value: data.received_plan_date, required: true, }));
+		{* col.push(BSHelper.Input({ horz:false, type:"date", label:"Received Plan date", idname:"received_plan_date", cls:"auto_ymd", format:"{$.session.date_format}", value: data.received_plan_date, required: (data.is_receipt == '1' ? true : false), hidden: (data.is_receipt == '1' ? false : true), disable: (data.is_receipt == '1' ? false : true) })); *}
+		{* col.push(BSHelper.Input({ horz:false, type:"date", label:"Payment Plan date", idname:"payment_plan_date", cls:"auto_ymd", format:"{$.session.date_format}", value: data.payment_plan_date, required: (data.is_receipt == '1' ? false : true), hidden: (data.is_receipt == '1' ? true : false), disable: (data.is_receipt == '1' ? true : false) })); *}
 		row.push(subCol(12, col)); col = [];
 		form1.append(subRow(row));
 		
@@ -90,7 +92,7 @@
 						
 						{* console.log(form1.serializeJSON()); return false; *}
 						
-						$.ajax({ url: $url_module+'_actualization', method: "OPTIONS", async: true, dataType: 'json',	data: form1.serializeJSON(),
+						$.ajax({ url: $url_module+'_i_actualization', method: "OPTIONS", async: true, dataType: 'json',	data: form1.serializeJSON(),
 							success: function(data) {
 								BootstrapDialog.show({ closable: false, message:data.message, 
 									buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],
@@ -140,7 +142,7 @@
 		var form1 = BSHelper.Form({ autocomplete:"off" });
 		var format_money2 = "'alias': 'currency', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'autoGroup': true, 'autoUnmask': true";
 		col.push("<h3>Invoice No : <br>"+data.doc_no+"</h3>");
-		col.push("<h3>Sales Order : <br>"+data.doc_no_order+"</h3>");
+		col.push("<h3>AR Doc No : <br>"+data.doc_no_ar_ap+"</h3>");
 		col.push("<h3>Business Partner : <br>"+data.bpartner_name+"</h3>");
 		col.push( $('<dl class="dl-horizontal">').append(a) ); a = [];
 		col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: false, value: data.amount, placeholder: "0.00", readonly: true, hidden: true }));
@@ -169,7 +171,7 @@
 						
 						{* console.log(form1.serializeJSON()); return false; *}
 
-						$.ajax({ url: $url_module+'_adjustment', method: "OPTIONS", async: true, dataType: 'json',	data: form1.serializeJSON(),
+						$.ajax({ url: $url_module+'_i_adjustment', method: "OPTIONS", async: true, dataType: 'json',	data: form1.serializeJSON(),
 							success: function(data) {
 								BootstrapDialog.show({ closable: false, message:data.message, 
 									buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],

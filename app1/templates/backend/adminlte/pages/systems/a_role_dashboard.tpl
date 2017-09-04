@@ -17,7 +17,7 @@
 		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process'],
 		disableBtn: ['btn-copy','btn-message','btn-print','btn-import'],
 		hiddenBtn: ['btn-copy','btn-message'],
-		processMenu: [{ id:"btn-process1", pageid: 45, title:"Copy Menu From Role..." }, ],
+		processMenu: [{ id:"btn-process1", pageid: 45, title:"Copy Dashboard From Role..." }, ],
 		processMenuDisable: [],
 	};
 	if ("{$is_canimport}" == "0") Toolbar_Init.disableBtn.push('btn-import');
@@ -40,7 +40,7 @@
 	$(document.body).click('button', function(e){
 		switch($(e.target).attr('id')){
 			case 'btn-process1':
-				if (!confirm("All Menu in this Role will be replaced, Are you sure ?")) {
+				if (!confirm("All Dashboard in this Role will be replaced, Are you sure ?")) {
 					return false;
 				}
 				var $pageid = getURLParameter("pageid"), $filter = getURLParameter("filter");
