@@ -840,7 +840,7 @@ class Cashflow_Model extends CI_Model
 			group by 1
 			) t2 inner join cf_order t1 on t2.order_id = t1.id where delivery_date > etd and extract(month from etd) = extract(month from current_date) 
 		) t1";
-		$params['table'] = $this->translate_variable($params['table']);
+		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -861,7 +861,7 @@ class Cashflow_Model extends CI_Model
 			is_active = '1' and is_deleted = '0' and is_sotrx = '0' 
 			AND NOT EXISTS(SELECT 1 FROM cf_inout WHERE is_active = '1' AND is_deleted = '0'	AND order_id = f1.ID) 
 		) t1";
-		$params['table'] = $this->translate_variable($params['table']);
+		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
 	

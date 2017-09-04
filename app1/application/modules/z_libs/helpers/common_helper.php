@@ -5,6 +5,43 @@ include 'email_helper.php';
 include 'sequence_helper.php';
 include 'spelled_out_helper.php';
 
+if ( ! function_exists('get_orgtrx'))
+{
+	function get_orgtrx()
+	{
+		$ci = &get_instance();
+		$str = "select f1.org_id 
+			from a_user_orgtrx f1 
+			inner join a_user_org f2 on f1.user_org_id = f2.id
+			where f1.is_active = '1' and f1.is_deleted = '0' and 
+			f1.user_id = ".$ci->session->user_id." and f2.org_id = ".$ci->session->org_id;
+		if (!$qry = $ci->db->query($str)->result()){
+			return FALSE;
+		}
+		$arr = [];
+		foreach ($qry as $k => $v){
+			$arr[] = $v->org_id;
+		}
+		return $arr;
+	}
+}
+
+if ( ! function_exists('translate_variable'))
+{
+	function translate_variable($str)
+	{
+		$ci = &get_instance();
+		$vars = array(
+			'{client_id}'	=> $ci->session->client_id,
+			'{org_id}'		=> $ci->session->org_id,
+			'{orgtrx_id}'		=> $ci->session->orgtrx_id,
+			'{orgtrx}'		=> '('.implode(',', get_orgtrx()).')',
+		);
+		
+		return str_replace(array_keys($vars), $vars, $str);
+	}
+}
+
 if ( ! function_exists('lang'))
 {
 	function lang($str, $args = array())
