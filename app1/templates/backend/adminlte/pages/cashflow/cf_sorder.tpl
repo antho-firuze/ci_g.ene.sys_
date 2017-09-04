@@ -41,7 +41,8 @@
 			{ pageid: 100, subKey: 'order_id', title: 'Order Plan' },
 			{* { pageid: 127, subKey: 'order_id', title: 'Update ETD' }, *}
 		],
-		{* order: ['id desc'], *}
+		order: ['id desc'],
+		{* order: ['doc_no'], *}
 		columns: [
 			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
 			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },

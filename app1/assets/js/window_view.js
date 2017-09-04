@@ -106,6 +106,19 @@ function initDataTable()
 		if (DataTable_Init.order.length > 0)
 			$ob = '&ob='+DataTable_Init.order.join();
 	var url = $url_module+window.location.search+$ob;
+	
+	/* pushing url to browser address */
+	$p = $pageid ? 'pageid='+$pageid : '';
+	$f = $filter ? '&filter='+$filter : '';
+	$q = $q ? '&q='+$q : '';
+	$o = $ob ? $ob : '';
+	$i = $id ? '&id='+$id : '';
+	$query = '?'+$p+$f+$q+$o+$i;
+	console.log(origin_url + $query);
+	// dataTable1.ajax.reload( null, false );
+	history.pushState({}, '', origin_url + $query);
+	
+
 	dataTable1 = tableData1.DataTable({ "pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, "scrollX": true,
 		"ajax": {
 			"url": url,
@@ -357,7 +370,14 @@ function initCheckList(tableData1, dataTable1){
 					dataTable1.rows().deselect();
 			} else {
 				console.log("Debug: Head Clicked");
-				return false;
+				console.log($(e.target));
+				// console.log($(e.target).is("th.sorting"));
+				if ($(e.target).is("th")) {
+					console.log("wooow");
+					e.stopPropagation();
+					e.preventDefault();
+					return false;
+				}
 				/* Prepare for sorting datatables */
 			}
 		});
