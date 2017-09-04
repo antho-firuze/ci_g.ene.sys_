@@ -39,9 +39,10 @@
 	row.push(subCol(6, col)); col = [];
 	{* col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"orgtrx_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true, required: true })); *}
 	{* col.push(BSHelper.Combobox({ horz:false, label:"DO No", label_link:"{$.const.PAGE_LNK}?pageid=88", textField:"doc_no", idname:"inout_id", url:"{$.php.base_url('cashflow/cf_sinout')}?for_invoice=1", remote: true, required: false })); *}
-	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", format: "'casing': 'upper'", required: true, }));
-	col.push(BSHelper.Input({ horz:false, type:"date", label:"Invoice Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
-	col.push(BSHelper.Input({ horz:false, type:"date", label:"Received Plan Date", idname:"received_plan_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", format: "'casing': 'upper'", required: false, hidden: true }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"Invoice Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false, readonly: true, hidden: ($act=='edt'?false:true) }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"Invoice Plan Date", idname:"invoice_plan_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false, readonly: true, }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"Received Plan Date", idname:"received_plan_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false, readonly: true, }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Reference No", idname:"doc_ref_no", required: false, required: false }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Reference Date", idname:"doc_ref_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
@@ -110,7 +111,7 @@
 			$("#amount").val(rowData.amount);
 			$("#note").val(rowData.note);
 			$("#description").val(rowData.description);
-			$("#doc_date").val(rowData.doc_date);
+			$("#invoice_plan_date").val(rowData.doc_date);
 			$("#received_plan_date").val(rowData.received_plan_date);
 			
 			calculate_amount();
@@ -130,13 +131,13 @@
 		} ,2000);
 	});
 	
-	$("#doc_date").on("change", function(){
+	{* $("#invoice_plan_date").on("change", function(){
 		var dt_format = "{$.session.date_format}";
 		var date_unformatted = datetime_db_format($(this).val(), dt_format);
 		var so_top = $("#so_top").val();
 		if ($act != 'edt')
 			$("#received_plan_date").val(moment(date_unformatted).add(so_top, 'days').format(dt_format.toUpperCase())).trigger('change');
-	});
+	}); *}
 
 </script>
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>
