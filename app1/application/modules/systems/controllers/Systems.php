@@ -67,7 +67,7 @@ class Systems extends Getmeb
 		if ($this->r_method == 'POST') {
 			if (isset($this->params->send_mail) && $this->params->send_mail) {
 				// debug($this->params);
-				if(! send_mail($this->params->email_from, $this->params->email_to, $this->params->subject, $this->params->message)) {
+				if(! send_mail_systems($this->params->email_from, $this->params->email_to, $this->params->subject, $this->params->message)) {
 					$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')], 401);
 				}
 				
