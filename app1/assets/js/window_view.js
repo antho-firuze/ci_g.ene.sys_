@@ -110,10 +110,10 @@ function initDataTable()
 	/* pushing url to browser address */
 	$p = $pageid ? 'pageid='+$pageid : '';
 	$f = $filter ? '&filter='+$filter : '';
-	$q = $q ? '&q='+$q : '';
+	$qq = $q ? '&q='+$q : '';
 	$o = $ob ? $ob : '';
 	$i = $id ? '&id='+$id : '';
-	$query = '?'+$p+$f+$q+$o+$i;
+	$query = '?'+$p+$f+$qq+$o+$i;
 	console.log(origin_url + $query);
 	// dataTable1.ajax.reload( null, false );
 	history.pushState({}, '', origin_url + $query);
