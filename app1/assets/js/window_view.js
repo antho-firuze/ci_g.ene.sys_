@@ -105,7 +105,8 @@ function initDataTable()
 	if (DataTable_Init.order)
 		if (DataTable_Init.order.length > 0)
 			$ob = '&ob='+DataTable_Init.order.join();
-	var url = $url_module+window.location.search+$ob;
+	// var url = $url_module+window.location.search+$ob;
+	var url = $url_module+window.location.search;
 	
 	/* pushing url to browser address */
 	$p = $pageid ? 'pageid='+$pageid : '';
@@ -116,7 +117,8 @@ function initDataTable()
 	$query = '?'+$p+$f+$qq+$o+$i;
 	console.log(origin_url + $query);
 	// dataTable1.ajax.reload( null, false );
-	history.pushState({}, '', origin_url + $query);
+	// history.pushState({}, '', origin_url + $query);
+	history.replaceState ("", document.title, origin_url + $query);
 	
 
 	dataTable1 = tableData1.DataTable({ "pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, "scrollX": true,
@@ -172,6 +174,7 @@ function initDataTable()
 
 	/* For parsing URL Parameters */
 	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
+		console.log('Datatables parsing URL Parameter for search/filter.');
 		$q = $(this).val();
 		$url = insertParam('q', $q);
 		dataTable1.ajax.reload( null, false );
@@ -565,7 +568,7 @@ $(window).on('hashchange', function(e){
 	// var hash = location.hash.replace(/^#/, '');
 	// var hash = location.href.indexOf('#');
 	// console.log(hash);
-	// console.log('hashchange');
+	console.log('url-hash-change');
 	// console.log(document.title);
 	// console.log(e.originalEvent.oldURL);
 	history.replaceState ("", document.title, e.originalEvent.oldURL);

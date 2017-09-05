@@ -1234,4 +1234,24 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 
+	function db_late_so_etd_to_customer($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.etd, '".$this->session->date_format."') as etd, 
+		to_char(t1.expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
+		$params['table'] 	= "(
+			select * from cf_order
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and to_char(expected_dt_cust, 'YYYY-MM') = to_char(current_date, 'YYYY-MM') and 
+			is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust
+		) t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+
 }
