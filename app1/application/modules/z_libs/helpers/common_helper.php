@@ -5,6 +5,23 @@ include 'email_helper.php';
 include 'sequence_helper.php';
 include 'spelled_out_helper.php';
 
+if ( ! function_exists('get_dsn_host'))
+{
+	function get_dsn_host()
+	{
+		return parse_dsn(DB_DSN)['pgsql:host'];
+	}
+}
+
+if ( ! function_exists('parse_dsn'))
+{
+	function parse_dsn($dsn)
+	{
+		foreach(explode(';', $dsn) as $val){ list($k, $v) = explode('=', $val); $con[$k] = $v; }
+		return $con;
+	}
+}
+
 if ( ! function_exists('get_orgtrx'))
 {
 	function get_orgtrx()

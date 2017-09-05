@@ -47,6 +47,7 @@
 			{ width:"100px", orderable:false, data:"doc_no", title:"Invoice No" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"invoice_plan_date", title:"Invoice Plan Date" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Invoice Date" },
+			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"payment_plan_date", title:"Payment Plan Date" },
 			{ width:"100px", orderable:false, data:"doc_no_ar_ap", title:"AP Doc No" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_ar_ap", title:"AP Doc Date" },
 			{ width:"150px", orderable:false, data:"bpartner_name", title:"Business Partner" },
@@ -92,7 +93,7 @@
 						
 						{* console.log(form1.serializeJSON()); return false; *}
 						
-						$.ajax({ url: $url_module+'_o_actualization', method: "OPTIONS", async: true, dataType: 'json',	data: form1.serializeJSON(),
+						$.ajax({ url: $url_module+'_actualization', method: "OPTIONS", async: true, dataType: 'json',	data: form1.serializeJSON(),
 							success: function(data) {
 								BootstrapDialog.show({ closable: false, message:data.message, 
 									buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],
@@ -171,7 +172,7 @@
 						
 						{* console.log(form1.serializeJSON()); return false; *}
 
-						$.ajax({ url: $url_module+'_o_adjustment', method: "OPTIONS", async: true, dataType: 'json',	data: form1.serializeJSON(),
+						$.ajax({ url: $url_module+'_adjustment', method: "OPTIONS", async: true, dataType: 'json',	data: form1.serializeJSON(),
 							success: function(data) {
 								BootstrapDialog.show({ closable: false, message:data.message, 
 									buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],

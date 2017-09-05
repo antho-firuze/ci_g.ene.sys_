@@ -15,6 +15,27 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
+	function test_dsn()
+	{
+		echo parse_dsn(DB_DSN)['pgsql:host'];
+		// foreach(explode(';', DB_DSN) as $val){ list($k, $v) = explode('=', $val); $con[$k] = $v; }
+		// debug($con['pgsql:host']);
+		/* $conn = new PDO(DB_DSN);
+		if ($conn) {
+			debug($this->db);
+			$attributes = array(
+					"CASE", "CLIENT_VERSION", "CONNECTION_STATUS",
+					"ORACLE_NULLS", "PERSISTENT", "PREFETCH", "SERVER_INFO", "SERVER_VERSION",
+					"TIMEOUT"
+			);			
+			foreach ($attributes as $val) {
+					echo "PDO::ATTR_$val: ";
+					echo $conn->getAttribute(constant("PDO::ATTR_$val")) . "\n";
+			}
+		} else 
+			debug('2'); */
+	}
+	
 	function heartbeat()
 	{
 		$return = $this->db->update('a_user', ['is_online' => '0', 'heartbeat' => null], ['(extract(epoch from now()) - heartbeat) >' => 60 * 15]);

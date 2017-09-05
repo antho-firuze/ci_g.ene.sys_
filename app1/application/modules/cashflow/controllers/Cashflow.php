@@ -389,7 +389,7 @@ class Cashflow extends Getmeb
 					$doc_no = null;
 				}
 				if ($doc_no != $this->params->doc_no) {
-						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0', 'is_receipt' => '1']);
 					if ($HadSameDocNo) {
 						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
 					}
@@ -473,7 +473,7 @@ class Cashflow extends Getmeb
 					$doc_no = null;
 				}
 				if ($doc_no != $this->params->doc_no) {
-						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0', 'is_receipt' => '0']);
 					if ($HadSameDocNo) {
 						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
 					}
@@ -817,14 +817,20 @@ class Cashflow extends Getmeb
 						// and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
 
 					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params['cashbank_id']);
-					$params['select']	= "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+					$params['select']	= "t1.*, 
+					(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+					to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+					to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
+					coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 					$having = isset($params['having']) && $params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
 					$params['where']['bpartner_id'] = $cashbank->bpartner_id;
 					$params['where']['is_receipt'] = $cashbank->is_receipt;
-					$params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
+					$params['where_custom'][] = "doc_date is not null";
+					$params['where_custom'][] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
 						and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
 					$params['table'] 	= "cf_invoice as t1";
 					$result['data'] = $this->base_model->mget_rec($params);
+					// debug($result['data']);
 					$this->xresponse(TRUE, $result);
 				} else {
 					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params['cashbank_id']);
@@ -857,22 +863,15 @@ class Cashflow extends Getmeb
 					$doc_no = null;
 				}
 				if ($doc_no != $this->params->doc_no) {
-						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0', 'is_receipt' => '1']);
 					if ($HadSameDocNo) {
 						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
 					}
 				}
 			}
 			if ($this->params->event == 'pre_post'){
-				
-				if ($this->params->doc_type == '5'){
-					// $this->mixed_data['is_sotrx'] = '1';
-					$this->mixed_data['is_receipt'] = '1';
-				}
-				if ($this->params->doc_type == '6'){
-					// $this->mixed_data['is_sotrx'] = '0';
-					$this->mixed_data['is_receipt'] = '0';
-				}
+				$this->mixed_data['doc_type'] = '5';
+				$this->mixed_data['is_receipt'] = '1';
 			}
 		}
 		if ($this->r_method == 'DELETE') {
@@ -888,7 +887,7 @@ class Cashflow extends Getmeb
 			$id = $this->params->id;
 			unset($this->params->id);
 			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
-			debug($this->mixed_data);
+			// debug($this->mixed_data);
 			$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$id]);
 			
 			/* Throwing the result to Ajax */
@@ -936,11 +935,16 @@ class Cashflow extends Getmeb
 						// and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
 
 					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params['cashbank_id']);
-					$params['select']	= "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+					$params['select']	= "t1.*, 
+					(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+					to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+					to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
+					coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 					$having = isset($params['having']) && $params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
 					$params['where']['bpartner_id'] = $cashbank->bpartner_id;
 					$params['where']['is_receipt'] = $cashbank->is_receipt;
-					$params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
+					$params['where_custom'][] = "doc_date is not null";
+					$params['where_custom'][] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
 						and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
 					$params['table'] 	= "cf_invoice as t1";
 					$result['data'] = $this->base_model->mget_rec($params);
@@ -976,22 +980,15 @@ class Cashflow extends Getmeb
 					$doc_no = null;
 				}
 				if ($doc_no != $this->params->doc_no) {
-						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
+						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0', 'is_receipt' => '0']);
 					if ($HadSameDocNo) {
 						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
 					}
 				}
 			}
 			if ($this->params->event == 'pre_post'){
-				
-				if ($this->params->doc_type == '5'){
-					// $this->mixed_data['is_sotrx'] = '1';
-					$this->mixed_data['is_receipt'] = '1';
-				}
-				if ($this->params->doc_type == '6'){
-					// $this->mixed_data['is_sotrx'] = '0';
-					$this->mixed_data['is_receipt'] = '0';
-				}
+				$this->mixed_data['doc_type'] = '6';
+				$this->mixed_data['is_receipt'] = '0';
 			}
 		}
 		if ($this->r_method == 'DELETE') {
