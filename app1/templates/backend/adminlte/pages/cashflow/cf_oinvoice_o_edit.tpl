@@ -20,7 +20,7 @@
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info" });
 	var format_money = "'alias': 'currency', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'autoGroup': true, 'autoUnmask': true";
-	col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"orgtrx_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true, required: true, disabled: ($act=='edt'?true:false), value: {$.session.orgtrx_id}, hidden: "{$.session.show_branch_entry}"=="1" ? false : true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"orgtrx_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true, required: true, readonly: true, value: {$.session.orgtrx_id}, hidden: "{$.session.show_branch_entry}"=="1" ? false : true }));
 	col.push(BSHelper.Combobox({ horz:false, label:"AP No", textField:"doc_no", idname:"ar_ap_id", url:"{$.php.base_url('cashflow/cf_ap')}?for_invoice=1&act="+$act, remote: true, required: true, disabled: ($act=='edt'?true:false) }));
 	col.push(BSHelper.Combobox({ horz:false, label:"AP Plan", textField:"code_name", idname:"ar_ap_plan_id", url:"{$.php.base_url('cashflow/cf_ap_plan')}?for_invoice=1&act="+$act, remote: true, required: true, disabled: true }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Business Partner", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}", remote: true, required: false, disabled: true }));
@@ -62,6 +62,7 @@
 		onSelect: function(rowData){
 			$("#ar_ap_plan_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_ap_plan')}?for_invoice=1&filter=ar_ap_id="+rowData.id+"&act="+$act });
 				
+			$("#orgtrx_id").shollu_cb('setValue', rowData.orgtrx_id);
 			$("#ar_ap_plan_id").shollu_cb('setValue', '');
 			$("#ar_ap_plan_id").shollu_cb('disable', false);
 			$("#doc_no").val(rowData.doc_no);

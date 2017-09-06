@@ -209,7 +209,7 @@ class Cashflow extends Getmeb
 			// debug($this->c_table);
 			
 			/* Insert the record */
-			$result = $this->insertRecord($this->c_table, $this->mixed_data);
+			$result = $this->insertRecord('cf_invoice', array_merge($this->mixed_data, $this->create_log));
 			$this->insert_id = $result;
 			/* Throwing the result to Ajax */
 			if (! $result)
@@ -229,16 +229,16 @@ class Cashflow extends Getmeb
 			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['ar_ap_plan_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 			/* unposting fail if invoice was actual */
 			if ($invoice->doc_date)
-				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')], 401);
 			
 			/* get cashbank */
 			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
 			/* unposting fail if plan has actual payment */
 			if ($cashbank)
-				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
 			
 			/* Delete the record */
-			$result = $this->deleteRecords('cf_invoice', $invoice_id);
+			$result = $this->deleteRecords('cf_invoice', $invoice->id);
 			if (!$result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
@@ -438,7 +438,7 @@ class Cashflow extends Getmeb
 			// debug($this->c_table);
 			
 			/* Insert the record */
-			$result = $this->insertRecord($this->c_table, $this->mixed_data);
+			$result = $this->insertRecord('cf_invoice', array_merge($this->mixed_data, $this->create_log));
 			$this->insert_id = $result;
 			/* Throwing the result to Ajax */
 			if (! $result)
@@ -458,16 +458,16 @@ class Cashflow extends Getmeb
 			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['ar_ap_plan_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 			/* unposting fail if invoice was actual */
 			if ($invoice->doc_date)
-				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')], 401);
 			
 			/* get cashbank */
 			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
 			/* unposting fail if plan has actual payment */
 			if ($cashbank)
-				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
 			
 			/* Delete the record */
-			$result = $this->deleteRecords('cf_invoice', $invoice_id);
+			$result = $this->deleteRecords('cf_invoice', $invoice->id);
 			if (!$result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
@@ -1760,7 +1760,7 @@ class Cashflow extends Getmeb
 			// debug($this->c_table);
 			
 			/* Insert the record */
-			$result = $this->insertRecord($this->c_table, $this->mixed_data);
+			$result = $this->insertRecord('cf_invoice', array_merge($this->mixed_data, $this->create_log));
 			$this->insert_id = $result;
 			/* Throwing the result to Ajax */
 			if (! $result)
@@ -1780,16 +1780,16 @@ class Cashflow extends Getmeb
 			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['order_plan_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 			/* unposting fail if invoice was actual */
 			if ($invoice->doc_date)
-				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')], 401);
 			
 			/* get cashbank */
 			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
 			/* unposting fail if plan has actual payment */
 			if ($cashbank)
-				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
 			
 			/* Delete the record */
-			$result = $this->deleteRecords('cf_invoice', $invoice_id);
+			$result = $this->deleteRecords('cf_invoice', $invoice->id);
 			if (!$result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
@@ -2107,7 +2107,7 @@ class Cashflow extends Getmeb
 			// debug($this->c_table);
 			
 			/* Insert the record */
-			$result = $this->insertRecord($this->c_table, $this->mixed_data);
+			$result = $this->insertRecord('cf_invoice', array_merge($this->mixed_data, $this->create_log));
 			$this->insert_id = $result;
 			/* Throwing the result to Ajax */
 			if (! $result)
@@ -2127,16 +2127,16 @@ class Cashflow extends Getmeb
 			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['order_plan_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 			/* unposting fail if invoice was actual */
 			if ($invoice->doc_date)
-				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')], 401);
 			
 			/* get cashbank */
 			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
 			/* unposting fail if plan has actual payment */
 			if ($cashbank)
-				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
 			
 			/* Delete the record */
-			$result = $this->deleteRecords('cf_invoice', $invoice_id);
+			$result = $this->deleteRecords('cf_invoice', $invoice->id);
 			if (!$result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
@@ -2252,7 +2252,7 @@ class Cashflow extends Getmeb
 			// debug($this->c_table);
 			
 			/* Insert the record */
-			$result = $this->insertRecord($this->c_table, $this->mixed_data);
+			$result = $this->insertRecord('cf_invoice', array_merge($this->mixed_data, $this->create_log));
 			$this->insert_id = $result;
 			/* Throwing the result to Ajax */
 			if (! $result)
@@ -2272,16 +2272,16 @@ class Cashflow extends Getmeb
 			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['order_plan_clearance_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 			/* unposting fail if invoice was actual */
 			if ($invoice->doc_date)
-				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')], 401);
 			
 			/* get cashbank */
 			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
 			/* unposting fail if plan has actual payment */
 			if ($cashbank)
-				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
 			
 			/* Delete the record */
-			$result = $this->deleteRecords('cf_invoice', $invoice_id);
+			$result = $this->deleteRecords('cf_invoice', $invoice->id);
 			if (!$result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
@@ -2397,7 +2397,7 @@ class Cashflow extends Getmeb
 			// debug($this->c_table);
 			
 			/* Insert the record */
-			$result = $this->insertRecord($this->c_table, $this->mixed_data);
+			$result = $this->insertRecord('cf_invoice', array_merge($this->mixed_data, $this->create_log));
 			$this->insert_id = $result;
 			/* Throwing the result to Ajax */
 			if (! $result)
@@ -2417,16 +2417,16 @@ class Cashflow extends Getmeb
 			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['order_plan_import_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 			/* unposting fail if invoice was actual */
 			if ($invoice->doc_date)
-				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')], 401);
 			
 			/* get cashbank */
 			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
 			/* unposting fail if plan has actual payment */
 			if ($cashbank)
-				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
 			
 			/* Delete the record */
-			$result = $this->deleteRecords('cf_invoice', $invoice_id);
+			$result = $this->deleteRecords('cf_invoice', $invoice->id);
 			if (!$result)
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else

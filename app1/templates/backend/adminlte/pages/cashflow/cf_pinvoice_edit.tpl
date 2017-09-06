@@ -20,7 +20,7 @@
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info" });
 	var format_money = "'alias': 'currency', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'autoGroup': true, 'autoUnmask': true";
-	col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"orgtrx_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true, required: true, disabled: ($act=='edt'?true:false), value: {$.session.orgtrx_id}, hidden: "{$.session.show_branch_entry}"=="1" ? false : true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"orgtrx_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true, required: true, readonly: true, value: {$.session.orgtrx_id}, hidden: "{$.session.show_branch_entry}"=="1" ? false : true }));
 	col.push(BSHelper.Combobox({ label:"Doc Type", idname:"doc_type", required: true, disabled: ($act=='edt'?true:false), 
 		list:[
 			{ id:"2", name:"Invoice Vendor" },
@@ -31,7 +31,7 @@
 	col.push(BSHelper.Combobox({ horz:false, label:"Doc No", label_link:"{$.const.PAGE_LNK}?pageid=93", textField:"code_name", idname:"order_id", url:"{$.php.base_url('cashflow/cf_porder')}?for_invoice=1&act="+$act, remote: true, required: true, disabled: true }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Payment Note", textField:"note", idname:"plan_id", url:"{$.php.base_url('cashflow/cf_porder_plan')}?for_invoice=1", remote: true, required: ($act=='edt'?false:true), disabled: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Payment Note", idname:"note", required: false, readonly: true, hidden: true }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Vendor", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_vendor='1'", remote: true, required: true, disabled: ($act=='edt'?false:true) }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Vendor", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_vendor='1'", remote: true, required: true, disabled: ($act=='edt'?true:false) }));
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Vendor TOP (Days)", idname:"po_top", style: "text-align: right;", step: ".01", required: false, value: 0, placeholder: "0", readonly: true }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"PO ETA", idname:"po_eta", cls:"auto_ymd", format:"{$.session.date_format}", required: false, disabled: true }));
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: false, value: 0, placeholder: "0.00", readonly: true }));
@@ -106,6 +106,7 @@
 			if (doc_type == '4')
 				$("#plan_id").shollu_cb({ url:"{$.php.base_url('cashflow/cf_porder_plan_import')}?for_invoice=1&filter=order_id="+rowData.id+"&act="+$act });
 				
+			$("#orgtrx_id").shollu_cb('setValue', rowData.orgtrx_id);
 			$("#plan_id").shollu_cb('setValue', '');
 			$("#plan_id").shollu_cb('disable', false);
 			$("#amount").val(0);
