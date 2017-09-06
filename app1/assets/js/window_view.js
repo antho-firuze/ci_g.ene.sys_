@@ -106,7 +106,6 @@ function initDataTable()
 		if (DataTable_Init.order.length > 0)
 			$ob = '&ob='+DataTable_Init.order.join();
 	// var url = $url_module+window.location.search+$ob;
-	var url = $url_module+window.location.search;
 	
 	/* pushing url to browser address */
 	$p = $pageid ? 'pageid='+$pageid : '';
@@ -120,6 +119,7 @@ function initDataTable()
 	// history.pushState({}, '', origin_url + $query);
 	history.replaceState ("", document.title, origin_url + $query);
 	
+	var url = $url_module+window.location.search;
 
 	dataTable1 = tableData1.DataTable({ "pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, "scrollX": true,
 		"ajax": {

@@ -407,6 +407,7 @@ class Getmeb extends CI_Controller
 		$this->_check_is_login();
 		
 		/* Check menu existance on the table a_menu */
+		// debug($this->c_method);
 		if ($this->pageid)
 			$menu = $this->base_model->getValueArray('*', 'a_menu', ['client_id','id'], [DEFAULT_CLIENT_ID, $this->pageid]);
 		else
@@ -436,6 +437,7 @@ class Getmeb extends CI_Controller
 			$this->single_view('pages/systems/auth/select_role');
 		
 		/* Set this menu using this table */
+		// debug($menu);
 		$this->c_table = $menu['table'];
 
 		/* Check menu active & permission on the table a_role_menu */

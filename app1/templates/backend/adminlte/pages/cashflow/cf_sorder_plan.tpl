@@ -32,6 +32,10 @@
 	var DataTable_Init = {
 		enable: true,
 		act_menu: { copy: true, edit: true, delete: true },
+		add_menu: [
+			{ name: 'posting', title: 'Posting' }, 
+			{ name: 'unposting', title: 'UnPosting' }, 
+		],
 		sub_menu: [
 			{* { pageid: 99, subKey: 'order_id', title: 'Order Line', }, *}
 			{* { pageid: 100, subKey: 'order_id', title: 'Order Plan' }, *}
@@ -44,6 +48,7 @@
 			{ width:"150px", orderable:false, data:"note", title:"Payment Type" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
+			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_posted", title:"isPosted", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 		order: ['seq'],
 	};
@@ -74,6 +79,29 @@
 		$.getJSON($url_module, { "summary": 1, "order_id": order_id }, function(result){ 
 			if (!isempty_obj(result.data)) 
 				form1.shollu_autofill('load', result.data);  
+		});
+	}
+	
+	function posting(data)
+	{
+		$.ajax({ url: $url_module+'_posting', method: "OPTIONS", async: true, dataType: 'json', data: JSON.stringify(data),
+			success: function(data) {
+				BootstrapDialog.show({ closable: false, message:data.message, 
+					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); window.history.back(); } }],
+				});
+				dataTable1.ajax.reload( null, false );
+			},
+			error: function(data) {
+				if (data.status==500){
+					var message = data.statusText;
+				} else {
+					var error = JSON.parse(data.responseText);
+					var message = error.message;
+				}
+				BootstrapDialog.show({ closable: false, type:'modal-danger', title:'Notification', message:message, 
+					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); window.history.back(); } }],
+				});
+			}
 		});
 	}
 </script>

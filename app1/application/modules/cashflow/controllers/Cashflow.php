@@ -1574,6 +1574,44 @@ class Cashflow extends Getmeb
 		}
 	}
 	
+	function cf_sorder_plan_posting()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			if ($this->params->is_posted > 0)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_posting')]);
+			
+			/* get header data */
+			$header = $this->base_model->getValue('*', 'cf_order', 'id', $this->params->order_id);
+			/* required field */
+			$this->mixed_data['client_id'] = $header->client_id;
+			$this->mixed_data['org_id'] = $header->org_id;
+			$this->mixed_data['orgtrx_id'] = $header->orgtrx_id;
+			$this->mixed_data['is_receipt'] = '1';
+			$this->mixed_data['doc_type'] = '1';
+			$this->mixed_data['order_id'] = $this->params->order_id;
+			$this->mixed_data['order_plan_id'] = $this->params->id;
+			$this->mixed_data['bpartner_id'] = $header->bpartner_id;
+			$this->mixed_data['doc_no'] = $header->doc_no;
+			$this->mixed_data['note'] = $this->params->note;
+			$this->mixed_data['description'] = $this->params->description;
+			$this->mixed_data['account_id'] = 1;
+			$this->mixed_data['amount'] = $this->params->amount;
+			$this->mixed_data['adj_amount'] = 0;
+			$this->mixed_data['net_amount'] = $this->params->amount;
+			$this->mixed_data['invoice_plan_date'] = datetime_db_format($this->params->doc_date, $this->session->date_format, FALSE);
+			$this->mixed_data['received_plan_date'] = datetime_db_format($this->params->received_plan_date, $this->session->date_format, FALSE);
+			debug($this->mixed_data);
+		}
+	}
+	
+	function cf_sorder_plan_unposting()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			if ($this->params->is_posted < 1)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_unposting')]);
+		}
+	}
+	
 	function cf_sorder_etd()
 	{
 		if ($this->r_method == 'OPTIONS') {

@@ -13,6 +13,8 @@
 *
 */
 /* Notification: notif_ & success_  */
+$lang['success_plan_posting'] 		= "Posting sucessfully !";
+$lang['success_plan_unposting'] 		= "Unposting sucessfully !";
 /* Confirmation: confirm_ */
 /* Error/Failed: error_ */
 // $lang['error_amount_overload'] 		= "Error: The amount you enter is too much ! [max=%01.2f]";

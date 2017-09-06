@@ -359,6 +359,7 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, 
 		(select doc_no from cf_order where id = t1.order_id), 
+		(select count(doc_no) from cf_invoice where order_plan_id = t1.id and is_active = '1' and is_deleted = '0') as is_posted, 
 		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date";
 		$params['table'] 	= "cf_order_plan as t1";
 		return $this->base_model->mget_rec($params);
