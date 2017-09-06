@@ -114,7 +114,7 @@ function initDataTable()
 	$o = $ob ? $ob : '';
 	$i = $id ? '&id='+$id : '';
 	$query = '?'+$p+$f+$qq+$o+$i;
-	console.log(origin_url + $query);
+	// console.log(origin_url + $query);
 	// dataTable1.ajax.reload( null, false );
 	// history.pushState({}, '', origin_url + $query);
 	history.replaceState ("", document.title, origin_url + $query);
@@ -568,7 +568,7 @@ $(window).on('hashchange', function(e){
 	// var hash = location.hash.replace(/^#/, '');
 	// var hash = location.href.indexOf('#');
 	// console.log(hash);
-	console.log('url-hash-change');
+	// console.log('url-hash-change');
 	// console.log(document.title);
 	// console.log(e.originalEvent.oldURL);
 	history.replaceState ("", document.title, e.originalEvent.oldURL);

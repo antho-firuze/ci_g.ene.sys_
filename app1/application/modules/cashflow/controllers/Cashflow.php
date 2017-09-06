@@ -10,6 +10,16 @@ class Cashflow extends Getmeb
 		parent::__construct();	
 	}
 	
+	function _is_posted($cond = array())
+	{
+		return $this->db->select('count(doc_no) as is_posted')
+						 ->from('cf_invoice')
+						 ->where('is_active', '1')
+						 ->where('is_deleted', '0')
+						 ->where($cond)
+						 ->get()->row()->is_posted;
+	}
+	
 	function cf_account()
 	{
 		if ($this->r_method == 'GET') {
@@ -128,6 +138,10 @@ class Cashflow extends Getmeb
 				$this->imported_fields 	= ['ar_ap_id','account_id','bpartner_id','seq','doc_date','received_plan_date','description','sub_amt','ttl_amt','vat_amt','note'];
 				$this->validation_fk 		= ['ar_ap_id' => 'cf_ar_ap', 'account_id' => 'cf_account', 'bpartner_id' => 'c_bpartner'];
 			}
+			if ($this->params->event == 'pre_put'){
+				if ($this->_is_posted(['ar_ap_plan_id' => $this->params->id]) > 0)
+					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
+			}
 			/* if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['is_plan'] = 1;
 				if (! $this->{$this->mdl}->cf_ar_ap_valid_amount($this->mixed_data)){ 
@@ -154,7 +168,8 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
+					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
+					// $this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
 				}
 			}
 			if ($this->params['event'] == 'post_delete'){
@@ -162,6 +177,72 @@ class Cashflow extends Getmeb
 				$this->params['ar_ap_id'] = $this->base_model->getValue('ar_ap_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->ar_ap_id;
 				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
 			}
+		}
+	}
+	
+	function cf_ar_plan_posting()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			if ($this->params->is_posted > 0)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_posting')]);
+			
+			/* get header data */
+			$header = $this->base_model->getValue('*', 'cf_ar_ap', 'id', $this->params->ar_ap_id);
+			/* required field */
+			$this->mixed_data['client_id'] = $header->client_id;
+			$this->mixed_data['org_id'] = $header->org_id;
+			$this->mixed_data['orgtrx_id'] = $header->orgtrx_id;
+			$this->mixed_data['is_receipt'] = '1';
+			$this->mixed_data['doc_type'] = '5';
+			$this->mixed_data['ar_ap_id'] = $this->params->ar_ap_id;
+			$this->mixed_data['ar_ap_plan_id'] = $this->params->id;
+			$this->mixed_data['bpartner_id'] = $this->params->bpartner_id;
+			$this->mixed_data['doc_no'] = $header->doc_no;
+			$this->mixed_data['note'] = $this->params->note;
+			$this->mixed_data['description'] = $this->params->description;
+			$this->mixed_data['account_id'] = $this->params->account_id;
+			$this->mixed_data['amount'] = $this->params->ttl_amt;
+			$this->mixed_data['adj_amount'] = 0;
+			$this->mixed_data['net_amount'] = $this->params->ttl_amt;
+			$this->mixed_data['invoice_plan_date'] = datetime_db_format($this->params->doc_date, $this->session->date_format, FALSE);
+			$this->mixed_data['received_plan_date'] = datetime_db_format($this->params->received_plan_date, $this->session->date_format, FALSE);
+			// debug($this->c_table);
+			
+			/* Insert the record */
+			$result = $this->insertRecord($this->c_table, $this->mixed_data);
+			$this->insert_id = $result;
+			/* Throwing the result to Ajax */
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			$this->xresponse(TRUE, ['id' => $result, 'message' => lang('success_plan_posting')]);
+		}
+	}
+	
+	function cf_ar_plan_unposting()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			if ($this->params->is_posted < 1)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_unposting')]);
+			
+			/* get invoice */
+			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['ar_ap_plan_id','is_active','is_deleted'], [$this->params->id,'1','0']);
+			/* unposting fail if invoice was actual */
+			if ($invoice->doc_date)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
+			
+			/* get cashbank */
+			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
+			/* unposting fail if plan has actual payment */
+			if ($cashbank)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
+			
+			/* Delete the record */
+			$result = $this->deleteRecords('cf_invoice', $invoice_id);
+			if (!$result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
 		}
 	}
 	
@@ -286,6 +367,10 @@ class Cashflow extends Getmeb
 				$this->imported_fields 	= ['ar_ap_id','account_id','bpartner_id','seq','doc_date','payment_plan_date','description','sub_amt','ttl_amt','vat_amt','note'];
 				$this->validation_fk 		= ['ar_ap_id' => 'cf_ar_ap', 'account_id' => 'cf_account', 'bpartner_id' => 'c_bpartner'];
 			}
+			if ($this->params->event == 'pre_put'){
+				if ($this->_is_posted(['ar_ap_plan_id' => $this->params->id]) > 0)
+					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
+			}
 			/* if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['is_plan'] = 1;
 				if (! $this->{$this->mdl}->cf_ar_ap_valid_amount($this->mixed_data)){ 
@@ -312,7 +397,8 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
+					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
+					// $this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
 				}
 			}
 			if ($this->params['event'] == 'post_delete'){
@@ -320,6 +406,72 @@ class Cashflow extends Getmeb
 				$this->params['ar_ap_id'] = $this->base_model->getValue('ar_ap_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->ar_ap_id;
 				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
 			}
+		}
+	}
+	
+	function cf_ap_plan_posting()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			if ($this->params->is_posted > 0)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_posting')]);
+			
+			/* get header data */
+			$header = $this->base_model->getValue('*', 'cf_ar_ap', 'id', $this->params->ar_ap_id);
+			/* required field */
+			$this->mixed_data['client_id'] = $header->client_id;
+			$this->mixed_data['org_id'] = $header->org_id;
+			$this->mixed_data['orgtrx_id'] = $header->orgtrx_id;
+			$this->mixed_data['is_receipt'] = '1';
+			$this->mixed_data['doc_type'] = '6';
+			$this->mixed_data['ar_ap_id'] = $this->params->ar_ap_id;
+			$this->mixed_data['ar_ap_plan_id'] = $this->params->id;
+			$this->mixed_data['bpartner_id'] = $this->params->bpartner_id;
+			$this->mixed_data['doc_no'] = $header->doc_no;
+			$this->mixed_data['note'] = $this->params->note;
+			$this->mixed_data['description'] = $this->params->description;
+			$this->mixed_data['account_id'] = $this->params->account_id;
+			$this->mixed_data['amount'] = $this->params->ttl_amt;
+			$this->mixed_data['adj_amount'] = 0;
+			$this->mixed_data['net_amount'] = $this->params->ttl_amt;
+			$this->mixed_data['invoice_plan_date'] = datetime_db_format($this->params->doc_date, $this->session->date_format, FALSE);
+			$this->mixed_data['payment_plan_date'] = datetime_db_format($this->params->payment_plan_date, $this->session->date_format, FALSE);
+			// debug($this->c_table);
+			
+			/* Insert the record */
+			$result = $this->insertRecord($this->c_table, $this->mixed_data);
+			$this->insert_id = $result;
+			/* Throwing the result to Ajax */
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			$this->xresponse(TRUE, ['id' => $result, 'message' => lang('success_plan_posting')]);
+		}
+	}
+	
+	function cf_ap_plan_unposting()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			if ($this->params->is_posted < 1)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_unposting')]);
+			
+			/* get invoice */
+			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['ar_ap_plan_id','is_active','is_deleted'], [$this->params->id,'1','0']);
+			/* unposting fail if invoice was actual */
+			if ($invoice->doc_date)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
+			
+			/* get cashbank */
+			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
+			/* unposting fail if plan has actual payment */
+			if ($cashbank)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
+			
+			/* Delete the record */
+			$result = $this->deleteRecords('cf_invoice', $invoice_id);
+			if (!$result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
 		}
 	}
 	
@@ -1537,6 +1689,10 @@ class Cashflow extends Getmeb
 				$this->imported_fields 	= ['order_id','seq','doc_date','amount','note','description','received_plan_date'];
 				$this->validation_fk 		= ['order_id' => 'cf_order'];
 			}
+			if ($this->params->event == 'pre_put'){
+				if ($this->_is_posted(['order_plan_id' => $this->params->id]) > 0)
+					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
+			}
 			if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['is_plan'] = 1;
 				if (! $this->{$this->mdl}->cf_order_valid_amount($this->mixed_data)){ 
@@ -1563,7 +1719,8 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
+					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
+					// $this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
 				}
 			}
 			if ($this->params['event'] == 'post_delete'){
@@ -1600,7 +1757,16 @@ class Cashflow extends Getmeb
 			$this->mixed_data['net_amount'] = $this->params->amount;
 			$this->mixed_data['invoice_plan_date'] = datetime_db_format($this->params->doc_date, $this->session->date_format, FALSE);
 			$this->mixed_data['received_plan_date'] = datetime_db_format($this->params->received_plan_date, $this->session->date_format, FALSE);
-			debug($this->mixed_data);
+			// debug($this->c_table);
+			
+			/* Insert the record */
+			$result = $this->insertRecord($this->c_table, $this->mixed_data);
+			$this->insert_id = $result;
+			/* Throwing the result to Ajax */
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			$this->xresponse(TRUE, ['id' => $result, 'message' => lang('success_plan_posting')]);
 		}
 	}
 	
@@ -1609,6 +1775,25 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'OPTIONS') {
 			if ($this->params->is_posted < 1)
 				$this->xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_unposting')]);
+			
+			/* get invoice */
+			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['order_plan_id','is_active','is_deleted'], [$this->params->id,'1','0']);
+			/* unposting fail if invoice was actual */
+			if ($invoice->doc_date)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
+			
+			/* get cashbank */
+			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
+			/* unposting fail if plan has actual payment */
+			if ($cashbank)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
+			
+			/* Delete the record */
+			$result = $this->deleteRecords('cf_invoice', $invoice_id);
+			if (!$result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
 		}
 	}
 	
@@ -1852,6 +2037,10 @@ class Cashflow extends Getmeb
 				$this->imported_fields 	= ['order_id','seq','doc_date','amount','note','description','payment_plan_date'];
 				$this->validation_fk 		= ['order_id' => 'cf_order'];
 			}
+			if ($this->params->event == 'pre_put'){
+				if ($this->_is_posted(['order_plan_id' => $this->params->id]) > 0)
+					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
+			}
 			if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['is_plan'] = 1;
 				if (! $this->{$this->mdl}->cf_order_valid_amount($this->mixed_data)){ 
@@ -1877,7 +2066,8 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
+					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
+					// $this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
 				}
 			}
 			if ($this->params['event'] == 'post_delete'){
@@ -1885,6 +2075,72 @@ class Cashflow extends Getmeb
 				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
+		}
+	}
+	
+	function cf_porder_plan_posting()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			if ($this->params->is_posted > 0)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_posting')]);
+			
+			/* get header data */
+			$header = $this->base_model->getValue('*', 'cf_order', 'id', $this->params->order_id);
+			/* required field */
+			$this->mixed_data['client_id'] = $header->client_id;
+			$this->mixed_data['org_id'] = $header->org_id;
+			$this->mixed_data['orgtrx_id'] = $header->orgtrx_id;
+			$this->mixed_data['is_receipt'] = '0';
+			$this->mixed_data['doc_type'] = '2';
+			$this->mixed_data['order_id'] = $this->params->order_id;
+			$this->mixed_data['order_plan_id'] = $this->params->id;
+			$this->mixed_data['bpartner_id'] = $header->bpartner_id;
+			$this->mixed_data['doc_no'] = $header->doc_no;
+			$this->mixed_data['note'] = $this->params->note;
+			$this->mixed_data['description'] = $this->params->description;
+			$this->mixed_data['account_id'] = 2;
+			$this->mixed_data['amount'] = $this->params->amount;
+			$this->mixed_data['adj_amount'] = 0;
+			$this->mixed_data['net_amount'] = $this->params->amount;
+			$this->mixed_data['invoice_plan_date'] = datetime_db_format($this->params->doc_date, $this->session->date_format, FALSE);
+			$this->mixed_data['payment_plan_date'] = datetime_db_format($this->params->payment_plan_date, $this->session->date_format, FALSE);
+			// debug($this->c_table);
+			
+			/* Insert the record */
+			$result = $this->insertRecord($this->c_table, $this->mixed_data);
+			$this->insert_id = $result;
+			/* Throwing the result to Ajax */
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			$this->xresponse(TRUE, ['id' => $result, 'message' => lang('success_plan_posting')]);
+		}
+	}
+	
+	function cf_porder_plan_unposting()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			if ($this->params->is_posted < 1)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_unposting')]);
+			
+			/* get invoice */
+			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['order_plan_id','is_active','is_deleted'], [$this->params->id,'1','0']);
+			/* unposting fail if invoice was actual */
+			if ($invoice->doc_date)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
+			
+			/* get cashbank */
+			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
+			/* unposting fail if plan has actual payment */
+			if ($cashbank)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
+			
+			/* Delete the record */
+			$result = $this->deleteRecords('cf_invoice', $invoice_id);
+			if (!$result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
 		}
 	}
 	
@@ -1934,6 +2190,10 @@ class Cashflow extends Getmeb
 				$this->imported_fields 	= ['order_id','seq','doc_date','amount','note','description','payment_plan_date'];
 				$this->validation_fk 		= ['order_id' => 'cf_order'];
 			}
+			if ($this->params->event == 'pre_put'){
+				if ($this->_is_posted(['order_plan_clearance_id' => $this->params->id]) > 0)
+					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
+			}
 			if ($this->params->event == 'post_post_put'){
 				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
 				$this->params->is_plan_cl = 1;
@@ -1960,6 +2220,72 @@ class Cashflow extends Getmeb
 				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
+		}
+	}
+	
+	function cf_porder_plan_clearance_posting()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			if ($this->params->is_posted > 0)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_posting')]);
+			
+			/* get header data */
+			$header = $this->base_model->getValue('*', 'cf_order', 'id', $this->params->order_id);
+			/* required field */
+			$this->mixed_data['client_id'] = $header->client_id;
+			$this->mixed_data['org_id'] = $header->org_id;
+			$this->mixed_data['orgtrx_id'] = $header->orgtrx_id;
+			$this->mixed_data['is_receipt'] = '0';
+			$this->mixed_data['doc_type'] = '3';
+			$this->mixed_data['order_id'] = $this->params->order_id;
+			$this->mixed_data['order_plan_clearance_id'] = $this->params->id;
+			$this->mixed_data['bpartner_id'] = $header->bpartner_id;
+			$this->mixed_data['doc_no'] = $header->doc_no;
+			$this->mixed_data['note'] = $this->params->note;
+			$this->mixed_data['description'] = $this->params->description;
+			$this->mixed_data['account_id'] = 2;
+			$this->mixed_data['amount'] = $this->params->amount;
+			$this->mixed_data['adj_amount'] = 0;
+			$this->mixed_data['net_amount'] = $this->params->amount;
+			$this->mixed_data['invoice_plan_date'] = datetime_db_format($this->params->doc_date, $this->session->date_format, FALSE);
+			$this->mixed_data['payment_plan_date'] = datetime_db_format($this->params->payment_plan_date, $this->session->date_format, FALSE);
+			// debug($this->c_table);
+			
+			/* Insert the record */
+			$result = $this->insertRecord($this->c_table, $this->mixed_data);
+			$this->insert_id = $result;
+			/* Throwing the result to Ajax */
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			$this->xresponse(TRUE, ['id' => $result, 'message' => lang('success_plan_posting')]);
+		}
+	}
+	
+	function cf_porder_plan_clearance_unposting()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			if ($this->params->is_posted < 1)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_unposting')]);
+			
+			/* get invoice */
+			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['order_plan_clearance_id','is_active','is_deleted'], [$this->params->id,'1','0']);
+			/* unposting fail if invoice was actual */
+			if ($invoice->doc_date)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
+			
+			/* get cashbank */
+			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
+			/* unposting fail if plan has actual payment */
+			if ($cashbank)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
+			
+			/* Delete the record */
+			$result = $this->deleteRecords('cf_invoice', $invoice_id);
+			if (!$result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
 		}
 	}
 	
@@ -2009,6 +2335,10 @@ class Cashflow extends Getmeb
 				$this->imported_fields 	= ['order_id','seq','doc_date','amount','note','description','payment_plan_date'];
 				$this->validation_fk 		= ['order_id' => 'cf_order'];
 			}
+			if ($this->params->event == 'pre_put'){
+				if ($this->_is_posted(['order_plan_import_id' => $this->params->id]) > 0)
+					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
+			}
 			if ($this->params->event == 'post_post_put'){
 				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
 				$this->params->is_plan_im = 1;
@@ -2035,6 +2365,72 @@ class Cashflow extends Getmeb
 				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
+		}
+	}
+	
+	function cf_porder_plan_import_posting()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			if ($this->params->is_posted > 0)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_posting')]);
+			
+			/* get header data */
+			$header = $this->base_model->getValue('*', 'cf_order', 'id', $this->params->order_id);
+			/* required field */
+			$this->mixed_data['client_id'] = $header->client_id;
+			$this->mixed_data['org_id'] = $header->org_id;
+			$this->mixed_data['orgtrx_id'] = $header->orgtrx_id;
+			$this->mixed_data['is_receipt'] = '0';
+			$this->mixed_data['doc_type'] = '4';
+			$this->mixed_data['order_id'] = $this->params->order_id;
+			$this->mixed_data['order_plan_import_id'] = $this->params->id;
+			$this->mixed_data['bpartner_id'] = $header->bpartner_id;
+			$this->mixed_data['doc_no'] = $header->doc_no;
+			$this->mixed_data['note'] = $this->params->note;
+			$this->mixed_data['description'] = $this->params->description;
+			$this->mixed_data['account_id'] = 2;
+			$this->mixed_data['amount'] = $this->params->amount;
+			$this->mixed_data['adj_amount'] = 0;
+			$this->mixed_data['net_amount'] = $this->params->amount;
+			$this->mixed_data['invoice_plan_date'] = datetime_db_format($this->params->doc_date, $this->session->date_format, FALSE);
+			$this->mixed_data['payment_plan_date'] = datetime_db_format($this->params->payment_plan_date, $this->session->date_format, FALSE);
+			// debug($this->c_table);
+			
+			/* Insert the record */
+			$result = $this->insertRecord($this->c_table, $this->mixed_data);
+			$this->insert_id = $result;
+			/* Throwing the result to Ajax */
+			if (! $result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			$this->xresponse(TRUE, ['id' => $result, 'message' => lang('success_plan_posting')]);
+		}
+	}
+	
+	function cf_porder_plan_import_unposting()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			if ($this->params->is_posted < 1)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_unposting')]);
+			
+			/* get invoice */
+			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['order_plan_import_id','is_active','is_deleted'], [$this->params->id,'1','0']);
+			/* unposting fail if invoice was actual */
+			if ($invoice->doc_date)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
+			
+			/* get cashbank */
+			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
+			/* unposting fail if plan has actual payment */
+			if ($cashbank)
+				$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
+			
+			/* Delete the record */
+			$result = $this->deleteRecords('cf_invoice', $invoice_id);
+			if (!$result)
+				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			else
+				$this->xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
 		}
 	}
 	

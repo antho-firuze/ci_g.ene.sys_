@@ -32,6 +32,10 @@
 	var DataTable_Init = {
 		enable: true,
 		act_menu: { copy: true, edit: true, delete: true },
+		add_menu: [
+			{ name: 'posting', title: 'Posting' }, 
+			{ name: 'unposting', title: 'UnPosting' }, 
+		],
 		sub_menu: [
 			{* { pageid: 99, subKey: 'order_id', title: 'Order Line', }, *}
 			{* { pageid: 100, subKey: 'order_id', title: 'Order Plan' }, *}
@@ -44,6 +48,7 @@
 			{ width:"150px", orderable:false, data:"note", title:"Payment Type" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
+			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_posted", title:"Posted", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 		order: ['seq'],
 	};

@@ -81,3 +81,11 @@
 
 </script>
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>
+<script>
+	$(document).ready(function(){
+		setTimeout(function(){
+			if ($data.is_posted > 0)
+				box1.find('.box-body form').before(BSHelper.Callout({ type:"danger", title:"POSTED !", description:"You can edit/delete this plan after unposting !" }));
+		}, 1000);
+	});	
+</script>

@@ -9,6 +9,7 @@
  */
 /* Get Params */
 var $id = getURLParameter("id"), $act = getURLParameter("action"), $filter = getURLParameter("filter");
+var $data;
 /* 
 /* ========================================= */
 /* Default init for Header									 */
@@ -36,6 +37,7 @@ $( document ).ready(function() {
 	if(typeof(auto_populate)==='undefined') auto_populate = true;
 	if (auto_populate){
 		$.getJSON($url_module, { "id": ($id==null)?-1:$id }, function(result){ 
+			$data = result.data.rows[0];
 			if (!isempty_obj(result.data.rows)) 
 				$('form').shollu_autofill('load', result.data.rows[0]);  
 				$('form').validator('update');

@@ -48,7 +48,7 @@
 			{ width:"150px", orderable:false, data:"note", title:"Payment Type" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_posted", title:"isPosted", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_posted", title:"Posted", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 		order: ['seq'],
 	};
@@ -104,5 +104,29 @@
 			}
 		});
 	}
+	
+	function unposting(data)
+	{
+		$.ajax({ url: $url_module+'_unposting', method: "OPTIONS", async: true, dataType: 'json', data: JSON.stringify(data),
+			success: function(data) {
+				BootstrapDialog.show({ closable: false, message:data.message, 
+					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); window.history.back(); } }],
+				});
+				dataTable1.ajax.reload( null, false );
+			},
+			error: function(data) {
+				if (data.status==500){
+					var message = data.statusText;
+				} else {
+					var error = JSON.parse(data.responseText);
+					var message = error.message;
+				}
+				BootstrapDialog.show({ closable: false, type:'modal-danger', title:'Notification', message:message, 
+					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); window.history.back(); } }],
+				});
+			}
+		});
+	}
+	
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>

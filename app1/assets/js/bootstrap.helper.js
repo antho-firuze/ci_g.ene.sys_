@@ -56,6 +56,70 @@
 							'</div>');
 	}
 	
+	BSHelper.Alert = function(options){
+		var default_opts = {
+			type: '',	// danger, info, warning, success
+			title: '',
+			description: '',
+			icon: '',
+		}
+		var o = $.extend( {}, default_opts, options );
+		switch (o.type){
+		case 'info':
+			o.icon = '<i class="icon fa fa-info"></i>';
+			break;
+		case 'warning':
+			o.icon = '<i class="icon fa fa-warning"></i>';
+			break;
+		case 'success':
+			o.icon = '<i class="icon fa fa-check"></i>';
+			break;
+		case 'danger':
+			o.icon = '<i class="icon fa fa-ban"></i>';
+			break;
+		default:
+			o.icon = '<i class="icon fa fa-info"></i>';
+			break;
+		}
+		
+		return $('<div class="alert alert-'+o.type+'">'+
+								'<h4>'+o.icon+o.title+'</h4>'+
+								'<p>'+o.description+'</p>'+
+							'</div>');
+	}
+	
+	BSHelper.Callout = function(options){
+		var default_opts = {
+			type: '',	// danger, info, warning, success
+			title: '',
+			description: '',
+			icon: '',
+		}
+		var o = $.extend( {}, default_opts, options );
+		switch (o.type){
+		case 'info':
+			o.icon = '<i class="icon fa fa-info"></i>';
+			break;
+		case 'warning':
+			o.icon = '<i class="icon fa fa-warning"></i>';
+			break;
+		case 'success':
+			o.icon = '<i class="icon fa fa-check"></i>';
+			break;
+		case 'danger':
+			o.icon = '<i class="icon fa fa-ban"></i>';
+			break;
+		default:
+			o.icon = '<i class="icon fa fa-info"></i>';
+			break;
+		}
+		
+		return $('<div class="callout callout-'+o.type+'">'+
+								'<h4>'+o.title+'</h4>'+
+								'<p>'+o.description+'</p>'+
+							'</div>');
+	}
+	
 	BSHelper.PageHeader = function(options){
 		var default_opts = {
 			cls: '',

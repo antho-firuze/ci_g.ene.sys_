@@ -31,4 +31,7 @@ $lang['error_downloading_report'] 		= "Error: Downloading report file [%s] faile
 $lang['error_filling_params'] 		= "Error: Please fill one of the columns !";
 $lang['error_filling_params'] 		= "Error: Please fill one of the columns !";
 $lang['error_plan_had_invoiced'] 		= "Error: Cannot delete plan, because this plan has invoiced. <br>Plase Delete Invoice first for this Plan !<br><br>Invoice no: %s";
+$lang['error_plan_had_posted'] 		= "Error: Cannot edit/delete plan, because this plan has been posted. <br><br>You can edit/delete this plan after unposting them !";
+$lang['error_unpost_plan_has_actual'] 		= "Error: Cannot unposting plan, because Invoice Plan has been Actualization !";
+$lang['error_unpost_plan_has_payment'] 		= "Error: Cannot unposting plan, because this plan has Actual Payment !";
 /* Information: info_ */
