@@ -38,6 +38,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/textfill/jquery.textfill.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Start :: Init for Title, Breadcrumb *}
@@ -102,6 +103,8 @@
 				});
 			}
 		}
+		{* console.log($('div.small-box h3').html()); *}
+		$('div.small-box div.inner').textfill({	maxFontPixels: 38 });
 	});
 	
 	function qemail(){
