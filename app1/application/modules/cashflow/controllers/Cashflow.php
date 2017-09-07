@@ -2468,11 +2468,11 @@ class Cashflow extends Getmeb
 			if (isset($this->params['for_requisition']) && !empty($this->params['for_requisition'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
 					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-					/* $this->params['where_custom'] = "exists(
+					$this->params['where_custom'] = "exists(
 						select distinct(request_id) 
 						from cf_request_line f1 where is_active = '1' and is_deleted = '0' and f1.request_id = t1.id and 
 						not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and request_line_id = f1.id)
-					)"; */
+					)";
 					/* $this->params['where_custom'] = "exists(
 						select distinct(request_id) 
 						from cf_request_line f1 left join cf_movement_line f2 on f1.id = f2.request_line_id and f2.is_active = '1' and f2.is_deleted = '0' 
@@ -2482,11 +2482,11 @@ class Cashflow extends Getmeb
 						from cf_request_line f1 left join cf_requisition_line f2 on f1.id = f2.request_line_id and f2.is_active = '1' and f2.is_deleted = '0' 
 						where f1.is_active = '1' and f1.is_deleted = '0' and f2.request_line_id is null and f1.request_id = t1.id
 					)"; */
-					$this->params['where_custom'] = "exists(
+					/* $this->params['where_custom'] = "exists(
 						select distinct(request_id) 
 						from cf_request_line f1 left join cf_movement_line f2 on f1.id = f2.request_line_id and f2.is_active = '1' and f2.is_deleted = '0' 
 						where f1.is_active = '1' and f1.is_deleted = '0' and f2.request_line_id is null and f1.request_id = t1.id
-					)";
+					)"; */
 				}
 			}
 			
