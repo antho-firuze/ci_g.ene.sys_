@@ -65,6 +65,8 @@
 		onSelect: function(rowData){
 			$("#so_etd").val(rowData.etd);
 			$("#bpartner_id").shollu_cb("setValue", rowData.bpartner_id);
+			console.log(rowData.orgtrx_id);
+			$("#orgtrx_id").shollu_cb("setValue", rowData.orgtrx_id);
 		}
 	});
 	

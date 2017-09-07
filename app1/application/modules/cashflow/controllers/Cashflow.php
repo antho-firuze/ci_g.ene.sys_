@@ -421,7 +421,7 @@ class Cashflow extends Getmeb
 			$this->mixed_data['client_id'] = $header->client_id;
 			$this->mixed_data['org_id'] = $header->org_id;
 			$this->mixed_data['orgtrx_id'] = $header->orgtrx_id;
-			$this->mixed_data['is_receipt'] = '1';
+			$this->mixed_data['is_receipt'] = '0';
 			$this->mixed_data['doc_type'] = '6';
 			$this->mixed_data['ar_ap_id'] = $this->params->ar_ap_id;
 			$this->mixed_data['ar_ap_plan_id'] = $this->params->id;
