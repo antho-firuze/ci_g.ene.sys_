@@ -1029,7 +1029,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'pre_delete'){
 				/* get cashbank */
-				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params->id,'1','0']);
+				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params['id'],'1','0']);
 				/* delete fail if invoice has actual payment */
 				if ($cashbank)
 					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')], 401);
@@ -1155,7 +1155,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'pre_delete'){
 				/* get cashbank */
-				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params->id,'1','0']);
+				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params['id'],'1','0']);
 				/* delete fail if invoice has actual payment */
 				if ($cashbank)
 					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')], 401);
@@ -1257,7 +1257,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'pre_delete'){
 				/* get cashbank */
-				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params->id,'1','0']);
+				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params['id'],'1','0']);
 				/* delete fail if invoice has actual payment */
 				if ($cashbank)
 					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')], 401);
@@ -1361,7 +1361,7 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'pre_delete'){
 				/* get cashbank */
-				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params->id,'1','0']);
+				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params['id'],'1','0']);
 				/* delete fail if invoice has actual payment */
 				if ($cashbank)
 					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')], 401);
