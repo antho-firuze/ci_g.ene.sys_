@@ -136,7 +136,7 @@ class Cashflow_Model extends CI_Model
 		
 		$id = isset($params->id) && $params->id ? 'and t2.id <> '.$params->id : '';
 		$invoice_id = $params->invoice_id;
-		$str = "SELECT (amount - (select coalesce(sum(amount),0) from cf_cashbank_line t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.invoice_id = t1.id $id)) as amount 
+		$str = "SELECT (net_amount - (select coalesce(sum(amount),0) from cf_cashbank_line t2 where t2.is_active = '1' and t2.is_deleted = '0' and t2.invoice_id = t1.id $id)) as amount 
 			from cf_invoice t1 where t1.id = $invoice_id";
 		$row = $this->db->query($str)->row();
 		if ($row->amount - $params->amount < 0) {
