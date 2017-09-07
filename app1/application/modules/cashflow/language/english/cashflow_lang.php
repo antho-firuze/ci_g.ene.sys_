@@ -34,4 +34,5 @@ $lang['error_plan_had_invoiced'] 		= "Error: Cannot delete plan, because this pl
 $lang['error_plan_had_posted'] 		= "Error: Cannot edit/delete plan, because this plan has been posted. <br><br>You can edit/delete this plan after unposting them !";
 $lang['error_unpost_plan_has_actual'] 		= "Error: Cannot unposting plan, because Invoice Plan has been Actualization !";
 $lang['error_unpost_plan_has_payment'] 		= "Error: Cannot unposting plan, because this plan has Actual Payment !";
+$lang['error_delete_invoice_has_payment'] 		= "Error: Cannot delete invoice, because this invoice has Actual Payment !";
 /* Information: info_ */

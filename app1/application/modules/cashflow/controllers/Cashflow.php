@@ -1027,10 +1027,19 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'pre_delete'){
+				/* get cashbank */
+				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params->id,'1','0']);
+				/* delete fail if invoice has actual payment */
+				if ($cashbank)
+					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')], 401);
+			}
+		}
+		/* if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
 			}
-		}
+		} */
 	}
 	
 	function cf_oinvoice_i_actualization()
@@ -1144,10 +1153,19 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'pre_delete'){
+				/* get cashbank */
+				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params->id,'1','0']);
+				/* delete fail if invoice has actual payment */
+				if ($cashbank)
+					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')], 401);
+			}
+		}
+		/* if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
 			}
-		}
+		} */
 	}
 	
 	function cf_oinvoice_o_actualization()
@@ -1236,11 +1254,15 @@ class Cashflow extends Getmeb
 				$this->mixed_data['account_id'] = 1;
 			}
 		}
-		/* if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
-				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'pre_delete'){
+				/* get cashbank */
+				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params->id,'1','0']);
+				/* delete fail if invoice has actual payment */
+				if ($cashbank)
+					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')], 401);
 			}
-		} */
+		}
 	}
 	
 	function cf_sinvoice_actualization()
@@ -1336,11 +1358,15 @@ class Cashflow extends Getmeb
 				} 
 			}
 		}
-		/* if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
-				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'pre_delete'){
+				/* get cashbank */
+				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params->id,'1','0']);
+				/* delete fail if invoice has actual payment */
+				if ($cashbank)
+					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')], 401);
 			}
-		} */
+		}
 	}
 	
 	function cf_pinvoice_actualization()
