@@ -1218,7 +1218,7 @@ class Cashflow extends Getmeb
 			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
 					// debug($this->params);
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.net_amount';
 					$this->params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
 						and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
 				}
@@ -1314,7 +1314,7 @@ class Cashflow extends Getmeb
 			
 			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.net_amount';
 					$this->params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
 						and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
 				}
