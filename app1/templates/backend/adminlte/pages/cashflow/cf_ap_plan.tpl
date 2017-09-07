@@ -82,5 +82,52 @@
 				form1.shollu_autofill('load', result.data);  
 		});
 	}
+
+	function posting(data)
+	{
+		$.ajax({ url: $url_module+'_posting', method: "OPTIONS", async: true, dataType: 'json', data: JSON.stringify(data),
+			success: function(data) {
+				BootstrapDialog.show({ closable: false, message:data.message, 
+					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); window.history.back(); } }],
+				});
+				dataTable1.ajax.reload( null, false );
+			},
+			error: function(data) {
+				if (data.status==500){
+					var message = data.statusText;
+				} else {
+					var error = JSON.parse(data.responseText);
+					var message = error.message;
+				}
+				BootstrapDialog.show({ closable: false, type:'modal-danger', title:'Notification', message:message, 
+					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); window.history.back(); } }],
+				});
+			}
+		});
+	}
+	
+	function unposting(data)
+	{
+		$.ajax({ url: $url_module+'_unposting', method: "OPTIONS", async: true, dataType: 'json', data: JSON.stringify(data),
+			success: function(data) {
+				BootstrapDialog.show({ closable: false, message:data.message, 
+					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); window.history.back(); } }],
+				});
+				dataTable1.ajax.reload( null, false );
+			},
+			error: function(data) {
+				if (data.status==500){
+					var message = data.statusText;
+				} else {
+					var error = JSON.parse(data.responseText);
+					var message = error.message;
+				}
+				BootstrapDialog.show({ closable: false, type:'modal-danger', title:'Notification', message:message, 
+					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); window.history.back(); } }],
+				});
+			}
+		});
+	}
+	
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>

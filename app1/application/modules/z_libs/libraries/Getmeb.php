@@ -1013,7 +1013,7 @@ class Getmeb extends CI_Controller
 		return ['filename' => $filezip, 'filepath' => $this->rel_tmp_dir.$filezip, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filezip];
 	}
 	
-	function _get_menu_child($parent_id, $menu = array(), $active_only = TRUE)
+	/* function _get_menu_child($parent_id, $menu = array(), $active_only = TRUE)
 	{
 		$active_only = $active_only ? "and is_active = '1'" : "";
 		$str = "select * from a_menu where is_submodule = '0' $active_only and is_deleted = '0' and parent_id = $parent_id order by is_parent desc, line_no";
@@ -1023,31 +1023,36 @@ class Getmeb extends CI_Controller
 			$menu = $this->_get_menu_child($v->id, $menu);
 		}
 		return $menu;
-	}
+	} */
 	
-	function _get_menu($active_only = TRUE)
+	function _get_menu($active_only = TRUE, $parent_id = 0)
 	{
 		$menu = [];
 		/* get menu level 0 : not include dashboard (id <> 1)*/
-		$active_only = $active_only ? "and is_active = '1'" : "";
-		$str = "select * from (
-			select * from a_menu where is_parent = '1' and is_submodule = '0' $active_only and is_deleted = '0' and (parent_id = 0 or parent_id is null)
-			union
-			select * from a_menu where is_parent = '0' and is_submodule = '0' $active_only and is_deleted = '0' and (parent_id = 0 or parent_id is null) and id <> 1
-		) as lvl0 order by is_parent desc, line_no";
+		$active = $active_only ? "and is_active = '1'" : "";
+		if (empty($parent_id)) {
+			$str = "select * from a_menu where is_submodule = '0' $active and is_deleted = '0' and (parent_id = 0 or parent_id is null) order by parent_id, line_no";
+		} else {
+			$str = "select * from a_menu where is_submodule = '0' $active and is_deleted = '0' and parent_id = $parent_id order by is_parent desc, line_no";
+		}
 		$qry = $this->db->query($str);
 		foreach($qry->result() as $k => $v){
 			$menu[] = $v;
-			$menu = $this->_get_menu_child($v->id, $menu);
+			// $menu = $this->_get_menu_child($v->id, $menu);
+			$menu = $this->_get_menu($active_only, $v->id, $menu);
 		}
 		return $menu;
 	}
 	
 	function _reorder_dashboard()
 	{
+		
 		$line = 1; $lineh = 1; $parent_id = -1;
 		
 		foreach($this->_get_menu(FALSE) as $k => $v){
+			
+			
+			
 			if ($v->is_parent == 1){
 				if ($parent_id != $v->parent_id){
 					$line = 1;
@@ -1063,9 +1068,21 @@ class Getmeb extends CI_Controller
 		}
 	}
 
-	function _reorder_menu()
+	function _reorder_menu($parent_id)
 	{
-		$line = 1; $lineh = 1; $parent_id = -1;
+		if (empty($parent_id)) {
+			$str = "select * from a_menu where is_deleted = '0' and (parent_id = 0 or parent_id is null) order by parent_id, line_no, is_submodule";
+		} else {
+			$str = "select * from a_menu where is_deleted = '0' and parent_id = $parent_id order by is_parent desc, line_no, is_submodule";
+		}
+		$qry = $this->db->query($str);
+		$line = 1;
+		foreach($qry->result() as $k => $v){
+			$this->db->update('a_menu', ['line_no' => $line], ['id' => $v->id]);
+			$line++;
+		}
+		
+		/* $line = 1; $lineh = 1; $parent_id = -1;
 		foreach($this->_get_menu(FALSE) as $k => $v){
 			if ($v->is_parent == 1){
 				if ($parent_id != $v->parent_id){
@@ -1079,7 +1096,7 @@ class Getmeb extends CI_Controller
 			}
 			$this->db->update('a_menu', ['line_no' => $line], ['id' => $v->id]);
 			$line++;
-		}
+		} */
 	}
 	
 	/* 

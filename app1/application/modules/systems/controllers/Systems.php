@@ -1079,7 +1079,7 @@ class Systems extends Getmeb
 					if (!$result = $this->updateRecord($this->c_method, ['line_no' => $this->params->newline], ['id' => $this->params->id], FALSE))
 						$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 					else {
-						$this->_reorder_menu();
+						$this->_reorder_menu($this->params->parent_id);
 						$this->xresponse(TRUE, ['message' => $this->messages()]);
 					}
 				}
