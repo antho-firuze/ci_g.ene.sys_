@@ -51,12 +51,25 @@
 		return $('<div class="col-lg-3 col-xs-6">'+
 								'<div class="small-box '+o.color+'" data-toggle="tooltip" data-placement="bottom" title="'+(o.tooltip ? o.tooltip : '')+'">'+
 									'<div class="pull-right"><span data-toggle="tooltip" class="badge bg-yellow" data-original-title="Number #'+o.seq+'">'+o.seq+'</span></div>'+
-									'<div class="inner"><h3><span>'+o.value+'</span></h3><p style="white-space: nowrap;">'+o.title+'</p></div>'+
+									'<div class="inner">'+
+										'<div class="val"><h3><span>'+o.value+'</span></h3></div>'+
+										'<div class="title"><p style="white-space: nowrap;"><span>'+o.title+'</span></p></div>'+
+									'</div>'+ 
 									'<div class="icon"><i class="'+o.icon+'"></i></div>'+
 									link +
 								'</div>'+
 							'</div>');
 	}
+									/* 
+									'<div class="inner">'+
+										'<h3><span>'+o.value+'</span></h3>'+
+										'<p style="white-space: nowrap;">'+o.title+'</p>'+
+									'</div>'+
+									'<div class="inner">'+
+										'<div class="val"><h3><span>'+o.value+'</span></h3></div>'+
+										'<div class="title"><p style="white-space: nowrap;"><span>'+o.title+'</span></p></div>'+
+									'</div>'+ 
+									*/
 	
 	BSHelper.Alert = function(options){
 		var default_opts = {

@@ -104,7 +104,8 @@
 			}
 		}
 		{* console.log($('div.small-box h3').html()); *}
-		$('div.small-box div.inner').textfill({	maxFontPixels: 38 });
+		$('div.small-box div.val').textfill({	maxFontPixels: 38 });
+		$('div.small-box div.title').textfill({	maxFontPixels: 15 });
 	});
 	
 	function qemail(){

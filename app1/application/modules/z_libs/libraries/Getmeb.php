@@ -1044,30 +1044,6 @@ class Getmeb extends CI_Controller
 		return $menu;
 	}
 	
-	function _reorder_dashboard()
-	{
-		
-		$line = 1; $lineh = 1; $parent_id = -1;
-		
-		foreach($this->_get_menu(FALSE) as $k => $v){
-			
-			
-			
-			if ($v->is_parent == 1){
-				if ($parent_id != $v->parent_id){
-					$line = 1;
-					$lineh = 1;
-				}
-				$this->db->update('a_dashboard', ['line_no' => $lineh], ['id' => $v->id]);
-				$lineh++;
-				$parent_id = $v->parent_id;
-				continue;
-			}
-			$this->db->update('a_dashboard', ['line_no' => $line], ['id' => $v->id]);
-			$line++;
-		}
-	}
-
 	function _reorder_menu($parent_id)
 	{
 		if (empty($parent_id)) {
@@ -1081,22 +1057,17 @@ class Getmeb extends CI_Controller
 			$this->db->update('a_menu', ['line_no' => $line], ['id' => $v->id]);
 			$line++;
 		}
-		
-		/* $line = 1; $lineh = 1; $parent_id = -1;
-		foreach($this->_get_menu(FALSE) as $k => $v){
-			if ($v->is_parent == 1){
-				if ($parent_id != $v->parent_id){
-					$line = 1;
-					$lineh = 1;
-				}
-				$this->db->update('a_menu', ['line_no' => $lineh], ['id' => $v->id]);
-				$lineh++;
-				$parent_id = $v->parent_id;
-				continue;
-			}
-			$this->db->update('a_menu', ['line_no' => $line], ['id' => $v->id]);
+	}
+	
+	function _reorder_dashboard($role_id)
+	{
+		$str = "select t1.* from a_role_dashboard t1 left join a_dashboard t2 on t1.dashboard_id = t2.id where t1.is_deleted = '0' and role_id = $role_id order by t2.type, t1.seq";
+		$qry = $this->db->query($str);
+		$line = 1;
+		foreach($qry->result() as $k => $v){
+			$this->db->update('a_role_dashboard', ['seq' => $line], ['id' => $v->id]);
 			$line++;
-		} */
+		}
 	}
 	
 	/* 

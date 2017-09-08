@@ -53,6 +53,7 @@ if ( ! function_exists('translate_variable'))
 			'{org_id}'		=> $ci->session->org_id,
 			'{orgtrx_id}'		=> $ci->session->orgtrx_id,
 			'{orgtrx}'		=> '('.implode(',', get_orgtrx()).')',
+			'{role_id}'		=> $ci->session->role_id,
 		);
 		
 		return str_replace(array_keys($vars), $vars, $str);
