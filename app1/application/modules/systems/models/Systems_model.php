@@ -383,7 +383,7 @@ class Systems_Model extends CI_model
 	
 	function dashboard1($params)
 	{
-		$params['select']	= "t2.*";
+		$params['select']	= "t2.*, t1.seq";
 		$params['table'] 	= "a_role_dashboard t1";
 		$params['join'][] 	= ['a_dashboard t2', 't2.id = t1.dashboard_id', 'left'];
 		$params['where']['t1.role_id'] = $this->session->role_id;

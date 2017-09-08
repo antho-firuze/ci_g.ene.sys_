@@ -44,11 +44,13 @@
 			value: 0,
 			icon: '',
 			link: '',
+			seq: 0,
 		}
 		var o = $.extend( {}, default_opts, options );
 		var link = o.link ? '<a href="'+o.link+'" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>' : '<div class="small-box-footer">&nbsp;</div>';
 		return $('<div class="col-lg-3 col-xs-6">'+
 								'<div class="small-box '+o.color+'" data-toggle="tooltip" data-placement="bottom" title="'+(o.tooltip ? o.tooltip : '')+'">'+
+									'<div class="pull-right"><span data-toggle="tooltip" class="badge bg-yellow" data-original-title="Number #'+o.seq+'">'+o.seq+'</span></div>'+
 									'<div class="inner"><h3><span>'+o.value+'</span></h3><p style="white-space: nowrap;">'+o.title+'</p></div>'+
 									'<div class="icon"><i class="'+o.icon+'"></i></div>'+
 									link +
