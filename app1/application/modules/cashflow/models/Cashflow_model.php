@@ -956,10 +956,11 @@ class Cashflow_Model extends CI_Model
 			select *, (select received_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id),
 			(select f2.doc_no as voucher_no from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id) from cf_invoice t1 
 			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 			is_active = '1' and is_deleted = '0' and is_receipt = '1' and extract(month from received_plan_date) = extract(month from current_date) and 
 			received_plan_date < (select received_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id)
 			) t1";
+		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -1236,7 +1237,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 
-	function db_late_so_etd_to_customer($params)
+	function db_unmatch_so_etd_vs_planner_etd($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -1248,9 +1249,9 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, 
 		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
 		$params['table'] 	= "(
-			select * from cf_order
-			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and to_char(expected_dt_cust, 'YYYY-MM') = to_char(current_date, 'YYYY-MM') and 
-			is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust
+		select * from cf_order where 
+		client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and to_char(expected_dt_cust, 'YYYY-MM') = to_char(current_date, 'YYYY-MM') and 
+		is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust
 		) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
@@ -1269,7 +1270,122 @@ class Cashflow_Model extends CI_Model
 			select * from cf_invoice t1 where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 			is_active = '1' and is_deleted = '0' and is_receipt = '1' and doc_type = '1' and 
-			invoice_plan_date <= current_date and doc_date is null
+			received_plan_date <= current_date and doc_date is null
+			) t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+
+	function db_outstanding_invoice_customer_by_amount($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top,
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
+		$params['table'] 	= "(
+			select *, (select id as cashbank_line_id from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id ) from cf_invoice f1 where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+			is_active='1' and is_deleted='0' and received_plan_date <= current_date and
+			doc_type in ('1') 
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
+			) t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+
+	function db_outstanding_invoice_vendor_by_amount($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select po_top from c_bpartner where id = t1.bpartner_id) as po_top,
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name,case 
+		when (t1.doc_type = '2') then 'vendor' 
+		when (t1.doc_type = '3') then 'Clearence'
+		when (t1.doc_type = '4') then 'Custom Duty'
+		else ''
+		end as document_type";
+		$params['table'] 	= "(
+		select *, (select id as cashbank_line_id from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
+		from cf_invoice f1 where  
+		client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+		is_active='1' and is_deleted='0' and payment_plan_date <= current_date and
+		doc_type in ('2','3','4') 
+		and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
+		) t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+
+	function db_outstanding_invoice_other_outflow_by_amount($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select po_top from c_bpartner where id = t1.bpartner_id) as po_top,
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
+		$params['table'] 	= "(
+			select *, (select id as cashbank_line_id from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id ) from cf_invoice f1 where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+			is_active='1' and is_deleted='0' and received_plan_date <= current_date and
+			doc_type in ('6') 
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
+			) t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+
+	function db_outstanding_invoice_other_inflow_by_amount($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top,
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
+		$params['table'] 	= "(
+			select *, (select id as cashbank_line_id from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id ) from cf_invoice f1 where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+			is_active='1' and is_deleted='0' and received_plan_date <= current_date and
+			doc_type in ('5') 
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
+			) t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+
+	function db_late_invoice_vs_bank_payment($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select po_top from c_bpartner where id = t1.bpartner_id) as po_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
+		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date,
+		to_char(t1.received_date, '".$this->session->date_format."') as received_date";
+		$params['table'] 	= "(
+			select *, (select received_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id),
+			(select f2.doc_no as voucher_no from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id) from cf_invoice t1 
+			where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+			is_active = '1' and is_deleted = '0' and is_receipt = '0' and extract(month from received_plan_date) = extract(month from current_date) and 
+			received_plan_date < (select received_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id)
 			) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
