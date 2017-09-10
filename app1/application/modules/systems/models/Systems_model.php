@@ -124,7 +124,9 @@ class Systems_Model extends CI_model
 	
 	function a_user_org($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, (select count(user_org_id) from a_user where id = t1.user_id and user_org_id = t1.id) as is_default";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_user where id = t1.user_id) as user_name,
+		t1.*, (select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, (select count(user_org_id) from a_user where id = t1.user_id and user_org_id = t1.id) as is_default";
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
 			$params['join'][] = ['a_org as t2', 't1.org_id = t2.id', 'left'];
@@ -136,7 +138,9 @@ class Systems_Model extends CI_model
 	
 	function a_user_orgtrx($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.is_active, t1.org_id, (select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, (select coalesce(code,'') ||'_'|| name from a_user where id = t1.user_id) as user_name, (select coalesce(x2.code,'') ||'_'|| x2.name from a_user_org x1 inner join a_org x2 on x1.org_id = x2.id where x1.id = t1.user_org_id) as org_name";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select (select name from a_org f2 where f2.id = f1.org_id) from a_user_org f1 where f1.id = t1.user_org_id) as user_org_name,
+		t1.id, t1.is_active, t1.org_id, (select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, (select coalesce(code,'') ||'_'|| name from a_user where id = t1.user_id) as user_name, (select coalesce(x2.code,'') ||'_'|| x2.name from a_user_org x1 inner join a_org x2 on x1.org_id = x2.id where x1.id = t1.user_org_id) as org_name";
 		$params['table'] 	= $this->c_method." as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
 			$params['join'][] = ['a_org as t2', 't1.org_id = t2.id', 'left'];
@@ -149,7 +153,9 @@ class Systems_Model extends CI_model
 	
 	function a_user_role($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select coalesce(code,'') ||'_'|| name from a_role where id = t1.role_id) as code_name, (select count(user_role_id) from a_user where id = t1.user_id and user_role_id = t1.id) as is_default";
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_user where id = t1.user_id) as user_name,
+		t1.*, (select coalesce(code,'') ||'_'|| name from a_role where id = t1.role_id) as code_name, (select count(user_role_id) from a_user where id = t1.user_id and user_role_id = t1.id) as is_default";
 		$params['table'] 	= $this->c_method." as t1";
 		// $params['table'] 	= $this->c_table." as t1";
 		// $params['table'] 	= "a_user_role as t1";
@@ -237,7 +243,13 @@ class Systems_Model extends CI_model
 	
 	function a_role_menu($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.menu_id, t2.code, t2.name, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t2.is_parent, (select coalesce(code,'') ||'_'|| name from a_menu where id = t2.parent_id limit 1) as parent_name, t2.type, t1.permit_form, t1.permit_process, t1.permit_window";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, 
+		t1.menu_id, t2.code, t2.name, 
+		coalesce(t2.code,'') ||'_'|| t2.name as code_name, 
+		t1.is_active, t2.is_parent, 
+		(select coalesce(code,'') ||'_'|| name from a_role where id = t1.role_id) as role_name, 
+		(select coalesce(code,'') ||'_'|| name from a_menu where id = t2.parent_id) as parent_name, 
+		t2.type, t1.permit_form, t1.permit_process, t1.permit_window";
 		$params['table'] 	= "a_role_menu as t1";
 		$params['join'][] = ['a_menu t2', 't1.menu_id = t2.id', 'left'];
 		$params['where']['t2.is_deleted']	= '0';
@@ -318,38 +330,40 @@ class Systems_Model extends CI_model
 		$org_id = isset($params['where']['org_id']) ? 'and org_id = '.$params['where']['org_id'] : '';
 		$orgtype_id = isset($params['where']['orgtype_id']) ? 'and orgtype_id = '.$params['where']['orgtype_id'] : '';
 		$parent_id = isset($params['where']['parent_id']) ? 'and parent_id = '.$params['where']['parent_id'] : '';
+		$org_id_in = isset($params['where_in']['org_id']) ? 'and org_id in ('.implode(',',$params['where_in']['org_id']).')' : '';
+		// debug("$client_id $org_id $orgtype_id $id $q $parent_id $org_id_in");
 		
 		$str = "WITH RECURSIVE tmp_tree (id, parent_id, level, line_no, is_parent, client_id, org_id, orgtype_id, name, name_tree) 
 			AS ( 
 				SELECT 
-					id, parent_id, 0 as level, 1 as line_no,	is_parent, client_id, org_id, orgtype_id, name, '' || name 
+					id, parent_id, 0 as level, 1 as line_no,	is_parent, client_id, org_id, orgtype_id, coalesce(code, '') ||'_'|| name, '' || name 
 				FROM a_org
 				WHERE (parent_id is NULL or parent_id = 0) and is_deleted = '0'
 				UNION ALL
 				SELECT
-					t1.id, tt.id, tt.level + 1, t1.line_no, t1.is_parent, t1.client_id, t1.org_id, t1.orgtype_id, t1.name, tt.name_tree || '->' || t1.name
+					t1.id, tt.id, tt.level + 1, t1.line_no, t1.is_parent, t1.client_id, t1.org_id, t1.orgtype_id, coalesce(t1.code, '') ||'_'|| t1.name, tt.name_tree || '->' || t1.name
 				FROM a_org t1, tmp_tree tt 
 				WHERE t1.parent_id = tt.id and t1.is_deleted = '0' 
 			) 
 			SELECT count(*) FROM tmp_tree 
-			WHERE $client_id $org_id $orgtype_id $id $q $parent_id;";
+			WHERE $client_id $org_id $orgtype_id $id $q $parent_id $org_id_in;";
 		$qry = $this->db->query($str);
 		$response['total'] = $qry->row()->count;
 		
 		$str = "WITH RECURSIVE tmp_tree (id, parent_id, level, line_no, is_parent, client_id, org_id, orgtype_id, name, name_tree) 
 			AS ( 
 				SELECT 
-					id, parent_id, 0 as level, 1 as line_no,	is_parent, client_id, org_id, orgtype_id, name, '' || name 
+					id, parent_id, 0 as level, 1 as line_no,	is_parent, client_id, org_id, orgtype_id, coalesce(code, '') ||'_'|| name, '' || name 
 				FROM a_org
 				WHERE (parent_id is NULL or parent_id = 0) and is_deleted = '0'
 				UNION ALL
 				SELECT
-					t1.id, tt.id, tt.level + 1, t1.line_no, t1.is_parent, t1.client_id, t1.org_id, t1.orgtype_id, t1.name, tt.name_tree || '->' || t1.name
+					t1.id, tt.id, tt.level + 1, t1.line_no, t1.is_parent, t1.client_id, t1.org_id, t1.orgtype_id, coalesce(t1.code, '') ||'_'|| t1.name, tt.name_tree || '->' || t1.name
 				FROM a_org t1, tmp_tree tt 
 				WHERE t1.parent_id = tt.id and t1.is_deleted = '0' 
 			) 
 			SELECT * FROM tmp_tree 
-			WHERE $client_id $org_id $orgtype_id $id $q $parent_id 
+			WHERE $client_id $org_id $orgtype_id $id $q $parent_id $org_id_in 
 			ORDER BY level, parent_id, line_no;";
 		$qry = $this->db->query($str);
 		$response['rows']  = $qry->result();

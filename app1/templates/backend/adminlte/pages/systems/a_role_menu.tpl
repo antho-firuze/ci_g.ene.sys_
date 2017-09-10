@@ -29,6 +29,7 @@
 		sub_menu: [],
 		order: ['id desc'],
 		columns: [
+			{ width:"100px", orderable:false, data:"role_name", title:"Role" },
 			{ width:"150px", orderable:false, data:"code_name", title:"Menu" },
 			{ width:"55px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Type", render:function(data, type, row){ return (data=='F') ? 'FORM' : (data=='P') ? 'PROCESS' : (data=='W') ? 'WINDOW' : 'GROUP'; } },
 			{ width:"150px", orderable:false, data:"parent_name", title:"Parent Name" },

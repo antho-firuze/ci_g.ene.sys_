@@ -30,6 +30,7 @@
 	{* col.push(BSHelper.Input({ horz:false, type:"number", label:"Quantity", idname:"qty", required: true, value: 1 })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Sub Amount", idname:"sub_amt", style: "text-align: right;", format: format_money, required: false, value: 0, onchange:"calculate_amount()", })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"VAT Amount", idname:"vat_amt", style: "text-align: right;", format: format_money, required: false, value: 0, onchange:"calculate_amount()", })); *}
+	col.push(BSHelper.Checkbox({ horz:false, label:"Is Completed", idname:"is_completed", value:1 }));
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"Sub Amount", idname:"sub_amt", style: "text-align: right;", step: ".01", min: "0", required: false, value: 0, onchange:"calculate_amount()", placeholder: "0.00" }));
 	col.push(BSHelper.Input({ horz:false, type:"number", label:"VAT Amount", idname:"vat_amt", style: "text-align: right;", step: ".01", min: "0", required: false, value: 0, onchange:"calculate_amount()", placeholder: "0.00" }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Total Amount", idname:"ttl_amt", style: "text-align: right;", format: format_money, required: false, value: 0, readonly: true, }));

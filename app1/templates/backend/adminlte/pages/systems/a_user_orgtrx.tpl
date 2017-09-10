@@ -34,8 +34,7 @@
 		sub_menu: [],
 		order: ['id desc'],
 		columns: [
-			{* { width:"75px", orderable:false, data:"user_name", title:"User", sClass: "my_class" }, *}
-			{* { width:"100px", orderable:false, data:"org_name", title:"Organization", sClass: "my_class" }, *}
+			{ width:"75px", orderable:false, data:"user_org_name", title:"Organization" },
 			{ width:"250px", orderable:false, data:"code_name", title:"Location/Branch" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],

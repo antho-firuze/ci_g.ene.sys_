@@ -1795,6 +1795,22 @@ class Getmeb extends CI_Controller
     return $ret;
 	}
 	
+	function _get_org()
+	{
+		$str = "select f1.org_id 
+			from a_user_org f1 
+			where f1.is_active = '1' and f1.is_deleted = '0' and 
+			f1.user_id = ".$this->session->user_id;
+		if (!$qry = $this->db->query($str)->result()){
+			return FALSE;
+		}
+		$arr = [];
+		foreach ($qry as $k => $v){
+			$arr[] = $v->org_id;
+		}
+		return $arr;
+	}
+	
 	function _get_orgtrx()
 	{
 		$str = "select f1.org_id 

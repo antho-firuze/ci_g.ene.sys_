@@ -295,7 +295,8 @@ class Cashflow_Model extends CI_Model
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
-		(select name from a_org where id = t1.orgto_id) as orgto_name, 
+		(select name from a_org where id = t1.org_to_id) as org_to_name, 
+		(select name from a_org where id = t1.orgtrx_to_id) as orgtrx_to_name, 
 		t1.*, 
 		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
 		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
@@ -310,6 +311,35 @@ class Cashflow_Model extends CI_Model
 	}
 	
 	function cf_omovement_line($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, 
+		(select doc_no from cf_movement where id = t1.movement_id), 
+		(select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_movement where id = t1.movement_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
+		$params['table'] 	= "cf_movement_line as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_imovement($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		(select name from a_org where id = t1.org_to_id) as org_to_name, 
+		(select name from a_org where id = t1.orgtrx_to_id) as orgtrx_to_name, 
+		t1.*, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
+		to_char(t1.delivery_date, '".$this->session->date_format."') as delivery_date, 
+		to_char(t1.received_date, '".$this->session->date_format."') as received_date";
+		$params['table'] 	= "cf_movement as t1";
+		/* if (isset($params['level']) && $params['level'] == 1) {
+			$params['select'] .= ", t2.bpartner_id, (select name from c_bpartner where id = t2.bpartner_id) as bpartner_name, t2.doc_no as doc_no_request, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_request, to_char(t2.eta, '".$this->session->date_format."') as eta_request";
+			$params['join'][] = ['cf_request as t2', 't1.request_id = t2.id', 'left'];
+		} */
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function cf_imovement_line($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, 
 		(select doc_no from cf_movement where id = t1.movement_id), 

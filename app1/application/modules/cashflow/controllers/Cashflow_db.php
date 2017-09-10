@@ -425,7 +425,8 @@ class Cashflow_db extends CI_Controller {
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		
 		$fields['orgtrx_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['orgto_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['org_to_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['orgtrx_to_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['request_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_no'] = ['type' => 'VARCHAR', 'constraint' => '125', 'null' => TRUE, 'unique' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
@@ -433,6 +434,8 @@ class Cashflow_db extends CI_Controller {
 		$fields['doc_ref_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['delivery_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['received_date'] = ['type' => 'DATE', 'null' => TRUE];
+		$fields['is_interwh'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '1'];
+		$fields['is_intrawh'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
 		return $fields;
 	}
 	

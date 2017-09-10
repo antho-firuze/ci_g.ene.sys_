@@ -1321,7 +1321,11 @@ class Cashflow extends Getmeb
 	function cf_omovement()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t2.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
+			'(select name from c_bpartner where id = t2.bpartner_id)',
+			'(select name from a_org where id = t1.org_id)',
+			'(select name from a_org where id = t1.orgtrx_id)',
+			'(select doc_no from cf_request where id = t1.request_id)',]);
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -1351,7 +1355,7 @@ class Cashflow extends Getmeb
 				}
 			}
 			if ($this->params->event == 'pre_post'){
-				$this->mixed_data['is_outbound'] = '1';
+				$this->mixed_data['is_interwh'] = '1';
 			}
 		}
 		if ($this->r_method == 'DELETE') {
@@ -1381,13 +1385,17 @@ class Cashflow extends Getmeb
 	function cf_imovement()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
+			'(select name from c_bpartner where id = t1.bpartner_id)',
+			'(select name from a_org where id = t1.org_id)',
+			'(select name from a_org where id = t1.orgtrx_id)']);
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
 			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			$this->params['where_in']['t1.orgtrx_to_id'] = $this->_get_orgtrx();
+			$this->params['where_custom'] = 't1.received_date is not null';
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -1540,11 +1548,13 @@ class Cashflow extends Getmeb
 			}
 			
 			if (isset($this->params['for_request']) && !empty($this->params['for_request'])) {
-				$request_id = isset($this->params['request_id']) && $this->params['request_id'] ? $this->params['request_id'] : 0;
-				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
-				$this->params['where_custom'][] = "order_id = (select order_id from cf_request where id = $request_id)";
-				// $this->params['where_custom'][] = "not exists (select 1 from cf_request_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and request_id = $request_id $having)";
-				$this->params['where_custom'][] = "not exists (select 1 from cf_request_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and request_id = $request_id)";
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$request_id = isset($this->params['request_id']) && $this->params['request_id'] ? $this->params['request_id'] : 0;
+					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
+					$this->params['where_custom'][] = "order_id = (select order_id from cf_request where id = $request_id)";
+					// $this->params['where_custom'][] = "not exists (select 1 from cf_request_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and request_id = $request_id $having)";
+					$this->params['where_custom'][] = "not exists (select 1 from cf_request_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and request_id = $request_id)";
+				}
 			}
 			
 			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
@@ -1758,7 +1768,11 @@ class Cashflow extends Getmeb
 	function cf_porder()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)',
+				'(select doc_no from cf_requisition where id = t1.requisition_id)']);
 			
 			if (isset($this->params['for_material_receipt']) && !empty($this->params['for_material_receipt'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
@@ -2385,8 +2399,8 @@ class Cashflow extends Getmeb
 					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
 					$this->params['where_custom'] = "exists(
 						select distinct(request_id) 
-						from cf_request_line f1 where is_active = '1' and is_deleted = '0' and f1.request_id = t1.id and 
-						not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and request_line_id = f1.id)
+						from cf_request_line f1 where is_active = '1' and is_deleted = '0' and is_stocked = '0' and f1.request_id = t1.id and 
+						not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and request_line_id = f1.id)
 					)";
 					/* $this->params['where_custom'] = "exists(
 						select distinct(request_id) 
@@ -2408,10 +2422,15 @@ class Cashflow extends Getmeb
 			if (isset($this->params['for_outbound']) && !empty($this->params['for_outbound'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
 					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-					$this->params['where_custom'] = "exists(
+					/* $this->params['where_custom'] = "exists(
 						select distinct(request_id) 
 						from cf_request_line f1 left join cf_movement_line f2 on f1.id = f2.request_line_id and f2.is_active = '1' and f2.is_deleted = '0' 
 						where f1.is_active = '1' and f1.is_deleted = '0' and f2.request_line_id is null and f1.request_id = t1.id
+					)"; */
+					$this->params['where_custom'] = "exists(
+						select distinct(request_id) 
+						from cf_request_line f1 where is_active = '1' and is_deleted = '0' and f1.request_id = t1.id and 
+						not exists (select 1 from cf_movement_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and request_line_id = f1.id)
 					)";
 				}
 			}
@@ -2477,8 +2496,9 @@ class Cashflow extends Getmeb
 			if (isset($this->params['for_requisition']) && !empty($this->params['for_requisition'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
 					$requisition_id = isset($this->params['requisition_id']) && $this->params['requisition_id'] ? $this->params['requisition_id'] : 0;
+					$this->params['where']['is_stocked'] = '0';
 					$this->params['where_custom'][] = "request_id = (select request_id from cf_requisition where id = $requisition_id)";
-					$this->params['where_custom'][] = "not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and request_line_id = t1.id)";
+					$this->params['where_custom'][] = "not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and request_line_id = t1.id)";
 				}
 			}
 			
@@ -2486,7 +2506,7 @@ class Cashflow extends Getmeb
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
 					$movement_id = isset($this->params['movement_id']) && $this->params['movement_id'] ? $this->params['movement_id'] : 0;
 					$this->params['where_custom'][] = "request_id = (select request_id from cf_movement where id = $movement_id)";
-					$this->params['where_custom'][] = "not exists (select 1 from cf_movement_line where is_active = '1' and is_deleted = '0' and request_line_id = t1.id)";
+					$this->params['where_custom'][] = "not exists (select 1 from cf_movement_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and request_line_id = t1.id)";
 				}
 			}
 			
@@ -2533,7 +2553,7 @@ class Cashflow extends Getmeb
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
 					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
 					$this->params['where_custom'] = "exists (select distinct(requisition_id) from cf_requisition_line f1 where is_active = '1' and is_deleted = '0' 
-						and not exists (select 1 from cf_order_line where is_active = '1' and is_deleted = '0' and requisition_line_id = f1.id) and f1.requisition_id = t1.id)";
+						and not exists (select 1 from cf_order_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and requisition_line_id = f1.id) and f1.requisition_id = t1.id)";
 				}
 			}
 			
@@ -2605,6 +2625,7 @@ class Cashflow extends Getmeb
 					$order_id = isset($this->params['order_id']) && $this->params['order_id'] ? $this->params['order_id'] : 0;
 					$this->params['select'] = "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_requisition where id = t1.requisition_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
 					$this->params['where_custom'][] = "requisition_id = (select requisition_id from cf_order where id = $order_id)";
+					$this->params['where_custom'][] = "not exists (select 1 from cf_order_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and requisition_line_id = t1.id)";
 					// $this->params['where_custom'][] = "(t1.qty - (select coalesce(sum(qty),0) from cf_order_line where is_active = '1' and is_deleted = '0' and requisition_line_id = t1.id)) > 0";
 				}
 			}

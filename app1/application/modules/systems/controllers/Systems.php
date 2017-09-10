@@ -1251,6 +1251,7 @@ class Systems extends Getmeb
 	function a_org_parent_list()
 	{
 		if ($this->r_method == 'GET') {
+			// debug($this->_get_orgtrx());
 			if (isset($this->params['id']) && !empty($this->params['id'])) 
 				$this->params['where']['id'] = $this->params['id'];
 			
@@ -1259,9 +1260,15 @@ class Systems extends Getmeb
 		
 			if (isset($this->params['org_id']) && !empty($this->params['org_id'])) 
 				$this->params['where']['org_id'] = $this->params['org_id'];
-		
+			
 			if (isset($this->params['orgtype_id']) && !empty($this->params['orgtype_id'])) 
 				$this->params['where']['orgtype_id'] = $this->params['orgtype_id'];
+		
+			if (isset($this->params['user_org']) && !empty($this->params['user_org'])) 
+				$this->params['where_in']['org_id'] = $this->_get_org();
+		
+			if (isset($this->params['user_orgtrx']) && !empty($this->params['user_orgtrx'])) 
+				$this->params['where_in']['org_id'] = $this->_get_orgtrx();
 		
 			if (isset($this->params['parent_id']) && !empty($this->params['parent_id'])) 
 				$this->params['where']['parent_id'] = $this->params['parent_id'];

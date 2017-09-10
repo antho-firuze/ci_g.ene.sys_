@@ -17,6 +17,7 @@ if ( ! function_exists('send_mail'))
 		
 		$email_from = $email_from ? $email_from : $config['smtp_user'];
 		
+		// $ci->email->from($email_from, $config['head_title']);
 		$ci->email->from($email_from);
 		$ci->email->to($email_to); 
 		$ci->email->subject($subject);

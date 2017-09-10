@@ -32,6 +32,7 @@
 		sub_menu: [],
 		order: ['id desc'],
 		columns: [
+			{ width:"100px", orderable:false, data:"user_name", title:"User" },
 			{ width:"250px", orderable:false, data:"code_name", title:"Role" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_default", title:"Default", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },

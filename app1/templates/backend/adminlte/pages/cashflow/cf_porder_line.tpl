@@ -32,24 +32,17 @@
 	var DataTable_Init = {
 		enable: true,
 		act_menu: { copy: true, edit: true, delete: true },
-		sub_menu: [
-			{* { pageid: 99, subKey: 'order_id', title: 'Order Line', }, *}
-			{* { pageid: 100, subKey: 'order_id', title: 'Order Plan' }, *}
-		],
+		sub_menu: [],
+		order: ['seq'],
 		columns: [
 			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"25px", orderable:false, data:"seq", title:"Line" },
 			{ width:"100px", orderable:false, data:"itemcat_name", title:"Item Category" },
-			{* { width:"100px", orderable:false, data:"item_code", title:"Item Code" }, *}
-			{* { width:"100px", orderable:false, data:"item_name", title:"Item Name" }, *}
-			{* { width:"100px", orderable:false, data:"item_size", title:"Item Size" }, *}
-			{* { width:"40px", orderable:false, className:"dt-head-center dt-body-right", data:"qty", title:"Qty" }, *}
-			{* { width:"100px", orderable:false, data:"price", title:"Price" }, *}
+			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_completed", title:"Completed", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_amt", title:"Sub Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_amt", title:"VAT Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"ttl_amt", title:"Total Amount", render: function(data, type, row){ return format_money(data); } },
 		],
-		order: ['seq'],
 	};
 	
 	{* For design form interface *}
