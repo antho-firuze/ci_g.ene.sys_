@@ -67,7 +67,7 @@ if ( ! function_exists('lang'))
 		$ci = &get_instance();
 		
 		/* Load language file */
-		$expectedLanguage = !empty($ci->session->language) ? $ci->session->language : 'english';
+		/* $expectedLanguage = !empty($ci->session->language) ? $ci->session->language : 'english';
 		$expectedFile = $expected.'_lang.php';
 		// $ci->lang->load('systems/systems', $expectedLanguage);
 		if (file_exists(APPPATH."language/".$expectedLanguage."/".$expectedFile)) {
@@ -79,7 +79,7 @@ if ( ! function_exists('lang'))
 				// debug('3');
 				$ci->lang->load(strtolower($expected), $expectedLanguage);
 			}
-		}
+		} */
 		
 		$msg = $ci->lang->line($str);
 		if (is_array($args) && $args)
