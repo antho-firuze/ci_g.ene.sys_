@@ -250,7 +250,7 @@ class Systems extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->params['where']['t1.id'] = $this->session->user_id;
 			
-			if (($result['data'] = $this->{$this->mdl}->get_a_user($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->a_user($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);

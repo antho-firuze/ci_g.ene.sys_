@@ -6,20 +6,10 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
-<script src="{$.const.ASSET_URL}js/window_edit.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script>
-	var $url_module = "{$.php.base_url()~$class~'/'~$method}";
-	{* Start :: Init for Title, Breadcrumb *}
-	$(".content").before(BSHelper.PageHeader({ 
-		title:"{$title}", 
-		title_desc:"{$title_desc}", 
-		bc_list:[
-			{ icon:"fa fa-dashboard", title:"Dashboard", link:"{$.const.APPS_LNK}" },
-			{ icon:"", title:"{$title}", link:"" },
-		]
-	}));
-
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $bread = {$.php.json_encode($bread)};
 	{* For design form interface *}
 	var col = [], row = [], a = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });
@@ -82,3 +72,4 @@
 		return false;
 	});
 </script>
+<script src="{$.const.ASSET_URL}js/window_edit.js"></script>
