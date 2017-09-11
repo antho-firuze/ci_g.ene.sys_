@@ -1327,6 +1327,12 @@ class Cashflow extends Getmeb
 			'(select name from a_org where id = t1.orgtrx_id)',
 			'(select doc_no from cf_request where id = t1.request_id)',]);
 			
+			if (isset($this->params['for_inbound']) && !empty($this->params['for_inbound'])) {
+				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+					$this->params['where_custom'] = "received_date is null";
+				}
+			}
+			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -1357,8 +1363,18 @@ class Cashflow extends Getmeb
 			if ($this->params->event == 'pre_post'){
 				$this->mixed_data['is_interwh'] = '1';
 			}
+			if ($this->params->event == 'pre_put'){
+				$received_date = $this->db->select('received_date')->where_in('id', $this->params->id)->get($this->c_table)->row()->received_date;
+				if ($received_date)
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_update_outbound_completed')], 401);
+			}
 		}
 		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'pre_delete'){
+				$Outbound = $this->db->select('count(received_date) as cnt')->where_in('id', explode(',', $this->params['id']))->get($this->c_table)->row()->cnt;
+				if ($Outbound)
+						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_update_outbound_completed')], 401);
+			}
 			if ($this->params['event'] == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('movement_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
 			}
@@ -1404,7 +1420,7 @@ class Cashflow extends Getmeb
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* Check duplicate doc_no */
-			if ($this->params->event == 'pre_post_put'){
+			/* if ($this->params->event == 'pre_post_put'){
 				if ($this->params->id){
 					$doc_no = $this->base_model->getValue('doc_no', $this->c_table, 'id', $this->params->id)->doc_no;
 				} else {
@@ -1416,15 +1432,25 @@ class Cashflow extends Getmeb
 						$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
 					}
 				}
-			}
-			if ($this->params->event == 'pre_post'){
-				$this->mixed_data['is_outbound'] = '0';
+			} */
+			if ($this->params->event == 'pre_post_put'){
+				// debug($this->mixed_data);
+				$data_inbound['received_date'] = $this->mixed_data['received_date'];
+				$data_inbound['description'] = $this->mixed_data['description'];
+				$data_inbound['doc_ref_no'] = $this->mixed_data['doc_ref_no'];
+				$data_inbound['doc_ref_date'] = $this->mixed_data['doc_ref_date'];
+				$result = $this->updateRecord($this->c_table, array_merge($data_inbound, $this->update_log), ['id'=>$this->params->id]);
+				/* Throwing the result to Ajax */
+				if (! $result)
+					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
+			/* if ($this->params['event'] == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('movement_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
-			}
+			} */
 		}
 	}
 	

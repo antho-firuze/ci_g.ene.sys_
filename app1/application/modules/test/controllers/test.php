@@ -15,6 +15,11 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
+	function test_lang()
+	{
+		echo lang('notif_update_outbound_completed', null, 'cashflow');
+	}
+	
 	function test_dsn()
 	{
 		echo parse_dsn(DB_DSN)['pgsql:host'];

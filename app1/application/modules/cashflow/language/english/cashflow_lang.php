@@ -13,6 +13,7 @@
 *
 */
 /* Notification: notif_ & success_  */
+$lang['notif_update_outbound_completed'] 		= "This Outbound has had an Inbound !";
 $lang['success_plan_posting'] 		= "Posting sucessfully !";
 $lang['success_plan_unposting'] 		= "Unposting sucessfully !";
 /* Confirmation: confirm_ */
@@ -35,4 +36,5 @@ $lang['error_plan_had_posted'] 		= "Error: Cannot edit/delete plan, because this
 $lang['error_unpost_plan_has_actual'] 		= "Error: Cannot unposting plan, because Invoice Plan has been Actualization !";
 $lang['error_unpost_plan_has_payment'] 		= "Error: Cannot unposting plan, because this plan has Actual Payment !";
 $lang['error_delete_invoice_has_payment'] 		= "Error: Cannot delete invoice, because this invoice has Actual Payment !";
+$lang['error_update_outbound_completed'] 		= "Error: Cannot edit/delete this Outbound, because this Outbound has had an Inbound !";
 /* Information: info_ */

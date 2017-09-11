@@ -62,9 +62,25 @@ if ( ! function_exists('translate_variable'))
 
 if ( ! function_exists('lang'))
 {
-	function lang($str, $args = array())
+	function lang($str, $args = null, $expected = 'systems', $language = 'english')
 	{
 		$ci = &get_instance();
+		
+		/* Load language file */
+		$expectedLanguage = !empty($ci->session->language) ? $ci->session->language : 'english';
+		$expectedFile = $expected.'_lang.php';
+		// $ci->lang->load('systems/systems', $expectedLanguage);
+		if (file_exists(APPPATH."language/".$expectedLanguage."/".$expectedFile)) {
+			// debug('1');
+			$ci->lang->load($expectedFile, $expectedLanguage);
+		} else {
+			// debug('2');
+			if (file_exists(APPPATH.'modules/'.strtolower($expected)."/language/".$expectedLanguage."/".$expectedFile)) {
+				// debug('3');
+				$ci->lang->load(strtolower($expected), $expectedLanguage);
+			}
+		}
+		
 		$msg = $ci->lang->line($str);
 		if (is_array($args) && $args)
 			$msg = vsprintf($msg, $args);
