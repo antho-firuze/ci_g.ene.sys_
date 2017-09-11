@@ -33,6 +33,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/pace/pace.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/iCheck/icheck.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-dialog/js/bootstrap-dialog.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/js-cookie/js.cookie.js"></script>
 
 </head>
 <body class="hold-transition login-page">
@@ -103,6 +104,15 @@
 	$("[name='remember']")
 		.iCheck({ checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue', increaseArea: '20%' })
 		.iCheck('uncheck');
+	
+	$(document).ready(function(){
+		console.log(Cookies.get("identity"));
+		var $identity = Cookies.get("identity");
+		if ($identity) {
+			$("#username").val($identity);
+			$("[name='remember']").iCheck('check');
+		}
+	});
 	
 	form.submit( function(e) {
 		e.preventDefault();

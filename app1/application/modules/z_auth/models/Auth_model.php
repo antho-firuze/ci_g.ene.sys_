@@ -613,7 +613,7 @@ class Auth_model extends CI_Model
 		if ($remember && $this->config->item('remember_users', 'auth'))
 		{
 			if ($user_id = $this->login_remembered_user()){
-				$this->update_last_login($user->id);
+				$this->update_last_login($user_id);
 				$this->clear_login_attempts($identity);
 				return $user_id;
 			}
