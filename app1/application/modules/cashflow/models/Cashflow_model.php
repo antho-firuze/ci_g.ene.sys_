@@ -1015,10 +1015,11 @@ class Cashflow_Model extends CI_Model
 			when payment_plan_date > (select payment_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id) then 'Advance Payment' end as payment_status
 			from cf_invoice t1 
 			where 
-			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and orgtrx_id = ".$this->session->orgtrx_id." and 
+			f1.client_id = {client_id} and f1.org_id = {org_id} and f1.orgtrx_id in {orgtrx} and 
 			is_active = '1' and is_deleted = '0' and is_receipt = '0' and extract(month from received_plan_date) = extract(month from current_date) and 
 			payment_plan_date <> (select payment_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id)
 			) t1";
+		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -1042,10 +1043,11 @@ class Cashflow_Model extends CI_Model
 			select f1.doc_no,f1.doc_date,f1.bpartner_id,f1.doc_ref_date,g1.id as order_plan_id,g1.order_id, f1.client_id, f1.org_id,f1.orgtrx_id,f1.is_active,f1.is_deleted,f1.id, g1.note,g1.description,g1.amount from cf_order f1 inner join 
 			cf_order_plan g1 on f1.id = g1.order_id 
 			where
-			f1.client_id = ".$this->session->client_id." and f1.org_id = ".$this->session->org_id." and f1.orgtrx_id = ".$this->session->orgtrx_id." and
+			f1.client_id = {client_id} and f1.org_id = {org_id} and f1.orgtrx_id in {orgtrx} and 
 			f1.is_active = '1' and f1.is_deleted = '0' and f1.is_sotrx='1' and g1.is_active='1' and g1.is_deleted = '0'
 			and not exists(select distinct(id) from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = g1.id)
 			) t1";
+		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
 
@@ -1069,10 +1071,11 @@ class Cashflow_Model extends CI_Model
 			select f1.doc_no,f1.doc_date,f1.bpartner_id,f1.doc_ref_date,g1.id as order_plan_id,g1.order_id, f1.client_id, f1.org_id,f1.orgtrx_id,f1.is_active,f1.is_deleted,f1.id, g1.note,g1.description,g1.amount from cf_order f1 inner join 
 			cf_order_plan g1 on f1.id = g1.order_id 
 			where
-			f1.client_id = ".$this->session->client_id." and f1.org_id = ".$this->session->org_id." and f1.orgtrx_id = ".$this->session->orgtrx_id." and
+			f1.client_id = {client_id} and f1.org_id = {org_id} and f1.orgtrx_id in {orgtrx} and 
 			f1.is_active = '1' and f1.is_deleted = '0' and f1.is_sotrx='0' and g1.is_active='1' and g1.is_deleted = '0'
 			and not exists(select distinct(id) from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = g1.id)
 			) t1";
+		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -1086,13 +1089,14 @@ class Cashflow_Model extends CI_Model
 		$params['table'] 	= "(
 			select e1.doc_no, e1.doc_date,f1.ar_ap_id,f1.bpartner_id,e1.doc_ref_no,e1.doc_ref_date,e1.description,f1.note,e1.client_id,e1.org_id,e1.orgtrx_id,e1.is_deleted,e1.is_active,e1.id,e1.grand_total,f1.ttl_amt,f1.doc_date as plan_date from cf_ar_ap e1 inner join cf_ar_ap_plan f1 on e1.id=f1.ar_ap_id
 			WHERE
-			e1.client_id = ".$this->session->client_id." and e1.org_id = ".$this->session->org_id." and e1.orgtrx_id = ".$this->session->orgtrx_id." and
+			e1.client_id = {client_id} and e1.org_id = {org_id} and e1.orgtrx_id in {orgtrx} and 
 			e1.is_active = '1' and e1.is_deleted = '0' and e1.is_receipt ='1' and f1.is_active = '1' and f1.is_deleted = '0'
 			and not exists(
 			select distinct(id) from cf_invoice where 
 			is_active = '1' and is_deleted = '0' and ar_ap_plan_id = f1.id
 			) 
 			) t1";
+		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
 
@@ -1106,13 +1110,14 @@ class Cashflow_Model extends CI_Model
 		$params['table'] 	= "(
 			select e1.doc_no, e1.doc_date,f1.ar_ap_id,f1.bpartner_id,e1.doc_ref_no,e1.doc_ref_date,e1.description,f1.note,e1.client_id,e1.org_id,e1.orgtrx_id,e1.is_deleted,e1.is_active,e1.id,e1.grand_total,f1.ttl_amt,f1.doc_date as plan_date from cf_ar_ap e1 inner join cf_ar_ap_plan f1 on e1.id=f1.ar_ap_id
 			WHERE
-			e1.client_id = ".$this->session->client_id." and e1.org_id = ".$this->session->org_id." and e1.orgtrx_id = ".$this->session->orgtrx_id." and
+			e1.client_id = {client_id} and e1.org_id = {org_id} and e1.orgtrx_id in {orgtrx} and 
 			e1.is_active = '1' and e1.is_deleted = '0' and e1.is_receipt ='0' and f1.is_active = '1' and f1.is_deleted = '0'
 			and not exists(
 			select distinct(id) from cf_invoice where 
 			is_active = '1' and is_deleted = '0' and ar_ap_plan_id = f1.id
 			) 
 			) t1";
+		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
 
@@ -1416,6 +1421,70 @@ class Cashflow_Model extends CI_Model
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 			is_active = '1' and is_deleted = '0' and is_receipt = '0' and extract(month from received_plan_date) = extract(month from current_date) and 
 			received_plan_date < (select received_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id)
+			) t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+
+	function db_incomplete_request($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.eta, '".$this->session->date_format."') as eta, (select name from cf_request_type where id = t1.request_type_id) as request_type_name,(select doc_no from cf_order where id = t1.order_id) as doc_no_order,(select doc_date from cf_order where id = t1.order_id) as doc_date_order,  coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		$params['table'] 	= "(
+			select * from cf_request f1 where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+			is_active = '1' and is_deleted = '0' 
+			and exists (select * from (Select distinct(request_id) from cf_request_line a1 where 
+			is_active = '1' and is_deleted = '0' and is_stocked='0'
+			and not exists (select * from cf_requisition_line b1 where 
+			is_active = '1' and is_deleted = '0' and request_line_id = a1.id)
+			) g1 where g1.request_id = f1.id)
+			)t1";
+
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+
+	function db_outstanding_request($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.eta, '".$this->session->date_format."') as eta, (select name from cf_request_type where id = t1.request_type_id) as request_type_name,(select doc_no from cf_order where id = t1.order_id) as doc_no_order,(select doc_date from cf_order where id = t1.order_id) as doc_date_order,  coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		$params['table'] 	= "(
+			select * from cf_request f1 where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+			is_active = '1' and is_deleted = '0'
+			and exists (select * from (
+				Select distinct(request_id) from cf_request_line a1 where 
+				is_active = '1' and is_deleted = '0'
+				and not exists (select * from cf_movement_line b1 where 
+				is_active = '1' and is_deleted = '0' and  is_completed='1' and request_line_id = a1.id)) g1 where g1.request_id = f1.id)
+			)t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+
+	function db_outstanding_outbound($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		(select name from a_org where id = t1.org_to_id) as org_to_name, 
+		(select name from a_org where id = t1.orgtrx_to_id) as orgtrx_to_name, 
+		t1.*, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
+		to_char(t1.delivery_date, '".$this->session->date_format."') as delivery_date, 
+		to_char(t1.received_date, '".$this->session->date_format."') as received_date";
+		$params['table'] 	= " (
+			select * from cf_movement where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+			is_active = '1' and is_deleted = '0' and received_date is null 
 			) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
