@@ -281,6 +281,7 @@ class Auth_model extends CI_Model
  		$buffer = '';
         $buffer_valid = false;
 
+				/* "mcrypt_create_iv" => This function was DEPRECATED in PHP 7.1.0  */
         /* if (function_exists('mcrypt_create_iv') && !defined('PHALANGER')) {
             $buffer = mcrypt_create_iv($raw_salt_len, MCRYPT_DEV_URANDOM);
             if ($buffer) {

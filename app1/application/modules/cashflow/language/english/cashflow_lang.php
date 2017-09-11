@@ -37,4 +37,5 @@ $lang['error_unpost_plan_has_actual'] 		= "Error: Cannot unposting plan, because
 $lang['error_unpost_plan_has_payment'] 		= "Error: Cannot unposting plan, because this plan has Actual Payment !";
 $lang['error_delete_invoice_has_payment'] 		= "Error: Cannot delete invoice, because this invoice has Actual Payment !";
 $lang['error_update_outbound_completed'] 		= "Error: Cannot edit/delete this Outbound, because this Outbound has had an Inbound !";
+$lang['error_update_inbound_completed'] 		= "Error: Cannot edit/delete this Inbound, because this Inbound has been Completed !";
 /* Information: info_ */

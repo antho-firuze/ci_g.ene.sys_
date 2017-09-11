@@ -27,9 +27,9 @@ class Test extends CI_Controller {
 		// echo $errorPath;
 		// echo(phpinfo());
 		// var_dump($_SERVER);
-		$size = $this->human_filesize(filesize('D:/xampp/apache/logs/access.log'),0)
-		if ($size = )
-		echo();
+		// $size = $this->human_filesize(filesize('D:/xampp/apache/logs/access.log'),0)
+		// if ($size = )
+		// echo();
 	}
 	
 	function test_lang()

@@ -1448,6 +1448,9 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'pre_delete'){
+				$this->xresponse(FALSE, ['message' => lang('error_update_inbound_completed')], 401);
+			}
 			/* if ($this->params['event'] == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('movement_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
 			} */
