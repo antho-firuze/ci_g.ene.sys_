@@ -109,7 +109,8 @@
 		console.log(Cookies.get("identity"));
 		var $identity = Cookies.get("identity");
 		if ($identity) {
-			$("#username").val($identity);
+			$("[name='username']").val($identity);
+			$("[name='password']").val(1234567890);
 			$("[name='remember']").iCheck('check');
 		}
 	});
