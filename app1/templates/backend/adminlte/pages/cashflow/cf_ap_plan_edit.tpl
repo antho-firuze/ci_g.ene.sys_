@@ -83,7 +83,7 @@
 	$(document).ready(function(){
 		setTimeout(function(){
 			if ($data.is_posted > 0)
-				box1.find('.box-body form').before(BSHelper.Callout({ type:"danger", title:"POSTED !", description:"You can edit this plan after unposting !" }));
+				box1.find('.box-body form').before(BSHelper.Callout({ type:"danger", title:"POSTED !", description:"{$.php.lang('notif_update_plan_has_posted', null, 'cashflow')}" }));
 		}, 1000);
 	});	
 </script>

@@ -34,7 +34,9 @@ class Test extends CI_Controller {
 	
 	function test_lang()
 	{
+		// echo lang('notif_update_outbound_completed', null, 'cashflow');
 		echo lang('notif_update_outbound_completed', null, 'cashflow');
+		// echo lang2('notif_update_outbound_completed', null, 'cashflow');
 	}
 	
 	function test_dsn()

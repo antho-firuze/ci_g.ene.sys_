@@ -13,6 +13,7 @@
 *
 */
 /* Notification: notif_ & success_  */
+$lang['notif_update_plan_has_posted'] 		= "You can edit/delete this plan after unposting !";
 $lang['notif_update_outbound_completed'] 		= "This Outbound has had an Inbound !";
 $lang['success_plan_posting'] 		= "Posting sucessfully !";
 $lang['success_plan_unposting'] 		= "Unposting sucessfully !";

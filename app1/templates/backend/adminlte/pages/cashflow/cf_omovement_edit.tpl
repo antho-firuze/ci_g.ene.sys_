@@ -66,10 +66,9 @@
 <script>
 	$(document).ready(function(){
 		setTimeout(function(){
+			{* console.log($data); *}
 			if ($data.received_date)
-				{* box1.find('.box-body form').before(BSHelper.Callout({ type:"danger", title:"COMPLETED !", description:"{$.php.lang('notif_update_outbound_completed', null, 'cashflow')}" })); *}
-				{* box1.find('.box-body form').before(BSHelper.Callout({ type:"danger", title:"COMPLETED !", description:"{$.php.lang('notif_update_outbound_completed')}" })); *}
-				box1.find('.box-body form').before(BSHelper.Callout({ type:"danger", title:"COMPLETED !", description:"This Outbound has had an Inbound !" }));
+				box1.find('.box-body form').before(BSHelper.Callout({ type:"danger", title:"COMPLETED !", description:"{$.php.lang('notif_update_outbound_completed', null, 'cashflow')}" }));
 		}, 1000);
 	});	
 </script>
