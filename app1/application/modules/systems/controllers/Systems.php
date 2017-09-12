@@ -1084,9 +1084,14 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post_put'){
+				// $this->mixed_data['parent_id'] = $this->mixed_data['parent_id'] ? $this->mixed_data['parent_id'] : 0;
+				$this->mixed_data['parent_id'] OR $this->mixed_data['parent_id'] = 0;
+			}
 			if ($this->params->event == 'pre_put'){
 				if (isset($this->params->newline) && $this->params->newline != ''){
-					if (!$result = $this->updateRecord($this->c_method, ['line_no' => $this->params->newline], ['id' => $this->params->id], FALSE))
+					$needsort = $this->params->line_no - $this->params->newline;
+					if (!$result = $this->updateRecord($this->c_method, ['line_no' => $this->params->newline, 'is_needsort' => $needsort], ['id' => $this->params->id], FALSE))
 						$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 					else {
 						$this->_reorder_menu($this->params->parent_id);
@@ -1180,7 +1185,7 @@ class Systems extends Getmeb
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
-			
+			// debug($this->params);
 			// $this->params['ob'] = 'orgtype_id';
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);

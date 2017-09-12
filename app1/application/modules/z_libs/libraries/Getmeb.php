@@ -1044,17 +1044,18 @@ class Getmeb extends CI_Controller
 		return $menu;
 	}
 	
-	function _reorder_menu($parent_id)
+	function _reorder_menu($parent_id = NULL)
 	{
 		if (empty($parent_id)) {
-			$str = "select * from a_menu where is_deleted = '0' and (parent_id = 0 or parent_id is null) order by parent_id, line_no, is_submodule";
+			$str = "select * from a_menu where is_deleted = '0' and (parent_id = 0 or parent_id is null) order by parent_id, line_no, is_needsort desc, is_submodule";
 		} else {
-			$str = "select * from a_menu where is_deleted = '0' and parent_id = $parent_id order by is_parent desc, line_no, is_submodule";
+			$str = "select * from a_menu where is_deleted = '0' and parent_id = $parent_id order by is_parent desc, line_no, is_needsort desc, is_submodule";
 		}
+		// debug($str);
 		$qry = $this->db->query($str);
 		$line = 1;
 		foreach($qry->result() as $k => $v){
-			$this->db->update('a_menu', ['line_no' => $line], ['id' => $v->id]);
+			$this->db->update('a_menu', ['line_no' => $line, 'is_needsort' => 0], ['id' => $v->id]);
 			$line++;
 		}
 	}
