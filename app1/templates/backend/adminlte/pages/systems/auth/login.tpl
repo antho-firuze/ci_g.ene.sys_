@@ -95,7 +95,7 @@
 </div>
 <!-- /.login-box -->
 <div style="position: fixed; bottom: 0; width: 100%;">
-	Server [<strong>{$elapsed_time}</strong>] - Client [<strong>{microtime(true)-$start_time}</strong>]
+	Server [{$.php.get_dsn_host()}][<strong>{$elapsed_time}</strong>] - Client [<strong>{microtime(true)-$start_time}</strong>]
 </div>
 
 <script>
