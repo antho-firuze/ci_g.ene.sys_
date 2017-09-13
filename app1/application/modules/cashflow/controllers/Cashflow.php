@@ -1780,17 +1780,29 @@ class Cashflow extends Getmeb
 	function cf_sorder_etd()
 	{
 		if ($this->r_method == 'OPTIONS') {
-			$id = $this->params->id;
-			unset($this->params->id);
-			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
-			
-			$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$id]);
-			
-			/* Throwing the result to Ajax */
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			$data = array_merge(['etd' => $this->params->etd], $this->update_log);
 
-			$this->xresponse(TRUE, ['message' => $this->messages()]);
+			if ($this->params->description)
+				$this->db->set('description', "description || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]'", FALSE);
+			
+			if (!$result = $this->db->update($this->c_table, $data, ['id' => $this->params->id])) {
+				$this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
+			} 
+				
+			$this->xresponse(TRUE, ['message' => lang('success_update', null, 'systems')]);
+			
+			
+			// $id = $this->params->id;
+			// unset($this->params->id);
+			// $this->mixed_data = array_merge((array)$this->params, $this->update_log);
+			
+			// $result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$id]);
+			
+			// /* Throwing the result to Ajax */
+			// if (! $result)
+				// $this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+			// $this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
 	

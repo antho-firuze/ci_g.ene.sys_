@@ -1398,7 +1398,7 @@ class Getmeb extends CI_Controller
 	
 	function set_message($message, $func=NULL, $args=NULL)
 	{
-		$msg = lang($message) ? lang($message) : '##' . $message . '##';
+		$msg = lang($message, '', 'systems') ? lang($message, '', 'systems'): '##' . $message . '##';
 		
 		if (!empty($args)){
 			$args = is_array($args) ? 
@@ -1409,6 +1409,18 @@ class Getmeb extends CI_Controller
 		}
 		$this->messages[] = $msg;
 		return $message;
+		
+		/* $msg = lang($message, $args, 'systems') ? lang($message) : '##' . $message . '##';
+		
+		if (!empty($args)){
+			$args = is_array($args) ? 
+				str_replace('+', ' ', http_build_query($args,'',', ')) : 
+				$args;
+			$args = sprintf('Context : <br> function %s(), [%s]', $func, $args);
+			$msg = sprintf('%s<br><br>%s', $msg, $args);
+		}
+		$this->messages[] = $msg;
+		return $message; */
 	}
 
 	function messages($use_p = TRUE)

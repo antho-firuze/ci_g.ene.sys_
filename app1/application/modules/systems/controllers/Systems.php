@@ -1185,7 +1185,7 @@ class Systems extends Getmeb
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
-			// debug($this->params);
+
 			// $this->params['ob'] = 'orgtype_id';
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);

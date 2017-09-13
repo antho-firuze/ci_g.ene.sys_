@@ -71,6 +71,7 @@
 		a.push(BSHelper.LineDesc({ label:"Expected DT Customer", value: data.expected_dt_cust }));
 		col.push( $('<dl class="dl-horizontal">').append(a) ); a = [];
 		col.push(BSHelper.Input({ horz:false, type:"date", label:"ETD", idname:"etd", cls:"auto_ymd", format:"{$.session.date_format}", value: data.etd, required: true }));
+		col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 		row.push(subCol(12, col)); col = [];
 		form1.append(subRow(row));
 		
@@ -78,7 +79,7 @@
 		form1.on('submit', function(e){ e.preventDefault(); });
 		
 		BootstrapDialog.show({
-			title: 'Update SO ETD', type: BootstrapDialog.TYPE_SUCCESS, size: BootstrapDialog.SIZE_SMALL, message: form1, 
+			title: 'Update SO ETD', type: BootstrapDialog.TYPE_SUCCESS, size: BootstrapDialog.SIZE_MEDIUM, message: form1, 
 			buttons:[{ 
 				cssClass: 'btn-primary', label: 'Submit', hotkey: 13, action: function(dialog) {
 					var button = this;

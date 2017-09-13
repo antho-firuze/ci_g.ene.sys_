@@ -217,7 +217,7 @@ function initActionMenu(tableData1, dataTable1)
 	var sub_menu = [];
 	$.each(DataTable_Init.sub_menu, function(i){
 		v = DataTable_Init.sub_menu[i];
-		sub_menu.push('<li><a href="#" name="sub-menu" data-pageid='+v.pageid+' data-subKey="'+v.subKey+'"><span class="glyphicon glyphicon-menu-hamburger"></span>'+v.title+'</a></li>');
+		sub_menu.push('<li><a href="#" name="sub-menu" data-pageid='+v.pageid+' data-subKey="'+v.subKey+'" data-subType="'+v.subType+'"><span class="glyphicon glyphicon-menu-hamburger"></span>'+v.title+'</a></li>');
 	});
 	if (! isempty_arr(sub_menu)) {
 		dropdown_menu.append('<li role="separator" class="divider"></li>');
@@ -311,18 +311,28 @@ function initActionMenu(tableData1, dataTable1)
 				/* Set Main Title & code_name to Cookies */
 				$pageid = '?pageid='+$pageid+','+$el.attr('data-pageid');
 				var subKey = $el.attr('data-subKey');
+				var subType = $el.attr('data-subType');
 				if ($filter){
 					var fils = {};
 					$.each($filter.split(','), function(i, v){
 						fils[v.split('=')[0]] = v.split('=')[1];
 					});
 					var subs = {};
-					$.each(subKey.split(","), function(i, v){
-						if (fils[v])
-							subs[v] = fils[v];
-						else
-							subs[v] = data.id;
-					});
+					/* Sub Detail Method : hierarchy or masterdetail */
+					if (subType == 'hierarchy') {
+						console.log(data.id);
+						$.each(subKey.split(","), function(i, v){
+							if (fils[v])
+								subs[v] = data.id;
+						});
+					} else {
+						$.each(subKey.split(","), function(i, v){
+							if (fils[v])
+								subs[v] = fils[v];
+							else
+								subs[v] = data.id;
+						});
+					}
 				} else {
 					var subs = {};
 					$.each(subKey.split(","), function(i, v){

@@ -19,7 +19,7 @@
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Parent Menu", idname:"is_parent", value:0 }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Parent Menu", idname:"parent_id", url:"{$.php.base_url('systems/a_menu_parent_list')}", remote: true, value: 0 }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Parent Menu", idname:"parent_id", url:"{$.php.base_url('systems/a_menu_parent_list')}", remote: true }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Icon", idname:"icon" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Sub Module", idname:"is_submodule", value:0 }));
 	row.push(subCol(6, col)); col = [];
