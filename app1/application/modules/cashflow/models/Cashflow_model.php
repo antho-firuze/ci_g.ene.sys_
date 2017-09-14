@@ -1208,7 +1208,7 @@ class Cashflow_Model extends CI_Model
 			from cf_invoice 
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and doc_type = '1' and doc_date is null
+			is_active = '1' and is_deleted = '0' and doc_type = '1' and doc_date is null and invoice_plan_date <= current_date
 			) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
@@ -1230,7 +1230,7 @@ class Cashflow_Model extends CI_Model
 			from cf_invoice 
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and doc_date is null
+			is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and doc_date is null and invoice_plan_date <= current_date
 			) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
@@ -1247,7 +1247,7 @@ class Cashflow_Model extends CI_Model
 			from cf_invoice 
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and doc_type = '5' and doc_date is null
+			is_active = '1' and is_deleted = '0' and doc_type = '5' and doc_date is null and invoice_plan_date <= current_date
 			) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
@@ -1264,7 +1264,7 @@ class Cashflow_Model extends CI_Model
 			from cf_invoice 
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and doc_type = '6' and doc_date is null
+			is_active = '1' and is_deleted = '0' and doc_type = '6' and doc_date is null and invoice_plan_date <= current_date
 			) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
