@@ -1115,7 +1115,9 @@ class Cashflow extends Getmeb
 				'(select name from c_bpartner where id = t1.bpartner_id)',
 				'(select name from a_org where id = t1.org_id)',
 				'(select name from a_org where id = t1.orgtrx_id)',
-				"case when t1.doc_date is null then 'Projection' else 'Actual' end"]);
+				"case when t1.doc_date is null then 'Projection' else 'Actual' end",
+				'(select doc_ref_no from cf_order where id = t1.order_id)',
+			]);
 			
 			$this->params['level'] = 1;
 			$this->params['where']['t1.doc_type'] = '1';
