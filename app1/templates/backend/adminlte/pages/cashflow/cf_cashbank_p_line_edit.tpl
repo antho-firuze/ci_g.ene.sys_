@@ -32,7 +32,7 @@
 			{ id:"4", name:"Others Payment" },
 		] 
 	})); *}
-	col.push(BSHelper.Combobox({ horz:false, label:"Invoice No", label_link:"{$.const.PAGE_LNK}?pageid=85", textField:"code_name", idname:"invoice_id", url:"{$.php.base_url('cashflow/cf_oinvoice_o')}?for_cashbank=1&cashbank_id="+cashbank_id+"&act="+$act, remote: true, required: true, disabled: ($act=='edt'?true:false) }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Invoice No", label_link:"{$.const.PAGE_LNK}?pageid=85", textField:"code_name", idname:"invoice_id", url:"{$.php.base_url('cashflow/cf_oinvoice_o')}?for_cashbank=1&act="+$act, remote: true, required: true, disabled: ($act=='edt'?true:false) }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Account", label_link:"{$.const.PAGE_LNK}?pageid=85", textField:"code_name", idname:"account_id", url:"{$.php.base_url('cashflow/cf_account')}", remote: true, required: true, disabled: true }));
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", required: false, readonly: true, hidden: true })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"date", label:"Doc Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false, hidden: true })); *}
