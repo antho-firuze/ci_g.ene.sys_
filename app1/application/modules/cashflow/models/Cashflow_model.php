@@ -1392,9 +1392,11 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
 		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
 		$params['table'] 	= "(
-			select *, (select id as cashbank_line_id from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id ) from cf_invoice f1 where 
+			select *, (select id as cashbank_line_id from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
+			from cf_invoice f1
+			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active='1' and is_deleted='0' and received_plan_date <= current_date and
+			is_active='1' and is_deleted='0' and payment_plan_date <= current_date and
 			doc_type in ('6') 
 			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
 			) t1";
