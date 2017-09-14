@@ -62,24 +62,22 @@ if ( ! function_exists('translate_variable'))
 
 if ( ! function_exists('lang'))
 {
-	function lang($str, $args = null, $expected = 'systems', $language = 'english')
+	function lang($str, $args = null, $module = '', $langfile = '', $idiom = 'english')
 	{
 		$ci = &get_instance();
 		
-		/* Load language file */
-		/* $expectedLanguage = !empty($ci->session->language) ? $ci->session->language : 'english';
-		$expectedFile = $expected.'_lang.php';
-		// $ci->lang->load('systems/systems', $expectedLanguage);
-		if (file_exists(APPPATH."language/".$expectedLanguage."/".$expectedFile)) {
-			// debug('1');
-			$ci->lang->load($expectedFile, $expectedLanguage);
-		} else {
-			// debug('2');
-			if (file_exists(APPPATH.'modules/'.strtolower($expected)."/language/".$expectedLanguage."/".$expectedFile)) {
-				// debug('3');
-				$ci->lang->load(strtolower($expected), $expectedLanguage);
-			}
-		} */
+		$deft_module = CI::$APP->router->fetch_module();
+		$_module = ($module == '') ? $deft_module : $module;
+		
+		// $langfile = ($langfile == '') ? $_module : $langfile;
+		$langfile OR $langfile = $_module;
+		
+		list($path, $_langfile) = Modules::find($langfile.'_lang', $_module, 'language/'.$idiom.'/');
+		// list($path, $_langfile) = Modules::find($expected.'_lang', $expected, 'language/'.$language.'/');
+		if ($path) {
+			// CI::$APP->lang->load($langfile, $idiom, $return, $add_suffix, $alt_path, $this->_module);
+			CI::$APP->lang->load($langfile, $idiom, FALSE, TRUE, '', $_module);
+		} 
 		
 		$msg = $ci->lang->line($str);
 		if (is_array($args) && $args)

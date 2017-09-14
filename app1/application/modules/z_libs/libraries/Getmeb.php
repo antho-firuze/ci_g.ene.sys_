@@ -68,16 +68,16 @@ class Getmeb extends CI_Controller
 		define('TEMPLATE_PATH', '/backend/'.$this->theme.'/');
 		
 		/* Load language file */
-		$expectedLanguage = !empty($this->session->language) ? $this->session->language : 'english';
-		$expectedFile = strtolower(get_class($this)).'_lang.php';
-		$this->lang->load('systems/systems', $expectedLanguage);
-		if (file_exists(APPPATH."language/".$expectedLanguage."/".$expectedFile)) {
-			$this->lang->load($expectedFile, $expectedLanguage);
-		} else {
-			if (file_exists(APPPATH.'modules/'.strtolower(get_class($this))."/language/".$expectedLanguage."/".$expectedFile)) {
-				$this->lang->load(strtolower(get_class($this)), $expectedLanguage);
-			}
-		}
+		// $expectedLanguage = !empty($this->session->language) ? $this->session->language : 'english';
+		// $expectedFile = strtolower(get_class($this)).'_lang.php';
+		// $this->lang->load('systems/systems', $expectedLanguage);
+		// if (file_exists(APPPATH."language/".$expectedLanguage."/".$expectedFile)) {
+			// $this->lang->load($expectedFile, $expectedLanguage);
+		// } else {
+			// if (file_exists(APPPATH.'modules/'.strtolower(get_class($this))."/language/".$expectedLanguage."/".$expectedFile)) {
+				// $this->lang->load(strtolower(get_class($this)), $expectedLanguage);
+			// }
+		// }
 		
 		$this->fixed_data = [
 			'client_id'		=> DEFAULT_CLIENT_ID,
@@ -459,14 +459,14 @@ class Getmeb extends CI_Controller
 				/* Execute */
 				if (!in_array($this->r_method, ['OPTIONS'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
-						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
 				break;
 			default:
 				if (strtolower($output) == 'json')
-					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
+					$this->xresponse(FALSE, ['message' => lang('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
 				else
 					$this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu->name)]);
 				break;
@@ -478,14 +478,14 @@ class Getmeb extends CI_Controller
 				/* Export */
 				if (!in_array($this->r_method, ['OPTIONS'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
-						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
 				break;
 			default:
 				if (strtolower($output) == 'json')
-					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
+					$this->xresponse(FALSE, ['message' => lang('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
 				else
 					$this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu['name'])]);
 				break;
@@ -497,68 +497,68 @@ class Getmeb extends CI_Controller
 				/* Only Create */
 				if (!in_array($this->r_method, ['POST'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
-						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
 				break;
 			case '2':
 				/* Only Edit */
 				if (!in_array($this->r_method, ['PUT'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
-						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
 				break;
 			case '3':
 				/* Only Delete */
 				if (!in_array($this->r_method, ['DELETE'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
-						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
 				break;
 			case '4':
 				/* Can Create & Edit */
 				if (!in_array($this->r_method, ['POST','PUT'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
-						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
 				break;
 			case '5':
 				/* Can Create & Delete */
 				if (!in_array($this->r_method, ['POST','DELETE'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
-						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
 				break;
 			case '6':
 				/* Can Edit & Delete */
 				if (!in_array($this->r_method, ['PUT','DELETE'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
-						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
 				break;
 			case '7':
 				/* Can All */
 				if (!in_array($this->r_method, ['POST','PUT','DELETE'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')], 401);
+						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
-						$this->backend_view('pages/unauthorized', ['message' => $this->lang->line('error_permit_crud')]);
+						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
 				break;
 			default:
 				if (strtolower($output) == 'json')
-					$this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
+					$this->xresponse(FALSE, ['message' => lang('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
 				else
 					$this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu['name'])]);
 				break;
@@ -574,22 +574,22 @@ class Getmeb extends CI_Controller
 			case 'canviewlog':
 				if (!$role->is_canviewlog)
 					$this->backend_view('pages/unauthorized', ['message'=>'You are not authorized !']);
-					// $this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')]);
+					// $this->xresponse(FALSE, ['message' => lang('error_permit_crud')]);
 				break;
 			case 'canexport':
 				if (!$role->is_canexport)
 					$this->backend_view('pages/unauthorized', ['message'=>'You are not authorized !']);
-					// $this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')]);
+					// $this->xresponse(FALSE, ['message' => lang('error_permit_crud')]);
 				break;
 			case 'canapproveowndoc':
 				if (!$role->is_canapproveowndoc)
 					$this->backend_view('pages/unauthorized', ['message'=>'You are not authorized !']);
-					// $this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')]);
+					// $this->xresponse(FALSE, ['message' => lang('error_permit_crud')]);
 				break;
 			case 'canreport':
 				if (!$role->is_canreport)
 					$this->backend_view('pages/unauthorized', ['message'=>'You are not authorized !']);
-					// $this->xresponse(FALSE, ['message' => $this->lang->line('error_permit_crud')]);
+					// $this->xresponse(FALSE, ['message' => lang('error_permit_crud')]);
 				break;
 		}
 	}
@@ -1044,17 +1044,18 @@ class Getmeb extends CI_Controller
 		return $menu;
 	}
 	
-	function _reorder_menu($parent_id)
+	function _reorder_menu($parent_id = NULL)
 	{
 		if (empty($parent_id)) {
-			$str = "select * from a_menu where is_deleted = '0' and (parent_id = 0 or parent_id is null) order by parent_id, line_no, is_submodule";
+			$str = "select * from a_menu where is_deleted = '0' and (parent_id = 0 or parent_id is null) order by parent_id, line_no, is_needsort desc, is_submodule";
 		} else {
-			$str = "select * from a_menu where is_deleted = '0' and parent_id = $parent_id order by is_parent desc, line_no, is_submodule";
+			$str = "select * from a_menu where is_deleted = '0' and parent_id = $parent_id order by is_parent desc, line_no, is_needsort desc, is_submodule";
 		}
+		// debug($str);
 		$qry = $this->db->query($str);
 		$line = 1;
 		foreach($qry->result() as $k => $v){
-			$this->db->update('a_menu', ['line_no' => $line], ['id' => $v->id]);
+			$this->db->update('a_menu', ['line_no' => $line, 'is_needsort' => 0], ['id' => $v->id]);
 			$line++;
 		}
 	}
@@ -1170,7 +1171,7 @@ class Getmeb extends CI_Controller
 					if (! $result = $this->dbforge->create_table($tmp_table)){
 						// $this->set_message('no_header_fields');
 						// return FALSE;
-						$this->xresponse(FALSE, ['message' => $this->lang->line('error_import_no_header')], 401);
+						$this->xresponse(FALSE, ['message' => lang('error_import_no_header')], 401);
 					}
 					// debug($fields);
 				} else {
@@ -1381,15 +1382,15 @@ class Getmeb extends CI_Controller
 				$qry = $this->db->get($this->session->tmp_table);
 				if (! $result = $this->_export_data($qry, [], $filename, $this->params->filetype, TRUE)) {
 					$this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-					$this->xresponse(FALSE, ['message' => $this->lang->line('error_import_download_result')], 401);
+					$this->xresponse(FALSE, ['message' => lang('error_import_download_result')], 401);
 				}
 				
 				/* Update status on process table */
-				$this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+				$this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 				/* Unset id_process, so can't be called again from client  */
 				$this->session->unset_userdata('id_process');
 				
-				$result['message'] = $this->lang->line('success_import_data');
+				$result['message'] = lang('success_import_data');
 				$this->xresponse(TRUE, $result);
 			}
 		}
@@ -1397,7 +1398,7 @@ class Getmeb extends CI_Controller
 	
 	function set_message($message, $func=NULL, $args=NULL)
 	{
-		$msg = $this->lang->line($message) ? $this->lang->line($message) : '##' . $message . '##';
+		$msg = lang($message, '', 'systems') ? lang($message, '', 'systems'): '##' . $message . '##';
 		
 		if (!empty($args)){
 			$args = is_array($args) ? 
@@ -1408,6 +1409,18 @@ class Getmeb extends CI_Controller
 		}
 		$this->messages[] = $msg;
 		return $message;
+		
+		/* $msg = lang($message, $args, 'systems') ? lang($message) : '##' . $message . '##';
+		
+		if (!empty($args)){
+			$args = is_array($args) ? 
+				str_replace('+', ' ', http_build_query($args,'',', ')) : 
+				$args;
+			$args = sprintf('Context : <br> function %s(), [%s]', $func, $args);
+			$msg = sprintf('%s<br><br>%s', $msg, $args);
+		}
+		$this->messages[] = $msg;
+		return $message; */
 	}
 
 	function messages($use_p = TRUE)
@@ -1707,8 +1720,8 @@ class Getmeb extends CI_Controller
 				$html.= '</ul></li>';
 		}
 		
-		$html.= '<br><li><a href="#" id="go-lock-screen" onclick="lock_the_screen();"><i class="fa fa-circle-o text-yellow"></i> <span>' . $this->lang->line('nav_lckscr') . '</span></a></li>';
-		$html.= '<li><a href="'.LOGOUT_LNK.'" id="go-sign-out"><i class="fa fa-sign-out text-red"></i> <span>' . $this->lang->line('nav_logout') . '</span></a></li>';
+		$html.= '<br><li><a href="#" id="go-lock-screen" onclick="lock_the_screen();"><i class="fa fa-circle-o text-yellow"></i> <span>' . lang('nav_lckscr') . '</span></a></li>';
+		$html.= '<li><a href="'.LOGOUT_LNK.'" id="go-sign-out"><i class="fa fa-sign-out text-red"></i> <span>' . lang('nav_logout') . '</span></a></li>';
 		return $html;
 	}
 	
@@ -1765,8 +1778,8 @@ class Getmeb extends CI_Controller
 		$html.= $this->li($cur_page, 1, 'systems/x_page?pageid=1', 'Dashboard', 'fa fa-dashboard');
 		// debug($qry->result_array());
 		$html.= $this->_getmenu_recursively($qry->result_array(), null, $menu_active);
-		$html.= '<br><li><a href="#" id="go-lock-screen" onclick="lock_the_screen();"><i class="fa fa-circle-o text-yellow"></i> <span>' . $this->lang->line('nav_lckscr') . '</span></a></li>';
-		$html.= '<li><a href="'.LOGOUT_LNK.'" id="go-sign-out"><i class="fa fa-sign-out text-red"></i> <span>' . $this->lang->line('nav_logout') . '</span></a></li>';
+		$html.= '<br><li><a href="#" id="go-lock-screen" onclick="lock_the_screen();"><i class="fa fa-circle-o text-yellow"></i> <span>' . lang('nav_lckscr') . '</span></a></li>';
+		$html.= '<li><a href="'.LOGOUT_LNK.'" id="go-sign-out"><i class="fa fa-sign-out text-red"></i> <span>' . lang('nav_logout') . '</span></a></li>';
 		return $html;
 	}
 	

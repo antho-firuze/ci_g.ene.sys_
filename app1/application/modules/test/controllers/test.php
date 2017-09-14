@@ -15,9 +15,28 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
+	function human_filesize($bytes, $decimals = 2) {
+		$sz = 'BKMGTP';
+		$factor = floor((strlen($bytes) - 1) / 3);
+		return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor];
+	}
+	
+	function get_log()
+	{
+		// $errorPath = ini_get('error_log');
+		// echo $errorPath;
+		// echo(phpinfo());
+		// var_dump($_SERVER);
+		// $size = $this->human_filesize(filesize('D:/xampp/apache/logs/access.log'),0)
+		// if ($size = )
+		// echo();
+	}
+	
 	function test_lang()
 	{
+		// echo lang('notif_update_outbound_completed', null, 'cashflow');
 		echo lang('notif_update_outbound_completed', null, 'cashflow');
+		// echo lang2('notif_update_outbound_completed', null, 'cashflow');
 	}
 	
 	function test_dsn()

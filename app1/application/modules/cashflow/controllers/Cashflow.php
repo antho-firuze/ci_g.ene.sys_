@@ -1448,6 +1448,9 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'pre_delete'){
+				$this->xresponse(FALSE, ['message' => lang('error_update_inbound_completed')], 401);
+			}
 			/* if ($this->params['event'] == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('movement_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
 			} */
@@ -1777,17 +1780,29 @@ class Cashflow extends Getmeb
 	function cf_sorder_etd()
 	{
 		if ($this->r_method == 'OPTIONS') {
-			$id = $this->params->id;
-			unset($this->params->id);
-			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
-			
-			$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$id]);
-			
-			/* Throwing the result to Ajax */
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			$data = array_merge(['etd' => $this->params->etd], $this->update_log);
 
-			$this->xresponse(TRUE, ['message' => $this->messages()]);
+			if ($this->params->description)
+				$this->db->set('description', "description || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]'", FALSE);
+			
+			if (!$result = $this->db->update($this->c_table, $data, ['id' => $this->params->id])) {
+				$this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
+			} 
+				
+			$this->xresponse(TRUE, ['message' => lang('success_update', null, 'systems')]);
+			
+			
+			// $id = $this->params->id;
+			// unset($this->params->id);
+			// $this->mixed_data = array_merge((array)$this->params, $this->update_log);
+			
+			// $result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$id]);
+			
+			// /* Throwing the result to Ajax */
+			// if (! $result)
+				// $this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+			// $this->xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
 	
@@ -2681,7 +2696,7 @@ class Cashflow extends Getmeb
 				$arr[0]['period'] = '('.date('m',$date).','.date('Y',$date).')';
 			} else {
 				if ($return > 12)
-					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_month_range_overload'), 12)],401);
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_month_range_overload'), 12)],401);
 				
 				$date = strtotime($fdate);
 				for ($x = 0; $x <= $return-1; $x++) {
@@ -2799,15 +2814,15 @@ class Cashflow extends Getmeb
 			$excl_cols = ['account_id','is_receipt','type','seq'];
 			if (! $result = $this->_export_data_array($rows, $excl_cols, $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
+				$this->xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
 			}
 			
 			/* Update status on process table */
-			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 			/* Unset id_process, so can't be called again from client  */
 			// $this->session->unset_userdata('id_process');
 			
-			$result['message'] = $this->lang->line('success_import_data');
+			$result['message'] = lang('success_import_data');
 			$this->xresponse(TRUE, $result);
 		}
 	}
@@ -2825,7 +2840,7 @@ class Cashflow extends Getmeb
 				$arr[0]['period'] = '('.date('m',$date).','.date('Y',$date).')';
 			} else {
 				if ($return > 12)
-					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_month_range_overload'), 12)],401);
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_month_range_overload'), 12)],401);
 				
 				$date = strtotime($fdate);
 				for ($x = 0; $x <= $return-1; $x++) {
@@ -2940,15 +2955,15 @@ class Cashflow extends Getmeb
 			$excl_cols = ['account_id','is_receipt','type','seq'];
 			if (! $result = $this->_export_data_array($rows, $excl_cols, $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
+				$this->xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
 			}
 			
 			/* Update status on process table */
-			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 			/* Unset id_process, so can't be called again from client  */
 			// $this->session->unset_userdata('id_process');
 			
-			$result['message'] = $this->lang->line('success_import_data');
+			$result['message'] = lang('success_import_data');
 			$this->xresponse(TRUE, $result);
 		}
 	}
@@ -2966,7 +2981,7 @@ class Cashflow extends Getmeb
 				$arr[0]['period'] = '('.date('m',$date).','.date('Y',$date).')';
 			} else {
 				if ($return > 12)
-					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_month_range_overload'), 12)],401);
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_month_range_overload'), 12)],401);
 				
 				$date = strtotime($fdate);
 				for ($x = 0; $x <= $return-1; $x++) {
@@ -3041,15 +3056,15 @@ class Cashflow extends Getmeb
 			$excl_cols = ['account_id','is_receipt','type','seq'];
 			if (! $result = $this->_export_data_array($rows, $excl_cols, $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
+				$this->xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
 			}
 			
 			/* Update status on process table */
-			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 			/* Unset id_process, so can't be called again from client  */
 			// $this->session->unset_userdata('id_process');
 			
-			$result['message'] = $this->lang->line('success_import_data');
+			$result['message'] = lang('success_import_data');
 			$this->xresponse(TRUE, $result);
 		}
 	}
@@ -3072,17 +3087,17 @@ class Cashflow extends Getmeb
 			/* Validation */
 			// debug($this->params);
 			if (empty($this->params->fdate) && empty($this->params->tdate) && empty($this->params->order_id))
-				$this->xresponse(FALSE, ['message' => $this->lang->line('error_filling_params')],401);
+				$this->xresponse(FALSE, ['message' => lang('error_filling_params')],401);
 			
 			$str = "";
 			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
-					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
 				$str = "and doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
 			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
-					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
 				$str = "and doc_date >= '".$this->params->fdate."'";
 			}
@@ -3110,13 +3125,13 @@ class Cashflow extends Getmeb
 			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
 			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
+				$this->xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
 			}
 			/* Update status on process table */
-			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 			/* Unset id_process, so can't be called again from client  */
 			// $this->session->unset_userdata('id_process');
-			$result['message'] = $this->lang->line('success_import_data');
+			$result['message'] = lang('success_import_data');
 			$this->xresponse(TRUE, $result);
 		}
 	}
@@ -3139,17 +3154,17 @@ class Cashflow extends Getmeb
 			/* Validation */
 			// debug($this->params);
 			if (empty($this->params->fdate) && empty($this->params->tdate))
-				$this->xresponse(FALSE, ['message' => $this->lang->line('error_filling_params')],401);
+				$this->xresponse(FALSE, ['message' => lang('error_filling_params')],401);
 			
 			$str = "";
 			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
-					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
 				$str = "and t1.received_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
 			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
-					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
 				$str = "and t1.received_plan_date >= '".$this->params->fdate."'";
 			}
@@ -3183,13 +3198,13 @@ class Cashflow extends Getmeb
 			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
 			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
+				$this->xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
 			}
 			/* Update status on process table */
-			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 			/* Unset id_process, so can't be called again from client  */
 			// $this->session->unset_userdata('id_process');
-			$result['message'] = $this->lang->line('success_import_data');
+			$result['message'] = lang('success_import_data');
 			$this->xresponse(TRUE, $result);
 		}
 	}
@@ -3212,17 +3227,17 @@ class Cashflow extends Getmeb
 			/* Validation */
 			// debug($this->params);
 			if (empty($this->params->fdate) && empty($this->params->tdate))
-				$this->xresponse(FALSE, ['message' => $this->lang->line('error_filling_params')],401);
+				$this->xresponse(FALSE, ['message' => lang('error_filling_params')],401);
 			
 			$str = "";
 			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
-					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
 				$str = "and t1.payment_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
 			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
-					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
 				$str = "and t1.payment_plan_date >= '".$this->params->fdate."'";
 			}
@@ -3256,13 +3271,13 @@ class Cashflow extends Getmeb
 			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
 			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
+				$this->xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
 			}
 			/* Update status on process table */
-			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 			/* Unset id_process, so can't be called again from client  */
 			// $this->session->unset_userdata('id_process');
-			$result['message'] = $this->lang->line('success_import_data');
+			$result['message'] = lang('success_import_data');
 			$this->xresponse(TRUE, $result);
 		}
 	}
@@ -3273,17 +3288,17 @@ class Cashflow extends Getmeb
 			/* Validation */
 			// debug($this->params);
 			if (empty($this->params->fdate) && empty($this->params->tdate))
-				$this->xresponse(FALSE, ['message' => $this->lang->line('error_filling_params')],401);
+				$this->xresponse(FALSE, ['message' => lang('error_filling_params')],401);
 			
 			$str = "";
 			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
-					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
 				$str = "and t1.doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
 			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
-					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
 				$str = "and t1.doc_date >= '".$this->params->fdate."'";
 			}
@@ -3310,13 +3325,13 @@ class Cashflow extends Getmeb
 			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
 			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
+				$this->xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
 			}
 			/* Update status on process table */
-			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 			/* Unset id_process, so can't be called again from client  */
 			// $this->session->unset_userdata('id_process');
-			$result['message'] = $this->lang->line('success_import_data');
+			$result['message'] = lang('success_import_data');
 			$this->xresponse(TRUE, $result);
 		}
 	}
@@ -3327,17 +3342,17 @@ class Cashflow extends Getmeb
 			/* Validation */
 			// debug($this->params);
 			if (empty($this->params->fdate) && empty($this->params->tdate))
-				$this->xresponse(FALSE, ['message' => $this->lang->line('error_filling_params')],401);
+				$this->xresponse(FALSE, ['message' => lang('error_filling_params')],401);
 			
 			$str = "";
 			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
-					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
 				$str = "and t1.doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
 			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
-					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
 				$str = "and t1.doc_date >= '".$this->params->fdate."'";
 			}
@@ -3364,13 +3379,13 @@ class Cashflow extends Getmeb
 			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
 			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
+				$this->xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
 			}
 			/* Update status on process table */
-			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 			/* Unset id_process, so can't be called again from client  */
 			// $this->session->unset_userdata('id_process');
-			$result['message'] = $this->lang->line('success_import_data');
+			$result['message'] = lang('success_import_data');
 			$this->xresponse(TRUE, $result);
 		}
 	}
@@ -3381,17 +3396,17 @@ class Cashflow extends Getmeb
 			/* Validation */
 			// debug($this->params);
 			if (empty($this->params->fdate) && empty($this->params->tdate))
-				$this->xresponse(FALSE, ['message' => $this->lang->line('error_filling_params')],401);
+				$this->xresponse(FALSE, ['message' => lang('error_filling_params')],401);
 			
 			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
-					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
 				$fdate = $this->params->fdate;
 				$tdate = $this->params->tdate;
 			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
-					$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_day_range_overload'), 60)],401);
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
 				$fdate = $this->params->fdate;
 				$tdate = date('Y-m-d');
@@ -3465,13 +3480,13 @@ class Cashflow extends Getmeb
 			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
 			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				$this->xresponse(FALSE, ['message' => sprintf($this->lang->line('error_downloading_report'), $filename)], 401);
+				$this->xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
 			}
 			/* Update status on process table */
-			// $this->_update_process(['message' => $this->lang->line('success_import_data'), 'log' => $this->lang->line('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 			/* Unset id_process, so can't be called again from client  */
 			// $this->session->unset_userdata('id_process');
-			$result['message'] = $this->lang->line('success_import_data');
+			$result['message'] = lang('success_import_data');
 			$this->xresponse(TRUE, $result);
 		}
 	}

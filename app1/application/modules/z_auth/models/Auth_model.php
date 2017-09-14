@@ -281,8 +281,16 @@ class Auth_model extends CI_Model
  		$buffer = '';
         $buffer_valid = false;
 
-        if (function_exists('mcrypt_create_iv') && !defined('PHALANGER')) {
+				/* "mcrypt_create_iv" => This function was DEPRECATED in PHP 7.1.0  */
+        /* if (function_exists('mcrypt_create_iv') && !defined('PHALANGER')) {
             $buffer = mcrypt_create_iv($raw_salt_len, MCRYPT_DEV_URANDOM);
+            if ($buffer) {
+                $buffer_valid = true;
+            }
+        } */
+
+        if (function_exists('random_bytes') && !defined('PHALANGER')) {
+            $buffer = random_bytes($raw_salt_len);
             if ($buffer) {
                 $buffer_valid = true;
             }
@@ -613,7 +621,7 @@ class Auth_model extends CI_Model
 		if ($remember && $this->config->item('remember_users', 'auth'))
 		{
 			if ($user_id = $this->login_remembered_user()){
-				$this->update_last_login($user->id);
+				$this->update_last_login($user_id);
 				$this->clear_login_attempts($identity);
 				return $user_id;
 			}

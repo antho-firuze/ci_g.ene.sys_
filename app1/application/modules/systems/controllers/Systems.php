@@ -250,7 +250,7 @@ class Systems extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->params['where']['t1.id'] = $this->session->user_id;
 			
-			if (($result['data'] = $this->{$this->mdl}->get_a_user($this->params)) === FALSE){
+			if (($result['data'] = $this->{$this->mdl}->a_user($this->params)) === FALSE){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -330,7 +330,7 @@ class Systems extends Getmeb
 				if (! $this->updateRecord('a_user', $this->mixed_data, ['id' => $this->session->user_id], FALSE))
 					$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
 
-				$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
+				$this->xresponse(TRUE, ['message' => lang('success_saving')]);
 			}
 			
 			/* This line is for update user info */
@@ -339,7 +339,7 @@ class Systems extends Getmeb
 				if (! $this->updateRecord('a_user', $this->mixed_data, ['id' => $this->session->user_id], FALSE))
 					$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
 
-				$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
+				$this->xresponse(TRUE, ['message' => lang('success_saving')]);
 			}
 			
 			/* This line is for update user config */
@@ -365,7 +365,7 @@ class Systems extends Getmeb
 				if (count($result) > 0) {
 					$this->xresponse(FALSE, ['message' => $result]);
 				} else {
-					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
+					$this->xresponse(TRUE, ['message' => lang('success_saving')]);
 				}
 			}
 		}
@@ -402,7 +402,7 @@ class Systems extends Getmeb
 					// }
 					/* update to table */
 					$this->updateRecord('a_user', ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params->id]);
-					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => base_url().$this->session->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
+					$this->xresponse(TRUE, ['message' => lang('success_saving'), 'file_url' => base_url().$this->session->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
 				}
 			}
 		}
@@ -500,7 +500,7 @@ class Systems extends Getmeb
 				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 			else
 				// $this->xresponse(TRUE, ['message' => $this->messages()]);
-				$this->xresponse(TRUE, ['message' => $this->lang->line('success_rla')]);
+				$this->xresponse(TRUE, ['message' => lang('success_rla')]);
 		}
 	}
 	
@@ -553,7 +553,7 @@ class Systems extends Getmeb
 						// }
 						/* update to table */
 						$this->updateRecord($this->c_method, ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params->id]);
-						$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => base_url().$this->session->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
+						$this->xresponse(TRUE, ['message' => lang('success_saving'), 'file_url' => base_url().$this->session->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
 					}
 				}
 				
@@ -567,7 +567,7 @@ class Systems extends Getmeb
 				if ($data) {
 					$this->updateRecord($this->c_method, ['photo_file'=>$data['filename']], ['id' => $id]);
 				}
-				$this->xresponse(TRUE, ['id' => $id, 'message' => $this->lang->line('success_saving')]);
+				$this->xresponse(TRUE, ['id' => $id, 'message' => lang('success_saving')]);
 			}			
 		}
 		if ($this->r_method == 'PUT') {
@@ -754,7 +754,7 @@ class Systems extends Getmeb
 					if (!$this->insertRecord($this->c_method, array_merge($data, $cond), FALSE, TRUE))
 						$this->xresponse(FALSE, ['message' => $this->messages()]);
 				}
-				$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
+				$this->xresponse(TRUE, ['message' => lang('success_saving')]);
 			}
 			
 			$result = [];
@@ -930,10 +930,10 @@ class Systems extends Getmeb
 				if (count($error_out) > 1)
 					$this->xresponse(TRUE, ['message' => $error_out]);
 				else
-					$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
+					$this->xresponse(TRUE, ['message' => lang('success_saving')]);
 			}
 			
-			$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
+			$this->xresponse(TRUE, ['message' => lang('success_saving')]);
 		}
 	}
 	
@@ -1084,9 +1084,14 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post_put'){
+				// $this->mixed_data['parent_id'] = $this->mixed_data['parent_id'] ? $this->mixed_data['parent_id'] : 0;
+				$this->mixed_data['parent_id'] OR $this->mixed_data['parent_id'] = 0;
+			}
 			if ($this->params->event == 'pre_put'){
 				if (isset($this->params->newline) && $this->params->newline != ''){
-					if (!$result = $this->updateRecord($this->c_method, ['line_no' => $this->params->newline], ['id' => $this->params->id], FALSE))
+					$needsort = $this->params->line_no - $this->params->newline;
+					if (!$result = $this->updateRecord($this->c_method, ['line_no' => $this->params->newline, 'is_needsort' => $needsort], ['id' => $this->params->id], FALSE))
 						$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 					else {
 						$this->_reorder_menu($this->params->parent_id);
@@ -1180,7 +1185,7 @@ class Systems extends Getmeb
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
-			
+
 			// $this->params['ob'] = 'orgtype_id';
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);

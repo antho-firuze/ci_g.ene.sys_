@@ -33,6 +33,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/pace/pace.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/iCheck/icheck.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-dialog/js/bootstrap-dialog.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/js-cookie/js.cookie.js"></script>
 
 </head>
 <body class="hold-transition login-page">
@@ -94,7 +95,7 @@
 </div>
 <!-- /.login-box -->
 <div style="position: fixed; bottom: 0; width: 100%;">
-	Server [<strong>{$elapsed_time}</strong>] - Client [<strong>{microtime(true)-$start_time}</strong>]
+	Server [{$.php.get_dsn_host()}][<strong>{$elapsed_time}</strong>] - Client [<strong>{microtime(true)-$start_time}</strong>]
 </div>
 
 <script>
@@ -103,6 +104,16 @@
 	$("[name='remember']")
 		.iCheck({ checkboxClass: 'icheckbox_square-blue', radioClass: 'iradio_square-blue', increaseArea: '20%' })
 		.iCheck('uncheck');
+	
+	$(document).ready(function(){
+		console.log(Cookies.get("identity"));
+		var $identity = Cookies.get("identity");
+		if ($identity) {
+			$("[name='username']").val($identity);
+			$("[name='password']").val(1234567890);
+			$("[name='remember']").iCheck('check');
+		}
+	});
 	
 	form.submit( function(e) {
 		e.preventDefault();

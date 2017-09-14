@@ -27,7 +27,7 @@
 		enable: true,
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
-			{ pageid: 129, subKey: 'parent_id', title: 'Org Location', },
+			{ pageid: 129, subKey: 'parent_id', title: 'Org Location', subType: 'hierarchy' },
 		],
 		columns: [
 			{ width:"200px", orderable: false, data:"code_name", 	 title:"Name" },
