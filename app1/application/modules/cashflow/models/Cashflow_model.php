@@ -1226,7 +1226,7 @@ class Cashflow_Model extends CI_Model
 		when (t1.doc_type = '4') then 'Custom Duty'
 		end as document_type";
 		$params['table'] 	= "(
-			select count(*) 
+			select * 
 			from cf_invoice 
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
