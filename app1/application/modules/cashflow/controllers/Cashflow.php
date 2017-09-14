@@ -1016,16 +1016,7 @@ class Cashflow extends Getmeb
 					$params['table'] 	= "cf_invoice as t1";
 					$result['data'] = $this->base_model->mget_rec($params);
 					$this->xresponse(TRUE, $result);
-				} else {
-					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params['cashbank_id']);
-					$params['select']	= "t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
-					$having = isset($params['having']) && $params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
-					$params['where']['bpartner_id'] = $cashbank->bpartner_id;
-					$params['where']['is_receipt'] = $cashbank->is_receipt;
-					$params['table'] 	= "cf_invoice as t1";
-					$result['data'] = $this->base_model->mget_rec($params);
-					$this->xresponse(TRUE, $result);
-				}
+				} 
 			}
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
