@@ -884,6 +884,7 @@ class Cashflow extends Getmeb
 						// and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
 
 					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params['cashbank_id']);
+					$params = $this->params;
 					$params['select']	= "t1.*, 
 					(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
 					to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
