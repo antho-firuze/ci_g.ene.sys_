@@ -24,7 +24,9 @@ define('DB_PASS', '');
 define('DB_NAME', ''); 
 
 /* Base URL */ 
+$protocol = isset($_SERVER["HTTPS"]) && $_SERVER['HTTPS'] == 'on' ? 'https://' : 'http://';
 $http_host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+
 try{
 	// create a PostgreSQL database connection
 	$conn = new PDO(DB_DSN);
@@ -49,7 +51,9 @@ try{
 define('DEFAULT_CLIENT_ID', $row['client_id']);
 define('DEFAULT_ORG_ID', $row['org_id']);
 
-define('BASE_URL', 'http://'.$http_host.'/'.$row['path']); 
+// define('BASE_URL', 'http://'.$http_host.'/'.$row['path']); 
+define('BASE_URL', $protocol.$http_host.'/'.$row['path']); 
+// define('BASE_URL', $http_host.'/'.$row['path']); 
 
 /* Time Zone */ 
 define('TIME_ZONE', $row['timezone']); 
