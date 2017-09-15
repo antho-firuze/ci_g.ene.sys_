@@ -214,7 +214,7 @@ class Cashflow_Model extends CI_Model
 		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 		$params['table'] 	= "cf_invoice as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
-			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order, to_char(t2.etd, '".$this->session->date_format."') as etd_order";
+			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order, to_char(t2.etd, '".$this->session->date_format."') as etd_order, t2.doc_ref_no as doc_ref_no_order";
 			$params['join'][] = ['cf_order as t2', 't1.order_id = t2.id', 'left'];
 			$params['join'][] = ['cf_order_plan as t3', 't1.order_plan_id = t3.id', 'left'];
 		}
@@ -1202,15 +1202,20 @@ class Cashflow_Model extends CI_Model
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
-		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.received_plan_date, '".$this->session->date_format."') as Recv_plan_date, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
+		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
 		$params['table'] 	= " (
-			select * from cf_invoice a1 where 
+			select * 
+			from cf_invoice 
+			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			a1.is_active='1' and a1.is_deleted='0' and extract(month from a1.received_plan_date) = extract(month from current_date)
-			and a1.doc_type='1'
-			and not exists(select b1.id from cf_cashbank_line b1 where b1.is_active='1' and b1.is_deleted='0' and b1.invoice_id =a1.id )
+			is_active = '1' and is_deleted = '0' and doc_type = '1' and doc_date is null and invoice_plan_date <= current_date
 			) t1";
-
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
@@ -1220,20 +1225,25 @@ class Cashflow_Model extends CI_Model
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
-		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.payment_plan_date, '".$this->session->date_format."') as Pay_plan_date, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name,case 
-		when (t1.doc_type = '2') then 'vendor' 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
+		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name,
+		case 
+		when (t1.doc_type = '2') then 'Vendor' 
 		when (t1.doc_type = '3') then 'Clearence'
 		when (t1.doc_type = '4') then 'Custom Duty'
-		else ''
 		end as document_type";
 		$params['table'] 	= "(
-			select * from cf_invoice a1 where 
+			select * 
+			from cf_invoice 
+			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			a1.is_active='1' and a1.is_deleted='0' and extract(month from a1.payment_plan_date) = extract(month from current_date)
-			and a1.doc_type='2'
-			and not exists(select b1.id from cf_cashbank_line b1 where b1.is_active='1' and b1.is_deleted='0' and b1.invoice_id =a1.id )
+			is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and doc_date is null and invoice_plan_date <= current_date
 			) t1";
-
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
@@ -1243,13 +1253,19 @@ class Cashflow_Model extends CI_Model
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
-		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.received_plan_date, '".$this->session->date_format."') as Recv_plan_date, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
+		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
 		$params['table'] 	= "(
-			select * from cf_invoice a1 where 
+			select * 
+			from cf_invoice 
+			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			a1.is_active='1' and a1.is_deleted='0' and extract(month from a1.received_plan_date) = extract(month from current_date)
-			and a1.doc_type='5'
-			and not exists(select b1.id from cf_cashbank_line b1 where b1.is_active='1' and b1.is_deleted='0' and b1.invoice_id =a1.id )
+			is_active = '1' and is_deleted = '0' and doc_type = '5' and doc_date is null and invoice_plan_date <= current_date
 			) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
@@ -1260,13 +1276,19 @@ class Cashflow_Model extends CI_Model
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
-		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.payment_plan_date, '".$this->session->date_format."') as Pay_plan_date, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
+		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
 		$params['table'] 	= "(
-			select * from cf_invoice a1 where 
+			select * 
+			from cf_invoice 
+			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			a1.is_active='1' and a1.is_deleted='0' and extract(month from a1.payment_plan_date) = extract(month from current_date)
-			and a1.doc_type='6'
-			and not exists(select b1.id from cf_cashbank_line b1 where b1.is_active='1' and b1.is_deleted='0' and b1.invoice_id =a1.id )
+			is_active = '1' and is_deleted = '0' and doc_type = '6' and doc_date is null and invoice_plan_date <= current_date
 			) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
@@ -1370,9 +1392,11 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
 		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
 		$params['table'] 	= "(
-			select *, (select id as cashbank_line_id from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id ) from cf_invoice f1 where 
+			select *, (select id as cashbank_line_id from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
+			from cf_invoice f1
+			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active='1' and is_deleted='0' and received_plan_date <= current_date and
+			is_active='1' and is_deleted='0' and payment_plan_date <= current_date and
 			doc_type in ('6') 
 			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
 			) t1";

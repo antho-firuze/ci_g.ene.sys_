@@ -148,7 +148,7 @@ class Base_Model extends CI_Model
 				foreach ($array as $value) {
 					// list($k, $v) = explode("=", $value);
 					// $this->db->where($k, empty($v)?0:$v);
-					$this->db->where($value);
+					$this->db->where($value, NULL, FALSE);
 				}
 			}
 		}

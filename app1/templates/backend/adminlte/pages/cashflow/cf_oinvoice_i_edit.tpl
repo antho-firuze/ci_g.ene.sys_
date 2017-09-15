@@ -31,8 +31,8 @@
 	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Doc No", idname:"doc_no", format: "'casing': 'upper'", required: false, hidden: true }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Invoice Date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false, readonly: true, hidden: ($act=='edt'?false:true) }));
-	col.push(BSHelper.Input({ horz:false, type:"date", label:"Invoice Plan Date", idname:"invoice_plan_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false, readonly: ($act=='edt'?false:true), }));
-	col.push(BSHelper.Input({ horz:false, type:"date", label:"Received Plan Date", idname:"received_plan_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false, readonly: ($act=='edt'?false:true) }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"Invoice Plan Date", idname:"invoice_plan_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false, }));
+	col.push(BSHelper.Input({ horz:false, type:"date", label:"Received Plan Date", idname:"received_plan_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false, }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Reference No", idname:"doc_ref_no", required: false, }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Reference Date", idname:"doc_ref_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
