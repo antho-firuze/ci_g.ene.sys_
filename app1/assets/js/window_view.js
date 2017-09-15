@@ -174,7 +174,7 @@ function initDataTable()
 
 	/* For parsing URL Parameters */
 	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
-		console.log('Datatables parsing URL Parameter for search/filter.');
+		// console.log('Datatables parsing URL Parameter for search/filter.');
 		$q = $(this).val();
 		$url = insertParam('q', $q);
 		dataTable1.ajax.reload( null, false );
