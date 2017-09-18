@@ -34,13 +34,11 @@
 		columns: [
 			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
 			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
-			{ width:"100px", orderable:false, data:"so_no", title:"Doc No" },
+			{ width:"100px", orderable:false, data:"doc_no", title:"Invoice No" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
-			{ width:"100px", orderable:false, data:"category_name", title:"Category" },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"plan_total", title:"Plan Total", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"adj_amount", title:"Adj Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"net_amount", title:"Net Amount", render: function(data, type, row){ return format_money(data); } },
 		],
 		order: ['id desc'],
 	};
