@@ -1376,9 +1376,9 @@ class Getmeb extends CI_Controller
 				
 				/* Export the result to client */
 				$filename = 'result_'.$this->c_table.'_'.date('YmdHi').'.'.$this->params->filetype;
-				// $fields = $this->db->list_fields($this->session->tmp_table);
+				$fields = $this->db->list_fields($this->session->tmp_table);
 				// $fields = array_diff($fields, ['tmp_id']);
-				// $this->db->select($fields);
+				$this->db->select($fields);
 				$qry = $this->db->get($this->session->tmp_table);
 				if (! $result = $this->_export_data($qry, [], $filename, $this->params->filetype, TRUE)) {
 					$this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
