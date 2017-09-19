@@ -1307,12 +1307,12 @@ class Getmeb extends CI_Controller
 							if ($result = $this->db->where('id', $values[$k])->get($v)) {
 								if ($result->num_rows() < 1) {
 									$this->db->update($this->session->tmp_table, ['status' => sprintf("Error: FK, [%s] doesn't exists !", $k)], $tmp_id);
-									// $this->db->flush_cache();
+									$this->db->flush_cache();
 									$is_valid = false;
 								}
 							} else {
 								$this->db->update($this->session->tmp_table, ['status' => sprintf("Error: FK, [%s] doesn't exists !", $k)], $tmp_id);
-								// $this->db->flush_cache();
+								$this->db->flush_cache();
 								$is_valid = false;
 							}
 						}
@@ -1323,7 +1323,6 @@ class Getmeb extends CI_Controller
 					/* ============================ Insert cluster ============================ */
 					if ($this->params->importtype == 'insert') {
 						
-						
 						/* Validation Identity Key */
 						if ($this->identity_keys){
 							/* Build filter with identity field */
@@ -1332,7 +1331,7 @@ class Getmeb extends CI_Controller
 							if ($this->db->where( array_merge($filter, $identity) )->get($this->c_table)->num_rows() > 0) {
 								// $this->db->update($this->session->tmp_table, ['status' => sprintf("[%s] is already exists !", urldecode(http_build_query($identity,'',', ')))], $tmp_id);
 								$this->db->update($this->session->tmp_table, ['status' => sprintf("Error: [%s] already exists !", implode(', ', array_keys($identity)))], $tmp_id);
-								// $this->db->flush_cache();
+								$this->db->flush_cache();
 								continue;
 							}
 						}
@@ -1343,7 +1342,7 @@ class Getmeb extends CI_Controller
 						}
 						
 						$this->db->update($this->session->tmp_table, ['status' => 'OK', 'id_new' => $result], $tmp_id);
-						// $this->db->flush_cache();
+						$this->db->flush_cache();
 					} 
 					
 					/* ============================ Update cluster ============================ */
@@ -1357,7 +1356,7 @@ class Getmeb extends CI_Controller
 							if ($this->db->where( array_merge($filter, $identity) )->get($this->c_table)->num_rows() < 1) {
 								// $this->db->update($this->session->tmp_table, ['status' => sprintf("[%s] doesn't exists !", urldecode(http_build_query($identity,'',', ')))], $tmp_id);
 								$this->db->update($this->session->tmp_table, ['status' => sprintf("Error: [%s] doesn't exists !", implode(', ', array_keys($identity)))], $tmp_id);
-								// $this->db->flush_cache();
+								$this->db->flush_cache();
 								continue;
 							}
 						}
@@ -1368,7 +1367,7 @@ class Getmeb extends CI_Controller
 						}
 						
 						$this->db->update($this->session->tmp_table, ['status' => 'OK'], $tmp_id);
-						// $this->db->flush_cache();
+						$this->db->flush_cache();
 					}
 				}
 				
