@@ -28,10 +28,10 @@
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Can Export", idname:"is_canexport" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Can Import", idname:"is_canimport" }));
-	col.push(BSHelper.Checkbox({ horz:false, label:"Is Parent Menu", idname:"is_parent", value:0 }));
+	col.push(BSHelper.Checkbox({ horz:false, label:"Is Parent Menu", idname:"is_parent", }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Parent Menu", idname:"parent_id", url:"{$.php.base_url('systems/a_menu_parent_list')}", remote: true }));
 	{* col.push(BSHelper.Input({ horz:false, type:"text", label:"Icon", idname:"icon" })); *}
-	col.push(BSHelper.Checkbox({ horz:false, label:"Is Sub Module", idname:"is_submodule", value:0 }));
+	col.push(BSHelper.Checkbox({ horz:false, label:"Is Sub Module", idname:"is_submodule", }));
 	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Path", idname:"path" }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Class/Controller", idname:"class" }));
@@ -58,32 +58,32 @@
 				$("#is_canexport").closest(".form-group").css("display", "none");
 				$("#is_canimport").closest(".form-group").css("display", "none");
 				$("#is_parent").closest(".form-group").css("display", "none");
-				$("#is_parent").val(1);
-				$("#is_submodule").val(0);
+				{* $("#is_parent").val(1); *}
+				{* $("#is_submodule").val(0); *}
 			}
 			if (rowData.id == "F"){
 				$("#is_submodule").closest(".form-group").css("display", "none");
 				$("#is_canexport").closest(".form-group").css("display", "none");
 				$("#is_canimport").closest(".form-group").css("display", "none");
 				$("#is_parent").closest(".form-group").css("display", "none");
-				$("#is_parent").val(0);
-				$("#is_submodule").val(1);
+				{* $("#is_parent").val(0); *}
+				{* $("#is_submodule").val(1); *}
 			}
 			if (rowData.id == "P"){
 				$("#is_submodule").closest(".form-group").css("display", "");
 				$("#is_canexport").closest(".form-group").css("display", "none");
 				$("#is_canimport").closest(".form-group").css("display", "none");
 				$("#is_parent").closest(".form-group").css("display", "none");
-				$("#is_parent").val(0);
-				$("#is_submodule").val(0);
+				{* $("#is_parent").val(0); *}
+				{* $("#is_submodule").val(0); *}
 			}
 			if (rowData.id == "W"){
 				$("#is_submodule").closest(".form-group").css("display", "");
 				$("#is_canexport").closest(".form-group").css("display", "");
 				$("#is_canimport").closest(".form-group").css("display", "");
 				$("#is_parent").closest(".form-group").css("display", "none");
-				$("#is_parent").val(0);
-				$("#is_submodule").val(0);
+				{* $("#is_parent").val(0); *}
+				{* $("#is_submodule").val(0); *}
 			}
 		}
 	});

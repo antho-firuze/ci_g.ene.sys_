@@ -1089,6 +1089,10 @@ class Systems extends Getmeb
 			if ($this->params->event == 'pre_post_put'){
 				// $this->mixed_data['parent_id'] = $this->mixed_data['parent_id'] ? $this->mixed_data['parent_id'] : 0;
 				$this->mixed_data['parent_id'] OR $this->mixed_data['parent_id'] = 0;
+				if ($this->params->type == 'G') 
+					$this->mixed_data['is_parent'] = '1';
+				else
+					$this->mixed_data['is_parent'] = '0';
 			}
 			if ($this->params->event == 'pre_put'){
 				if (isset($this->params->newline) && $this->params->newline != ''){
