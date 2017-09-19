@@ -15,6 +15,11 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
+	function test_opcache()
+	{
+		var_dump(opcache_get_status());
+	}
+	
 	function human_filesize($bytes, $decimals = 2) {
 		$sz = 'BKMGTP';
 		$factor = floor((strlen($bytes) - 1) / 3);

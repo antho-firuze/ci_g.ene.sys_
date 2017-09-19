@@ -19,6 +19,7 @@
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", placeholder:"string(2000)" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Can Export", idname:"is_canexport" }));
+	col.push(BSHelper.Checkbox({ horz:false, label:"Can Import", idname:"is_canimport" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Can Report", idname:"is_canreport" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Can View Log", idname:"is_canviewlog" }));
 	row.push(subCol(6, col)); col = [];

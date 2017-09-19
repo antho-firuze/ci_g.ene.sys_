@@ -21,6 +21,8 @@
 		processMenu: [{ id:"btn-process1", title:"Process 1" }, { id:"btn-process2", title:"Process 2" }, ],
 		processMenuDisable: ['btn-process1'],
 	};
+	if ("{$is_canimport}" == "0") Toolbar_Init.disableBtn.push('btn-import');
+	if ("{$is_canexport}" == "0") Toolbar_Init.disableBtn.push('btn-export');
 	{* DataTable Init *}
 	var format_money = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
 	var DataTable_Init = {

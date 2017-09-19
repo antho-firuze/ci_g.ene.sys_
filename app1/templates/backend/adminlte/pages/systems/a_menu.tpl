@@ -35,6 +35,8 @@
 			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"is_parent", title:"Parent", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"line_no", title:"Line", render:function(data, type, row){ return '<input type="number" class="line_no" style="width:50px; text-align:center;" value="'+data+'">'; } },
 			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"is_submodule", title:"Sub", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canexport", title:"Export", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canimport", title:"Import", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{* { width:"100px", orderable:false, data:"icon", title:"Icon" }, *}
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Type", render:function(data, type, row){ return (data=='F') ? 'FORM' : (data=='P') ? 'PROCESS' : (data=='W') ? 'WINDOW' : 'GROUP'; } },
 			{ width:"150px", orderable:false, data:"parent_name", title:"Parent" },

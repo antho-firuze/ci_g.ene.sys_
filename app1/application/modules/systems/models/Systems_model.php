@@ -82,7 +82,7 @@ class Systems_Model extends CI_model
 		$user_role = $this->base_model->getValueArray('role_id', 'a_user_role', ['id','is_active','is_deleted'], [$user['user_role_id'], '1', '0']);
 		$client = $this->base_model->getValueArray('name as client_name', 'a_client', 'id', $user['client_id']);
 		$org = $this->base_model->getValueArray('name as org_name, supervisor_id as org_supervisor_id, address_map as org_address_map, phone as org_phone, fax as org_fax, email as org_email, website as org_website, swg_margin', 'a_org', 'id', $user_org['org_id']);
-		$role = $this->base_model->getValueArray('name as role_name, supervisor_id as role_supervisor_id, amt_approval, is_canexport, is_canreport, is_canapproveowndoc, is_accessallorgs, is_useuserorgaccess', 'a_role', 'id', $user_role['role_id']);
+		$role = $this->base_model->getValueArray('name as role_name, supervisor_id as role_supervisor_id, amt_approval, is_canexport, is_canimport, is_canreport, is_canapproveowndoc, is_accessallorgs, is_useuserorgaccess', 'a_role', 'id', $user_role['role_id']);
 		$system = $this->base_model->getValueArray('api_token, head_title, page_title, logo_text_mn, logo_text_lg, date_format, time_format, datetime_format, user_photo_path, personnel_photo_path, max_file_upload, group_symbol, decimal_symbol, negative_front_symbol, negative_back_symbol, number_digit_decimal, default_skin, default_layout, default_screen_timeout, default_language, default_show_branch_entry', 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID]);
 		$user_config = $this->base_model->getValue('attribute, value', 'a_user_config', 'user_id', $user_id);
 		$userconfig = [];

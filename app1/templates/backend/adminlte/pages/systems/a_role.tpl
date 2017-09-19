@@ -35,6 +35,7 @@
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canexport", title:"Can Export", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canimport", title:"Can Import", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canreport", title:"Can Report", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"is_canapproveowndoc", title:"Can Approve", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"is_changelog", title:"Change Log", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
