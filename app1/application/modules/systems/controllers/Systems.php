@@ -417,7 +417,8 @@ class Systems extends Getmeb
 	{
 		if (isset($this->params['pageid']) && !empty($this->params['pageid'])) {
 			
-			$menu = $this->_check_is_allow('html');
+			if (! $menu = $this->_check_is_allow('html'))
+				$menu = array();
 			
 			/* For getting breadcrumb */
 			$this->params['bread'] = [];
@@ -450,11 +451,12 @@ class Systems extends Getmeb
 					}
 					$bc[] = ['pageid' => $menus[$i]->id, 'icon' => $menus[$i]->icon, 'title' => $title, 'title_desc' => $menus[$i]->title_desc, 'link' => $link];
 				}
-				$this->params['bread'] = $bc;
+				$this->params['bread'] = isset($bc) ? $bc : array();
 			}
 			
 			/* For identify opened table to client (property for auto reload event) */
-			setcookie('table', $menu['table']);
+			if ($menu)
+				setcookie('table', $menu['table']);
 			
 			if (isset($this->params['bread']) && count($this->params['bread']) >= 0)
 				$menu = array_merge($menu, ['bread' => $this->params['bread']]);
