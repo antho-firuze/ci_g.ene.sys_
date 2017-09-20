@@ -703,7 +703,12 @@ class Cashflow extends Getmeb
 	function cf_sinout()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
+			"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",
+			'(select name from c_bpartner where id = t1.bpartner_id)',
+			'(select name from a_org where id = t1.org_id)',
+			'(select name from a_org where id = t1.orgtrx_id)',
+			]);
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
@@ -788,7 +793,12 @@ class Cashflow extends Getmeb
 	function cf_pinout()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
+			"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",
+			'(select name from c_bpartner where id = t1.bpartner_id)',
+			'(select name from a_org where id = t1.org_id)',
+			'(select name from a_org where id = t1.orgtrx_id)',
+			]);
 			
 			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
 				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';

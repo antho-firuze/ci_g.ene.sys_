@@ -18,7 +18,7 @@
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info" });
-	col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"orgtrx_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true, required: true, disabled: ($act=='edt'?true:false), value: {$.session.orgtrx_id}, hidden: "{$.session.show_branch_entry}"=="1" ? false : true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"orgtrx_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id={$.session.org_id}", remote: true, required: true, disabled: true, value: {$.session.orgtrx_id}, hidden: "{$.session.show_branch_entry}"=="1" ? false : true }));
 	col.push(BSHelper.Combobox({ horz:false, label:"PO Doc No", label_link:"{$.const.PAGE_LNK}?pageid=93", textField:"code_name", idname:"order_id", url:"{$.php.base_url('cashflow/cf_porder')}?for_material_receipt=1&act="+$act, remote: true, required: false }));
 	col.push(BSHelper.Combobox({ horz:false, label:"Vendor", label_link:"{$.const.PAGE_LNK}?pageid=87", idname:"bpartner_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_vendor='1'", remote: true, required: true, disabled: true }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"PO ETA", idname:"eta_order", cls:"auto_ymd", format:"{$.session.date_format}", required: false, disabled: true }));
@@ -47,6 +47,7 @@
 	$("#order_id").shollu_cb({
 		onSelect: function(rowData){
 			$("#bpartner_id").shollu_cb('setValue', rowData.bpartner_id);
+			$("#orgtrx_id").shollu_cb('setValue', rowData.orgtrx_id);
 			$("#eta_order").val(rowData.eta);
 		}
 	});
