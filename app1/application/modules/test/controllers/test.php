@@ -15,6 +15,12 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
+	function cron($msg = 'default')
+	{
+		$dt = date('Ymd_His');
+		file_put_contents(APPPATH."/../test_log_$dt.txt", $msg);
+	}
+	
 	function test_opcache()
 	{
 		var_dump(opcache_get_status());
@@ -815,11 +821,11 @@ class Test extends CI_Controller {
 		else
 			$sess['is_mobile'] = 0;
 			
-		return log_json($sess);
+		return var_dump($sess);
 	}
 
 	function mpdf() {
-		$mpdf = new mPDF( 'utf-8', array(215.9,330.2),'','',15,15,40,16,10,10 ); //FORMAT F4 (FOLIO)
+		$mpdf = new \Mpdf\Mpdf( ['utf-8', array(215.9,330.2),'','',15,15,40,16,10,10] ); //FORMAT F4 (FOLIO)
 		$mpdf->SetWatermarkText('VOID');
 		$mpdf->showWatermarkText = true;
 		$mpdf->WriteHTML("ini testing saja !");
