@@ -4069,6 +4069,24 @@ class Cashflow extends Getmeb
 		}
 	}
 
+	function db_outstanding_requisition()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+
 	function db_outstanding_outbound()
 	{
 		if ($this->r_method == 'GET') {
