@@ -910,16 +910,22 @@ class Cashflow_Model extends CI_Model
 		to_char(doc_date, '".$this->session->date_format."') as doc_date, 
 		to_char(etd, '".$this->session->date_format."') as etd";
 		$params['table'] 	= "(
-			select t1.*, order_id, delivery_date from (
-			select order_id, 
-			max((select (select max(delivery_date) from cf_inout where id = f1.inout_id) as delivery_date from cf_inout_line f1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id limit 1)) as delivery_date
-			from cf_order_line t1
+			select * from cf_order o1
 			where 
-			client_id = {client_id} and org_id = {org_id} and (select orgtrx_id from cf_order f1 where id = t1.order_id) in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id) 
-			group by 1
-			) t2 inner join cf_order t1 on t2.order_id = t1.id where delivery_date > etd and extract(month from etd) = extract(month from current_date) 
-		) t1";
+			client_id = {client_id} and org_id = {org_id} and (select orgtrx_id from cf_order f1 where id = o1.id) in {orgtrx} and 
+			is_active = '1' and is_deleted = '0' and is_sotrx = '1'
+			and current_date > o1.etd 
+			and exists(
+			select 
+			distinct(id) 
+			from cf_order_line a1
+			where is_active = '1' and is_deleted = '0' 
+			and a1.order_id = o1.id
+			and not exists(
+			select * from cf_inout_line 
+			where is_active = '1' and is_deleted = '0'
+			and is_completed = '1' and order_line_id =a1.id 
+			))) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
