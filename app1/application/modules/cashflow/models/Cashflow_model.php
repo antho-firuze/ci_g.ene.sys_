@@ -1527,6 +1527,30 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 
+	function db_outstanding_requisition($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, 
+		to_char((select eta from cf_request where id = t1.request_id), '".$this->session->date_format."') as eta_request,
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.eta, '".$this->session->date_format."') as eta, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		$params['table'] 	= "(
+			select * from cf_requisition f1 where 
+				client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+				is_active = '1' and is_deleted = '0'
+				and exists (
+				Select distinct(id) from cf_requisition_line a1 where 
+				is_active = '1' and is_deleted = '0'
+				and a1.requisition_id = f1.id
+				and not exists (select * from cf_order_line b1 where 
+				is_active = '1' and is_deleted = '0' and is_completed= '1' and requisition_line_id = a1.id)
+				)
+				)t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+
 	function db_outstanding_outbound($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
