@@ -6,14 +6,48 @@ require_once __DIR__.'/../vendor/autoload.php';
 use GO\Scheduler;
 
 // Create a new scheduler
-$scheduler = new Scheduler();
+$scheduler = new Scheduler(
+	// [
+		// 'email' => [
+			// 'from' => 'do_not_reply@hdgroup.id',
+			// 'transport' => (new Swift_SmtpTransport('mail.hdgroup.id', 465, 'ssl'))->setUsername('do_not_reply@hdgroup.id')->setPassword('ReplyHDG2017'),
+		// ]
+	// ]
+);
 
-// Let the scheduler execute jobs which are due.
-// $scheduler->call(function () {
-	// echo "Hello";
-	// return " world!";
-// })->output(__DIR__.'/my_file.log');
+/* For rotate nginx logs “At 19:00.” */
+$scheduler->call(function () { 
+	exec("d:/nginx/rotate.bat"); 
+	echo "Rotate nginx success at ".date('Y-m-d H:i:s'); 
+})
+	->configure(['email' => [
+		'from' => 'do_not_reply@hdgroup.id',
+		'subject' => 'Nginx rotate at '.date('Y-m-d H:i:s'),
+		'transport' => (new Swift_SmtpTransport('mail.hdgroup.id', 465, 'ssl'))->setUsername('do_not_reply@hdgroup.id')->setPassword('ReplyHDG2017'),
+	]])
+	->output(__DIR__.'/nginx_rotate.log')
+	->email(['hertanto@fajarbenua.co.id' => 'Hertanto'])
+	->then(function(){ @unlink(__DIR__.'/nginx_rotate.log'); })
+	->at('0 19 * * *')
+;
 
+/* For restart nginx “At 00:00 on Sunday.” */
+$scheduler->call(function () { 
+	exec("d:/nginx/reload.bat"); 
+	echo "Restart nginx success at ".date('Y-m-d H:i:s'); 
+})
+	->configure(['email' => [
+		'from' => 'do_not_reply@hdgroup.id',
+		'subject' => 'Nginx restart at '.date('Y-m-d H:i:s'),
+		'transport' => (new Swift_SmtpTransport('mail.hdgroup.id', 465, 'ssl'))->setUsername('do_not_reply@hdgroup.id')->setPassword('ReplyHDG2017'),
+	]])
+	->output(__DIR__.'/nginx_restart.log')
+	->email(['hertanto@fajarbenua.co.id' => 'Hertanto'])
+	->then(function(){ @unlink(__DIR__.'/nginx_restart.log'); })
+	->at('0 0 * * 0')
+;
+
+/* For testing */
 $scheduler->call(function () {
 	$bin = 'd:/nginx/php/php.exe';
 	$script = 'd:/htdocs/ci/app1/index.php test/cron';
@@ -24,7 +58,6 @@ $scheduler->call(function () {
 	// exec($bin . ' ' . $script . ' ' . $params);
 	passthru("$bin $script $params");
 		
-		// throw new \Exception('Something failed');
 })->daily('20:21')->daily('20:57');
 				
 $scheduler->run();
