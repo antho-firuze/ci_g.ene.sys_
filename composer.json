@@ -19,8 +19,7 @@
 		"moxiecode/plupload": ">=3.1.0",
 		"fightbulc/moment": "^1.14",
 		"rmccue/requests": ">=1.0",
-		"peppeocchi/php-cron-scheduler": "2.*",
-		"swiftmailer/swiftmailer": "^6.0"
+		"peppeocchi/php-cron-scheduler": "2.*"
 	},
 	"suggest": {
 		"paragonie/random_compat": "Provides better randomness in PHP 5.x"

@@ -34,6 +34,7 @@
 			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"eta", title:"ETA" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"eta_request", title:"ETA Request" },
 			{ width:"100px", orderable:false, data:"bpartner_name", title:"Vendor" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 		],

@@ -8,52 +8,28 @@ use GO\Scheduler;
 // Create a new scheduler
 $scheduler = new Scheduler();
 
-/* For testing */
+// Let the scheduler execute jobs which are due.
+// $scheduler->call(function () {
+	// echo "Hello";
+	// return " world!";
+// })->output(__DIR__.'/my_file.log');
+
 $scheduler->call(function () {
 	$bin = 'd:/nginx/php/php.exe';
 	$script = 'd:/htdocs/ci/app1/index.php test/cron';
+	
 	$dt = date('Ymd_His');
 	$params = '"Scheduler : '.$dt.'"';
 	
-	// echo "Testing output from [".gethostname()."] at ".date('Y-m-d H:i:s'); 
 	// exec($bin . ' ' . $script . ' ' . $params);
-	// passthru("$bin $script $params");
+	passthru("$bin $script $params");
 		
-})
-	->output(__DIR__.'/testing_output_'.date('Ymd_His').'.log')
-	// ->daily('20:21')->daily('20:57')
-;
+		// throw new \Exception('Something failed');
+})->daily('20:21')->daily('20:57');
 				
-/* For rotate nginx logs “At 19:00.” */
-$scheduler->call(function () { 
-	exec("d:/nginx/rotate.bat"); 
-	echo "Rotate nginx on machine [".gethostname()."] at ".date('Y-m-d H:i:s'); 
-})
-	->configure(['email' => [
-		'from' => 'do_not_reply@hdgroup.id',
-		'subject' => 'Nginx rotate on machine ['.gethostname().'] at '.date('Y-m-d H:i:s'),
-		'transport' => (new Swift_SmtpTransport('mail.hdgroup.id', 465, 'ssl'))->setUsername('do_not_reply@hdgroup.id')->setPassword('ReplyHDG2017'),
-	]])
-	->output(__DIR__.'/nginx_rotate.log')
-	->email(['hertanto@fajarbenua.co.id' => 'Hertanto'])
-	->then(function(){ @unlink(__DIR__.'/nginx_rotate.log'); })
-	->at('0 19 * * *')
-;
-
-/* For restart nginx “At 00:00 on Sunday.” */
-$scheduler->call(function () { 
-	exec("d:/nginx/reload.bat"); 
-	echo "Restart nginx on machine [".gethostname()."] at ".date('Y-m-d H:i:s'); 
-})
-	->configure(['email' => [
-		'from' => 'do_not_reply@hdgroup.id',
-		'subject' => 'Nginx restart on machine ['.gethostname().'] at '.date('Y-m-d H:i:s'),
-		'transport' => (new Swift_SmtpTransport('mail.hdgroup.id', 465, 'ssl'))->setUsername('do_not_reply@hdgroup.id')->setPassword('ReplyHDG2017'),
-	]])
-	->output(__DIR__.'/nginx_restart.log')
-	->email(['hertanto@fajarbenua.co.id' => 'Hertanto'])
-	->then(function(){ @unlink(__DIR__.'/nginx_restart.log'); })
-	->at('0 0 * * 0')
-;
-
 $scheduler->run();
+
+// if (file_put_contents(__DIR__."/test_log.txt", "testing log"))
+	// echo 'file_put_contents = true';
+// else
+	// echo 'file_put_contents = false';
