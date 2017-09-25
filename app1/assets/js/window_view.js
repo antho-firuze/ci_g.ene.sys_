@@ -70,7 +70,8 @@ function initToolbarButton()
 	if (Toolbar_Init.processMenu.length > 0){
 		var dropdown_menu = $('<ul class="dropdown-menu" />').insertAfter(toolbarBtn.find('#btn-process'));
 		$.each(Toolbar_Init.processMenu, function(k,v){
-			$('<li disabled />').append($('<a href="#" data-pageid='+v.pageid+' title="'+v.title+'" id="'+v.id+'" />').html(v.title)).appendTo(dropdown_menu);
+			// $('<li disabled />').append($('<a href="#" data-pageid='+v.pageid+' title="'+v.title+'" id="'+v.id+'" />').html(v.title)).appendTo(dropdown_menu);
+			$('<li disabled />').append($('<a href="#" data-tag="btn-process" data-name="'+v.name+'" title="'+v.title+'" />').html(v.title)).appendTo(dropdown_menu);
 		});
 		$.each(Toolbar_Init.processMenuDisable, function(k,v){
 			$('#'+v).parent().addClass('disabled');
@@ -456,6 +457,12 @@ function initCheckList(tableData1, dataTable1){
 /* ==================================== */
 // $(document.body).click('button', function(e){
 $('.toolbar_container').click('button', function(e){
+	// console.log($(e.target).is('a'));
+	if ($(e.target).is('a') && $(e.target).attr('data-tag') == 'btn-process'){
+		// console.log($(e.target));
+		// console.log($(e.target).attr('data-name'));
+		window[$(e.target).attr('data-name')](data);
+	}
 	// console.log($(e.target).attr('id'));
 	switch($(e.target).attr('id')){
 		case 'btn-new':

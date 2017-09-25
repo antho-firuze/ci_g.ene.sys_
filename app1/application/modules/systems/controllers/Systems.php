@@ -846,6 +846,33 @@ class Systems extends Getmeb
 		}
 	}
 	
+	function a_role_menu_xcopy()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			/* For copy menu from another role */
+			$copy_role = $this->base_model->getValueArray($this->params->role_id.' as role_id, menu_id, is_active, permit_form, permit_process, permit_window', 'a_role_menu', ['role_id', 'is_active', 'is_deleted'], [$this->params->copy_role_id, '1', '0']);
+			
+			if ($copy_role){
+				/* Delete old role menu */
+				$this->db->delete('a_role_menu', ['role_id'=>$this->params->role_id]);
+				
+				$error_out = [];
+				foreach($copy_role as $k=>$v){
+					if (! $this->db->insert('a_role_menu', $copy_role[$k])){
+						$copy_role['status'] = $this->db->error()['message'];
+						$error_out[] = $copy_role;
+					}
+				}
+				if (count($error_out) > 1)
+					$this->xresponse(TRUE, ['message' => $error_out]);
+				else
+					$this->xresponse(TRUE, ['message' => lang('success_saving')]);
+			}
+			
+			$this->xresponse(TRUE, ['message' => lang('success_saving')]);
+		}
+	}
+	
 	function a_role_dashboard()
 	{
 		$this->identity_keys = ['role_id', 'dashboard_id'];
@@ -912,7 +939,7 @@ class Systems extends Getmeb
 		}
 	}
 	
-	function a_role_menu_xcopy()
+	function a_role_dashboard_xcopy()
 	{
 		if ($this->r_method == 'OPTIONS') {
 			/* For copy menu from another role */

@@ -126,7 +126,6 @@
 				}).trigger('change');
 			}
 		});
-		
 	};
 	
 </script>

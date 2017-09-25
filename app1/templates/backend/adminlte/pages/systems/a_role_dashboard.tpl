@@ -17,7 +17,7 @@
 		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process'],
 		disableBtn: ['btn-copy','btn-message','btn-print','btn-import'],
 		hiddenBtn: ['btn-copy','btn-message'],
-		processMenu: [{ id:"btn-process1", pageid: 45, title:"Copy Dashboard From Role..." }, ],
+		processMenu: [{ name: 'copy_dashboard', title:"Copy Dashboard From Role..." }, ],
 		processMenuDisable: [],
 	};
 	if ("{$is_canimport}" == "0") Toolbar_Init.disableBtn.push('btn-import');
@@ -36,8 +36,20 @@
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 	};
+	
+	function copy_dashboard()
+	{
+		if (!confirm("All Dashboard in this Role will be replaced, Are you sure ?")) {
+			return false;
+		}
+		var $pageid = getURLParameter("pageid"), $filter = getURLParameter("filter");
+		$pageid = "?pageid="+$pageid+","+$(e.target).attr("data-pageid");
+		$filter = $filter ? "&filter="+$filter : "";
+		window.location.href = getURLOrigin()+$pageid+$filter+"&action=prc";
+	}
+	
 	{* btn-process1 in Toolbar *}
-	$(document.body).click('button', function(e){
+	{* $(document.body).click('button', function(e){
 		switch($(e.target).attr('id')){
 			case 'btn-process1':
 				if (!confirm("All Dashboard in this Role will be replaced, Are you sure ?")) {
@@ -49,7 +61,7 @@
 				window.location.href = getURLOrigin()+$pageid+$filter+"&action=prc";
 				break;
 		}
-	});	
+	});	 *}
 	
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>
