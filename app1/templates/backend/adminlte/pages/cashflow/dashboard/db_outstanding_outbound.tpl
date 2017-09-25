@@ -41,7 +41,6 @@
 			{ width:"100px", orderable:false, data:"doc_no_request", title:"Req Doc No" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_request", title:"Req Doc Date" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"eta_request", title:"Req ETA" },
-			{ width:"100px", orderable:false, data:"bpartner_name", title:"Customer" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 		],
 	};
