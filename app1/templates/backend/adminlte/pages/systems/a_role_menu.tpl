@@ -9,6 +9,8 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Toolbar Init *}
@@ -65,27 +67,24 @@
 		],
 	};
 	
-	function copy_dashboard()
+	function copy_menu(data)
 	{
 		var col = [], row = [], a = [];
 		var form1 = BSHelper.Form({ autocomplete:"off" });
-		col.push("<h3>All Menu in this Role will be replaced, Are you sure ?</h3>");
-		a.push(BSHelper.LineDesc({ label:"Doc Date", value: data.doc_date }));
-		a.push(BSHelper.LineDesc({ label:"Customer", value: data.bpartner_name }));
-		a.push(BSHelper.LineDesc({ label:"Reference No", value: data.doc_ref_no }));
-		a.push(BSHelper.LineDesc({ label:"Reference Date", value: data.doc_ref_date }));
-		a.push(BSHelper.LineDesc({ label:"Expected DT Customer", value: data.expected_dt_cust }));
+		col.push("<h4 style='color:red; font-weight:bold;'>WARNING : All Menu in this Role will be replaced !</h4>");
+		col.push(BSHelper.Combobox({ horz:false, label:"Source Role", idname:"copy_role_id", required:true, url:"{$.php.base_url('systems/a_role')}", remote: true }));
 		col.push( $('<dl class="dl-horizontal">').append(a) ); a = [];
-		col.push(BSHelper.Input({ horz:false, type:"date", label:"ETD", idname:"etd", cls:"auto_ymd", format:"{$.session.date_format}", value: data.etd, required: true }));
-		col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 		row.push(subCol(12, col)); col = [];
 		form1.append(subRow(row));
 		
-		form1.find("[data-mask]").inputmask();
 		form1.on('submit', function(e){ e.preventDefault(); });
+		(function blink(){
+			form1.find("h4").fadeOut().fadeIn(blink); 
+		})();
+		
 		
 		BootstrapDialog.show({
-			title: 'Update SO ETD', type: BootstrapDialog.TYPE_SUCCESS, size: BootstrapDialog.SIZE_MEDIUM, message: form1, 
+			title: 'Copy Menu', type: BootstrapDialog.TYPE_SUCCESS, size: BootstrapDialog.SIZE_MEDIUM, message: form1, 
 			buttons:[{ 
 				cssClass: 'btn-primary', label: 'Submit', hotkey: 13, action: function(dialog) {
 					var button = this;
@@ -94,7 +93,7 @@
 						button.spin();
 						button.disable();
 						
-						form1.append(BSHelper.Input({ type:"hidden", idname:"id", value:data.id }));
+						form1.append(BSHelper.Input({ type:"hidden", idname:"role_id", value:data.role_id }));
 						
 						$.ajax({ url: $url_module+'_xcopy', method: "OPTIONS", async: true, dataType: 'json',
 							data: form1.serializeJSON(),

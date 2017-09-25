@@ -461,6 +461,12 @@ $('.toolbar_container').click('button', function(e){
 	if ($(e.target).is('a') && $(e.target).attr('data-tag') == 'btn-process'){
 		// console.log($(e.target));
 		// console.log($(e.target).attr('data-name'));
+		var data = {};
+		if ($filter){
+			$.each($filter.split(','), function(i, v){
+				data[v.split('=')[0]] = v.split('=')[1];
+			});
+		}
 		window[$(e.target).attr('data-name')](data);
 	}
 	// console.log($(e.target).attr('id'));

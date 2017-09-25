@@ -32,6 +32,7 @@ $lang['confirm_delete'] 		= 'Are you sure want to delete this record ?';
 $lang['confirm_rst_pwd'] 		= 'Are you sure want to RESET PASSWORD this user ?';
 $lang['confirm_export'] 		= 'Are you sure want to EXPORT this data ?';
 $lang['confirm_rla'] 		= 'Are you sure want to [Reset Login Attempt] this record ?';
+// $lang['confirm_copy_menu'] 		= 'From Role [%s] ==> To Role [%s] ?';
 
 /* Exclamation: error_ */
 $lang['error_delete'] 			= 'Error: Deleting data !';

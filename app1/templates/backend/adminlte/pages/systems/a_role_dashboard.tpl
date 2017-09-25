@@ -9,6 +9,8 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Toolbar Init *}
@@ -37,15 +39,70 @@
 		],
 	};
 	
-	function copy_dashboard()
+	function copy_dashboard(data)
 	{
-		if (!confirm("All Dashboard in this Role will be replaced, Are you sure ?")) {
-			return false;
-		}
-		var $pageid = getURLParameter("pageid"), $filter = getURLParameter("filter");
-		$pageid = "?pageid="+$pageid+","+$(e.target).attr("data-pageid");
-		$filter = $filter ? "&filter="+$filter : "";
-		window.location.href = getURLOrigin()+$pageid+$filter+"&action=prc";
+		var col = [], row = [], a = [];
+		var form1 = BSHelper.Form({ autocomplete:"off" });
+		col.push("<h4 style='color:red; font-weight:bold;'>WARNING : All Dashboard in this Role will be replaced !</h4>");
+		col.push(BSHelper.Combobox({ horz:false, label:"Source Role", idname:"copy_role_id", required:true, url:"{$.php.base_url('systems/a_role')}", remote: true }));
+		col.push( $('<dl class="dl-horizontal">').append(a) ); a = [];
+		row.push(subCol(12, col)); col = [];
+		form1.append(subRow(row));
+		
+		form1.on('submit', function(e){ e.preventDefault(); });
+		(function blink(){
+			form1.find("h4").fadeOut().fadeIn(blink); 
+		})();
+		
+		
+		BootstrapDialog.show({
+			title: 'Copy Dashboard', type: BootstrapDialog.TYPE_SUCCESS, size: BootstrapDialog.SIZE_MEDIUM, message: form1, 
+			buttons:[{ 
+				cssClass: 'btn-primary', label: 'Submit', hotkey: 13, action: function(dialog) {
+					var button = this;
+					
+					if (form1.validator('validate').has('.has-error').length === 0) {
+						button.spin();
+						button.disable();
+						
+						form1.append(BSHelper.Input({ type:"hidden", idname:"role_id", value:data.role_id }));
+						
+						$.ajax({ url: $url_module+'_xcopy', method: "OPTIONS", async: true, dataType: 'json',
+							data: form1.serializeJSON(),
+							success: function(data) {
+								BootstrapDialog.show({ closable: false, message:data.message, 
+									buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],
+								});
+								dataTable1.ajax.reload( null, false );
+								dialog.close();
+								window.history.back(); 
+							},
+							error: function(data) {
+								if (data.status==500){
+									var message = data.statusText;
+								} else {
+									var error = JSON.parse(data.responseText);
+									var message = error.message;
+								}
+								button.stopSpin();
+								button.enable();
+								BootstrapDialog.show({ closable: false, type:'modal-danger', title:'Notification', message:message, 
+									buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); window.history.back(); } }],
+								});
+							}
+						});
+					}
+				}
+			}, {
+				label: 'Cancel', cssClass: 'btn-danger', action: function(dialog) { dialog.close(); window.history.back(); }
+			}],
+			onshown: function(dialog) {
+				{* /* This class is for auto conversion from dmy to ymd */ *}
+				$(".auto_ymd").on('change', function(){
+					$('input[name="'+$(this).attr('id')+'"]').val( datetime_db_format($(this).val(), $(this).attr('data-format')) );
+				}).trigger('change');
+			}
+		});
 	}
 	
 	{* btn-process1 in Toolbar *}

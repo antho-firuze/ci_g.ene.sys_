@@ -942,16 +942,16 @@ class Systems extends Getmeb
 	function a_role_dashboard_xcopy()
 	{
 		if ($this->r_method == 'OPTIONS') {
-			/* For copy menu from another role */
-			$copy_role = $this->base_model->getValueArray($this->params->role_id.' as role_id, menu_id, is_active, permit_form, permit_process, permit_window', 'a_role_menu', ['role_id', 'is_active', 'is_deleted'], [$this->params->copy_role_id, '1', '0']);
+			/* For copy dashboard from another role */
+			$copy_role = $this->base_model->getValueArray($this->params->role_id.' as role_id, dashboard_id, is_active, is_readwrite, seq', 'a_role_dashboard', ['role_id', 'is_active', 'is_deleted'], [$this->params->copy_role_id, '1', '0']);
 			
 			if ($copy_role){
-				/* Delete old role menu */
-				$this->db->delete('a_role_menu', ['role_id'=>$this->params->role_id]);
+				/* Delete old role dashboard */
+				$this->db->delete('a_role_dashboard', ['role_id'=>$this->params->role_id]);
 				
 				$error_out = [];
 				foreach($copy_role as $k=>$v){
-					if (! $this->db->insert('a_role_menu', $copy_role[$k])){
+					if (! $this->db->insert('a_role_dashboard', array_merge($copy_role[$k], $this->create_log))){
 						$copy_role['status'] = $this->db->error()['message'];
 						$error_out[] = $copy_role;
 					}
