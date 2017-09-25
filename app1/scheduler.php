@@ -40,6 +40,22 @@ $scheduler->call(function () {
 	->at('0 19 * * *')
 ;
 
+/* For backup database db_genesys “At 20:00.” */
+$scheduler->call(function () { 
+	exec("D:/htdocs (db)/postgre/pgbackup.bat"); 
+	echo "Backup database on machine [".gethostname()."] at ".date('Y-m-d H:i:s'); 
+})
+	->configure(['email' => [
+		'from' => 'do_not_reply@hdgroup.id',
+		'subject' => 'Backup database on machine ['.gethostname().'] at '.date('Y-m-d H:i:s'),
+		'transport' => (new Swift_SmtpTransport('mail.hdgroup.id', 465, 'ssl'))->setUsername('do_not_reply@hdgroup.id')->setPassword('ReplyHDG2017'),
+	]])
+	->output(__DIR__.'/pg_dump.log')
+	->email(['hertanto@fajarbenua.co.id' => 'Hertanto'])
+	->then(function(){ @unlink(__DIR__.'/pg_dump.log'); })
+	->at('0 20 * * *')
+;
+
 /* For restart nginx “At 00:00 on Sunday.” */
 $scheduler->call(function () { 
 	exec("d:/nginx/reload.bat"); 
