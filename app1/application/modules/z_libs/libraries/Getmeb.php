@@ -1808,6 +1808,7 @@ class Getmeb extends CI_Controller
     return $ret;
 	}
 	
+	/* For getting org/company list base on user_org access */
 	function _get_org()
 	{
 		$str = "select f1.org_id 
@@ -1824,7 +1825,44 @@ class Getmeb extends CI_Controller
 		return $arr;
 	}
 	
+	/* For getting orgtrx/location list base on user_org access */
 	function _get_orgtrx()
+	{
+		$str = "select f1.org_id 
+			from a_user_orgtrx f1 
+			inner join a_user_org f2 on f1.user_org_id = f2.id
+			where f1.is_active = '1' and f1.is_deleted = '0' and 
+			f1.user_id = ".$this->session->user_id." and f2.org_id = ".$this->session->org_id;
+		if (!$qry = $this->db->query($str)->result()){
+			return FALSE;
+		}
+		$arr = [];
+		foreach ($qry as $k => $v){
+			$arr[] = $v->org_id;
+		}
+		return $arr;
+	}
+	
+	/* For getting orgdept/department list base on user_org access */
+	function _get_orgdept()
+	{
+		$str = "select f1.org_id 
+			from a_user_orgtrx f1 
+			inner join a_user_org f2 on f1.user_org_id = f2.id
+			where f1.is_active = '1' and f1.is_deleted = '0' and 
+			f1.user_id = ".$this->session->user_id." and f2.org_id = ".$this->session->org_id;
+		if (!$qry = $this->db->query($str)->result()){
+			return FALSE;
+		}
+		$arr = [];
+		foreach ($qry as $k => $v){
+			$arr[] = $v->org_id;
+		}
+		return $arr;
+	}
+	
+	/* For getting orgdiv/division list base on user_org access */
+	function _get_orgdiv()
 	{
 		$str = "select f1.org_id 
 			from a_user_orgtrx f1 

@@ -64,12 +64,12 @@
 </script>
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script>
+	{* NOTIFICATION *}
 	$(document).ready(function(){
 		setTimeout(function(){
-			{* console.log($data); *}
-			if ($data.received_date)
+			if ($act == "edt" && $data.received_date)
 				box1.find('.box-body form').before(BSHelper.Callout({ type:"danger", title:"COMPLETED !", description:"{$.php.lang('notif_update_outbound_completed', null, 'cashflow')}" }));
-		}, 1000);
+		}, 2000);
 	});	
 </script>
 

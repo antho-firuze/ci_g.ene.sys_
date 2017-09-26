@@ -1163,6 +1163,21 @@ class Systems extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, FALSE);
 			
+			if (isset($this->params['list']) && $this->params['list']) {
+				if ($this->params['list'] == 'org'){
+					$this->params['where_in']['org_id'] = $this->_get_org();
+				}
+				if ($this->params['list'] == 'orgtrx'){
+					$this->params['where_in']['org_id'] = $this->_get_orgtrx();
+				}
+				if ($this->params['list'] == 'orgdept'){
+					// $this->params['where_in']['org_id'] = $this->_get_orgdept();
+				}
+				if ($this->params['list'] == 'orgdiv'){
+					// $this->params['where_in']['org_id'] = $this->_get_orgdiv();
+				}
+			}
+				
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}

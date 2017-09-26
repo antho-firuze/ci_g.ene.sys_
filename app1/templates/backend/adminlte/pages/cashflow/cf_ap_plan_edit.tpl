@@ -74,16 +74,17 @@
 			if ($act == "edt") {
 				$("#bpartner_id").shollu_cb('select');
 			}
-		} ,2000);
+		}, 2000);
 	});
 	
 </script>
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>
 <script>
+	{* NOTIFICATION *}
 	$(document).ready(function(){
 		setTimeout(function(){
-			if ($data.is_posted > 0)
+			if ($act == "edt" && $data.is_posted > 0)
 				box1.find('.box-body form').before(BSHelper.Callout({ type:"danger", title:"POSTED !", description:"{$.php.lang('notif_update_plan_has_posted', null, 'cashflow')}" }));
-		}, 1000);
+		}, 2000);
 	});	
 </script>

@@ -147,7 +147,7 @@
 				$("#po_top").val($("#order_id").shollu_cb('getValue', 'po_top'));
 				$("#po_eta").val($("#order_id").shollu_cb('getValue', 'eta'));
 			}
-		} ,2000);
+		}, 2000);
 	});
 	
 </script>

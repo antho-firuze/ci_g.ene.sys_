@@ -129,7 +129,7 @@
 				$("#so_top").val($("#order_id").shollu_cb('getValue', 'so_top'));
 				$("#so_etd").val($("#order_id").shollu_cb('getValue', 'etd'));
 			}
-		} ,2000);
+		}, 2000);
 	});
 	
 	{* $("#invoice_plan_date").on("change", function(){
