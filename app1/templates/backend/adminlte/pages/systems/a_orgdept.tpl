@@ -27,9 +27,10 @@
 		enable: true,
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
-			{ pageid: 129, subKey: 'parent_id', title: 'Org Location', subType: 'hierarchy' },
+			{ pageid: 131, subKey: 'parent_id', title: 'Org Division', subType: 'hierarchy' },
 		],
 		columns: [
+			{ width:"200px", orderable: false, data:"parent_name", 	 title:"Parent Name" },
 			{ width:"200px", orderable: false, data:"code_name", 	 title:"Name" },
 			{ width:"250px", orderable: false, data:"description", title:"Description" },
 			{ width:"125px", orderable: false, data:"orgtype_name", title:"Type" },

@@ -495,6 +495,23 @@ class Systems extends Getmeb
 		$this->backend_view('pages/404', ['message'=>'']);
 	}
 	
+	function x_role_selector()
+	{
+		if ($this->r_method == 'PATCH') {
+			if (isset($this->params->identify) && !empty($this->params->identify)) {
+				unset($this->params->identify);
+				// debug($this->params);
+				
+				$result = $this->updateRecord('a_user', $this->params, ['id'=>$this->session->user_id], FALSE);
+				
+				if (! $result)
+					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			}
+		}
+	}
+	
 	function a_loginattempt()
 	{
 		if ($this->r_method == 'OPTIONS') {
@@ -589,18 +606,10 @@ class Systems extends Getmeb
 		$this->identity_keys = ['user_id', 'org_id'];
 		
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
-			
-			if (key_exists('user_id', $this->params) && ($this->params['user_id'] != '')) 
-				$this->params['where']['t1.user_id'] = $this->params['user_id'];
+			$this->_get_filtered(TRUE, FALSE, ['(select code from a_org where id = t1.org_id)','(select name from a_org where id = t1.org_id)',], TRUE);
 
-			if (key_exists('zone', $this->params) && ($this->params['zone']))
-				$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
+			$this->params['where']['orgtype_id'] = 2;
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or(["t2.code", "t2.name", "coalesce(t2.code,'') ||'_'|| t2.name"], $this->params['q']);
-
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -626,25 +635,58 @@ class Systems extends Getmeb
 	
 	function a_user_orgtrx()
 	{
-		$this->identity_keys = ['user_org_id', 'org_id'];
+		$this->identity_keys = ['user_id', 'org_id'];
 		
 		if ($this->r_method == 'GET') {
-			/* Getting [org_id] from table a_user_org */
-			if (isset($this->params['get_org_id']) && $this->params['get_org_id']){
-				$row = $this->base_model->getValue('org_id', 'a_user_org', 'id', $this->params['user_org_id']);
-				$this->xresponse(TRUE, ['data'=>$row]);
-			} 
-			
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
-			
-			if (key_exists('user_org_id', $this->params) && ($this->params['user_org_id'] != '')) 
-				$this->params['where']['t1.user_org_id'] = $this->params['user_org_id'];
+			$this->_get_filtered(TRUE, FALSE, ['(select code from a_org where id = t1.org_id)','(select name from a_org where id = t1.org_id)',], TRUE);
 
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or(["t2.code", "t2.name", "coalesce(t2.code,'') ||'_'|| t2.name"], $this->params['q']);
+			$this->params['where']['orgtype_id'] = 3;
+			
+			if (! $result['data'] = $this->{$this->mdl}->a_user_org($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['org_id'] = $this->params->org_id;
+			}
+		}
+	}
+	
+	function a_user_orgdept()
+	{
+		$this->identity_keys = ['user_id', 'org_id'];
+		
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, FALSE, ['(select code from a_org where id = t1.org_id)','(select name from a_org where id = t1.org_id)',], TRUE);
 
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+			$this->params['where']['orgtype_id'] = 4;
+			
+			if (! $result['data'] = $this->{$this->mdl}->a_user_org($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['org_id'] = $this->params->org_id;
+			}
+		}
+	}
+	
+	function a_user_orgdiv()
+	{
+		$this->identity_keys = ['user_id', 'org_id'];
+		
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, FALSE, ['(select code from a_org where id = t1.org_id)','(select name from a_org where id = t1.org_id)',], TRUE);
+
+			$this->params['where']['orgtype_id'] = 5;
+			
+			if (! $result['data'] = $this->{$this->mdl}->a_user_org($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -662,18 +704,7 @@ class Systems extends Getmeb
 		$this->identity_keys = ['user_id', 'role_id'];
 		
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
-			
-			if (isset($this->params['user_id']) && ($this->params['user_id'] != '')) 
-				$this->params['where']['t1.user_id'] = $this->params['user_id'];
-			
-			if (isset($this->params['role_id']) && ($this->params['role_id'] != '')) 
-				$this->params['where']['t1.role_id'] = $this->params['role_id'];
-			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				// $this->params['like'] = DBX::like_or("coalesce(t2.code,'') ||'_'|| t2.name", $this->params['q']);
-				$this->params['like'] = DBX::like_or(["t2.code", "t2.name", "coalesce(t2.code,'') ||'_'|| t2.name"], $this->params['q']);
+			$this->_get_filtered(TRUE, FALSE, ['(select code from a_role where id = t1.role_id)','(select name from a_role where id = t1.role_id)',], TRUE);
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$result['data'] = [];
@@ -787,6 +818,10 @@ class Systems extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, FALSE);
+			
+			if (isset($this->params['for_user_id']) && !empty($this->params['for_user_id'])) {
+				$this->params['where_in']['id'] = $this->_get_role($this->params['for_user_id']);
+			}
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -1163,7 +1198,13 @@ class Systems extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['list']) && $this->params['list']) {
+			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
+				$this->params['where_in']['id'] = $this->_get_org($this->params['for_user']);
+			}
+			
+			$this->params['where']['orgtype_id'] = 2;
+			
+			/* if (isset($this->params['list']) && $this->params['list']) {
 				if ($this->params['list'] == 'org'){
 					$this->params['where_in']['org_id'] = $this->_get_org();
 				}
@@ -1176,13 +1217,12 @@ class Systems extends Getmeb
 				if ($this->params['list'] == 'orgdiv'){
 					// $this->params['where_in']['org_id'] = $this->_get_orgdiv();
 				}
-			}
+			} */
 				
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
 			
-			// $this->params['ob'] = 'orgtype_id';
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -1197,45 +1237,24 @@ class Systems extends Getmeb
 		}
 	}
 	
-	function a_org_company()
+	function a_orgtrx()
 	{
 		$this->identity_keys = ['name', 'parent_id'];
 		
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
+			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
+				$this->params['where_in']['id'] = $this->_get_orgtrx($this->params['for_user']);
 			}
 			
-			// $this->params['ob'] = 'orgtype_id';
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$this->xresponse(TRUE, $result);
-			}
-		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			if ($this->params->event == 'pre_post'){
-				$this->mixed_data['client_id'] = $this->session->client_id;
-				unset($this->mixed_data['org_id']);
-			}
-		}
-	}
-	
-	function a_org_location()
-	{
-		$this->identity_keys = ['name', 'parent_id'];
-		
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, FALSE);
+			$this->params['where']['orgtype_id'] = 3;
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
 
-			// $this->params['ob'] = 'orgtype_id';
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -1249,19 +1268,24 @@ class Systems extends Getmeb
 		}
 	}
 	
-	function a_org_department()
+	function a_orgdept()
 	{
 		$this->identity_keys = ['name', 'parent_id'];
 		
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, FALSE);
 			
+			if (isset($this->params['for_user_org']) && !empty($this->params['for_user_org'])) {
+				$this->params['where_in']['id'] = $this->_get_org($this->params['for_user_org']);
+			}
+			
+			$this->params['where']['orgtype_id'] = 4;
+			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
 			
-			// $this->params['ob'] = 'orgtype_id';
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -1275,19 +1299,24 @@ class Systems extends Getmeb
 		}
 	}
 	
-	function a_org_division()
+	function a_orgdiv()
 	{
 		$this->identity_keys = ['name', 'parent_id'];
 		
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, FALSE);
 			
+			if (isset($this->params['for_user_org']) && !empty($this->params['for_user_org'])) {
+				$this->params['where_in']['id'] = $this->_get_org($this->params['for_user_org']);
+			}
+			
+			$this->params['where']['orgtype_id'] = 5;
+			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
 			
-			// $this->params['ob'] = 'orgtype_id';
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
@@ -1532,23 +1561,6 @@ class Systems extends Getmeb
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
-			}
-		}
-	}
-	
-	function x_role_selector()
-	{
-		if ($this->r_method == 'PATCH') {
-			if (isset($this->params->identify) && !empty($this->params->identify)) {
-				unset($this->params->identify);
-				// debug($this->params);
-				
-				$result = $this->updateRecord('a_user', $this->params, ['id'=>$this->session->user_id], FALSE);
-				
-				if (! $result)
-					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
 			}
 		}
 	}

@@ -322,6 +322,7 @@ function initActionMenu(tableData1, dataTable1)
 					/* Sub Detail Method : hierarchy or masterdetail */
 					if (subType == 'hierarchy') {
 						console.log(data.id);
+						// return false;
 						$.each(subKey.split(","), function(i, v){
 							if (fils[v])
 								subs[v] = data.id;

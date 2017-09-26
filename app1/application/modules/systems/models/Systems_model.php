@@ -76,13 +76,13 @@ class Systems_Model extends CI_model
 	
 	function _store_config($user_id)
 	{
-		$user = $this->base_model->getValueArray('id as user_id, client_id, user_org_id, user_orgtrx_id, user_role_id, name as user_name, email as user_email, description as user_description, photo_file as user_photo_file, supervisor_id as user_supervisor_id, bpartner_id, is_fullbpaccess', 'a_user', 'id', $user_id);
-		$user_org = $this->base_model->getValueArray('org_id', 'a_user_org', 'id', $user['user_org_id']);
-		$user_orgtrx = $this->base_model->getValueArray('org_id as orgtrx_id, (select name from a_org where id = a_user_orgtrx.org_id) as location_name', 'a_user_orgtrx', 'id', $user['user_orgtrx_id']);
-		$user_role = $this->base_model->getValueArray('role_id', 'a_user_role', ['id','is_active','is_deleted'], [$user['user_role_id'], '1', '0']);
+		$user = $this->base_model->getValueArray('id as user_id, client_id, user_org_id, user_orgtrx_id, user_orgdept_id, user_orgdiv_id, user_role_id, name as user_name, email as user_email, description as user_description, photo_file as user_photo_file, supervisor_id as user_supervisor_id, bpartner_id, is_fullbpaccess', 'a_user', 'id', $user_id);
 		$client = $this->base_model->getValueArray('name as client_name', 'a_client', 'id', $user['client_id']);
-		$org = $this->base_model->getValueArray('name as org_name, supervisor_id as org_supervisor_id, address_map as org_address_map, phone as org_phone, fax as org_fax, email as org_email, website as org_website, swg_margin', 'a_org', 'id', $user_org['org_id']);
-		$role = $this->base_model->getValueArray('name as role_name, supervisor_id as role_supervisor_id, amt_approval, is_canexport, is_canimport, is_canreport, is_canapproveowndoc, is_accessallorgs, is_useuserorgaccess', 'a_role', 'id', $user_role['role_id']);
+		$org = $this->base_model->getValueArray('id as org_id, name as org_name, supervisor_id as org_supervisor_id, address_map as org_address_map, phone as org_phone, fax as org_fax, email as org_email, website as org_website', 'a_org', 'id', $user['user_org_id']);
+		$orgtrx = $this->base_model->getValueArray('id as orgtrx_id, name as orgtrx_name, supervisor_id as orgtrx_supervisor_id, address_map as orgtrx_address_map, phone as orgtrx_phone, fax as orgtrx_fax, email as orgtrx_email, website as orgtrx_website', 'a_org', 'id', $user['user_orgtrx_id']);
+		$orgdept = $this->base_model->getValueArray('id as orgdept_id, name as orgdept_name, supervisor_id as orgdept_supervisor_id, address_map as orgdept_address_map, phone as orgdept_phone, fax as orgdept_fax, email as orgdept_email, website as orgdept_website', 'a_org', 'id', $user['user_orgdept_id']);
+		$orgdiv = $this->base_model->getValueArray('id as orgdiv_id, name as orgdiv_name, supervisor_id as orgdiv_supervisor_id, address_map as orgdiv_address_map, phone as orgdiv_phone, fax as orgdiv_fax, email as orgdiv_email, website as orgdiv_website', 'a_org', 'id', $user['user_orgdiv_id']);
+		$role = $this->base_model->getValueArray('id as role_id, name as role_name, supervisor_id as role_supervisor_id, amt_approval, is_canexport, is_canimport, is_canreport, is_canapproveowndoc, is_accessallorgs, is_useuserorgaccess', 'a_role', 'id', $user['user_role_id']);
 		$system = $this->base_model->getValueArray('api_token, head_title, page_title, logo_text_mn, logo_text_lg, date_format, time_format, datetime_format, user_photo_path, personnel_photo_path, max_file_upload, group_symbol, decimal_symbol, negative_front_symbol, negative_back_symbol, number_digit_decimal, default_skin, default_layout, default_screen_timeout, default_language, default_show_branch_entry', 'a_system', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID]);
 		$user_config = $this->base_model->getValue('attribute, value', 'a_user_config', 'user_id', $user_id);
 		$userconfig = [];
@@ -96,15 +96,15 @@ class Systems_Model extends CI_model
 			}
 		}
 		$user 			= ($user===FALSE) ? [] : $user;
-		$user_org 	= ($user_org===FALSE) ? ['org_id' => null] : $user_org;
-		$user_orgtrx 	= ($user_orgtrx===FALSE) ? ['orgtrx_id' => null] : $user_orgtrx;
-		$user_role 	= ($user_role===FALSE) ? ['role_id' => null] : $user_role;
 		$client 		= ($client===FALSE) ? [] : $client;
 		$org 				= ($org===FALSE) ? [] : $org;
+		$orgtrx 		= ($orgtrx===FALSE) ? [] : $orgtrx;
+		$orgdept 		= ($orgdept===FALSE) ? [] : $orgdept;
+		$orgdiv 		= ($orgdiv===FALSE) ? [] : $orgdiv;
 		$role 			= ($role===FALSE) ? [] : $role;
 		$system 		= ($system===FALSE) ? [] : $system;
 		$userconfig = ($user_config===FALSE) ? [] : $userconfig;
-		$data = array_merge($user, $user_org, $user_orgtrx, $user_role, $client, $org, $role, $system, $userconfig);
+		$data = array_merge($user, $client, $org, $orgtrx, $orgdept, $orgdiv, $role, $system, $userconfig);
 		$this->session->set_userdata($data);
 		
 		/* Default user config session */
@@ -126,17 +126,15 @@ class Systems_Model extends CI_model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_user where id = t1.user_id) as user_name,
-		t1.*, (select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, (select count(user_org_id) from a_user where id = t1.user_id and user_org_id = t1.id) as is_default";
-		$params['table'] 	= $this->c_method." as t1";
-		if (isset($params['level']) && $params['level'] == 1) {
-			$params['join'][] = ['a_org as t2', 't1.org_id = t2.id', 'left'];
-		}
-		// $params['table'] 	= $this->c_table." as t1";
-		// $params['table'] 	= "a_user_org as t1";
+		t1.*, 
+		(select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, 
+		(select (select coalesce(code,'') ||'_'|| name from a_org where id = f1.org_id) from a_user_org f1 where id = t1.parent_id) as parent_name,
+		(select count(user_org_id) from a_user where id = t1.user_id and user_org_id = t1.id) as is_default";
+		$params['table'] 	= "a_user_org as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	
-	function a_user_orgtrx($params)
+	/* function a_user_orgtrx($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select (select name from a_org f2 where f2.id = f1.org_id) from a_user_org f1 where f1.id = t1.user_org_id) as user_org_name,
@@ -149,13 +147,14 @@ class Systems_Model extends CI_model
 		// $params['join'][] 	= ['a_org as t2', 't1.org_id = t2.id', 'inner'];
 		// $params['where']['t2.is_deleted'] 	= '0';
 		return $this->base_model->mget_rec($params);
-	}
+	} */
 	
 	function a_user_role($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_user where id = t1.user_id) as user_name,
-		t1.*, (select coalesce(code,'') ||'_'|| name from a_role where id = t1.role_id) as code_name, (select count(user_role_id) from a_user where id = t1.user_id and user_role_id = t1.id) as is_default";
+		t1.*, (select coalesce(code,'') ||'_'|| name from a_role where id = t1.role_id) as code_name, 
+		(select count(user_role_id) from a_user where id = t1.user_id and user_role_id = t1.id) as is_default";
 		$params['table'] 	= $this->c_method." as t1";
 		// $params['table'] 	= $this->c_table." as t1";
 		// $params['table'] 	= "a_user_role as t1";
@@ -279,46 +278,11 @@ class Systems_Model extends CI_model
 	
 	function a_org($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, coalesce(t2.code,'') ||'_'|| t2.name as orgtype_name, t1.is_active, (select name from a_org where id = t1.parent_id limit 1) as parent_name";
-		$params['table'] 	= $this->c_table." as t1";
-		$params['join'][] 	= ['a_orgtype as t2', 't1.orgtype_id = t2.id', 'left'];
-		$params['where']['orgtype_id'] = 1;
-		return $this->base_model->mget_rec($params);
-	}
-	
-	function a_org_company($params)
-	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, coalesce(t2.code,'') ||'_'|| t2.name as orgtype_name, t1.is_active, (select name from a_org where id = t1.parent_id limit 1) as parent_name";
-		$params['table'] 	= $this->c_table." as t1";
-		$params['join'][] 	= ['a_orgtype as t2', 't1.orgtype_id = t2.id', 'left'];
-		$params['where']['orgtype_id'] = 2;
-		return $this->base_model->mget_rec($params);
-	}
-	
-	function a_org_location($params)
-	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, coalesce(t2.code,'') ||'_'|| t2.name as orgtype_name, t1.is_active, (select name from a_org where id = t1.parent_id limit 1) as parent_name";
-		$params['table'] 	= $this->c_table." as t1";
-		$params['join'][] 	= ['a_orgtype as t2', 't1.orgtype_id = t2.id', 'left'];
-		$params['where']['orgtype_id'] = 3;
-		return $this->base_model->mget_rec($params);
-	}
-	
-	function a_org_department($params)
-	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, coalesce(t2.code,'') ||'_'|| t2.name as orgtype_name, t1.is_active, (select name from a_org where id = t1.parent_id limit 1) as parent_name";
-		$params['table'] 	= $this->c_table." as t1";
-		$params['join'][] 	= ['a_orgtype as t2', 't1.orgtype_id = t2.id', 'left'];
-		$params['where']['orgtype_id'] = 4;
-		return $this->base_model->mget_rec($params);
-	}
-	
-	function a_org_division($params)
-	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, coalesce(t2.code,'') ||'_'|| t2.name as orgtype_name, t1.is_active, (select name from a_org where id = t1.parent_id limit 1) as parent_name";
-		$params['table'] 	= $this->c_table." as t1";
-		$params['join'][] 	= ['a_orgtype as t2', 't1.orgtype_id = t2.id', 'left'];
-		$params['where']['orgtype_id'] = 5;
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, 
+		coalesce(t1.code,'') ||'_'|| t1.name as code_name, 
+		(select coalesce(code,'') ||'_'|| name from a_orgtype where id = t1.orgtype_id) as orgtype_name, 
+		(select coalesce(code,'') ||'_'|| name from a_org where id = t1.parent_id limit 1) as parent_name";
+		$params['table'] 	= "a_org as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	

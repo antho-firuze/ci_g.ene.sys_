@@ -34,7 +34,7 @@
 		sub_menu: [],
 		order: ['id desc'],
 		columns: [
-			{ width:"75px", orderable:false, data:"user_org_name", title:"Organization" },
+			{ width:"75px", orderable:false, data:"parent_name", title:"Parent Name" },
 			{ width:"250px", orderable:false, data:"code_name", title:"Location/Branch" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],

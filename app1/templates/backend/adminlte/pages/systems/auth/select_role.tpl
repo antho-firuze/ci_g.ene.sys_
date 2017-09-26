@@ -107,13 +107,14 @@
 	if (user == "")
 		window.location.replace("{$.const.LOGOUT_LNK}");
 		
-	$("#user_role_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_role')}?identify=1&filter="+user, idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, });
-	$("#user_org_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_org')}?identify=1&filter="+user, idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, 
+	$("#user_role_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_role')}?identify=1&filter="+user, idField:"role_id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, });
+	$("#user_org_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_org')}?identify=1&filter=orgtype_id=2,"+user, idField:"org_id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, 
 		onSelect: function(rowData){
-			$("#user_orgtrx_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_orgtrx')}?identify=1&filter="+user+"&user_org_id="+rowData.id, idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, });
+			{* $("#user_orgtrx_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_orgtrx')}?identify=1&filter="+user+"&user_org_id="+rowData.id, idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, }); *}
+			$("#user_orgtrx_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_org')}?identify=1&filter=orgtype_id=3,"+user+"&parent_id="+rowData.id, idField:"org_id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, });
 		},
 	});
-	$("#user_orgtrx_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_orgtrx')}?identify=1&filter=user_id=0", idField:"id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, });
+	$("#user_orgtrx_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_org')}?identify=1&filter=user_id=0", idField:"org_id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, });
 	
 	$("#btn-cancel").on("click", function(){ window.location.replace("{$.const.LOGOUT_LNK}"); });
 	

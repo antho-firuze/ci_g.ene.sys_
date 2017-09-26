@@ -1809,12 +1809,9 @@ class Getmeb extends CI_Controller
 	}
 	
 	/* For getting org/company list base on user_org access */
-	function _get_org()
+	function _get_org($user_id = NULL)
 	{
-		$str = "select f1.org_id 
-			from a_user_org f1 
-			where f1.is_active = '1' and f1.is_deleted = '0' and 
-			f1.user_id = ".$this->session->user_id;
+		$str = "select org_id from a_user_org where is_active = '1' and is_deleted = '0' and user_id = ". ($user_id !== NULL ? $user_id : $this->session->user_id);
 		if (!$qry = $this->db->query($str)->result()){
 			return FALSE;
 		}
@@ -1875,6 +1872,20 @@ class Getmeb extends CI_Controller
 		$arr = [];
 		foreach ($qry as $k => $v){
 			$arr[] = $v->org_id;
+		}
+		return $arr;
+	}
+	
+	/* For getting role list base on user_role access */
+	function _get_role($user_id = NULL)
+	{
+		$str = "select role_id from a_user_role f1 where is_active = '1' and is_deleted = '0' and user_id = ". ($user_id !== NULL ? $user_id : $this->session->user_id);
+		if (!$qry = $this->db->query($str)->result()){
+			return FALSE;
+		}
+		$arr = [];
+		foreach ($qry as $k => $v){
+			$arr[] = $v->role_id;
 		}
 		return $arr;
 	}
