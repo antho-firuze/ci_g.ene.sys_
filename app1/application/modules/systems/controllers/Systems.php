@@ -611,7 +611,6 @@ class Systems extends Getmeb
 			$this->_get_filtered(TRUE, FALSE, ['(select code from a_org where id = t1.org_id)','(select name from a_org where id = t1.org_id)',], TRUE);
 
 			$this->params['where']['orgtype_id'] = 2;
-			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -635,6 +634,16 @@ class Systems extends Getmeb
 				$this->mixed_data['orgtype_id'] = 2;
 			}
 		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$str = "with recursive tbl AS (
+				select id from a_user_org where id in (".$this->params['id'].")
+				union all
+				select cld.id from a_user_org cld join tbl on tbl.id = cld.parent_id
+				) update a_user_org set is_deleted = '1', deleted_by = ".$this->session->user_id.", deleted_at = '".date('Y-m-d H:i:s')."' where id in (select id from tbl)";
+				$this->db->query($str);
+			}
+		}
 	}
 	
 	function a_user_orgtrx()
@@ -655,7 +664,6 @@ class Systems extends Getmeb
 			}
 			
 			$this->params['where']['orgtype_id'] = 3;
-			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -664,7 +672,6 @@ class Systems extends Getmeb
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
-				// debug($this->params);
 				$result = $this->updateRecord('a_user', ['user_orgtrx_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
 				
 				/* Throwing the result to Ajax */
@@ -680,6 +687,16 @@ class Systems extends Getmeb
 				$this->mixed_data['parent_org_id'] = $this->base_model->getValue('org_id', 'a_user_org', 'id', $this->params->parent_id)->org_id;
 			}
 		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$str = "with recursive tbl AS (
+				select id from a_user_org where id in (".$this->params['id'].")
+				union all
+				select cld.id from a_user_org cld join tbl on tbl.id = cld.parent_id
+				) update a_user_org set is_deleted = '1', deleted_by = ".$this->session->user_id.", deleted_at = '".date('Y-m-d H:i:s')."' where id in (select id from tbl)";
+				$this->db->query($str);
+			}
+		}
 	}
 	
 	function a_user_orgdept()
@@ -689,8 +706,13 @@ class Systems extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, FALSE, ['(select code from a_org where id = t1.org_id)','(select name from a_org where id = t1.org_id)',], TRUE);
 
-			$this->params['where']['orgtype_id'] = 4;
+			/* For getting org_id in a_user_orgdept.tpl */
+			if (isset($this->params['get_org_id']) && !empty($this->params['get_org_id'])) {
+				$row = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $this->params['parent_id']);
+				$this->xresponse(TRUE, ['data'=>$row]);
+			}
 			
+			$this->params['where']['orgtype_id'] = 4;
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -698,9 +720,30 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
+				$result = $this->updateRecord('a_user', ['user_orgtrx_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
+				
+				/* Throwing the result to Ajax */
+				if (! $result)
+					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			}
+			
 			if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['org_id'] = $this->params->org_id;
 				$this->mixed_data['orgtype_id'] = 4;
+				$this->mixed_data['parent_org_id'] = $this->base_model->getValue('org_id', 'a_user_org', 'id', $this->params->parent_id)->org_id;
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$str = "with recursive tbl AS (
+				select id from a_user_org where id in (".$this->params['id'].")
+				union all
+				select cld.id from a_user_org cld join tbl on tbl.id = cld.parent_id
+				) update a_user_org set is_deleted = '1', deleted_by = ".$this->session->user_id.", deleted_at = '".date('Y-m-d H:i:s')."' where id in (select id from tbl)";
+				$this->db->query($str);
 			}
 		}
 	}
@@ -712,8 +755,13 @@ class Systems extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, FALSE, ['(select code from a_org where id = t1.org_id)','(select name from a_org where id = t1.org_id)',], TRUE);
 
-			$this->params['where']['orgtype_id'] = 5;
+			/* For getting org_id in a_user_orgdiv.tpl */
+			if (isset($this->params['get_org_id']) && !empty($this->params['get_org_id'])) {
+				$row = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $this->params['parent_id']);
+				$this->xresponse(TRUE, ['data'=>$row]);
+			}
 			
+			$this->params['where']['orgtype_id'] = 5;
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -721,9 +769,20 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
+				$result = $this->updateRecord('a_user', ['user_orgtrx_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
+				
+				/* Throwing the result to Ajax */
+				if (! $result)
+					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			}
+			
 			if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['org_id'] = $this->params->org_id;
 				$this->mixed_data['orgtype_id'] = 5;
+				$this->mixed_data['parent_org_id'] = $this->base_model->getValue('org_id', 'a_user_org', 'id', $this->params->parent_id)->org_id;
 			}
 		}
 	}
@@ -1249,22 +1308,6 @@ class Systems extends Getmeb
 			}
 			
 			$this->params['where']['orgtype_id'] = 2;
-			
-			/* if (isset($this->params['list']) && $this->params['list']) {
-				if ($this->params['list'] == 'org'){
-					$this->params['where_in']['org_id'] = $this->_get_org();
-				}
-				if ($this->params['list'] == 'orgtrx'){
-					$this->params['where_in']['org_id'] = $this->_get_orgtrx();
-				}
-				if ($this->params['list'] == 'orgdept'){
-					// $this->params['where_in']['org_id'] = $this->_get_orgdept();
-				}
-				if ($this->params['list'] == 'orgdiv'){
-					// $this->params['where_in']['org_id'] = $this->_get_orgdiv();
-				}
-			} */
-				
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -1281,6 +1324,16 @@ class Systems extends Getmeb
 				unset($this->mixed_data['org_id']);
 			}
 		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$str = "with recursive tbl AS (
+				select id from a_org where id in (".$this->params['id'].")
+				union all
+				select cld.id from a_org cld join tbl on tbl.id = cld.parent_id
+				) update a_org set is_deleted = '1', deleted_by = ".$this->session->user_id.", deleted_at = '".date('Y-m-d H:i:s')."' where id in (select id from tbl)";
+				$this->db->query($str);
+			}
+		}
 	}
 	
 	function a_orgtrx()
@@ -1291,12 +1344,10 @@ class Systems extends Getmeb
 			$this->_get_filtered(TRUE, FALSE);
 			
 			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
-				// debug($this->_get_orgtrx());
 				$this->params['where_in']['id'] = $this->_get_orgtrx();
 			}
 			
 			$this->params['where']['orgtype_id'] = 3;
-			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -1313,6 +1364,16 @@ class Systems extends Getmeb
 				unset($this->mixed_data['org_id']);
 			}
 		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$str = "with recursive tbl AS (
+				select id from a_org where id in (".$this->params['id'].")
+				union all
+				select cld.id from a_org cld join tbl on tbl.id = cld.parent_id
+				) update a_org set is_deleted = '1', deleted_by = ".$this->session->user_id.", deleted_at = '".date('Y-m-d H:i:s')."' where id in (select id from tbl)";
+				$this->db->query($str);
+			}
+		}
 	}
 	
 	function a_orgdept()
@@ -1327,7 +1388,6 @@ class Systems extends Getmeb
 			}
 			
 			$this->params['where']['orgtype_id'] = 4;
-			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -1344,6 +1404,16 @@ class Systems extends Getmeb
 				unset($this->mixed_data['org_id']);
 			}
 		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'post_delete'){
+				$str = "with recursive tbl AS (
+				select id from a_org where id in (".$this->params['id'].")
+				union all
+				select cld.id from a_org cld join tbl on tbl.id = cld.parent_id
+				) update a_org set is_deleted = '1', deleted_by = ".$this->session->user_id.", deleted_at = '".date('Y-m-d H:i:s')."' where id in (select id from tbl)";
+				$this->db->query($str);
+			}
+		}
 	}
 	
 	function a_orgdiv()
@@ -1358,7 +1428,6 @@ class Systems extends Getmeb
 			}
 			
 			$this->params['where']['orgtype_id'] = 5;
-			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}

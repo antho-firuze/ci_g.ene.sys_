@@ -22,14 +22,14 @@
 		{* console.log(result.data); *}
 		$("#org_id").shollu_cb({ queryParams: { "filter":"parent_id="+result.data.org_id }});
 		$("#user_id").val(result.data.user_id);
-		$("#org_id").closest(".form-group").find("a").attr("href", "{$.const.PAGE_LNK}?pageid=18,129&filter=parent_id="+result.data.org_id);
+		$("#org_id").closest(".form-group").find("a").attr("href", "{$.const.PAGE_LNK}?pageid=18,129,130&filter=parent_id="+result.data.org_id);
 	});
 	{* For design form interface *}
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });	
 	var box1 = BSHelper.Box({ type:"info" });
 	col.push(BSHelper.Input({ type:"hidden", idname:"user_id" }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Trx/Branch", label_link:"{$.const.PAGE_LNK}?pageid=18,129&filter=parent_id=", idname:"org_id", textField:"code_name", url:"{$.php.base_url('systems/a_orgtrx')}", remote: true, required: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Department", label_link:"{$.const.PAGE_LNK}?pageid=18,129,130&filter=parent_id=", idname:"org_id", textField:"code_name", url:"{$.php.base_url('systems/a_orgdept')}", remote: true, required: true }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	row.push(subCol(6, col)); col = [];
 	row.push(subCol(6, col)); col = [];
