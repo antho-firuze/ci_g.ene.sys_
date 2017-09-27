@@ -117,7 +117,16 @@ class Systems_Model extends CI_model
 	
 	function a_user($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.client_id, t1.user_org_id, t1.user_orgtrx_id, t1.user_role_id, t1.is_active, t1.code, t1.name, coalesce(t1.code, '')||' '||t1.name as code_name, t1.description, t1.email, t1.last_login, t1.is_online, t1.supervisor_id,	t1.bpartner_id, t1.is_fullbpaccess, t1.is_expired, t1.ip_address, t1.photo_file";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, 
+		t1.client_id, t1.user_org_id, t1.user_orgtrx_id, t1.user_role_id, t1.is_active, t1.code, t1.name, 
+		coalesce(t1.code, '')||'_'||t1.name as code_name, 
+		t1.description, t1.email, t1.last_login, t1.is_online, t1.supervisor_id, t1.bpartner_id, t1.is_fullbpaccess, t1.is_expired, t1.ip_address, t1.photo_file,
+		(select coalesce(code, '')||'_'||name from a_role where id = t1.user_role_id) as default_user_role_name,
+		(select coalesce(code, '')||'_'||name from a_org where id = t1.user_org_id) as default_user_org_name,
+		(select coalesce(code, '')||'_'||name from a_org where id = t1.user_orgtrx_id) as default_user_orgtrx_name,
+		(select coalesce(code, '')||'_'||name from a_org where id = t1.user_orgdept_id) as default_user_orgdept_name,
+		(select coalesce(code, '')||'_'||name from a_org where id = t1.user_orgdiv_id) as default_user_orgdiv_name
+		";
 		$params['table'] 	= "a_user as t1";
 		return $this->base_model->mget_rec($params);
 	}
@@ -129,7 +138,43 @@ class Systems_Model extends CI_model
 		t1.*, 
 		(select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, 
 		(select (select coalesce(code,'') ||'_'|| name from a_org where id = f1.org_id) from a_user_org f1 where id = t1.parent_id) as parent_name,
-		(select count(user_org_id) from a_user where id = t1.user_id and user_org_id = t1.id) as is_default";
+		(select count(user_org_id) from a_user where id = t1.user_id and user_org_id = t1.org_id) as is_default";
+		$params['table'] 	= "a_user_org as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function a_user_orgtrx($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_user where id = t1.user_id) as user_name,
+		t1.*, 
+		(select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, 
+		(select (select coalesce(code,'') ||'_'|| name from a_org where id = f1.org_id) from a_user_org f1 where id = t1.parent_id) as parent_name,
+		(select count(user_org_id) from a_user where id = t1.user_id and user_orgtrx_id = t1.org_id) as is_default";
+		$params['table'] 	= "a_user_org as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function a_user_orgdept($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_user where id = t1.user_id) as user_name,
+		t1.*, 
+		(select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, 
+		(select (select coalesce(code,'') ||'_'|| name from a_org where id = f1.org_id) from a_user_org f1 where id = t1.parent_id) as parent_name,
+		(select count(user_org_id) from a_user where id = t1.user_id and user_orgdept_id = t1.org_id) as is_default";
+		$params['table'] 	= "a_user_org as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function a_user_orgdiv($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_user where id = t1.user_id) as user_name,
+		t1.*, 
+		(select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, 
+		(select (select coalesce(code,'') ||'_'|| name from a_org where id = f1.org_id) from a_user_org f1 where id = t1.parent_id) as parent_name,
+		(select count(user_org_id) from a_user where id = t1.user_id and user_orgdiv_id = t1.org_id) as is_default";
 		$params['table'] 	= "a_user_org as t1";
 		return $this->base_model->mget_rec($params);
 	}
@@ -371,6 +416,7 @@ class Systems_Model extends CI_model
 		$params['where']['t2.is_deleted'] = '0';
 		// $params['order']	= "t2.type, t2.lineno";
 		$params['sort']	= "t1.seq asc";
+		// debug($this->base_model->mget_rec($params));
 		return $this->base_model->mget_rec($params);
 	}
 	

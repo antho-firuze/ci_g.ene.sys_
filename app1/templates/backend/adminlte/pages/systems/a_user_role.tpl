@@ -41,7 +41,7 @@
 
 	function set_default(data){
 		$.ajax({ url: $url_module, method: "PUT", async: true, dataType: 'json',
-			data: JSON.stringify({ set_default:1, user_id:data.user_id, user_role_id:data.id }),
+			data: JSON.stringify({ set_default:1, user_id:data.user_id, role_id:data.role_id }),
 			success: function(data) {
 				BootstrapDialog.show({ closable: false, message:data.message, 
 					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],

@@ -321,11 +321,9 @@ function initActionMenu(tableData1, dataTable1)
 					var subs = {};
 					/* Sub Detail Method : hierarchy or masterdetail */
 					if (subType == 'hierarchy') {
-						console.log(data.id);
-						// return false;
+						/* if using hierarchial, used only [subKey: 'parent_id'] */
 						$.each(subKey.split(","), function(i, v){
-							if (fils[v])
-								subs[v] = data.id;
+							subs[v] = data.id;
 						});
 					} else {
 						$.each(subKey.split(","), function(i, v){

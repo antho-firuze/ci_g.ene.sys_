@@ -19,7 +19,7 @@
 }
 </style>
 <script>
-	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $bread = {$.php.json_encode($bread)}, auto_populate = false;
+	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $bread = {$.php.json_encode($bread)}, auto_populate = false, $act = getURLParameter("action");
 	{* Get Params *}
 	var $id = getURLParameter("id"), $act = getURLParameter("action");
 	var r_method = $.inArray($act, ['new','cpy']) > -1 ? 'POST' : 'PUT';
@@ -59,9 +59,9 @@
 	col.push(BSHelper.Input({ horz:false, type:"email", label:"Email", idname:"email", required: true, placeholder:"string(255)" }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Full BP Access", idname:"is_fullbpaccess" }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Role (Default)", label_link:"{$.const.PAGE_LNK}?pageid=20,31&filter=user_id="+$id, idname:"user_role_id", textField:"code_name", url:"{$.php.base_url('systems/a_role')}?for_user_id="+$id, remote: true }) );
-	col.push(BSHelper.Combobox({ horz:false, label:"Org (Default)", label_link:"{$.const.PAGE_LNK}?pageid=20,32&filter=user_id="+$id, idname:"user_org_id", textField:"code_name", url:"{$.php.base_url('systems/a_org')}?for_user="+$id, remote: true }) );
-	col.push(BSHelper.Combobox({ horz:false, label:"Org Trx (Default)", label_link:"{$.const.PAGE_LNK}?pageid=20,32,104&filter=user_id="+$id, idname:"user_orgtrx_id", textField:"code_name", url:"{$.php.base_url('systems/a_orgtrx')}?for_user="+$id, remote: true }) );
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Role (Default)", label_link:"{$.const.PAGE_LNK}?pageid=20,31&filter=user_id="+$id, idname:"default_user_role_name", readonly: true }) );
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Org (Default)", label_link:"{$.const.PAGE_LNK}?pageid=20,32&filter=user_id="+$id, idname:"default_user_org_name", readonly: true }) );
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Org Trx (Default)", label_link:"{$.const.PAGE_LNK}?pageid=20,32,104&filter=user_id="+$id, idname:"default_user_orgtrx_name", readonly: true }) );
 	col.push(BSHelper.Combobox({ horz:false, label:"Supervisor", label_link:"{$.const.PAGE_LNK}?pageid=20", idname:"supervisor_id", url:"{$.php.base_url('systems/a_user')}", remote: true }));
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
@@ -188,10 +188,5 @@
 		return false;
 	});
 
-	$("#user_org_id").shollu_cb({ url:"{$.php.base_url('systems/a_role')}?for_user_id="+$id, idField:"org_id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, 
-		onSelect: function(rowData){
-			$("#user_orgtrx_id").shollu_cb({ url:"{$.php.base_url('systems/a_user_org')}?identify=1&filter=orgtype_id=3,"+user+"&parent_id="+rowData.id, idField:"org_id", textField:"code_name", emptyMessage:"<center><b>No results were found</b></center>", remote:true, });
-		},
-	});
 </script>
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>

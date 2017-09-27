@@ -1453,7 +1453,7 @@ class Getmeb extends CI_Controller
 					$val[$v] = $data[$v];
 				}
 			}
-
+			
 			if (count($val) > 0) {
 				if (! $fk = $this->db->get_where($table, array_merge($val, ['is_deleted' => '0']), 1)) {
 					$this->set_message($this->db->error()['message']);
@@ -1811,7 +1811,7 @@ class Getmeb extends CI_Controller
 	/* For getting org/company list base on user_org access */
 	function _get_org($user_id = NULL)
 	{
-		$str = "select org_id from a_user_org where is_active = '1' and is_deleted = '0' and user_id = ". ($user_id !== NULL ? $user_id : $this->session->user_id);
+		$str = "select org_id from a_user_org where is_active = '1' and is_deleted = '0' and orgtype_id = 2 and user_id = ".($user_id !== NULL ? $user_id : $this->session->user_id);
 		if (!$qry = $this->db->query($str)->result()){
 			return FALSE;
 		}
@@ -1823,13 +1823,13 @@ class Getmeb extends CI_Controller
 	}
 	
 	/* For getting orgtrx/location list base on user_org access */
-	function _get_orgtrx()
+	function _get_orgtrx($user_id = NULL, $org_id = NULL)
 	{
-		$str = "select f1.org_id 
-			from a_user_orgtrx f1 
-			inner join a_user_org f2 on f1.user_org_id = f2.id
-			where f1.is_active = '1' and f1.is_deleted = '0' and 
-			f1.user_id = ".$this->session->user_id." and f2.org_id = ".$this->session->org_id;
+		// $str = "select org_id from a_user_org where is_active = '1' and is_deleted = '0' and orgtype_id = 3 and user_id = ".($user_id !== NULL ? $user_id : $this->session->user_id);
+		$str = "select org_id from a_user_org where is_active = '1' and is_deleted = '0' and orgtype_id = 3 and 
+			parent_id = (select id from a_user_org where is_active = '1' and is_deleted = '0' and orgtype_id = 2 and 
+			user_id = ".($user_id !== NULL ? $user_id : $this->session->user_id)." and org_id = ".($org_id !== NULL ? $org_id : $this->session->org_id)." limit 1)";
+		// debug($str);
 		if (!$qry = $this->db->query($str)->result()){
 			return FALSE;
 		}

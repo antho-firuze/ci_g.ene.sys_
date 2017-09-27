@@ -24,6 +24,7 @@ class Systems extends Getmeb
 	function dashboard1()
 	{
 		if ($this->r_method == 'GET') {
+			// debug($this->_get_orgtrx());
 			$this->params['list'] = 1;
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
@@ -617,18 +618,20 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			if ($this->params->event == 'pre_post'){
-				$this->mixed_data['org_id'] = $this->params->org_id;
-			}
-			
 			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
-				$result = $this->updateRecord('a_user', ['user_org_id' => $this->params->user_org_id], ['id'=>$this->params->user_id]);
+				// debug($this->params);
+				$result = $this->updateRecord('a_user', ['user_org_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
 				
 				/* Throwing the result to Ajax */
 				if (! $result)
 					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			}
+			
+			if ($this->params->event == 'pre_post_put'){
+				$this->mixed_data['org_id'] = $this->params->org_id;
+				$this->mixed_data['orgtype_id'] = 2;
 			}
 		}
 	}
@@ -640,17 +643,34 @@ class Systems extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, FALSE, ['(select code from a_org where id = t1.org_id)','(select name from a_org where id = t1.org_id)',], TRUE);
 
+			if (isset($this->params['get_org_id']) && !empty($this->params['get_org_id'])) {
+				$row = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $this->params['parent_id']);
+				$this->xresponse(TRUE, ['data'=>$row]);
+			}
+			
 			$this->params['where']['orgtype_id'] = 3;
 			
-			if (! $result['data'] = $this->{$this->mdl}->a_user_org($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			if ($this->params->event == 'pre_post'){
+			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
+				// debug($this->params);
+				$result = $this->updateRecord('a_user', ['user_orgtrx_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
+				
+				/* Throwing the result to Ajax */
+				if (! $result)
+					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+
+				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			}
+			
+			if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['org_id'] = $this->params->org_id;
+				$this->mixed_data['orgtype_id'] = 3;
 			}
 		}
 	}
@@ -664,15 +684,16 @@ class Systems extends Getmeb
 
 			$this->params['where']['orgtype_id'] = 4;
 			
-			if (! $result['data'] = $this->{$this->mdl}->a_user_org($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			if ($this->params->event == 'pre_post'){
+			if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['org_id'] = $this->params->org_id;
+				$this->mixed_data['orgtype_id'] = 4;
 			}
 		}
 	}
@@ -686,15 +707,16 @@ class Systems extends Getmeb
 
 			$this->params['where']['orgtype_id'] = 5;
 			
-			if (! $result['data'] = $this->{$this->mdl}->a_user_org($this->params)){
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			if ($this->params->event == 'pre_post'){
+			if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['org_id'] = $this->params->org_id;
+				$this->mixed_data['orgtype_id'] = 5;
 			}
 		}
 	}
@@ -718,7 +740,7 @@ class Systems extends Getmeb
 		if ($this->r_method == 'PUT') {
 			
 			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
-				$result = $this->updateRecord('a_user', ['user_role_id' => $this->params->user_role_id], ['id'=>$this->params->user_id]);
+				$result = $this->updateRecord('a_user', ['user_role_id' => $this->params->role_id], ['id'=>$this->params->user_id]);
 				
 				/* Throwing the result to Ajax */
 				if (! $result)
@@ -819,8 +841,8 @@ class Systems extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['for_user_id']) && !empty($this->params['for_user_id'])) {
-				$this->params['where_in']['id'] = $this->_get_role($this->params['for_user_id']);
+			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
+				$this->params['where_in']['id'] = $this->_get_role($this->params['for_user']);
 			}
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
@@ -1199,7 +1221,7 @@ class Systems extends Getmeb
 			$this->_get_filtered(TRUE, FALSE);
 			
 			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
-				$this->params['where_in']['id'] = $this->_get_org($this->params['for_user']);
+				$this->params['where_in']['id'] = $this->_get_org();
 			}
 			
 			$this->params['where']['orgtype_id'] = 2;
@@ -1245,7 +1267,8 @@ class Systems extends Getmeb
 			$this->_get_filtered(TRUE, FALSE);
 			
 			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
-				$this->params['where_in']['id'] = $this->_get_orgtrx($this->params['for_user']);
+				// debug($this->_get_orgtrx());
+				$this->params['where_in']['id'] = $this->_get_orgtrx();
 			}
 			
 			$this->params['where']['orgtype_id'] = 3;

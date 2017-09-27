@@ -15,7 +15,7 @@
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });	
 	var box1 = BSHelper.Box({ type:"info" });
-	col.push(BSHelper.Combobox({ horz:false, label:"Organization", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"org_id", textField:"name", url:"{$.php.base_url('systems/a_org_parent_list?orgtype_id=2')}", remote: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Organization", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"org_id", textField:"code_name", url:"{$.php.base_url('systems/a_org')}", remote: true, required: true }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	{* col.push(BSHelper.Checkbox({ horz:false, label:"Set As Default", idname:"is_default", value:1 })); *}
 	row.push(subCol(6, col)); col = [];

@@ -30,7 +30,7 @@
 			{ name: 'set_default', title: 'Set As Default' }, 
 		],
 		sub_menu: [
-			{ pageid: 104, subKey: 'user_id,parent_id', title: 'Location/Branch', subType: 'hierarchy' },
+			{ pageid: 104, subKey: 'parent_id', title: 'Location/Branch', subType: 'hierarchy' },
 		],
 		order: ['id desc'],
 		columns: [
@@ -43,7 +43,7 @@
 		
 	function set_default(data){
 		$.ajax({ url: $url_module, method: "PUT", async: true, dataType: 'json',
-			data: JSON.stringify({ set_default:1, user_id:data.user_id, user_org_id:data.id }),
+			data: JSON.stringify({ set_default:1, user_id:data.user_id, org_id:data.org_id }),
 			success: function(data) {
 				BootstrapDialog.show({ closable: false, message:data.message, 
 					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],

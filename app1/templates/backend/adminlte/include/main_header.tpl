@@ -148,8 +148,8 @@
 						<div class="col-xs-8 text-left"><a href="#">{$.session.org_name}</a>&nbsp;<small>({$.session.org_id})</small></div>
 					</div>
 			    <div class="row">
-						<div class="col-xs-4 text-left">Location: </div>
-						<div class="col-xs-8 text-left"><a href="#">{$.session.location_name}</a>&nbsp;<small>({$.session.orgtrx_id})</small></div>
+						<div class="col-xs-4 text-left">Trx/Branch: </div>
+						<div class="col-xs-8 text-left"><a href="#">{$.session.orgtrx_name}</a>&nbsp;<small>({$.session.orgtrx_id})</small></div>
 					</div>
 			    <div class="row">
 						<div class="col-xs-4 text-left">Role: </div>

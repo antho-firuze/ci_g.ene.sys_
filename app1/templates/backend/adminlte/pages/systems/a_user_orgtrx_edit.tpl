@@ -17,17 +17,19 @@
 			arr = x.split('=');
 			arr[1] && (arr_filter[arr[0]] = arr[1]);
 	});
-	{* console.log(arr_filter.user_org_id); *}
-	$.getJSON($url_module, { get_org_id: 1, user_org_id: arr_filter.user_org_id }, function(result){
+	{* console.log(arr_filter); *}
+	$.getJSON($url_module, { get_org_id: 1, parent_id: arr_filter.parent_id }, function(result){
 		{* console.log(result.data); *}
-		$("#org_id").shollu_cb({ queryParams: { "orgtype_id":3, "parent_id":result.data.org_id }});
+		$("#org_id").shollu_cb({ queryParams: { "filter":"parent_id="+result.data.org_id }});
+		$("#user_id").val(result.data.user_id);
+		$("#org_id").closest(".form-group").find("a").attr("href", "{$.const.PAGE_LNK}?pageid=18,129&filter=parent_id="+result.data.org_id);
 	});
 	{* For design form interface *}
 	var col = [], row = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });	
 	var box1 = BSHelper.Box({ type:"info" });
-	{* col.push(BSHelper.Combobox({ horz:false, label:"Location/Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"org_id", textField:"name", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id="+arr_filter.user_org_id, remote: true })); *}
-	col.push(BSHelper.Combobox({ horz:false, label:"Location/Branch", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"org_id", textField:"name", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3", remote: true }));
+	col.push(BSHelper.Input({ type:"hidden", idname:"user_id" }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Location/Branch", label_link:"{$.const.PAGE_LNK}?pageid=18,129&filter=parent_id=", idname:"org_id", textField:"code_name", url:"{$.php.base_url('systems/a_orgtrx')}", remote: true, required: true }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	row.push(subCol(6, col)); col = [];
 	row.push(subCol(6, col)); col = [];

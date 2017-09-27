@@ -1,0 +1,2 @@
+update a_user t1 set user_org_id = (select org_id from a_user_org where id = t1.user_org_id), user_orgtrx_id = (select org_id from a_user_org where id = t1.user_org_id)
+where id = 11

@@ -31,14 +31,41 @@
 	var DataTable_Init = {
 		enable: true,
 		act_menu: { copy: false, edit: true, delete: true },
+		add_menu: [
+			{ name: 'set_default', title: 'Set As Default' }, 
+		],
 		sub_menu: [],
 		order: ['id desc'],
 		columns: [
 			{ width:"75px", orderable:false, data:"parent_name", title:"Parent Name" },
 			{ width:"250px", orderable:false, data:"code_name", title:"Location/Branch" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_default", title:"Default", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 	};
 		
+	function set_default(data){
+		$.ajax({ url: $url_module, method: "PUT", async: true, dataType: 'json',
+			data: JSON.stringify({ set_default:1, user_id:data.user_id, org_id:data.org_id }),
+			success: function(data) {
+				BootstrapDialog.show({ closable: false, message:data.message, 
+					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],
+				});
+				dataTable1.ajax.reload( null, false );
+			},
+			error: function(data) {
+				if (data.status==500){
+					var message = data.statusText;
+				} else {
+					var error = JSON.parse(data.responseText);
+					var message = error.message;
+				}
+				BootstrapDialog.show({ closable: false, type:'modal-danger', title:'Notification', message:message, 
+					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],
+				});
+			}
+		});
+	}
+	
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>
