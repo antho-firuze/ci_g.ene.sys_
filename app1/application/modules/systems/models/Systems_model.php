@@ -67,7 +67,7 @@ class Systems_Model extends CI_model
 		$data['browser_ver'] = $this->agent->version();
 		$data['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
 		
-		if (!$this->db->insert('a_loginlogs', $data)){
+		if (!$this->db->insert('a_login_log', $data)){
 			$this->session->set_flashdata('message', $this->db->error()['message']);
 			return FALSE;
 		}
