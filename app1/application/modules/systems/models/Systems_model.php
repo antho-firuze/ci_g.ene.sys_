@@ -397,7 +397,7 @@ class Systems_Model extends CI_model
 	function a_role($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, (select name from c_currency where id = t1.currency_id limit 1) as currency_name, (select name from a_user where id = t1.supervisor_id limit 1) as supervisor_name";
-		$params['table'] 	= $this->c_table." as t1";
+		$params['table'] 	= "a_role as t1";
 		// $params['join'][] 	= ['c_currency as cc', 't1.currency_id = cc.id', 'left'];
 		// $params['join'][] 	= ['a_user as au4', 't1.supervisor_id = au4.id', 'left'];
 		

@@ -19,8 +19,8 @@
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info" });
 	col.push(BSHelper.Combobox({ horz:false, label:"Outbound No", label_link:"", textField:"doc_no", idname:"id", url:"{$.php.base_url('cashflow/cf_omovement')}?for_inbound=1&act="+$act, remote: true, required: true, disabled: ($act=='edt'?true:false) }));
-	col.push(BSHelper.Combobox({ horz:false, label:"From Org", label_link:"", idname:"org_to_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=2", remote: true, disabled: true }));
-	col.push(BSHelper.Combobox({ horz:false, label:"From Org Trx", label_link:"", idname:"orgtrx_to_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3", remote: true, disabled: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"From Org", label_link:"", idname:"org_to_id", textField:"code_name", url:"{$.php.base_url('systems/a_org_list')}", remote: true, disabled: true }));
+	col.push(BSHelper.Combobox({ horz:false, label:"From Org Trx", label_link:"", idname:"orgtrx_to_id", textField:"code_name", url:"{$.php.base_url('systems/a_orgtrx_list')}", remote: true, disabled: true }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Delivery Date", idname:"delivery_date", cls:"auto_ymd", format:"{$.session.date_format}", readonly: true }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Received Date", idname:"received_date", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
 	row.push(subCol(6, col)); col = [];

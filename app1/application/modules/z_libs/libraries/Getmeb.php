@@ -641,7 +641,7 @@ class Getmeb extends CI_Controller
 			$this->params['where']['t1.id'] = $this->params['id'];
 		
 		if (isset($this->params['q']) && !empty($this->params['q'])) {
-			$defaultField = $qReplaceField ? [] : ['t1.name', 't1.description'];
+			$defaultField = $qReplaceField ? [] : ['t1.code', 't1.name', 't1.description'];
 			$qField = implode(',', array_merge($defaultField, $qField));
 			if ($qField)
 				$this->params['like'] = DBX::like_or($qField, $this->params['q']);
@@ -1823,12 +1823,9 @@ class Getmeb extends CI_Controller
 	}
 	
 	/* For getting orgtrx/location list base on user_org access */
-	function _get_orgtrx($user_id = NULL, $org_id = NULL)
+	function _get_orgtrx($parent_org_id = NULL)
 	{
-		// $str = "select org_id from a_user_org where is_active = '1' and is_deleted = '0' and orgtype_id = 3 and user_id = ".($user_id !== NULL ? $user_id : $this->session->user_id);
-		$str = "select org_id from a_user_org where is_active = '1' and is_deleted = '0' and orgtype_id = 3 and 
-			parent_id = (select id from a_user_org where is_active = '1' and is_deleted = '0' and orgtype_id = 2 and 
-			user_id = ".($user_id !== NULL ? $user_id : $this->session->user_id)." and org_id = ".($org_id !== NULL ? $org_id : $this->session->org_id)." limit 1)";
+		$str = "select org_id from a_user_org where is_active = '1' and is_deleted = '0' and orgtype_id = 3 and user_id = ".$this->session->user_id." and parent_org_id = ".($parent_org_id !== NULL ? $parent_org_id : $this->session->org_id);
 		// debug($str);
 		if (!$qry = $this->db->query($str)->result()){
 			return FALSE;
@@ -1841,13 +1838,9 @@ class Getmeb extends CI_Controller
 	}
 	
 	/* For getting orgdept/department list base on user_org access */
-	function _get_orgdept()
+	function _get_orgdept($parent_org_id = NULL)
 	{
-		$str = "select f1.org_id 
-			from a_user_orgtrx f1 
-			inner join a_user_org f2 on f1.user_org_id = f2.id
-			where f1.is_active = '1' and f1.is_deleted = '0' and 
-			f1.user_id = ".$this->session->user_id." and f2.org_id = ".$this->session->org_id;
+		$str = "select org_id from a_user_org where is_active = '1' and is_deleted = '0' and orgtype_id = 4 and user_id = ".$this->session->user_id." and parent_org_id = ".($parent_org_id !== NULL ? $parent_org_id : $this->session->orgtrx_id);
 		if (!$qry = $this->db->query($str)->result()){
 			return FALSE;
 		}
@@ -1859,13 +1852,9 @@ class Getmeb extends CI_Controller
 	}
 	
 	/* For getting orgdiv/division list base on user_org access */
-	function _get_orgdiv()
+	function _get_orgdiv($parent_org_id = NULL)
 	{
-		$str = "select f1.org_id 
-			from a_user_orgtrx f1 
-			inner join a_user_org f2 on f1.user_org_id = f2.id
-			where f1.is_active = '1' and f1.is_deleted = '0' and 
-			f1.user_id = ".$this->session->user_id." and f2.org_id = ".$this->session->org_id;
+		$str = "select org_id from a_user_org where is_active = '1' and is_deleted = '0' and orgtype_id = 5 and user_id = ".$this->session->user_id." and parent_org_id = ".($parent_org_id !== NULL ? $parent_org_id : $this->session->orgdept_id);
 		if (!$qry = $this->db->query($str)->result()){
 			return FALSE;
 		}

@@ -34,11 +34,13 @@
 		add_menu: [
 			{ name: 'set_default', title: 'Set As Default' }, 
 		],
-		sub_menu: [],
+		sub_menu: [
+			{ pageid: 224, subKey: 'parent_id', title: 'Department', subType: 'hierarchy' },
+		],
 		order: ['id desc'],
 		columns: [
 			{ width:"75px", orderable:false, data:"parent_name", title:"Parent Name" },
-			{ width:"250px", orderable:false, data:"code_name", title:"Location/Branch" },
+			{ width:"250px", orderable:false, data:"code_name", title:"Trx/Branch" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_default", title:"Default", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],

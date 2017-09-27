@@ -86,6 +86,7 @@ class Systems_db extends CI_Controller {
 		$fields = $this->field_00_Main();
 		$fields['user_id'] 		= ['type' => 'INT', 'constraint' => '32', 'default' => 0];
 		$fields['parent_id'] 	= ['type' => 'INT', 'constraint' => '32', 'default' => 0];
+		$fields['parent_org_id'] 	= ['type' => 'INT', 'constraint' => '32', 'default' => 0];
 		return $fields;
 	}
 	

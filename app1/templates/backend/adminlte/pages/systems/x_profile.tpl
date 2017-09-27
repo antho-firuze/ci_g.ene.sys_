@@ -36,17 +36,13 @@
 	);
 	col.push( $('<ul class="list-group list-group-unbordered" />')
 		.append( $('<li class="list-group-item" />')
-			.append( BSHelper.Combobox({ horz:false, label:"Role (Default)", idname:"user_role_id", idField:"role_id", textField:"code_name", url:"{$.php.base_url('systems/a_user_role')}?filter=user_id="+{$.session.user_id}, remote: true, required:true }) ) )
+			.append( BSHelper.Combobox({ horz:false, label:"Role (Default)", idname:"user_role_id", textField:"code_name", url:"{$.php.base_url('systems/a_role_list')}?for_user=1", remote: true, required:true }) ) )
 		.append( $('<li class="list-group-item" />')
-			.append( BSHelper.Combobox({ horz:false, label:"Organization (Default)", idname:"user_org_id", idField:"org_id", textField:"code_name", url:"{$.php.base_url('systems/a_org')}?for_user=1", remote: true, required:true }) ) )
+			.append( BSHelper.Combobox({ horz:false, label:"Organization (Default)", idname:"user_org_id", textField:"code_name", url:"{$.php.base_url('systems/a_org_list')}?for_user=1", remote: true, required:true }) ) )
 		.append( $('<li class="list-group-item" />')
-			.append( BSHelper.Combobox({ horz:false, label:"Trx/Branch (Default)", idname:"user_orgtrx_id", idField:"org_id", textField:"code_name", url:"{$.php.base_url('systems/a_orgtrx')}?for_user=1", remote: true, required:true }) ) )
+			.append( BSHelper.Combobox({ horz:false, label:"Trx/Branch (Default)", idname:"user_orgtrx_id", textField:"code_name", url:"{$.php.base_url('systems/a_orgtrx_list')}?for_user=1&parent_org_id={$.session.org_id}", remote: true, required:true }) ) )
   );
 	col.push( BSHelper.Button({ type:"submit", label:"Save & Reload", idname:"btn_reload" }) );
-	{* col.push( BSHelper.Button({ type:"submit", label:"Save & Reload", idname:"btn_reload",
-		onclick:"var last_url = window.location.href;
-			$.getJSON('{$.const.RELOAD_LNK}', '', function(data){ window.location.replace(last_url); });" 
-	}) );  *}
 	form1.append(subRow(subCol(12, col)));
 	box1.find('.box-body').append(form1);
 
@@ -191,8 +187,8 @@
 	{* Event on Element *}
 	$("#user_org_id").shollu_cb({ 
 		onSelect: function(rowData){ 
-			{* $("#user_orgtrx_id").shollu_cb('setValue', ''); *}
-			{* $("#user_orgtrx_id").shollu_cb({ queryParams: { "level":1, "filter": "user_id="+ {$.session.user_id} +",user_org_id="+rowData.id } }); *}
+			$("#user_orgtrx_id").shollu_cb('setValue', '');
+			$("#user_orgtrx_id").shollu_cb({ url:"{$.php.base_url('systems/a_orgtrx_list')}?for_user=1&parent_org_id="+rowData.id });
 		}
 	});
 	

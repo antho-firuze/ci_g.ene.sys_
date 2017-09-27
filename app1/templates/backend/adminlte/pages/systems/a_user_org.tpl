@@ -30,7 +30,7 @@
 			{ name: 'set_default', title: 'Set As Default' }, 
 		],
 		sub_menu: [
-			{ pageid: 104, subKey: 'parent_id', title: 'Location/Branch', subType: 'hierarchy' },
+			{ pageid: 104, subKey: 'parent_id', title: 'Trx/Branch', subType: 'hierarchy' },
 		],
 		order: ['id desc'],
 		columns: [

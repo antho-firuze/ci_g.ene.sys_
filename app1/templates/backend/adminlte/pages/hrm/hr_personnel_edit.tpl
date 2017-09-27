@@ -92,10 +92,10 @@
 			{	title:"Employment", idname:"tab-employment", 
 				content:function(){
 					col = [], row = [], a = [];
-					col.push(BSHelper.Combobox({ horz:false, label:"Company", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"company_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=2", remote: true }));
-					col.push(BSHelper.Combobox({ horz:false, label:"Location", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"branch_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=3&parent_id=999", remote: true }));
-					col.push(BSHelper.Combobox({ horz:false, label:"Department", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"department_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=4&parent_id=999", remote: true }));
-					col.push(BSHelper.Combobox({ horz:false, label:"Division", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"division_id", url:"{$.php.base_url('systems/a_org_parent_list')}?orgtype_id=5&parent_id=999", remote: true }));
+					col.push(BSHelper.Combobox({ horz:false, label:"Company", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"company_id", textField:"code_name", url:"{$.php.base_url('systems/a_org_list')}", remote: true }));
+					col.push(BSHelper.Combobox({ horz:false, label:"Location", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"branch_id", textField:"code_name", url:"{$.php.base_url('systems/a_orgtrx_list')}?filter=parent_id=0", remote: true }));
+					col.push(BSHelper.Combobox({ horz:false, label:"Department", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"department_id", textField:"code_name", url:"{$.php.base_url('systems/a_orgdept_list')}?filter=parent_id=0", remote: true }));
+					col.push(BSHelper.Combobox({ horz:false, label:"Division", label_link:"{$.const.PAGE_LNK}?pageid=18", idname:"division_id", textField:"code_name", url:"{$.php.base_url('systems/a_orgdiv_list')}?filter=parent_id=0", remote: true }));
 					col.push(BSHelper.Combobox({ horz:false, label:"Job Title", label_link:"{$.const.PAGE_LNK}?pageid=64", idname:"job_title_id", url:"{$.php.base_url('hrm/hr_job_title')}", remote: true }));
 					col.push(BSHelper.Combobox({ horz:false, label:"Occupation", label_link:"{$.const.PAGE_LNK}?pageid=70", idname:"occupation_id", url:"{$.php.base_url('hrm/hr_occupation')}", remote: true }));
 					row.push(subCol(6, col)); col = [];
@@ -253,7 +253,7 @@
 		onSelect: function(rowData){
 			var id = $("#company_id").shollu_cb('getValue', 'id');
 			$("#branch_id")
-				.shollu_cb({ queryParams: { "orgtype_id":3,"parent_id":id }})
+				.shollu_cb({ queryParams: { "filter":"parent_id="+id }})
 				.shollu_cb('setValue', '');
 			$("#department_id").shollu_cb('setValue', '');
 			$("#division_id").shollu_cb('setValue', '');
@@ -264,7 +264,7 @@
 		onSelect: function(rowData){
 			var id = $("#branch_id").shollu_cb('getValue', 'id');
 			$("#department_id")
-				.shollu_cb({ queryParams: { "orgtype_id":4,"parent_id":id }})
+				.shollu_cb({ queryParams: { "filter":"parent_id="+id }})
 				.shollu_cb('setValue', '');
 			$("#division_id").shollu_cb('setValue', '');
 		}
@@ -274,7 +274,7 @@
 		onSelect: function(rowData){
 			var id = $("#department_id").shollu_cb('getValue', 'id');
 			$("#division_id")
-				.shollu_cb({ queryParams: { "orgtype_id":5,"parent_id":id }})
+				.shollu_cb({ queryParams: { "filter":"parent_id="+id }})
 				.shollu_cb('setValue', '');
 		}
 	});
