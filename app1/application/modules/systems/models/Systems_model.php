@@ -38,7 +38,7 @@ class Systems_Model extends CI_model
 		$data['status'] = $status;
 		$data['description'] = $desc;
 
-		$data['ip_address'] = $_SERVER['REMOTE_ADDR'];
+		$data['ip_address'] = get_ip_address();
 		if (! in_array($data['ip_address'], ['::1','127.0.0.1']) && ! is_private_ip($data['ip_address'])) {
 			$this->load->library('z_libs/IPAPI');
 			if ($query = IPAPI::query($data['ip_address'])) {

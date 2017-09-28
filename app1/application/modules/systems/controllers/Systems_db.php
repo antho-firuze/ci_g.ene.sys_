@@ -71,8 +71,9 @@ class Systems_db extends CI_Controller {
 		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
 		$fields['client_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['domain_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['method'] = ['type' => 'VARCHAR', 'constraint' => '12', 'null' => TRUE]; // GET|POST|PUT|DELETE
+		$fields['method'] = ['type' => 'VARCHAR', 'constraint' => '12', 'null' => TRUE]; 
 		$fields['created_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
+		$fields['account'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		return $fields;
 	}
 	
