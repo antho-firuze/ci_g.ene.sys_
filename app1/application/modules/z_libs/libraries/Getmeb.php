@@ -67,18 +67,6 @@ class Getmeb extends CI_Controller
 		define('TEMPLATE_URL', base_url().TEMPLATE_FOLDER.'/backend/'.$this->theme.'/');
 		define('TEMPLATE_PATH', '/backend/'.$this->theme.'/');
 		
-		/* Load language file */
-		// $expectedLanguage = !empty($this->session->language) ? $this->session->language : 'english';
-		// $expectedFile = strtolower(get_class($this)).'_lang.php';
-		// $this->lang->load('systems/systems', $expectedLanguage);
-		// if (file_exists(APPPATH."language/".$expectedLanguage."/".$expectedFile)) {
-			// $this->lang->load($expectedFile, $expectedLanguage);
-		// } else {
-			// if (file_exists(APPPATH.'modules/'.strtolower(get_class($this))."/language/".$expectedLanguage."/".$expectedFile)) {
-				// $this->lang->load(strtolower(get_class($this)), $expectedLanguage);
-			// }
-		// }
-		
 		$this->fixed_data = [
 			'client_id'		=> DEFAULT_CLIENT_ID,
 			'org_id'			=> $this->session->org_id,
@@ -99,12 +87,6 @@ class Getmeb extends CI_Controller
 
 		$this->_heartbeat();
 		$this->_clear_tmp();
-		
-		/* This process is a special case, because using multiple r_method (POST and OPTIONS). Request for Import Data */
-		// if (isset($this->params['import']) && !empty($this->params['import'])) {
-			// /* Check permission in the role */
-			// $this->_check_is_allow_inrole('canexport');
-		// }
 		
 		/* This method for Login, unlock screen */
 		if (in_array($this->r_method, ['UNLOCK', 'LOCK'])) {
@@ -295,6 +277,11 @@ class Getmeb extends CI_Controller
 				$this->_pre_export_data();
 			}
 		}
+	}
+	
+	function _access_log()
+	{
+		
 	}
 	
 	function _heartbeat()
