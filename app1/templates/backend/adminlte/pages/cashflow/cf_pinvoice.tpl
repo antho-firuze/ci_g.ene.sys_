@@ -52,6 +52,7 @@
 			{ width:"150px", orderable:false, data:"bpartner_name", title:"Vendor" },
 			{ width:"100px", orderable:false, data:"note", title:"Payment Note" },
 			{ width:"200px", orderable:false, data:"description", title:"Description" },
+			{ width:"150px", orderable:false, data:"invoice_type", title:"Invoice Type" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"adj_amount", title:"Adj Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"net_amount", title:"Net Amount", render: function(data, type, row){ return format_money(data); } },
