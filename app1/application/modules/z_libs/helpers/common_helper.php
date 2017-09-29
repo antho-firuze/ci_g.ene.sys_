@@ -98,6 +98,45 @@ if ( ! function_exists('run_shell'))
 	}
 }
 
+if ( ! function_exists('get_ip_address'))
+{
+	function get_ip_address()
+	{
+		$ipaddress = '';
+    // if ($_SERVER['HTTP_CLIENT_IP'])
+			// $ipaddress = $_SERVER['HTTP_CLIENT_IP'];
+    // if($_SERVER['HTTP_X_FORWARDED_FOR'])
+			// $ipaddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    // if($_SERVER['HTTP_X_FORWARDED'])
+			// $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
+    // else if($_SERVER['HTTP_FORWARDED_FOR'])
+			// $ipaddress = $_SERVER['HTTP_FORWARDED_FOR'];
+    // else if($_SERVER['HTTP_FORWARDED'])
+			// $ipaddress = $_SERVER['HTTP_FORWARDED'];
+    // if($_SERVER['REMOTE_ADDR'])
+			// $ipaddress = $_SERVER['REMOTE_ADDR'];
+    // else
+			// $ipaddress = 'UNKNOWN';
+		
+		if (getenv('HTTP_CLIENT_IP'))
+			$ipaddress = getenv('HTTP_CLIENT_IP');
+    else if(getenv('HTTP_X_FORWARDED_FOR'))
+			$ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+    else if(getenv('HTTP_X_FORWARDED'))
+			$ipaddress = getenv('HTTP_X_FORWARDED');
+    else if(getenv('HTTP_FORWARDED_FOR'))
+			$ipaddress = getenv('HTTP_FORWARDED_FOR');
+    else if(getenv('HTTP_FORWARDED'))
+			$ipaddress = getenv('HTTP_FORWARDED');
+    else if(getenv('REMOTE_ADDR'))
+			$ipaddress = getenv('REMOTE_ADDR');
+    else
+			$ipaddress = 'UNKNOWN';
+ 
+    return $ipaddress;
+	}
+}
+
 /**
 * Check if a client IP is in our Server subnet
 *
