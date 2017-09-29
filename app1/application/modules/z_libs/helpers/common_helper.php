@@ -808,6 +808,8 @@ if (! function_exists('debugf'))
 	function debugf($data='')
 	{
 		$file = APPPATH.'logs/debug';
+		if (! file_exists($file))
+			file_put_contents($file, '');
 		$str = file_get_contents($file);
 		
 		$type = 'String: ';
