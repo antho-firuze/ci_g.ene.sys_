@@ -1608,7 +1608,7 @@ class Cashflow_Model extends CI_Model
 			select *, (select bpartner_id from cf_order where id = t0.order_id) from 
 			(
 			select *, 
-			(select orgtrx_id from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id), 
+			(select orgtrx_id from cf_order where is_active = '1' and is_deleted = '0' and id = t1.order_id), 
 			(select payment_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id) as payment_plan_date_invoice
 			from cf_order_plan t1 where is_active = '1' and is_deleted = '0' 
 			and client_id = {client_id} and org_id = {org_id} and exists(select 1 from cf_order where is_active = '1' and is_deleted = '0' and id = t1.order_id and orgtrx_id in {orgtrx} and is_sotrx = '0') 
@@ -1616,7 +1616,7 @@ class Cashflow_Model extends CI_Model
 			and payment_plan_date > t1.payment_plan_date and order_plan_id = t1.id and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id))
 			union all
 			select *, 
-			(select orgtrx_id from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_clearance_id = t1.id), 
+			(select orgtrx_id from cf_order where is_active = '1' and is_deleted = '0' and id = t1.order_id), 
 			(select payment_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_clearance_id = t1.id) as payment_plan_date_invoice
 			from cf_order_plan_clearance t1 where is_active = '1' and is_deleted = '0' 
 			and client_id = {client_id} and org_id = {org_id} and exists(select 1 from cf_order where is_active = '1' and is_deleted = '0' and id = t1.order_id and orgtrx_id in {orgtrx} and is_sotrx = '0') 
@@ -1624,7 +1624,7 @@ class Cashflow_Model extends CI_Model
 			and payment_plan_date > t1.payment_plan_date and order_plan_clearance_id = t1.id and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id))
 			union all
 			select *, 
-			(select orgtrx_id from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_import_id = t1.id), 
+			(select orgtrx_id from cf_order where is_active = '1' and is_deleted = '0' and id = t1.order_id), 
 			(select payment_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_import_id = t1.id) as payment_plan_date_invoice
 			from cf_order_plan_import t1 where is_active = '1' and is_deleted = '0' 
 			and client_id = {client_id} and org_id = {org_id} and exists(select 1 from cf_order where is_active = '1' and is_deleted = '0' and id = t1.order_id and orgtrx_id in {orgtrx} and is_sotrx = '0') 
