@@ -30,6 +30,8 @@ class Systems_db extends CI_Controller {
 		$fields['percent'] 	= ['type' => 'NUMERIC', 'constraint' => '18,4', 'null' => TRUE];	
 		// NUMERIC AMOUNT
 		$fields['amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
+		// BOOLEAN
+		$fields['is_mobile'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
 	}
 	
 	function table_a_client()
@@ -69,11 +71,73 @@ class Systems_db extends CI_Controller {
 	function table_a_access_log()
 	{
 		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
-		$fields['client_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['domain_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['method'] = ['type' => 'VARCHAR', 'constraint' => '12', 'null' => TRUE]; 
 		$fields['created_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
+		$fields['ip_address'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['method'] = ['type' => 'VARCHAR', 'constraint' => '12', 'null' => TRUE]; 
+		$fields['protocol'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['host'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['request_uri'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['user_agent'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['platform'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['is_mobile'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
+		$fields['mobile'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['is_robot'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
+		$fields['robot'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['is_browser'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
+		$fields['browser'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['browser_ver'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['width'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE]; 
+		$fields['height'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE]; 
+		/* This fields are for delay update, using schedule. To avoid slow access */
+		$fields['domain_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['client_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['country'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['country_code'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['region'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['region_name'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['city'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['zip'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['lat'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['lon'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['timezone'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['isp'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['org'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['as_number'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		return $fields;
+	}
+	
+	function table_a_login_log()
+	{
+		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
 		$fields['account'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['client_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['org_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['user_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['created_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
+		$fields['platform'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['ip_address'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['country'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['country_code'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['region'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['region_name'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['city'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['zip'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['lat'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['lon'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['timezone'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['isp'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['org'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['as_number'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['is_mobile'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
+		$fields['mobile'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['is_robot'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
+		$fields['robot'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['is_browser'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
+		$fields['browser'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['browser_ver'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['user_agent'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['status'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
 	
