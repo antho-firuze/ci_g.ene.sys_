@@ -199,7 +199,7 @@ class Systems_Model extends CI_model
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_user where id = t1.user_id) as user_name,
 		t1.*, (select coalesce(code,'') ||'_'|| name from a_role where id = t1.role_id) as code_name, 
-		(select count(user_role_id) from a_user where id = t1.user_id and user_role_id = t1.id) as is_default";
+		(select count(user_role_id) from a_user where id = t1.user_id and user_role_id = t1.role_id) as is_default";
 		$params['table'] 	= $this->c_method." as t1";
 		// $params['table'] 	= $this->c_table." as t1";
 		// $params['table'] 	= "a_user_role as t1";
