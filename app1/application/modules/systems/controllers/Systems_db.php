@@ -77,7 +77,7 @@ class Systems_db extends CI_Controller {
 		$fields['protocol'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['host'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['request_uri'] = ['type' => 'TEXT', 'null' => TRUE];
-		$fields['user_agent'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['user_agent'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE]; 
 		$fields['platform'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['is_mobile'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
 		$fields['mobile'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
@@ -135,7 +135,7 @@ class Systems_db extends CI_Controller {
 		$fields['is_browser'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
 		$fields['browser'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['browser_ver'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
-		$fields['user_agent'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['user_agent'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE]; 
 		$fields['status'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
