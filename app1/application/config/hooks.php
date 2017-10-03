@@ -33,7 +33,7 @@ $hook['post_controller_constructor'] = function()
 		
 		$data['created_at'] = date('Y-m-d H:i:s');
 		$data['ip_address'] = get_ip_address();
-		if (in_array($data['ip_address'], ['::1','127.0.0.1']) && is_private_ip($data['ip_address'])) {
+		if (is_private_ip($data['ip_address'])) {
 			$data['is_local'] = TRUE;
 		}
 		$data['method'] = $_SERVER['REQUEST_METHOD'];

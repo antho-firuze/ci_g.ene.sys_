@@ -39,7 +39,7 @@ class Systems_Model extends CI_model
 		$data['description'] = $desc;
 
 		$data['ip_address'] = get_ip_address();
-		if (in_array($data['ip_address'], ['::1','127.0.0.1']) && is_private_ip($data['ip_address'])) {
+		if (is_private_ip($data['ip_address'])) {
 			$data['is_local'] = TRUE;
 		}
 		/* Not in use, because potentially slow access. This process was moved on schedule. */
