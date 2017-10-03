@@ -110,14 +110,25 @@ class Systems_db extends CI_Controller {
 	function table_a_login_log()
 	{
 		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
+		$fields['created_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
 		$fields['account'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['client_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['org_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['user_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['created_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
 		$fields['platform'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['ip_address'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['is_local'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
+		$fields['is_mobile'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
+		$fields['mobile'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['is_robot'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
+		$fields['robot'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['is_browser'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
+		$fields['browser'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['browser_ver'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['user_agent'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE]; 
+		$fields['status'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		/* This fields are for delay update, using schedule. To avoid slow access */
 		$fields['country'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['country_code'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['region'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
@@ -130,16 +141,6 @@ class Systems_db extends CI_Controller {
 		$fields['isp'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['org'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['as_number'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
-		$fields['is_mobile'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
-		$fields['mobile'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
-		$fields['is_robot'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
-		$fields['robot'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
-		$fields['is_browser'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
-		$fields['browser'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
-		$fields['browser_ver'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
-		$fields['user_agent'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE]; 
-		$fields['status'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
-		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
 	
