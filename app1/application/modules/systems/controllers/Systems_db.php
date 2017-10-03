@@ -73,6 +73,7 @@ class Systems_db extends CI_Controller {
 		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
 		$fields['created_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
 		$fields['ip_address'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['is_local'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
 		$fields['method'] = ['type' => 'VARCHAR', 'constraint' => '12', 'null' => TRUE]; 
 		$fields['protocol'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['host'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
@@ -116,6 +117,7 @@ class Systems_db extends CI_Controller {
 		$fields['created_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
 		$fields['platform'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['ip_address'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['is_local'] = ['type' => 'BOOLEAN', 'constraint' => '0', 'null' => TRUE];
 		$fields['country'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['country_code'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['region'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 

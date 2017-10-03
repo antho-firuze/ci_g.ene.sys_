@@ -33,6 +33,9 @@ $hook['post_controller_constructor'] = function()
 		
 		$data['created_at'] = date('Y-m-d H:i:s');
 		$data['ip_address'] = get_ip_address();
+		if (in_array($data['ip_address'], ['::1','127.0.0.1']) && is_private_ip($data['ip_address'])) {
+			$data['is_local'] = TRUE;
+		}
 		$data['method'] = $_SERVER['REQUEST_METHOD'];
 		$data['protocol'] = $_SERVER['REQUEST_SCHEME'];
 		$data['host'] = $_SERVER['HTTP_HOST'];
@@ -51,8 +54,8 @@ $hook['post_controller_constructor'] = function()
 
 		$result = $ci->db->insert('a_access_log', $data);
 		if (! $result)
-			// echo $ci->db->error()['message'];
-			echo $ci->db->last_query();
+			echo $ci->db->error()['message'];
+			// echo $ci->db->last_query();
 		
 		/* $qry = $ci->db->get_where('a_domain', ['name' => $_SERVER['HTTP_HOST']]);
 		if ($qry->num_rows() > 0)
