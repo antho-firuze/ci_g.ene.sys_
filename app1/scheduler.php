@@ -23,7 +23,18 @@ $scheduler->call(function () {
 	->output(__DIR__.'/testing_output_'.date('Ymd_His').'.log')
 	// ->daily('20:21')->daily('20:57')
 ;
-				
+
+/* For update IP PUBLIC */
+$scheduler->call(function () {
+	$bin = 'd:/nginx/php/php.exe';
+	$script = 'd:/htdocs/ci/app1/index.php z_libs/shared/cron_update_ip_public';
+	$params = '';
+	
+	passthru("$bin $script $params");
+})
+	->at('*/5 * * * *')
+;
+
 /* For rotate nginx logs “At 19:00.” */
 $scheduler->call(function () { 
 	exec("d:/nginx/rotate.bat"); 
@@ -73,5 +84,4 @@ $scheduler->call(function () {
 ;
 
 $scheduler->run();
-// testing
-// testing jun
+
