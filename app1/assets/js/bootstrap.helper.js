@@ -195,6 +195,7 @@
 	BSHelper.Box = function(options){
 		var default_opts = {
 			cls: '',
+			icon: 'fa fa-th',
 			title: '',
 			idname: '',
 			header: false,
@@ -212,7 +213,7 @@
 		
 		
 		if (o.header) box_header.insertBefore(box_body);
-		if (o.title) box_header.append($('<h3 class="box-title" />').html(o.title));
+		if (o.title) box_header.append( [$('<i class="'+o.icon+'" />'), $('<h3 class="box-title" />').html(o.title)] );
 		var toolb = [];
 		$.each(o.toolbtn, function(i, val){
 			if (val == 'min')
@@ -450,6 +451,17 @@
 		if (o.style) button.attr('style', o.style);
 		if (o.onclick) button.attr('onclick',o.onclick);
 		return button;
+	};
+	
+	BSHelper.GroupButton = function(btnList){
+		var btnGrp = $('<div class="btn-group" data-toggle="btn-toggle" />');
+		$.each(btnList, function(k,v){
+			var btn = $('<button/>', { class:"btn", type:"button", id: v.id, title: v.title });
+			btn.html(v.text);
+			if (v.active) btn.addClass('active');
+			btnGrp.append(btn);
+		});
+		return btnGrp;
 	};
 	
 	BSHelper.Checkbox = function(options){
