@@ -78,6 +78,13 @@ class Systems extends Getmeb
 		}
 	}
 	
+	function db_server_info()
+	{
+		if ($this->r_method == 'GET') {
+			
+		}
+	}
+	
 	function x_forgot()
 	{
 		$this->single_view('pages/systems/auth/forgot');
