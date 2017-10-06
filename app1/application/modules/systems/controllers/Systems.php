@@ -115,10 +115,13 @@ class Systems extends Getmeb
 			}
 			$qry = $this->db->query($str);
 			if ($qry->num_rows() > 0) {
+				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
 				foreach($qry->result() as $row){
-					$hits['labels'][] = $row->labels;
-					$hits['data'][] = $row->data;
+					$arr['labels'][] = $row->labels;
+					$arr['data'][] = $row->data;
 				}
+				$result['dataHits']['labels'] = $arr['labels'];
+				$result['dataHits']['datasets'][] = ['label' => 'Hits', 'borderColor' => get_rgba(), 'data' => $arr['data']];
 			}	
 			$qry = $this->db->query($strTotal);
 			if ($qry->num_rows() > 0) {
@@ -128,27 +131,79 @@ class Systems extends Getmeb
 					$result['step'] = $step;
 				}
 			}	
-			$strMethod = "select method, count(*) from a_access_log where created_at between '$fdate' and '$tdate' group by method";
-			$qry = $this->db->query($strMethod);
+			$str = "select method, count(*) from a_access_log where created_at between '$fdate' and '$tdate' group by method";
+			$qry = $this->db->query($str);
 			if ($qry->num_rows() > 0) {
 				foreach($qry->result() as $row){
 					$result['method'][$row->method] = $row->count;
 				}
 			}	
-			$strMethod = "select host, count(*) from a_access_log where created_at between '$fdate' and '$tdate' group by host";
-			$qry = $this->db->query($strMethod);
+			/* Host */
+			$str = "select host as labels, count(*) as data from a_access_log where created_at between '$fdate' and '$tdate' group by 1";
+			$qry = $this->db->query($str);
 			if ($qry->num_rows() > 0) {
+				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
 				foreach($qry->result() as $row){
-					$result['host'][$row->host] = $row->count;
+					$arr['labels'][] = $row->labels;
+					$arr['data'][] = $row->data;
+					$arr['bgcolor'][] = get_rgba();
 				}
+				$result['dataHost']['labels'] = $arr['labels'];
+				$result['dataHost']['datasets'][] = ['label' => 'Host', 'backgroundColor' => $arr['bgcolor'], 'data' => $arr['data']];
 			}	
-			/* Total Hits */
+			/* Platform */
+			$str = "select platform as labels, count(*) as data from a_access_log where created_at between '$fdate' and '$tdate' group by 1";
+			$qry = $this->db->query($str);
+			if ($qry->num_rows() > 0) {
+				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
+				foreach($qry->result() as $row){
+					$arr['labels'][] = $row->labels;
+					$arr['data'][] = $row->data;
+					$arr['bgcolor'][] = get_rgba();
+				}
+				$result['dataPlatform']['labels'] = $arr['labels'];
+				$result['dataPlatform']['datasets'][] = ['label' => 'Host', 'backgroundColor' => $arr['bgcolor'], 'data' => $arr['data']];
+			}	
+			/* Browser */
+			$str = "select browser as labels, count(*) as data from a_access_log where created_at between '$fdate' and '$tdate' group by 1";
+			$qry = $this->db->query($str);
+			if ($qry->num_rows() > 0) {
+				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
+				foreach($qry->result() as $row){
+					$arr['labels'][] = $row->labels;
+					$arr['data'][] = $row->data;
+					$arr['bgcolor'][] = get_rgba();
+				}
+				$result['dataBrowser']['labels'] = $arr['labels'];
+				$result['dataBrowser']['datasets'][] = ['label' => 'Host', 'backgroundColor' => $arr['bgcolor'], 'data' => $arr['data']];
+			}	
+			/* Screen Res */
+			$str = "select width ||'x'|| height as labels, count(*) as data from a_access_log where created_at between '$fdate' and '$tdate' group by 1";
+			$qry = $this->db->query($str);
+			if ($qry->num_rows() > 0) {
+				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
+				foreach($qry->result() as $row){
+					$arr['labels'][] = $row->labels;
+					$arr['data'][] = $row->data;
+					$arr['bgcolor'][] = get_rgba();
+				}
+				$result['dataScreenRes']['labels'] = $arr['labels'];
+				$result['dataScreenRes']['datasets'][] = ['label' => 'Host', 'backgroundColor' => $arr['bgcolor'], 'data' => $arr['data']];
+			}	
+			/* Country */
+			$str = "select coalesce(country, 'unknown') as labels, count(*) as data from a_access_log where created_at between '$fdate' and '$tdate' group by 1 order by 2 desc";
+			$qry = $this->db->query($str);
+			if ($qry->num_rows() > 0) {
+				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
+				foreach($qry->result() as $row){
+					$arr['labels'][] = $row->labels;
+					$arr['data'][] = $row->data;
+					$arr['bgcolor'][] = get_rgba();
+				}
+				$result['dataCountry']['labels'] = $arr['labels'];
+				$result['dataCountry']['datasets'][] = ['label' => 'Screen Resolution', 'backgroundColor' => $arr['bgcolor'], 'data' => $arr['data']];
+			}	
 			// $this->xresponse(FALSE, ['message' => 'Failure !']);
-			
-			$chartjs['labels'] = $hits['labels'];
-			$chartjs['datasets'][] = ['label' => 'Hits', 'borderColor' => 'rgba(210, 180, 222, 1)', 'data' => $hits['data']];
-			// echo json_encode($chartjs);
-			$result['chartjs'] = $chartjs;
 			
 			$this->xresponse(TRUE, $result);
 			// debug($result);

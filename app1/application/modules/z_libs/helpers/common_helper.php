@@ -5,6 +5,23 @@ include 'email_helper.php';
 include 'sequence_helper.php';
 include 'spelled_out_helper.php';
 
+if ( ! function_exists('get_rgba'))
+{
+	function get_rgba()
+	{
+		$rgba = [
+			'rgb(255, 99, 132)',
+			'rgb(255, 159, 64)',
+			'rgb(255, 205, 86)',
+			'rgb(75, 192, 192)',
+			'rgb(54, 162, 235)',
+			'rgb(153, 102, 255)',
+			'rgb(201, 203, 207)',
+		];
+		return $rgba[rand(0, 6)];
+	}
+}
+
 if ( ! function_exists('get_dsn_host'))
 {
 	function get_dsn_host()
