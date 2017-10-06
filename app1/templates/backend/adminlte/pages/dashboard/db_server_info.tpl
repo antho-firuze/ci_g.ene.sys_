@@ -41,7 +41,15 @@
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var boxFilter = BSHelper.Box({ type:"info", });
 	var box1 = BSHelper.Box({ type:"info", header: true, title: "Server Hit Access" });
+	var box2 = BSHelper.Box({ type:"info", header: true, title: "Server Hit Access" });
+
+	var boxFilter = BSHelper.Box();
+	col.push(BSHelper.Button({ type:"button", label:'<i class="fa fa-calendar"></i>&nbsp;<span>Date range picker</span> &nbsp;&nbsp;<i class="fa fa-caret-down"></i>', cls:"btn-danger", idname: "btn_cal", }));
+	boxFilter.find('.box-body').append(subRow(subCol(6, col)));
+	$(".content").append(boxFilter);	
+
 	
+	col = [], row = [];
 	col.push(BSHelper.Input({ type:"hidden", idname:"fdate", }));
 	col.push(BSHelper.Input({ type:"hidden", idname:"tdate", }));
 	col.push(BSHelper.Input({ type:"hidden", idname:"step", }));
@@ -49,22 +57,33 @@
 	$(".content").append(form1);	
 
 	col = [], row = [];
-	{* box1.find('.box-header').append($('<div class="box-tools pull-right" />').append(BSHelper.GroupButton( [{ id: "btn1", title: "Hourly", text: "H", active: true }, { id: "btn2", title: "Daily", text: "D" }, { id: "btn3", title: "Weekly", text: "W" }, { id: "btn4", title: "Monthly", text: "M" }, ] )) ); *}
-	col.push(BSHelper.Button({ type:"button", label:'<i class="fa fa-calendar"></i>&nbsp;<span>Date range picker</span> &nbsp;&nbsp;<i class="fa fa-caret-down"></i>', cls:"btn-danger", idname: "btn_cal", }));
-	col.push($('<div class="box-tools" />').append(BSHelper.GroupButton( 
-		[
-			{ id: "btn1", title: "Hourly", text: "Hourly" }, 
-			{ id: "btn2", title: "Daily", text: "Daily", active: true }, 
-			{ id: "btn3", title: "Weekly", text: "Weekly" }, 
-			{ id: "btn4", title: "Monthly", text: "Monthly" }, 
-		] 
-	)));
-	col.push('<div class="chart"><canvas id="ServerHitChart" style="height:250px"></canvas></div>');
+	box1.find('.box-header').append($('<div class="box-tools pull-right" />').append(BSHelper.GroupButton( [{ id: "btn1", title: "Hourly", text: "H" }, { id: "btn2", title: "Daily", text: "D", active: true }, { id: "btn3", title: "Weekly", text: "W" }, { id: "btn4", title: "Monthly", text: "M" }, ] )) );
+	{* col.push($('<div class="box-tools" />').append(BSHelper.GroupButton(  *}
+		{* [ *}
+			{* { id: "btn1", title: "Hourly", text: "Hourly" },  *}
+			{* { id: "btn2", title: "Daily", text: "Daily", active: true },  *}
+			{* { id: "btn3", title: "Weekly", text: "Weekly" },  *}
+			{* { id: "btn4", title: "Monthly", text: "Monthly" },  *}
+		{* ]  *}
+	{* ))); *}
+	col.push('<div class="chart"><canvas id="lineChart" style="height:250px"></canvas></div>');
 	row.push(subCol(12, col)); col = [];
 	col.push('<div class="description-block border-right"><span></div>');
 	row.push(subCol(6, col)); col = [];
 	box1.find('.box-body').append(subRow(row));
 	$(".content").append(box1);
+	
+	col = [], row = [];
+	col.push('<div class="chart"><canvas id="host" style="height:250px"></canvas></div>');
+	row.push(subCol(3, col)); col = [];
+	col.push('<div class="chart"><canvas id="platform" style="height:250px"></canvas></div>');
+	row.push(subCol(3, col)); col = [];
+	col.push('<div class="chart"><canvas id="browser" style="height:250px"></canvas></div>');
+	row.push(subCol(3, col)); col = [];
+	col.push('<div class="chart"><canvas id="screen_res" style="height:250px"></canvas></div>');
+	row.push(subCol(3, col)); col = [];
+	box2.find('.box-body').append(subRow(row));
+	$(".content").append(box2);
 	
 	{* Initialization *}
 	var start = moment().subtract(6, 'days');
@@ -94,6 +113,7 @@
 	$('#btn_cal span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
 	$("#fdate").val(start.format('YYYY-MM-DD'));
 	$("#tdate").val(end.format('YYYY-MM-DD'));
+	$("#step").val('D');
 	
 	var optServerHit = {
 		spanGaps: true,
@@ -102,6 +122,9 @@
 				display: false,
 				text: 'Server Hit Access'
 		},
+		legend: {
+        display: false
+    },
 		tooltips: {
 				mode: 'index',
 				intersect: false,
@@ -155,19 +178,13 @@
 		update_chart();
 	});
 	
-	var chart3 = new Chart("ServerHitChart", { type: "line",	data: areaChartData, options: optServerHit });
+	var lineChart = new Chart("lineChart", { type: "line",	data: areaChartData, options: optServerHit });
 	
 	function update_chart(){
-		{* console.log(chart3.data.datasets); *}
-		{* console.log(form1.serializeOBJ()); *}
-		{* console.log(form1.serializeJSON()); *}
-		{* console.log($url_module); *}
-		{* return false; *}
 		$.getJSON($url_module, form1.serializeOBJ(), function(result){ 
-			{* console.log(result.host["apps.hdgroup.id"]); *}
 			$.each(result.host, function(k, v){ console.log(k+' - '+v); });
-			chart3.data = result.chartjs;
-			chart3.update();
+			lineChart.data = result.chartjs;
+			lineChart.update();
 			{* if (!isempty_obj(result.data)){ *}
 				{* console.log(result.data); *}
 			{* } *}
@@ -188,5 +205,9 @@
 			});
 		});
 	}
+	
+	setTimeout(function(){
+		update_chart();
+	}, 1000);
 	
 </script>
