@@ -1528,8 +1528,9 @@ class Getmeb extends CI_Controller
 	{
 		$BM =& load_class('Benchmark', 'core');
 		
-		$statusHeader = empty($statusHeader) ? 200 : $statusHeader;
-		if (! is_numeric($statusHeader))
+		$statusCode = $status ? 200 : 401;
+		$statusCode = $statusHeader != 200 ? $statusHeader : $statusCode;
+		if (! is_numeric($statusCode))
 			show_error('Status codes must be numeric', 500);
 		
 		$elapsed = $BM->elapsed_time('total_execution_time_start', 'total_execution_time_end');
@@ -1538,7 +1539,7 @@ class Getmeb extends CI_Controller
 		$output['execution_time'] = $elapsed;
 		$output['environment'] = ENVIRONMENT;
 		
-		header("HTTP/1.0 $statusHeader");
+		header("HTTP/1.0 $statusCode");
 		header('Content-Type: application/json');
 		echo json_encode(array_merge($output, $response));
 		if ($exit) 

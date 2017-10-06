@@ -81,7 +81,78 @@ class Systems extends Getmeb
 	function db_server_info()
 	{
 		if ($this->r_method == 'GET') {
+			$fdate = $this->params['fdate'] . ' 00:00:00';
+			$tdate = $this->params['tdate'] . ' 23:59:59';
+			switch ($this->params['step']){
+				case 'H':
+					$step = 'Hour';
+					$str = "select to_char(i, 'Mon DD HH24:MI') || '-' || to_char(i + interval '1 hour', 'HH24:MI') as labels, 
+					(select count(*) from a_access_log where created_at >= i and created_at < i + interval '1 hour') as data 
+					from generate_series('$fdate', '$tdate', interval '1 hour') i;";
+					$strTotal = "select count(*) as total, (count(*) / abs(round(EXTRACT(epoch FROM '$fdate'::timestamp - '$tdate'::timestamp)/3600))) as avg from a_access_log where created_at between '$fdate' and '$tdate';";
+					break;
+				case 'D':
+					$step = 'Day';
+					$str = "select to_char(i.date, 'Mon DD') as labels, 
+					(select count(*) from a_access_log where to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')) as data 
+					from generate_series('$fdate', '$tdate', '1 day'::interval) i;";
+					$strTotal = "select count(*) as total, (count(*) / abs(round(EXTRACT(epoch FROM '$fdate'::timestamp - '$tdate'::timestamp)/86400))) as avg from a_access_log where created_at between '$fdate' and '$tdate';";
+					break;
+				case 'W':
+					$step = 'Week';
+					$str = "select to_char(i.date, 'DD/MM') || '-' || to_char(i.date + interval '1 week', 'DD/MM') as labels, 
+					(select count(*) from a_access_log where to_char(created_at, 'YYYY-MM-DD') between to_char(i.date, 'YYYY-MM-DD') and to_char(i.date + interval '1 week', 'YYYY-MM-DD')) as data 
+					from generate_series('$fdate', '$tdate', '1 week'::interval) i;";
+					$strTotal = "select count(*) as total, (count(*) / abs(round(EXTRACT(epoch FROM '$fdate'::timestamp - '$tdate'::timestamp)/604800))) as avg from a_access_log where created_at between '$fdate' and '$tdate';";
+					break;
+				case 'M':
+					$step = 'Month';
+					$str = "select to_char(i.date, 'Mon ''YY') as labels, 
+					(select count(*) from a_access_log where to_char(created_at, 'YYYY-MM-DD') between to_char(i.date, 'YYYY-MM-DD') and to_char(i.date + interval '1 month', 'YYYY-MM-DD')) as data 
+					from generate_series('$fdate', '$tdate', '1 month'::interval) i;";
+					$strTotal = "select count(*) as total, (count(*) / abs(round(EXTRACT(epoch FROM '$fdate'::timestamp - '$tdate'::timestamp)/2592000))) as avg from a_access_log where created_at between '$fdate' and '$tdate';";
+					break;
+			}
+			$qry = $this->db->query($str);
+			if ($qry->num_rows() > 0) {
+				foreach($qry->result() as $row){
+					$hits['labels'][] = $row->labels;
+					$hits['data'][] = $row->data;
+				}
+			}	
+			$qry = $this->db->query($strTotal);
+			if ($qry->num_rows() > 0) {
+				foreach($qry->result() as $row){
+					$result['total'] = $row->total;
+					$result['avg'] = $row->avg;
+					$result['step'] = $step;
+				}
+			}	
+			$strMethod = "select method, count(*) from a_access_log where created_at between '$fdate' and '$tdate' group by method";
+			$qry = $this->db->query($strMethod);
+			if ($qry->num_rows() > 0) {
+				foreach($qry->result() as $row){
+					$result['method'][$row->method] = $row->count;
+				}
+			}	
+			$strMethod = "select host, count(*) from a_access_log where created_at between '$fdate' and '$tdate' group by host";
+			$qry = $this->db->query($strMethod);
+			if ($qry->num_rows() > 0) {
+				foreach($qry->result() as $row){
+					$result['host'][$row->host] = $row->count;
+				}
+			}	
+			/* Total Hits */
+			// $this->xresponse(FALSE, ['message' => 'Failure !']);
 			
+			$chartjs['labels'] = $hits['labels'];
+			$chartjs['datasets'][] = ['label' => 'Hits', 'borderColor' => 'rgba(210, 180, 222, 1)', 'data' => $hits['data']];
+			// echo json_encode($chartjs);
+			$result['chartjs'] = $chartjs;
+			
+			$this->xresponse(TRUE, $result);
+			// debug($result);
+			// debug($this->params);
 		}
 	}
 	
