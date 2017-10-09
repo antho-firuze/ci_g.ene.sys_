@@ -1782,7 +1782,9 @@ class Cashflow extends Getmeb
 			$data = array_merge(['etd' => $this->params->etd], $this->update_log);
 
 			if ($this->params->description)
-				$this->db->set('description', "description || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]'", FALSE);
+				$this->db->set('description', "case when coalesce(description, '') = '' then '".$this->params->description." [by: ".$this->session->user_name."]' else coalesce(description, '') || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]' end", FALSE);
+			
+			// debug("description || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]'");
 			
 			if (!$result = $this->db->update($this->c_table, $data, ['id' => $this->params->id])) {
 				$this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
