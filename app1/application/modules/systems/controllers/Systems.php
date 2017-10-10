@@ -110,7 +110,7 @@ class Systems extends Getmeb
 					$str = "select to_char(i.date, 'Mon ''YY') as labels, 
 					(select count(*) from a_access_log where to_char(created_at, 'YYYY-MM-DD') between to_char(i.date, 'YYYY-MM-DD') and to_char(i.date + interval '1 month', 'YYYY-MM-DD')) as data 
 					from generate_series('$fdate', '$tdate', '1 month'::interval) i;";
-					$strTotal = "select count(*) as total, (count(*) / abs(round(EXTRACT(epoch FROM '$fdate'::timestamp - '$tdate'::timestamp)/2592000))) as avg from a_access_log where created_at between '$fdate' and '$tdate';";
+					$strTotal = "select count(*) as total, (count(*) / case when abs(round(EXTRACT(epoch FROM '2017-10-04'::timestamp - '2017-10-10'::timestamp)/2592000)) = 0 then 1 end) as avg from a_access_log where created_at between '$fdate' and '$tdate';";
 					break;
 			}
 			$qry = $this->db->query($str);

@@ -295,7 +295,7 @@ function initActionMenu(tableData1, dataTable1)
 						BootstrapDialog.alert(data.message);
 					},
 					error: function(data) {
-						if (data.status==500){
+						if (data.status >= 500){
 							var message = data.statusText;
 						} else {
 							var error = JSON.parse(data.responseText);
@@ -555,7 +555,7 @@ $('.toolbar_container').click('button', function(e){
 								BootstrapDialog.alert(data.message);
 							},
 							error: function(data) {
-								if (data.status==500){
+								if (data.status >= 500){
 									var message = data.statusText;
 								} else {
 									var error = JSON.parse(data.responseText);

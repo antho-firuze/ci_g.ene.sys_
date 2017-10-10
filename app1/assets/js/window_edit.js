@@ -188,7 +188,7 @@ $( document ).ready(function() {
 					// setInterval(function(){ $('#'+dialog.getButtons()[0].id).focus(); },100);
 				},
 				error: function(data) {
-					if (data.status==500){
+					if (data.status >= 500){
 						var message = data.statusText;
 					} else {
 						var error = JSON.parse(data.responseText);

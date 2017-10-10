@@ -3492,6 +3492,47 @@ class Cashflow extends Getmeb
 		}
 	}
 	
+	function rpt_cf_analysis()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			/* Validation */
+			// debug($this->params);
+			if (empty($this->params->fdate) && empty($this->params->tdate))
+				$this->xresponse(FALSE, ['message' => lang('error_filling_params')],401);
+			
+			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
+				// if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
+					// $this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
+				
+				$fdate = $this->params->fdate;
+				$tdate = $this->params->tdate;
+			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
+				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
+				
+				$fdate = $this->params->fdate;
+				$tdate = date('Y-m-d');
+			}
+				
+			/* Re-quering Data */
+			$str = "select doc_no, doc_ref_no, 
+			doc_date, extract(year from doc_date) as doc_date_yy, extract(month from doc_date) as doc_date_mm, 
+			expected_dt_cust, extract(year from expected_dt_cust) as expected_dt_cust_yy, extract(month from expected_dt_cust) as expected_dt_cust_mm, 
+			etd, extract(year from etd) as etd_yy, extract(month from etd) as etd_mm, 
+			grand_total, description, 
+			(select name as orgtrx_name from a_org where id = t1.orgtrx_id),
+			(select name as bpartner_name from c_bpartner where id = t1.bpartner_id) 
+			from cf_order t1
+			where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between '".$fdate."' and '".$tdate."'";
+			// debug($str);
+			if (! $qry = $this->db->query($str)){
+				$this->xresponse(FALSE, ['message' => $this->db->error()['message']]);
+			}
+			$result['data'] = $qry->result();
+			$this->xresponse(TRUE, $result);
+		}
+	}
+	
 	function db_unmatch_crp_so_vs_invoice()
 	{
 		if ($this->r_method == 'GET') {

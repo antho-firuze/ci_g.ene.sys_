@@ -56,7 +56,7 @@
 	$(".content").append(form1);	
 
 	col = [], row = [];
-	box1.find('.box-header').append($('<div class="box-tools pull-right" />').append(BSHelper.GroupButton( [{ id: "btn1", title: "Hourly", text: "H" }, { id: "btn2", title: "Daily", text: "D", active: true }, { id: "btn3", title: "Weekly", text: "W" }, { id: "btn4", title: "Monthly", text: "M" }, ] )) );
+	box1.find('.box-header').append($('<div class="box-tools pull-right" />').append(BSHelper.GroupButton( { cls:"btn-step", list:[{ id: "btn1", title: "Hourly", text: "H" }, { id: "btn2", title: "Daily", text: "D", active: true }, { id: "btn3", title: "Weekly", text: "W" }, { id: "btn4", title: "Monthly", text: "M" }, ]} )) );
 	{* col.push($('<div class="box-tools" />').append(BSHelper.GroupButton(  *}
 		{* [ *}
 			{* { id: "btn1", title: "Hourly", text: "Hourly" },  *}
@@ -231,6 +231,37 @@
 	{* var hostPlatform = new Chart("platform", { type: "pie",	data: dataHost, options: optHost }); *}
 	
 	function update_chart(){
+		{* Validation *}
+		var fdate = moment($("#fdate").val(), 'YYYY-MM-DD');
+		var tdate =	moment($("#tdate").val(), 'YYYY-MM-DD');
+		var durra = moment.duration(tdate.diff(fdate));
+		
+		if (durra.asDays() > 1) {
+			$("#btn1").attr("disabled", true);
+			$(".btn-step>button").removeClass("active");
+			$("#btn2").addClass("active");
+			$("#step").val('D');
+		} else {
+			$("#btn1").attr("disabled", false);
+		}
+		if (durra.asDays() > 30) {
+			$("#btn2").attr("disabled", true);
+			$(".btn-step>button").removeClass("active");
+			$("#btn3").addClass("active");
+			$("#step").val('W');
+		} else {
+			$("#btn2").attr("disabled", false);
+		}
+		if (durra.asDays() > 180) {
+			$("#btn3").attr("disabled", true);
+			$(".btn-step>button").removeClass("active");
+			$("#btn4").addClass("active");
+			$("#step").val('M');
+		} else {
+			$("#btn3").attr("disabled", false);
+		}
+		{* console.log(durra.asDays()); *}
+		{* return false; *}
 		$.getJSON($url_module, form1.serializeOBJ(), function(result){ 
 			$.each(result.host, function(k, v){ console.log(k+' - '+v); });
 			hitsChart.data = result.dataHits;
@@ -245,8 +276,8 @@
 				{* console.log(result.data); *}
 			{* } *}
 		}).fail(function(data) {
-			console.log(data);
-			if (data.status==500){
+			{* console.log(data); *}
+			if (data.status >= 500){
 				var message = data.statusText;
 			} else {
 				var error = JSON.parse(data.responseText);

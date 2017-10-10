@@ -181,7 +181,7 @@
 		}
 		var o = $.extend( {}, default_opts, options );
 		var form = $('<form />');
-		form.attr('autocomplete', o.autocomplete);
+		// form.attr('autocomplete', o.autocomplete);
 		form.attr('enctype', o.enctype);
 		form.attr('target', o.target);
 		form.attr('method', o.method);
@@ -509,9 +509,10 @@
 		return button;
 	};
 	
-	BSHelper.GroupButton = function(btnList){
+	BSHelper.GroupButton = function(options){
 		var btnGrp = $('<div class="btn-group" data-toggle="btn-toggle" />');
-		$.each(btnList, function(k,v){
+		if (options.cls) btnGrp.addClass(options.cls);
+		$.each(options.list, function(k,v){
 			var btn = $('<button/>', { class:"btn", type:"button", id: v.id, title: v.title });
 			btn.html(v.text);
 			if (v.active) btn.addClass('active');
@@ -549,7 +550,8 @@
 		var lblname = o.required ? '&nbsp;<span style="color:red;">'+lbllink+' *</span>' : lbllink;
 		var placeholder = o.placeholder ? o.placeholder : "typed or choose";
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
-		var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: placeholder, value: o.value,	autocomplete: "off" }); 
+		// var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: placeholder, value: o.value,	autocomplete: "off" }); 
+		var input = $('<input>', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: placeholder, value: o.value }); 
 		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
 
 		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
@@ -588,7 +590,8 @@
 		var lblname = o.required ? '&nbsp;<span style="color:red;">'+lbllink+' *</span>' : lbllink;
 		var placeholder = o.placeholder ? o.placeholder : "typed or choose";
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
-		var input = $('<input />', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: placeholder, value: o.value,	autocomplete: "off" }); 
+		// var input = $('<input />', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: placeholder, value: o.value,	autocomplete: "off" }); 
+		var input = $('<input />', { class: "form-control", id: o.idname, name: o.idname, type: 'text', placeholder: placeholder, value: o.value }); 
 		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
 
 		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
