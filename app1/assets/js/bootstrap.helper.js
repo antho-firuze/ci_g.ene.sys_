@@ -195,7 +195,7 @@
 	BSHelper.Box = function(options){
 		var default_opts = {
 			cls: '',
-			icon: 'fa fa-th',
+			icon: '',
 			title: '',
 			idname: '',
 			header: false,
@@ -213,7 +213,7 @@
 		
 		
 		if (o.header) box_header.insertBefore(box_body);
-		if (o.title) box_header.append( [$('<i class="'+o.icon+'" />'), $('<h3 class="box-title" />').html(o.title)] );
+		if (o.title) box_header.append( [$('<i class="'+(o.icon ? o.icon : '')+'" />'), $('<h3 class="box-title" />').html(o.title)] );
 		var toolb = [];
 		$.each(o.toolbtn, function(i, val){
 			if (val == 'min')
@@ -351,6 +351,51 @@
 		return container;
 	};
 	
+	BSHelper.Multiselect = function(options){
+		var default_opts = {
+			type: '',	// danger, info, warning, success
+			title: '',
+			description: '',
+			icon: '',
+		}
+		var o = $.extend( {}, BSHelper.defaults, options );
+		var lbllink = o.label_link ? '<a href="'+o.label_link+'">'+o.label+'</a>' : o.label;
+		var lblname = o.required ? '&nbsp;<span style="color:red;">'+lbllink+' *</span>' : lbllink;
+		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
+		var input = $('<select />', {class:"form-control", id:o.idname, name:o.idname, value:o.value}); 
+		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
+		
+		input.attr('multiple','multiple');		
+		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
+		if (!o.label) { container.find('label').remove(); /* container.removeClass('form-group'); */ }
+		if (o.required) input.attr('required',''); 
+		if (o.disabled) input.attr('disabled','');
+		if (o.readonly) input.attr('readonly','');
+		if (o.onfocus) input.attr('onfocus',o.onfocus);
+		if (o.onchange) input.attr('onchange',o.onchange);
+		if (o.cls) input.addClass(o.cls);
+		if (o.style && o.style != 'bs3') input.attr('style', o.style);
+		if (o.role) input.attr('data-role', o.role);
+		if (o.hidden) { input.closest(".form-group").css("display", "none"); }
+		container.find('.control-input').append(input).append(help);
+		
+		if (o.url) input.attr('url',o.url);
+		/* if (o.url) {
+			$.getJSON(o.url, {}, function(result){ 
+				if (!isempty_obj(result.data.rows)) { 
+					$.each(result.data.rows, function(i, item) {
+						input.append('<option value="' + item.id + '">' + item.code_name + '</option>');
+          });
+					input.multiselect({
+							includeSelectAllOption: true,
+							enableFiltering: true
+					});
+				}
+			});
+		} */
+		return container;
+	};
+	
 	BSHelper.Input = function(options){
 		var o = $.extend( {}, BSHelper.defaults, options );
 		var lbllink = o.label_link ? '<a href="'+o.label_link+'">'+o.label+'</a>' : o.label;
@@ -358,8 +403,8 @@
 		var lblname = o.required ? '&nbsp;<span style="color:red;">'+lbllink+' *</span>' : lbllink;
 		// var lblname = o.label ? '&nbsp;<span style="color:'+(o.required ? 'red' : 'black')+';vertical-align:-webkit-baseline-middle;white-space:nowrap;">'+o.label+(o.required ? ' *' : '')+'</span>' : o.label;
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
-		var el = (o.type == 'textarea') ? 'textarea' : 'input';
-		var input = $('<'+el+' />', {class: "form-control", id:o.idname, name:o.idname, value:o.value}); 
+		var el = (o.type == 'textarea') ? 'textarea' : ((o.type == 'select') ? 'select' : 'input');
+		var input = $('<'+el+' />', {class:"form-control", id:o.idname, name:o.idname, value:o.value}); 
 		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
 
 		/* type=textarea => el=textarea,type='' */
@@ -387,6 +432,9 @@
 				input.attr('placeholder',(o.placeholder) ? o.placeholder : 'number');
 				input.attr('type',o.type);
 				break;
+			case 'select':
+				input.attr('multiple','multiple');		
+				break;
 			case 'email':
 			case 'password':
 			case 'url':
@@ -411,6 +459,7 @@
 				break;
 			case 'textarea':
 				input.attr('placeholder',(o.placeholder) ? o.placeholder : 'string(2000)');
+				input.attr('height',(o.height ? o.height : 300));
 				break;
 			case 'time':
 			case 'datetime':
@@ -428,11 +477,18 @@
 		if (o.idmatch) input.attr('data-match','#'+o.idmatch);
 		if (o.errormatch) input.attr('data-match-error',o.errormatch);
 		if (o.cls) input.addClass(o.cls);
-		if (o.style) input.attr('style', o.style);
+		if (o.style && o.style != 'bs3') input.attr('style', o.style);
+		// if (o.type == 'select') {
+			// container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label></div>');
+			// input = $('<'+el+' />', {id:o.idname, name:o.idname, value:o.value});
+			// input.attr('style',"width:100%; padding:0; border:0px;");
+		// } 
 		if (o.role) input.attr('data-role', o.role);
 		
 		if (thetype.toLowerCase() == 'date') 
 			container.find('.control-input').append(input).append(input2).append(help);
+		//else if (thetype.toLowerCase() == 'select') 
+			//container.append(input).append(help);
 		else
 			container.find('.control-input').append(input).append(help);
 		

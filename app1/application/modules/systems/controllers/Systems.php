@@ -7,7 +7,7 @@ class Systems extends Getmeb
 	function __construct() {
 		/* Exeption list methods is not required login */
 		/* Note: addition 4 method ['a_role_list','a_org_list','a_orgtrx_list','a_orgdept_list','a_orgdiv_list'] is for by pass authentication in user profile */
-		$this->exception_method = ['x_forgot','x_reset','x_login','x_logout','x_reload','x_page','x_role_selector','a_menu_parent_list','a_org_parent_list','x_srcmenu','a_role_list','a_org_list','a_orgtrx_list','a_orgdept_list','a_orgdiv_list',];
+		$this->exception_method = ['x_forgot','x_reset','x_login','x_logout','x_reload','x_info','x_page','x_role_selector','a_menu_parent_list','a_org_parent_list','x_srcmenu','a_role_list','a_org_list','a_orgtrx_list','a_orgdept_list','a_orgdiv_list',];
 		parent::__construct();
 	}
 	
@@ -543,6 +543,27 @@ class Systems extends Getmeb
 		}
 		
 		$this->backend_view('pages/systems/x_profile');
+	}
+	
+	function x_info()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, FALSE);
+
+			if (key_exists('valid', $this->params) && ($this->params['valid'])) {
+				$this->params['where']['is_active'] = '1';
+				$this->params['where']['valid_from <='] = date('Y-m-d H:i:s');
+				$this->params['where_custom'][] = $this->session->org_id . " = ANY (valid_org)";
+				$this->params['where_custom'][] = $this->session->orgtrx_id . " = ANY (valid_orgtrx)";
+				$this->params['where_custom'][] = "(valid_till >= '". date('Y-m-d H:i:s') ."' or valid_till is null)";
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->a_info($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
 	}
 	
 	/*
@@ -1729,25 +1750,27 @@ class Systems extends Getmeb
 	function a_info()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+			$this->_get_filtered(TRUE, FALSE);
+
+			$this->params['where_in']['org_id'] = $this->_get_org();
 			
-			if (key_exists('zone', $this->params) && ($this->params['zone'])) {
-				$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
-				$this->params['where']['t1.org_id'] 	 = DEFAULT_ORG_ID;
-			}
 			if (key_exists('valid', $this->params) && ($this->params['valid'])) {
 				$this->params['where']['t1.is_active'] = '1';
 				$this->params['where']['t1.valid_from <='] = datetime_db_format();
 			}
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.description', $this->params['q']);
-
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_post_put'){
+				$this->mixed_data['valid_org'] = '{'.$this->params->valid_org.'}';
+				$this->mixed_data['valid_orgtrx'] = '{'.$this->params->valid_orgtrx.'}';
+				// debug($this->mixed_data);
 			}
 		}
 	}

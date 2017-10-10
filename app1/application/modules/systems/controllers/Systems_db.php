@@ -206,6 +206,23 @@ class Systems_db extends CI_Controller {
 		return $fields;
 	}
 	
+	function table_a_info_org()
+	{
+		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
+		$fields['is_active'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '1'];
+		$fields['is_deleted'] = ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['created_by'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['updated_by'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['deleted_by'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['created_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
+		$fields['updated_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
+		$fields['deleted_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
+		$fields['client_id'] 	= ['type' => 'INT', 'constraint' => '32', 'default' => 0];
+		$fields['info_id'] 		= ['type' => 'INT', 'constraint' => '32', 'default' => 0];
+		$fields['org_id'] 		= ['type' => 'INT', 'constraint' => '32', 'default' => 0];
+		return $fields;
+	}
+	
 	function field_00_Main()
 	{
 		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];

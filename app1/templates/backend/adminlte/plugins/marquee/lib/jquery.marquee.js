@@ -213,7 +213,8 @@
 		
 		// determines if the message needs to be scrolled to read
 		function doScroll($li){
-			return ($li.outerWidth() > $marquee.innerWidth());
+			// return ($li.outerWidth() > $marquee.innerWidth());
+			return true;
 		}
 
 		// show the next message in the queue		
