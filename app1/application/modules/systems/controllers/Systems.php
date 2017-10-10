@@ -558,6 +558,7 @@ class Systems extends Getmeb
 				$this->params['where_custom'][] = "(valid_till >= '". date('Y-m-d H:i:s') ."' or valid_till is null)";
 			}
 			
+			$this->params['sort'] = 'seq';
 			if (! $result['data'] = $this->{$this->mdl}->a_info($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -1458,7 +1459,11 @@ class Systems extends Getmeb
 			$this->_get_filtered(TRUE, FALSE);
 			
 			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
-				$this->params['where_in']['id'] = $this->_get_org();
+				if (isset($this->params['parent_id']) && !empty($this->params['parent_id'])) {
+					$this->params['where_in']['parent_id'] = $this->params['parent_id'];
+				} else {
+					$this->params['where_in']['id'] = $this->_get_org();
+				}
 			}
 			
 			$this->params['where']['orgtype_id'] = 2;
@@ -1498,7 +1503,12 @@ class Systems extends Getmeb
 			$this->_get_filtered(TRUE, FALSE);
 			
 			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
-				$this->params['where_in']['id'] = $this->_get_orgtrx();
+				if (isset($this->params['parent_id']) && !empty($this->params['parent_id'])) {
+					// debug($this->params['parent_id']);
+					$this->params['where_in']['parent_id'] = explode(',', $this->params['parent_id']);
+				} else {
+					$this->params['where_in']['id'] = $this->_get_orgtrx();
+				}
 			}
 			
 			$this->params['where']['orgtype_id'] = 3;
@@ -1766,7 +1776,18 @@ class Systems extends Getmeb
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			/* Check duplicate doc_no */
+			if ($this->params->event == 'pre_put'){
+				if (isset($this->params->newline) && $this->params->newline != ''){
+					if (!$result = $this->updateRecord($this->c_method, ['seq' => $this->params->newline], ['id' => $this->params->id], FALSE))
+						$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+					else {
+						$this->xresponse(TRUE, ['message' => $this->messages()]);
+					}
+				}
+			}
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['seq'] = $this->db->query("select max(seq) from a_info where is_deleted = '0' and client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id)->row()->max + 1;
+			}
 			if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['valid_org'] = '{'.$this->params->valid_org.'}';
 				$this->mixed_data['valid_orgtrx'] = '{'.$this->params->valid_orgtrx.'}';

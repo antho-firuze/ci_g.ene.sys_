@@ -27,6 +27,7 @@
 		enable: true,
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [],
+		order: ['seq'],
 		columns: [
 			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"seq", title:"Line", render:function(data, type, row){ return '<input type="number" class="seq" style="width:50px; text-align:center;" min="1" value="'+data+'">'; } },
 			{ width:"200px", orderable:false, data:"description", title:"Description" },

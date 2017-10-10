@@ -273,9 +273,11 @@ function subCol(siz, el){
 }
 
 function isempty_obj(obj){
+	if (obj == undefined) return true;
 	return (Object.keys(obj).length > 0) ? false : true;
 }
 
 function isempty_arr(arr){
+	if (arr == undefined) return true;
 	return (arr.length > 0) ? false : true;
 }

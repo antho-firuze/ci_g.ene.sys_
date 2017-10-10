@@ -182,7 +182,7 @@
 		return box1;
 	}
 	
-	$.ajax({ url: "{$.const.INFOLST_LNK}?valid=1", method: "GET", async: true, dataType: 'json',
+	$.ajax({ url: "{$.const.X_INFO_LNK}?valid=1", method: "GET", async: true, dataType: 'json',
 		success: function(result) {
 			if (! isempty_arr(result.data.rows)) {
 				var info_list = $('<ul id="info_marquee" class="info-marquee marquee" />');
