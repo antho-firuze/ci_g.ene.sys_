@@ -121,7 +121,7 @@
 						},
 						onSelectAll: function() {
 							var selected = [];
-							$('#select_valid_org option:selected').each(function(index, brand){
+							$('#select_valid_orgtrx option:selected').each(function(index, brand){
 									selected.push([$(this).val()]);
 							});
 							$("#valid_orgtrx").val(selected.join(","));
@@ -129,7 +129,7 @@
 						},
 						onDeselectAll: function() {
 							var selected = [];
-							$('#select_valid_org option:selected').each(function(index, brand){
+							$('#select_valid_orgtrx option:selected').each(function(index, brand){
 									selected.push([$(this).val()]);
 							});
 							$("#valid_orgtrx").val(selected.join(","));
