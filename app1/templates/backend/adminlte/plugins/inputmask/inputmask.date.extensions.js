@@ -278,7 +278,7 @@
             separator: "-",
             alias: "yyyy/mm/dd"
         },
-        datetime: {
+        "dd/mm/yyyy hh:mm": {
             mask: "1/2/y h:s",
             placeholder: "dd/mm/yyyy hh:mm",
             alias: "dd/mm/yyyy",

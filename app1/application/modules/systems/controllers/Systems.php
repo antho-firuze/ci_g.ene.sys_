@@ -7,7 +7,7 @@ class Systems extends Getmeb
 	function __construct() {
 		/* Exeption list methods is not required login */
 		/* Note: addition 4 method ['a_role_list','a_org_list','a_orgtrx_list','a_orgdept_list','a_orgdiv_list'] is for by pass authentication in user profile */
-		$this->exception_method = ['x_forgot','x_reset','x_login','x_logout','x_reload','x_page','x_role_selector','a_menu_parent_list','a_org_parent_list','x_srcmenu','a_role_list','a_org_list','a_orgtrx_list','a_orgdept_list','a_orgdiv_list',];
+		$this->exception_method = ['x_forgot','x_reset','x_login','x_logout','x_reload','x_info','x_page','x_role_selector','a_menu_parent_list','a_org_parent_list','x_srcmenu','a_role_list','a_org_list','a_orgtrx_list','a_orgdept_list','a_orgdiv_list',];
 		parent::__construct();
 	}
 	
@@ -115,10 +115,13 @@ class Systems extends Getmeb
 			}
 			$qry = $this->db->query($str);
 			if ($qry->num_rows() > 0) {
+				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
 				foreach($qry->result() as $row){
-					$hits['labels'][] = $row->labels;
-					$hits['data'][] = $row->data;
+					$arr['labels'][] = $row->labels;
+					$arr['data'][] = $row->data;
 				}
+				$result['dataHits']['labels'] = $arr['labels'];
+				$result['dataHits']['datasets'][] = ['label' => 'Hits', 'borderColor' => get_rgba(), 'data' => $arr['data']];
 			}	
 			$qry = $this->db->query($strTotal);
 			if ($qry->num_rows() > 0) {
@@ -128,27 +131,79 @@ class Systems extends Getmeb
 					$result['step'] = $step;
 				}
 			}	
-			$strMethod = "select method, count(*) from a_access_log where created_at between '$fdate' and '$tdate' group by method";
-			$qry = $this->db->query($strMethod);
+			$str = "select method, count(*) from a_access_log where created_at between '$fdate' and '$tdate' group by method";
+			$qry = $this->db->query($str);
 			if ($qry->num_rows() > 0) {
 				foreach($qry->result() as $row){
 					$result['method'][$row->method] = $row->count;
 				}
 			}	
-			$strMethod = "select host, count(*) from a_access_log where created_at between '$fdate' and '$tdate' group by host";
-			$qry = $this->db->query($strMethod);
+			/* Host */
+			$str = "select host as labels, count(*) as data from a_access_log where created_at between '$fdate' and '$tdate' group by 1";
+			$qry = $this->db->query($str);
 			if ($qry->num_rows() > 0) {
+				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
 				foreach($qry->result() as $row){
-					$result['host'][$row->host] = $row->count;
+					$arr['labels'][] = $row->labels;
+					$arr['data'][] = $row->data;
+					$arr['bgcolor'][] = get_rgba();
 				}
+				$result['dataHost']['labels'] = $arr['labels'];
+				$result['dataHost']['datasets'][] = ['label' => 'Host', 'backgroundColor' => $arr['bgcolor'], 'data' => $arr['data']];
 			}	
-			/* Total Hits */
+			/* Platform */
+			$str = "select platform as labels, count(*) as data from a_access_log where created_at between '$fdate' and '$tdate' group by 1";
+			$qry = $this->db->query($str);
+			if ($qry->num_rows() > 0) {
+				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
+				foreach($qry->result() as $row){
+					$arr['labels'][] = $row->labels;
+					$arr['data'][] = $row->data;
+					$arr['bgcolor'][] = get_rgba();
+				}
+				$result['dataPlatform']['labels'] = $arr['labels'];
+				$result['dataPlatform']['datasets'][] = ['label' => 'Host', 'backgroundColor' => $arr['bgcolor'], 'data' => $arr['data']];
+			}	
+			/* Browser */
+			$str = "select browser as labels, count(*) as data from a_access_log where created_at between '$fdate' and '$tdate' group by 1";
+			$qry = $this->db->query($str);
+			if ($qry->num_rows() > 0) {
+				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
+				foreach($qry->result() as $row){
+					$arr['labels'][] = $row->labels;
+					$arr['data'][] = $row->data;
+					$arr['bgcolor'][] = get_rgba();
+				}
+				$result['dataBrowser']['labels'] = $arr['labels'];
+				$result['dataBrowser']['datasets'][] = ['label' => 'Host', 'backgroundColor' => $arr['bgcolor'], 'data' => $arr['data']];
+			}	
+			/* Screen Res */
+			$str = "select width ||'x'|| height as labels, count(*) as data from a_access_log where created_at between '$fdate' and '$tdate' group by 1";
+			$qry = $this->db->query($str);
+			if ($qry->num_rows() > 0) {
+				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
+				foreach($qry->result() as $row){
+					$arr['labels'][] = $row->labels;
+					$arr['data'][] = $row->data;
+					$arr['bgcolor'][] = get_rgba();
+				}
+				$result['dataScreenRes']['labels'] = $arr['labels'];
+				$result['dataScreenRes']['datasets'][] = ['label' => 'Host', 'backgroundColor' => $arr['bgcolor'], 'data' => $arr['data']];
+			}	
+			/* Country */
+			$str = "select coalesce(country, 'unknown') as labels, count(*) as data from a_access_log where created_at between '$fdate' and '$tdate' group by 1 order by 2 desc";
+			$qry = $this->db->query($str);
+			if ($qry->num_rows() > 0) {
+				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
+				foreach($qry->result() as $row){
+					$arr['labels'][] = $row->labels;
+					$arr['data'][] = $row->data;
+					$arr['bgcolor'][] = get_rgba();
+				}
+				$result['dataCountry']['labels'] = $arr['labels'];
+				$result['dataCountry']['datasets'][] = ['label' => 'Screen Resolution', 'backgroundColor' => $arr['bgcolor'], 'data' => $arr['data']];
+			}	
 			// $this->xresponse(FALSE, ['message' => 'Failure !']);
-			
-			$chartjs['labels'] = $hits['labels'];
-			$chartjs['datasets'][] = ['label' => 'Hits', 'borderColor' => 'rgba(210, 180, 222, 1)', 'data' => $hits['data']];
-			// echo json_encode($chartjs);
-			$result['chartjs'] = $chartjs;
 			
 			$this->xresponse(TRUE, $result);
 			// debug($result);
@@ -488,6 +543,28 @@ class Systems extends Getmeb
 		}
 		
 		$this->backend_view('pages/systems/x_profile');
+	}
+	
+	function x_info()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, FALSE);
+
+			if (key_exists('valid', $this->params) && ($this->params['valid'])) {
+				$this->params['where']['is_active'] = '1';
+				$this->params['where']['valid_from <='] = date('Y-m-d H:i:s');
+				$this->params['where_custom'][] = $this->session->org_id . " = ANY (valid_org)";
+				$this->params['where_custom'][] = $this->session->orgtrx_id . " = ANY (valid_orgtrx)";
+				$this->params['where_custom'][] = "(valid_till >= '". date('Y-m-d H:i:s') ."' or valid_till is null)";
+			}
+			
+			$this->params['sort'] = 'seq';
+			if (! $result['data'] = $this->{$this->mdl}->a_info($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
 	}
 	
 	/*
@@ -1382,7 +1459,11 @@ class Systems extends Getmeb
 			$this->_get_filtered(TRUE, FALSE);
 			
 			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
-				$this->params['where_in']['id'] = $this->_get_org();
+				if (isset($this->params['parent_id']) && !empty($this->params['parent_id'])) {
+					$this->params['where_in']['parent_id'] = $this->params['parent_id'];
+				} else {
+					$this->params['where_in']['id'] = $this->_get_org();
+				}
 			}
 			
 			$this->params['where']['orgtype_id'] = 2;
@@ -1422,7 +1503,12 @@ class Systems extends Getmeb
 			$this->_get_filtered(TRUE, FALSE);
 			
 			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
-				$this->params['where_in']['id'] = $this->_get_orgtrx();
+				if (isset($this->params['parent_id']) && !empty($this->params['parent_id'])) {
+					// debug($this->params['parent_id']);
+					$this->params['where_in']['parent_id'] = explode(',', $this->params['parent_id']);
+				} else {
+					$this->params['where_in']['id'] = $this->_get_orgtrx();
+				}
 			}
 			
 			$this->params['where']['orgtype_id'] = 3;
@@ -1674,25 +1760,38 @@ class Systems extends Getmeb
 	function a_info()
 	{
 		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+			$this->_get_filtered(TRUE, FALSE);
+
+			$this->params['where_in']['org_id'] = $this->_get_org();
 			
-			if (key_exists('zone', $this->params) && ($this->params['zone'])) {
-				$this->params['where']['t1.client_id'] = DEFAULT_CLIENT_ID;
-				$this->params['where']['t1.org_id'] 	 = DEFAULT_ORG_ID;
-			}
 			if (key_exists('valid', $this->params) && ($this->params['valid'])) {
 				$this->params['where']['t1.is_active'] = '1';
 				$this->params['where']['t1.valid_from <='] = datetime_db_format();
 			}
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.description', $this->params['q']);
-
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_put'){
+				if (isset($this->params->newline) && $this->params->newline != ''){
+					if (!$result = $this->updateRecord($this->c_method, ['seq' => $this->params->newline], ['id' => $this->params->id], FALSE))
+						$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+					else {
+						$this->xresponse(TRUE, ['message' => $this->messages()]);
+					}
+				}
+			}
+			if ($this->params->event == 'pre_post'){
+				$this->mixed_data['seq'] = $this->db->query("select max(seq) from a_info where is_deleted = '0' and client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id)->row()->max + 1;
+			}
+			if ($this->params->event == 'pre_post_put'){
+				$this->mixed_data['valid_org'] = '{'.$this->params->valid_org.'}';
+				$this->mixed_data['valid_orgtrx'] = '{'.$this->params->valid_orgtrx.'}';
+				// debug($this->mixed_data);
 			}
 		}
 	}

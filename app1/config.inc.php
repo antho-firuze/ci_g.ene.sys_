@@ -2,11 +2,7 @@
 	defined('FCPATH') OR exit('No direct script access allowed'); 
 
 /* Database DSN */ 
-// define('DB_DSN', 'pgsql:host=103.20.189.24;port=5111;dbname=db_genesys;user=postgres;password=Admin123'); 
-// define('DB_DSN', 'pgsql:host=103.20.189.26;port=4111;dbname=db_genesys;user=postgres;password=admin123'); 
-define('DB_DSN', 'pgsql:host=192.168.10.250;port=5432;dbname=db_genesys;user=postgres;password=Admin123'); 
-// define('DB_DSN', 'pgsql:host=192.168.0.108;port=5432;dbname=db_genesys;user=postgres;password=admin123'); 
-// define('DB_DSN', 'pgsql:host=127.0.0.1;port=5432;dbname=db_genesys;user=postgres;password=Admin123'); 
+define('DB_DSN', 'pgsql:host=127.0.0.1;port=5432;dbname=db_genesys;user=postgres;password=Admin123'); 
 define('DB_DSN_SQLSVR', 'sqlsrv://sa:admin123@115.85.74.130,8795/PURCHASING'); 
 
 /* Database Driver */ 
@@ -85,6 +81,8 @@ define('PROFILE_LNK', BASE_URL.'systems/x_profile');
 define('RELOAD_LNK', BASE_URL.'systems/x_reload');
 define('FORGOT_LNK', BASE_URL.'systems/x_forgot');
 define('RESET_LNK', BASE_URL.'systems/x_reset');
+define('X_INFO_LNK', BASE_URL.'systems/x_info');
+/* FRONTEND CONSTANT VARIABLES */
 define('HOME_LNK', BASE_URL.'frontend');
 define('INFOLST_LNK', BASE_URL.'frontend/infolist');
 

@@ -5,6 +5,23 @@ include 'email_helper.php';
 include 'sequence_helper.php';
 include 'spelled_out_helper.php';
 
+if ( ! function_exists('get_rgba'))
+{
+	function get_rgba()
+	{
+		$rgba = [
+			'rgb(255, 99, 132)',
+			'rgb(255, 159, 64)',
+			'rgb(255, 205, 86)',
+			'rgb(75, 192, 192)',
+			'rgb(54, 162, 235)',
+			'rgb(153, 102, 255)',
+			'rgb(201, 203, 207)',
+		];
+		return $rgba[rand(0, 6)];
+	}
+}
+
 if ( ! function_exists('get_dsn_host'))
 {
 	function get_dsn_host()
@@ -24,14 +41,10 @@ if ( ! function_exists('parse_dsn'))
 
 if ( ! function_exists('get_orgtrx'))
 {
-	function get_orgtrx()
+	function get_orgtrx($parent_org_id = NULL)
 	{
 		$ci = &get_instance();
-		$str = "select f1.org_id 
-			from a_user_orgtrx f1 
-			inner join a_user_org f2 on f1.user_org_id = f2.id
-			where f1.is_active = '1' and f1.is_deleted = '0' and 
-			f1.user_id = ".$ci->session->user_id." and f2.org_id = ".$ci->session->org_id;
+		$str = "select org_id from a_user_org where is_active = '1' and is_deleted = '0' and orgtype_id = 3 and user_id = ".$ci->session->user_id." and parent_org_id = ".($parent_org_id !== NULL ? $parent_org_id : $ci->session->org_id);
 		if (!$qry = $ci->db->query($str)->result()){
 			return FALSE;
 		}

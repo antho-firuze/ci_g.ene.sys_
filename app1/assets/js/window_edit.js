@@ -50,10 +50,29 @@ $( document ).ready(function() {
 	/* For summernote editor */
 	if (jQuery().summernote) {
 		var strVal = $('.summernote').val();
+		var intHeight = $('.summernote').attr('height');
 		$('.summernote')
-			.summernote({ height: 300, minHeight: null, maxHeight: null })
+			.summernote({ height: intHeight, minHeight: null, maxHeight: null })
 			.summernote('code', strVal);
 	}
+	
+	/* For inputmask */
+	if (jQuery().inputmask) {
+		$("[data-mask]").inputmask();
+	}
+	
+	/* For multiple-select */
+	/* if (jQuery().multipleSelect) {
+		$("select").multipleSelect();
+	} */
+	
+	/* For multiselect */
+	/* if (jQuery().multiselect) {
+		$("select").multiselect({
+				includeSelectAllOption: true,
+				enableFiltering: true
+		});
+	} */
 	
 	/* For tinymce editor */
 	if (typeof(tinyMCE) !== 'undefined') {

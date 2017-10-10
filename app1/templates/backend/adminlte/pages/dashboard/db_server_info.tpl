@@ -41,7 +41,6 @@
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var boxFilter = BSHelper.Box({ type:"info", });
 	var box1 = BSHelper.Box({ type:"info", header: true, title: "Server Hit Access" });
-	var box2 = BSHelper.Box({ type:"info", header: true, title: "Server Hit Access" });
 
 	var boxFilter = BSHelper.Box();
 	col.push(BSHelper.Button({ type:"button", label:'<i class="fa fa-calendar"></i>&nbsp;<span>Date range picker</span> &nbsp;&nbsp;<i class="fa fa-caret-down"></i>', cls:"btn-danger", idname: "btn_cal", }));
@@ -74,16 +73,34 @@
 	$(".content").append(box1);
 	
 	col = [], row = [];
+	var boxHost = BSHelper.Box({ type:"info", header: true, title: "Domain", icon: "" });
 	col.push('<div class="chart"><canvas id="host" style="height:250px"></canvas></div>');
-	row.push(subCol(3, col)); col = [];
+	row.push(subCol(12, col)); col = [];
+	boxHost.find('.box-body').append(subRow(row));
+	
+	col = [], row = [];
+	var boxPlatform = BSHelper.Box({ type:"info", header: true, title: "Platform", icon: "" });
 	col.push('<div class="chart"><canvas id="platform" style="height:250px"></canvas></div>');
-	row.push(subCol(3, col)); col = [];
+	row.push(subCol(12, col)); col = [];
+	boxPlatform.find('.box-body').append(subRow(row));
+	
+	col = [], row = [];
+	var boxBrowser = BSHelper.Box({ type:"info", header: true, title: "Browser Usage", icon: "" });
 	col.push('<div class="chart"><canvas id="browser" style="height:250px"></canvas></div>');
-	row.push(subCol(3, col)); col = [];
+	row.push(subCol(12, col)); col = [];
+	boxBrowser.find('.box-body').append(subRow(row));
+	
+	col = [], row = [];
+	var boxScreenRes = BSHelper.Box({ type:"info", header: true, title: "Screen Resolution", icon: "" });
 	col.push('<div class="chart"><canvas id="screen_res" style="height:250px"></canvas></div>');
-	row.push(subCol(3, col)); col = [];
-	box2.find('.box-body').append(subRow(row));
-	$(".content").append(box2);
+	row.push(subCol(12, col)); col = [];
+	boxScreenRes.find('.box-body').append(subRow(row));
+	
+	col.push(subCol(3, boxHost));
+	col.push(subCol(3, boxPlatform));
+	col.push(subCol(3, boxBrowser));
+	col.push(subCol(3, boxScreenRes));
+	$(".content").append(subRow(col));
 	
 	{* Initialization *}
 	var start = moment().subtract(6, 'days');
@@ -107,6 +124,8 @@
 				$('#btn_cal span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
 				$("#fdate").val(start.format('YYYY-MM-DD'));
 				$("#tdate").val(end.format('YYYY-MM-DD'));
+				
+				update_chart();
 			}
 	);
 	
@@ -115,7 +134,7 @@
 	$("#tdate").val(end.format('YYYY-MM-DD'));
 	$("#step").val('D');
 	
-	var optServerHit = {
+	var optHits = {
 		spanGaps: true,
 		responsive: true,
 		title:{
@@ -155,8 +174,7 @@
 			}
 		},
  	};
-	
-	var areaChartData = {
+	var dataHits = {
 		labels: ["1", "2", "3", "4", "5", "6", "7"],
 		datasets: [
 			{
@@ -165,6 +183,36 @@
 				data: [0, 0, 0, 0, 0, 0, 0]
 			}
 		]
+	};
+	
+	
+	var optHost = {
+		responsive: true,
+		legend: {
+				position: 'top',
+		},
+		title: {
+				display: false,
+				text: 'Chart.js Doughnut Chart'
+		},
+		animation: {
+				animateScale: true,
+				animateRotate: true
+		}
+	};
+	var dataHost = {
+		labels: ["Red", "Orange", "Yellow", "Green", "Blue"],
+		datasets: [{
+				label: 'Dataset 1',
+				data: [10, 20, 30, 40, 50],
+				backgroundColor: [
+						'rgb(255, 99, 132)',
+						'rgb(255, 159, 64)',
+						'rgb(255, 205, 86)',
+						'rgb(75, 192, 192)',
+						'rgb(54, 162, 235)',
+				],
+		}],
 	};
 	
 	$(".btn-group").on("click", function(e){
@@ -178,13 +226,21 @@
 		update_chart();
 	});
 	
-	var lineChart = new Chart("lineChart", { type: "line",	data: areaChartData, options: optServerHit });
+	var hitsChart = new Chart("lineChart", { type: "line",	data: dataHits, options: optHits });
+	{* var hostChart = new Chart("host", { type: "doughnut",	data: dataHost, options: optHost }); *}
+	{* var hostPlatform = new Chart("platform", { type: "pie",	data: dataHost, options: optHost }); *}
 	
 	function update_chart(){
 		$.getJSON($url_module, form1.serializeOBJ(), function(result){ 
 			$.each(result.host, function(k, v){ console.log(k+' - '+v); });
-			lineChart.data = result.chartjs;
-			lineChart.update();
+			hitsChart.data = result.dataHits;
+			hitsChart.update();
+			var hostChart = new Chart("host", { type: "pie",	data: result.dataHost, options: optHost });
+			var hostPlatform = new Chart("platform", { type: "pie",	data: result.dataPlatform, options: optHost });
+			var hostBrowser = new Chart("browser", { type: "pie",	data: result.dataBrowser, options: optHost });
+			var hostScreenRes = new Chart("screen_res", { type: "pie",	data: result.dataScreenRes, options: optHost });
+			{* hostChart.data = result.dataHost; *}
+			{* hostChart.update(); *}
 			{* if (!isempty_obj(result.data)){ *}
 				{* console.log(result.data); *}
 			{* } *}

@@ -454,8 +454,11 @@ class Systems_Model extends CI_model
 	
 	function a_info($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_table." as t1";
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*,
+		to_char(t1.valid_from, '".$this->session->date_format." HH24:MI') as valid_from,
+		to_char(t1.valid_till, '".$this->session->date_format." HH24:MI') as valid_till
+		";
+		$params['table'] 	= "a_info as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	

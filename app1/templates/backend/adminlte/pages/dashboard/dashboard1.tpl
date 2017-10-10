@@ -25,6 +25,7 @@
   
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/summernote/summernote.css">
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/datepicker/datepicker3.css">
+<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/marquee/css/jquery.marquee.min.css">
 {* <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/tag-it/css/jquery.tagit.css"> *}
 {* <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/tag-it/css/tagit.ui-zendesk.css"> *}
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/bootstrap-tagsinput/bootstrap-tagsinput.css">
@@ -39,6 +40,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/textfill/jquery.textfill.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/marquee/lib/jquery.marquee.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Start :: Init for Title, Breadcrumb *}
@@ -111,14 +113,13 @@
 	function qemail(){
 		var col = [], row = [];
 		var form1 = BSHelper.Form({ autocomplete:"off" });
-		var box1 = BSHelper.Box({ type:"info", header:true, title:"Quick Email", toolbtn:['min','rem'], footer:true });
+		var box1 = BSHelper.Box({ type:"info", header:true, title:"Quick Email", icon:"fa fa-envelope", toolbtn:['min','rem'], footer:true });
 		col.push(BSHelper.Input({ horz:false, type:"text", idname:"email_from", value:"{$.session.user_email}", readonly:true }) );
 		col.push(BSHelper.Input({ horz:false, type:"text", idname:"email_to", required: true, placeholder:"Email to:", role:"tagsinput" }) );
 		col.push(BSHelper.Input({ horz:false, type:"text", idname:"subject", required: true, placeholder:"Subject:" }) );
 		col.push(BSHelper.Input({ horz:false, type:"textarea", idname:"message", cls:"summernote", placeholder:"Message" }));
 		{* col.push(BSHelper.Button({ type:"submit", label:'Send <i class="fa fa-arrow-circle-right"></i>', idname:"submit_btn" })); *}
 		form1.append( col );
-		box1.find('.box-header h3').before($('<i class="fa fa-envelope"></i>'));
 		box1.find('.box-body').append(form1);
 		box1.find('.box-footer').addClass('clearfix').append('<button type="button" class="pull-right btn btn-info" id="sendEmail">Send <i class="fa fa-arrow-circle-right"></i></button>');
 		box1.find("#email_to").tagsinput();
@@ -168,8 +169,7 @@
 
 	function wcal(){
 		var col = [], row = [];
-		var box1 = BSHelper.Box({ type:"info", header:true, title:"Calendar", toolbtn:['min','rem'] });
-		box1.find('.box-header h3').before($('<i class="fa fa-calendar"></i>'));
+		var box1 = BSHelper.Box({ type:"info", header:true, title:"Calendar", icon:"fa fa-calendar", toolbtn:['min','rem'] });
 		box1.find('.box-body').append($('<div id="calendar" style="width: 100%"> </div>'));
 		box1.find("#calendar").datepicker({ todayHighlight:true });
 		return box1;
@@ -177,32 +177,34 @@
 	
 	function visitor_maps(){
 		var col = [], row = [];
-		var box1 = BSHelper.Box({ type:"info", cls:"bg-light-blue-gradient", header:true, title:"Visitor Maps", toolbtn:['min','rem'] });
-		box1.find('.box-header h3').before($('<i class="fa fa-map-marker"></i>'));
+		var box1 = BSHelper.Box({ type:"info", cls:"bg-light-blue-gradient", header:true, title:"Visitor Maps", icon:"fa fa-map-marker", toolbtn:['min','rem'] });
 		box1.find('.box-body').append($('<div id="world-map" style="height: 250px; width: 100%;"> </div>'));
 		return box1;
 	}
 	
-	{* var conhead = $('.content-header'); *}
-	{* var info_list = $('<ul id="info_marquee" class="info-marquee marquee" />'); *}
-	{* $.ajax({ url: InfoLst_url, method: "GET", async: true, dataType: 'json', *}
-		{* success: function(data) { *}
-			{* $.each(data.data.rows, function(k, v){ *}
-				{* if (v.description) { *}
-					{* $('<li />').html(v.description).appendTo(info_list); *}
-					{* conhead.prepend(info_list); *}
-					{* $('#info_marquee').marquee({ yScroll: "bottom" }); *}
-				{* } *}
-			{* }); *}
-		{* }, *}
-		{* error: function(data) { *}
-			{* if (data.status==500){ *}
-				{* var message = data.statusText; *}
-			{* } else { *}
-				{* var error = JSON.parse(data.responseText); *}
-				{* var message = error.message; *}
-			{* } *}
-			{* console.log('[Error: info_list]: '+message); *}
-		{* } *}
-	{* }); *}
+	$.ajax({ url: "{$.const.X_INFO_LNK}?valid=1", method: "GET", async: true, dataType: 'json',
+		success: function(result) {
+			if (! isempty_arr(result.data.rows)) {
+				var info_list = $('<ul id="info_marquee" class="info-marquee marquee" />');
+				var info = [];
+				$.each(result.data.rows, function(k, v){
+					if (v.description) {
+						console.log(v.description);
+						info_list.append($('<li />').html(v.description));
+					}
+				});
+				$(".content-header").before(info_list);
+				$("#info_marquee").marquee({ yScroll: "bottom" });
+			}
+		},
+		error: function(data) {
+			if (data.status==500){
+				var message = data.statusText;
+			} else {
+				var error = JSON.parse(data.responseText);
+				var message = error.message;
+			}
+			console.log('[Error: info_list]: '+message);
+		}
+	});
 </script>

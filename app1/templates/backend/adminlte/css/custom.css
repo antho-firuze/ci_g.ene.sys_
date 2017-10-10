@@ -39,6 +39,7 @@ input[type="checkbox"],
     border: 1px solid transparent \0;
     border-radius: 1px;
 		-webkit-appearance: none;
+		vertical-align: top;
 }
 input[type="radio"]:focus,
 .radio input[type="radio"]:focus,
