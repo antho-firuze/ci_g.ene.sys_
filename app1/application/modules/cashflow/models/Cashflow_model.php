@@ -1393,7 +1393,7 @@ class Cashflow_Model extends CI_Model
 			select *, (select id as cashbank_line_id from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id ) from cf_invoice f1 where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 			is_active='1' and is_deleted='0' and received_plan_date <= current_date and
-			doc_type in ('1') 
+			doc_type in ('1') and doc_date is not null
 			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
 			) t1";
 		$params['table'] = translate_variable($params['table']);
@@ -1420,7 +1420,7 @@ class Cashflow_Model extends CI_Model
 		from cf_invoice f1 where  
 		client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 		is_active='1' and is_deleted='0' and payment_plan_date <= current_date and
-		doc_type in ('2','3','4') 
+		doc_type in ('2','3','4') and doc_date is not null
 		and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
 		) t1";
 		$params['table'] = translate_variable($params['table']);
@@ -1443,7 +1443,7 @@ class Cashflow_Model extends CI_Model
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 			is_active='1' and is_deleted='0' and payment_plan_date <= current_date and
-			doc_type in ('6') 
+			doc_type in ('6') and doc_date is not null
 			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
 			) t1";
 		$params['table'] = translate_variable($params['table']);
@@ -1464,7 +1464,7 @@ class Cashflow_Model extends CI_Model
 			select *, (select id as cashbank_line_id from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id ) from cf_invoice f1 where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 			is_active='1' and is_deleted='0' and received_plan_date <= current_date and
-			doc_type in ('5') 
+			doc_type in ('5') and doc_date is not null
 			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
 			) t1";
 		$params['table'] = translate_variable($params['table']);
