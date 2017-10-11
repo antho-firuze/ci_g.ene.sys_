@@ -154,7 +154,7 @@ class Systems_Model extends CI_model
 		t1.*, 
 		(select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, 
 		(select (select coalesce(code,'') ||'_'|| name from a_org where id = f1.org_id) from a_user_org f1 where id = t1.parent_id) as parent_name,
-		(select count(user_org_id) from a_user where id = t1.user_id and user_orgtrx_id = t1.org_id) as is_default";
+		(select count(user_orgtrx_id) from a_user where id = t1.user_id and user_orgtrx_id = t1.org_id) as is_default";
 		$params['table'] 	= "a_user_org as t1";
 		return $this->base_model->mget_rec($params);
 	}
@@ -166,7 +166,7 @@ class Systems_Model extends CI_model
 		t1.*, 
 		(select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, 
 		(select (select coalesce(code,'') ||'_'|| name from a_org where id = f1.org_id) from a_user_org f1 where id = t1.parent_id) as parent_name,
-		(select count(user_org_id) from a_user where id = t1.user_id and user_orgdept_id = t1.org_id) as is_default";
+		(select count(user_orgdept_id) from a_user where id = t1.user_id and user_orgdept_id = t1.org_id) as is_default";
 		$params['table'] 	= "a_user_org as t1";
 		return $this->base_model->mget_rec($params);
 	}
@@ -178,25 +178,10 @@ class Systems_Model extends CI_model
 		t1.*, 
 		(select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, 
 		(select (select coalesce(code,'') ||'_'|| name from a_org where id = f1.org_id) from a_user_org f1 where id = t1.parent_id) as parent_name,
-		(select count(user_org_id) from a_user where id = t1.user_id and user_orgdiv_id = t1.org_id) as is_default";
+		(select count(user_orgdiv_id) from a_user where id = t1.user_id and user_orgdiv_id = t1.org_id) as is_default";
 		$params['table'] 	= "a_user_org as t1";
 		return $this->base_model->mget_rec($params);
 	}
-	
-	/* function a_user_orgtrx($params)
-	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "
-		(select (select name from a_org f2 where f2.id = f1.org_id) from a_user_org f1 where f1.id = t1.user_org_id) as user_org_name,
-		t1.id, t1.is_active, t1.org_id, (select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, (select coalesce(code,'') ||'_'|| name from a_user where id = t1.user_id) as user_name, (select coalesce(x2.code,'') ||'_'|| x2.name from a_user_org x1 inner join a_org x2 on x1.org_id = x2.id where x1.id = t1.user_org_id) as org_name";
-		$params['table'] 	= $this->c_method." as t1";
-		if (isset($params['level']) && $params['level'] == 1) {
-			$params['join'][] = ['a_org as t2', 't1.org_id = t2.id', 'left'];
-		}
-		// $params['table'] 	= $this->c_table." as t1";
-		// $params['join'][] 	= ['a_org as t2', 't1.org_id = t2.id', 'inner'];
-		// $params['where']['t2.is_deleted'] 	= '0';
-		return $this->base_model->mget_rec($params);
-	} */
 	
 	function a_user_role($params)
 	{

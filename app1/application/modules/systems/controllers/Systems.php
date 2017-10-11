@@ -791,22 +791,24 @@ class Systems extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'pre_delete'){
-				foreach(explode(',', $this->params['id']) as $id) {
-					$user_org = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $id);
-					$str = "update a_user set user_org_id = NULL where id = ".$user_org->user_id." and user_org_id = ".$user_org->org_id;
-					$this->db->query($str);
-					/* Sub orgtrx */
-					// $user_org = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'parent_id', $id);
-					// $str = "update a_user set user_orgtrx_id = NULL where id = ".$user_org->user_id." and user_orgtrx_id = ".$user_org->org_id;
-					// $this->db->query($str);
-					/* Sub orgdept */
-					// $user_org = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $id);
-					// $str = "update a_user set user_org_id = NULL where id = ".$user_org->user_id." and user_org_id = ".$user_org->org_id;
-					// $this->db->query($str);
-					/* Sub orgdiv */
-					// $user_org = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $id);
-					// $str = "update a_user set user_org_id = NULL where id = ".$user_org->user_id." and user_org_id = ".$user_org->org_id;
-					// $this->db->query($str);
+				$str = "with recursive tbl AS (
+				select id, user_id, org_id, orgtype_id from a_user_org where id in (".$this->params['id'].")
+				union all
+				select cld.id, cld.user_id, cld.org_id, cld.orgtype_id from a_user_org cld join tbl on tbl.id = cld.parent_id
+				) select id, user_id, org_id, orgtype_id from tbl";
+				if ($qry = $this->db->query($str)){
+					foreach($qry->result() as $row){
+						if ($row->orgtype_id == 2)
+							$str = "update a_user set user_org_id = NULL where id = ".$row->user_id." and user_org_id = ".$row->org_id;
+						else if ($row->orgtype_id == 3)
+							$str = "update a_user set user_orgtrx_id = NULL where id = ".$row->user_id." and user_orgtrx_id = ".$row->org_id;
+						else if ($row->orgtype_id == 4)
+							$str = "update a_user set user_orgdept_id = NULL where id = ".$row->user_id." and user_orgdept_id = ".$row->org_id;
+						else if ($row->orgtype_id == 5)
+							$str = "update a_user set user_orgdiv_id = NULL where id = ".$row->user_id." and user_orgdiv_id = ".$row->org_id;
+						
+						$this->db->query($str);
+					}
 				}
 			}
 			if ($this->params['event'] == 'post_delete'){
@@ -863,10 +865,24 @@ class Systems extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'pre_delete'){
-				foreach(explode(',', $this->params['id']) as $id) {
-					$user_org = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $id);
-					$str = "update a_user set user_orgtrx_id = NULL where id = ".$user_org->user_id." and user_orgtrx_id = ".$user_org->org_id;
-					$this->db->query($str);
+				$str = "with recursive tbl AS (
+				select id, user_id, org_id, orgtype_id from a_user_org where id in (".$this->params['id'].")
+				union all
+				select cld.id, cld.user_id, cld.org_id, cld.orgtype_id from a_user_org cld join tbl on tbl.id = cld.parent_id
+				) select id, user_id, org_id, orgtype_id from tbl";
+				if ($qry = $this->db->query($str)){
+					foreach($qry->result() as $row){
+						if ($row->orgtype_id == 2)
+							$str = "update a_user set user_org_id = NULL where id = ".$row->user_id." and user_org_id = ".$row->org_id;
+						else if ($row->orgtype_id == 3)
+							$str = "update a_user set user_orgtrx_id = NULL where id = ".$row->user_id." and user_orgtrx_id = ".$row->org_id;
+						else if ($row->orgtype_id == 4)
+							$str = "update a_user set user_orgdept_id = NULL where id = ".$row->user_id." and user_orgdept_id = ".$row->org_id;
+						else if ($row->orgtype_id == 5)
+							$str = "update a_user set user_orgdiv_id = NULL where id = ".$row->user_id." and user_orgdiv_id = ".$row->org_id;
+						
+						$this->db->query($str);
+					}
 				}
 			}
 			if ($this->params['event'] == 'post_delete'){
@@ -902,7 +918,7 @@ class Systems extends Getmeb
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
-				$result = $this->updateRecord('a_user', ['user_orgtrx_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
+				$result = $this->updateRecord('a_user', ['user_orgdept_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
 				
 				/* Throwing the result to Ajax */
 				if (! $result)
@@ -919,10 +935,24 @@ class Systems extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'pre_delete'){
-				foreach(explode(',', $this->params['id']) as $id) {
-					$user_org = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $id);
-					$str = "update a_user set user_orgdept_id = NULL where id = ".$user_org->user_id." and user_orgdept_id = ".$user_org->org_id;
-					$this->db->query($str);
+				$str = "with recursive tbl AS (
+				select id, user_id, org_id, orgtype_id from a_user_org where id in (".$this->params['id'].")
+				union all
+				select cld.id, cld.user_id, cld.org_id, cld.orgtype_id from a_user_org cld join tbl on tbl.id = cld.parent_id
+				) select id, user_id, org_id, orgtype_id from tbl";
+				if ($qry = $this->db->query($str)){
+					foreach($qry->result() as $row){
+						if ($row->orgtype_id == 2)
+							$str = "update a_user set user_org_id = NULL where id = ".$row->user_id." and user_org_id = ".$row->org_id;
+						else if ($row->orgtype_id == 3)
+							$str = "update a_user set user_orgtrx_id = NULL where id = ".$row->user_id." and user_orgtrx_id = ".$row->org_id;
+						else if ($row->orgtype_id == 4)
+							$str = "update a_user set user_orgdept_id = NULL where id = ".$row->user_id." and user_orgdept_id = ".$row->org_id;
+						else if ($row->orgtype_id == 5)
+							$str = "update a_user set user_orgdiv_id = NULL where id = ".$row->user_id." and user_orgdiv_id = ".$row->org_id;
+						
+						$this->db->query($str);
+					}
 				}
 			}
 			if ($this->params['event'] == 'post_delete'){
@@ -958,7 +988,7 @@ class Systems extends Getmeb
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
-				$result = $this->updateRecord('a_user', ['user_orgtrx_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
+				$result = $this->updateRecord('a_user', ['user_orgdiv_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
 				
 				/* Throwing the result to Ajax */
 				if (! $result)
@@ -975,10 +1005,24 @@ class Systems extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'pre_delete'){
-				foreach(explode(',', $this->params['id']) as $id) {
-					$user_org = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $id);
-					$str = "update a_user set user_orgdiv_id = NULL where id = ".$user_org->user_id." and user_orgdiv_id = ".$user_org->org_id;
-					$this->db->query($str);
+				$str = "with recursive tbl AS (
+				select id, user_id, org_id, orgtype_id from a_user_org where id in (".$this->params['id'].")
+				union all
+				select cld.id, cld.user_id, cld.org_id, cld.orgtype_id from a_user_org cld join tbl on tbl.id = cld.parent_id
+				) select id, user_id, org_id, orgtype_id from tbl";
+				if ($qry = $this->db->query($str)){
+					foreach($qry->result() as $row){
+						if ($row->orgtype_id == 2)
+							$str = "update a_user set user_org_id = NULL where id = ".$row->user_id." and user_org_id = ".$row->org_id;
+						else if ($row->orgtype_id == 3)
+							$str = "update a_user set user_orgtrx_id = NULL where id = ".$row->user_id." and user_orgtrx_id = ".$row->org_id;
+						else if ($row->orgtype_id == 4)
+							$str = "update a_user set user_orgdept_id = NULL where id = ".$row->user_id." and user_orgdept_id = ".$row->org_id;
+						else if ($row->orgtype_id == 5)
+							$str = "update a_user set user_orgdiv_id = NULL where id = ".$row->user_id." and user_orgdiv_id = ".$row->org_id;
+						
+						$this->db->query($str);
+					}
 				}
 			}
 		}
