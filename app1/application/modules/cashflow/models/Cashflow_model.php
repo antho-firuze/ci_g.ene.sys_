@@ -1584,7 +1584,7 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.received_date, '".$this->session->date_format."') as received_date";
 		$params['table'] = "(
 			select * from cf_movement where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_to_id in {orgtrx} and 
 			is_active = '1' and is_deleted = '0' and received_date is null 
 		) t1";
 		$params['table'] = translate_variable($params['table']);
