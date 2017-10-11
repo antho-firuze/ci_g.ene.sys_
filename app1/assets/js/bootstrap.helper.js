@@ -380,19 +380,6 @@
 		container.find('.control-input').append(input).append(help);
 		
 		if (o.url) input.attr('url',o.url);
-		/* if (o.url) {
-			$.getJSON(o.url, {}, function(result){ 
-				if (!isempty_obj(result.data.rows)) { 
-					$.each(result.data.rows, function(i, item) {
-						input.append('<option value="' + item.id + '">' + item.code_name + '</option>');
-          });
-					input.multiselect({
-							includeSelectAllOption: true,
-							enableFiltering: true
-					});
-				}
-			});
-		} */
 		return container;
 	};
 	
@@ -459,7 +446,7 @@
 				break;
 			case 'textarea':
 				input.attr('placeholder',(o.placeholder) ? o.placeholder : 'string(2000)');
-				input.attr('height',(o.height ? o.height : 300));
+				if (o.rows) input.attr('rows', o.rows);
 				break;
 			case 'time':
 			case 'datetime':
@@ -721,7 +708,7 @@
 		idname: BSHelper.newGuid(),
 		placeholder: "",
 		help: "",
-		rows: 1,
+		rows: 3,
 		required: false,
 		disabled: false,
 		readonly: false,

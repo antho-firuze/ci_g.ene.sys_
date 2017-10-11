@@ -37,7 +37,7 @@
 	var box1 = BSHelper.Box({ type:"info" });
 	col.push(BSHelper.Input({ type:"hidden", idname:"fdate", }));
 	col.push(BSHelper.Input({ type:"hidden", idname:"tdate", }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Choose your dataset", idname:"dataset_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_customer='1'", remote: true, required: false, }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Choose your dataset", label_link:"{$.const.PAGE_LNK}?pageid=229", idname:"dataset_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_customer='1'", remote: true, required: false, }));
 	col.push(BSHelper.Button({ type:"button", label:'<i class="fa fa-calendar"></i>&nbsp;<span>Date range picker</span> &nbsp;&nbsp;<i class="fa fa-caret-down"></i>', cls:"btn-danger", idname: "btn_cal", }));
 	row.push(subCol(12, col)); col = [];
 	form1.append(subRow(row));
@@ -135,4 +135,4 @@
 		return false;
 	});
 </script>
-{* <script src="{$.const.ASSET_URL}js/report.js"></script> *}
+<script src="{$.const.ASSET_URL}js/report.js"></script>

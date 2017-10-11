@@ -225,6 +225,13 @@ class Systems_Model extends CI_model
 		return $this->base_model->mget_rec($params);
 	}
 	
+	function a_user_dataset($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
+		$params['table'] 	= $this->c_table." as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
 	function a_user_recent($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
@@ -439,6 +446,13 @@ class Systems_Model extends CI_model
 	}
 	
 	function a_dashboard($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params['table'] 	= $this->c_table." as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function a_dataset($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
 		$params['table'] 	= $this->c_table." as t1";

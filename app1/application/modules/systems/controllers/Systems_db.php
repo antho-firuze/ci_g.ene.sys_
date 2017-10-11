@@ -179,7 +179,38 @@ class Systems_db extends CI_Controller {
 		return $fields;
 	}
 	
+	/* NOT IN USED, MERGED INTO [a_menu] */
+	function table_a_form()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['help'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['path'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['class'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['method'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['table'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		return $fields;
+	}
+	
+	/* NOT IN USED, MERGED INTO [a_menu] */
 	function table_a_process()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['help'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['path'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['class'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['method'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['table'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		return $fields;
+	}
+	
+	/* NOT IN USED, MERGED INTO [a_menu] */
+	function table_a_window()
 	{
 		$fields = $this->field_00_Main();
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
@@ -474,6 +505,16 @@ class Systems_db extends CI_Controller {
 		$fields = $this->field_00_Main();
 		$fields['user_id'] 		= ['type' => 'INT', 'constraint' => '32', 'default' => 0];
 		$fields['role_id'] 	= ['type' => 'INT', 'constraint' => '32', 'default' => 0];
+		return $fields;
+	}
+	
+	function table_a_user_dataset()
+	{
+		$fields = $this->field_00_Main();
+		$fields['user_id'] 		= ['type' => 'INT', 'constraint' => '32', 'default' => 0];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['query'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
 	

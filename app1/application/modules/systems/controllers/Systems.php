@@ -790,6 +790,25 @@ class Systems extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'pre_delete'){
+				foreach(explode(',', $this->params['id']) as $id) {
+					$user_org = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $id);
+					$str = "update a_user set user_org_id = NULL where id = ".$user_org->user_id." and user_org_id = ".$user_org->org_id;
+					$this->db->query($str);
+					/* Sub orgtrx */
+					// $user_org = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'parent_id', $id);
+					// $str = "update a_user set user_orgtrx_id = NULL where id = ".$user_org->user_id." and user_orgtrx_id = ".$user_org->org_id;
+					// $this->db->query($str);
+					/* Sub orgdept */
+					// $user_org = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $id);
+					// $str = "update a_user set user_org_id = NULL where id = ".$user_org->user_id." and user_org_id = ".$user_org->org_id;
+					// $this->db->query($str);
+					/* Sub orgdiv */
+					// $user_org = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $id);
+					// $str = "update a_user set user_org_id = NULL where id = ".$user_org->user_id." and user_org_id = ".$user_org->org_id;
+					// $this->db->query($str);
+				}
+			}
 			if ($this->params['event'] == 'post_delete'){
 				$str = "with recursive tbl AS (
 				select id from a_user_org where id in (".$this->params['id'].")
@@ -843,6 +862,13 @@ class Systems extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'pre_delete'){
+				foreach(explode(',', $this->params['id']) as $id) {
+					$user_org = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $id);
+					$str = "update a_user set user_orgtrx_id = NULL where id = ".$user_org->user_id." and user_orgtrx_id = ".$user_org->org_id;
+					$this->db->query($str);
+				}
+			}
 			if ($this->params['event'] == 'post_delete'){
 				$str = "with recursive tbl AS (
 				select id from a_user_org where id in (".$this->params['id'].")
@@ -892,6 +918,13 @@ class Systems extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'pre_delete'){
+				foreach(explode(',', $this->params['id']) as $id) {
+					$user_org = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $id);
+					$str = "update a_user set user_orgdept_id = NULL where id = ".$user_org->user_id." and user_orgdept_id = ".$user_org->org_id;
+					$this->db->query($str);
+				}
+			}
 			if ($this->params['event'] == 'post_delete'){
 				$str = "with recursive tbl AS (
 				select id from a_user_org where id in (".$this->params['id'].")
@@ -940,6 +973,15 @@ class Systems extends Getmeb
 				$this->mixed_data['parent_org_id'] = $this->base_model->getValue('org_id', 'a_user_org', 'id', $this->params->parent_id)->org_id;
 			}
 		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'pre_delete'){
+				foreach(explode(',', $this->params['id']) as $id) {
+					$user_org = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $id);
+					$str = "update a_user set user_orgdiv_id = NULL where id = ".$user_org->user_id." and user_orgdiv_id = ".$user_org->org_id;
+					$this->db->query($str);
+				}
+			}
+		}
 	}
 	
 	function a_user_role()
@@ -968,6 +1010,15 @@ class Systems extends Getmeb
 					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
 
 				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			if ($this->params['event'] == 'pre_delete'){
+				foreach(explode(',', $this->params['id']) as $id) {
+					$user_role = $this->base_model->getValue('user_id, role_id', 'a_user_role', 'id', $id);
+					$str = "update a_user set user_role_id = NULL where id = ".$user_role->user_id." and user_role_id = ".$user_role->role_id;
+					$this->db->query($str);
+				}
 			}
 		}
 	}
@@ -1052,6 +1103,23 @@ class Systems extends Getmeb
 				$this->xresponse(FALSE, ['message' => $result]);
 			} else {
 				$this->xresponse(TRUE);
+			}
+		}
+	}
+	
+	function a_user_dataset()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, FALSE);
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -1363,6 +1431,23 @@ class Systems extends Getmeb
 						$this->xresponse(TRUE, ['message' => $this->messages()]);
 					}
 				}
+			}
+		}
+	}
+	
+	function a_dataset()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, FALSE);
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
 			}
 		}
 	}
