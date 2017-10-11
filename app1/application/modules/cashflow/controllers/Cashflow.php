@@ -1329,6 +1329,12 @@ class Cashflow extends Getmeb
 			if (isset($this->params['for_inbound']) && !empty($this->params['for_inbound'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
 					$this->params['where_custom'] = "received_date is null";
+					$this->params['where_in']['t1.orgtrx_to_id'] = $this->_get_orgtrx();
+					if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+						$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+					} else {
+						$this->xresponse(TRUE, $result);
+					}
 				}
 			}
 			
