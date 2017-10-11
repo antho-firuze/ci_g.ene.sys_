@@ -4157,7 +4157,6 @@ class Cashflow extends Getmeb
 			]);
 			
 			// $this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
