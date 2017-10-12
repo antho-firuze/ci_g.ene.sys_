@@ -25,15 +25,15 @@ $scheduler->call(function () {
 ;
 
 /* For update IP PUBLIC */
-$scheduler->call(function () {
-	$bin = 'd:/nginx/php/php.exe';
-	$script = 'd:/htdocs/ci/app1/index.php z_libs/shared/cron_update_ip_public';
-	$params = '';
+// $scheduler->call(function () {
+	// $bin = 'd:/nginx/php/php.exe';
+	// $script = 'd:/htdocs/ci/app1/index.php z_libs/shared/cron_update_ip_public';
+	// $params = '';
 	
-	passthru("$bin $script $params");
-})
-	->at('*/5 * * * *')
-;
+	// passthru("$bin $script $params");
+// })
+	// ->at('*/5 * * * *')
+// ;
 
 /* For rotate nginx logs “At 19:00.” */
 $scheduler->call(function () { 
