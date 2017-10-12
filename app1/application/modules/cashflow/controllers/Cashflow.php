@@ -1330,6 +1330,7 @@ class Cashflow extends Getmeb
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
 					$this->params['where_custom'] = "received_date is null";
 					$this->params['where_in']['t1.orgtrx_to_id'] = $this->_get_orgtrx();
+					$this->params['level'] = 1;
 					if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 						$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 					} else {
@@ -3503,33 +3504,35 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'OPTIONS') {
 			/* Validation */
 			// debug($this->params);
-			if (empty($this->params->fdate) && empty($this->params->tdate))
-				$this->xresponse(FALSE, ['message' => lang('error_filling_params')],401);
+			// if (empty($this->params->fdate) && empty($this->params->tdate))
+				// $this->xresponse(FALSE, ['message' => lang('error_filling_params')],401);
 			
-			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
+			// if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
 				// if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
 					// $this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
-				$fdate = $this->params->fdate;
-				$tdate = $this->params->tdate;
-			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
-				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
-					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
+				// $fdate = $this->params->fdate;
+				// $tdate = $this->params->tdate;
+			// } else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
+				// if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
+					// $this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
-				$fdate = $this->params->fdate;
-				$tdate = date('Y-m-d');
-			}
-				
+				// $fdate = $this->params->fdate;
+				// $tdate = date('Y-m-d');
+			// }
+			$str = $this->base_model->getValue('query', 'a_user_dataset', 'id', $this->params->user_dataset_id)->query;
 			/* Re-quering Data */
-			$str = "select doc_no, doc_ref_no, 
-			doc_date, extract(year from doc_date) as doc_date_yy, extract(month from doc_date) as doc_date_mm, 
-			expected_dt_cust, extract(year from expected_dt_cust) as expected_dt_cust_yy, extract(month from expected_dt_cust) as expected_dt_cust_mm, 
-			etd, extract(year from etd) as etd_yy, extract(month from etd) as etd_mm, 
-			grand_total, description, 
-			(select name as orgtrx_name from a_org where id = t1.orgtrx_id),
-			(select name as bpartner_name from c_bpartner where id = t1.bpartner_id) 
-			from cf_order t1
-			where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between '".$fdate."' and '".$tdate."'";
+			// $str = "select doc_no, doc_ref_no, 
+			// doc_date, extract(year from doc_date) as doc_date_yy, extract(month from doc_date) as doc_date_mm, 
+			// expected_dt_cust, extract(year from expected_dt_cust) as expected_dt_cust_yy, extract(month from expected_dt_cust) as expected_dt_cust_mm, 
+			// etd, extract(year from etd) as etd_yy, extract(month from etd) as etd_mm, 
+			// grand_total, description, 
+			// (select name as orgtrx_name from a_org where id = t1.orgtrx_id),
+			// (select name as bpartner_name from c_bpartner where id = t1.bpartner_id) 
+			// from cf_order t1
+			// where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between '".$fdate."' and '".$tdate."'";
+			// debug($str);
+			$str .= " and is_active = '1' and is_deleted = '0' and client_id = ".$this->session->client_id;
 			// debug($str);
 			if (! $qry = $this->db->query($str)){
 				$this->xresponse(FALSE, ['message' => $this->db->error()['message']]);
