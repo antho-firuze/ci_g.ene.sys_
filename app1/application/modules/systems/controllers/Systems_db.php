@@ -356,7 +356,7 @@ class Systems_db extends CI_Controller {
 		return $fields;
 	}
 	
-	function table_a_access_log()
+	function table_a_access_logxxxxx()
 	{
 		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
 		$fields['created_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];

@@ -1154,8 +1154,9 @@ class Systems extends Getmeb
 	function a_user_dataset()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, FALSE);
+			$this->_get_filtered(TRUE, TRUE);
 			
+			$this->params['where']['user_id'] = $this->session->user_id;
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
@@ -1164,6 +1165,11 @@ class Systems extends Getmeb
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			if ($this->params->event == 'pre_post_put'){
+				$this->mixed_data['user_id'] = $this->session->user_id;
 			}
 		}
 	}

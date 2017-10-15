@@ -35,13 +35,12 @@
 	var col = [], row = [], a = [];
 	var form1 = BSHelper.Form({ autocomplete:"off" });
 	var box1 = BSHelper.Box({ type:"info" });
-	col.push(BSHelper.Input({ type:"hidden", idname:"fdate", }));
-	col.push(BSHelper.Input({ type:"hidden", idname:"tdate", }));
-	col.push(BSHelper.Combobox({ horz:false, label:"Choose your dataset", label_link:"{$.const.PAGE_LNK}?pageid=229", idname:"dataset_id", url:"{$.php.base_url('bpm/c_bpartner')}?filter=is_customer='1'", remote: true, required: false, }));
-	col.push(BSHelper.Button({ type:"button", label:'<i class="fa fa-calendar"></i>&nbsp;<span>Date range picker</span> &nbsp;&nbsp;<i class="fa fa-caret-down"></i>', cls:"btn-danger", idname: "btn_cal", }));
+	{* col.push(BSHelper.Input({ type:"hidden", idname:"fdate", })); *}
+	{* col.push(BSHelper.Input({ type:"hidden", idname:"tdate", })); *}
+	col.push(BSHelper.Combobox({ horz:false, label:"Choose your dataset", label_link:"{$.const.PAGE_LNK}?pageid=229", idname:"user_dataset_id", url:"{$.php.base_url('systems/a_user_dataset')}", remote: true, required: true, }));
+	{* col.push(BSHelper.Button({ type:"button", label:'<i class="fa fa-calendar"></i>&nbsp;<span>Date range picker</span> &nbsp;&nbsp;<i class="fa fa-caret-down"></i>', cls:"btn-danger", idname: "btn_cal", })); *}
 	row.push(subCol(12, col)); col = [];
 	form1.append(subRow(row));
-	form1.append(subRow(subCol()));
 	col = [];
 	col.push( BSHelper.Button({ type:"submit", label:"Submit", idname:"submit_btn" }) );
 	col.push( '&nbsp;&nbsp;&nbsp;' );
@@ -57,10 +56,10 @@
 	$(".content").append(boxPivot);	
 	
 	{* INITILIZATION *}
-	var start = moment().subtract(29, 'days');
-	var end = moment();
+	{* var start = moment().subtract(29, 'days'); *}
+	{* var end = moment(); *}
 	{* //Date range as a button *}
-	$('#btn_cal').daterangepicker(
+	{* $('#btn_cal').daterangepicker(
 			{
 				ranges: {
 					'Today': [moment(), moment()],
@@ -74,16 +73,15 @@
 				endDate: moment()
 			},
 			function (start, end) {
-				{* console.log(start.format('YYYY-MM-DD') + ' - ' + end.format('MMMM D, YYYY')); *}
 				$('#btn_cal span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
 				$("#fdate").val(start.format('YYYY-MM-DD'));
 				$("#tdate").val(end.format('YYYY-MM-DD'));
 			}
-	);
+	); *}
 	
-	$('#btn_cal span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-	$("#fdate").val(start.format('YYYY-MM-DD'));
-	$("#tdate").val(end.format('YYYY-MM-DD'));
+	{* $('#btn_cal span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY')); *}
+	{* $("#fdate").val(start.format('YYYY-MM-DD')); *}
+	{* $("#tdate").val(end.format('YYYY-MM-DD')); *}
 
 	form1.validator().on('submit', function(e) {
 		if (e.isDefaultPrevented()) { return false;	} 

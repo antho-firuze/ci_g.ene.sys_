@@ -39,6 +39,7 @@
 	box1.find('.box-body').append(form1);
 	$(".content").append(box1);
 
+	{* INITILIZATION *}
 	$("#btn_load").click(function(){
 		var col = [], row = [];
 		var form1 = BSHelper.Form({ autocomplete:"off" });
@@ -64,5 +65,6 @@
 			}],
 		});
 	});
+	
 </script>
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>

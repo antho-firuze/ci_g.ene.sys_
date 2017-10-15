@@ -104,7 +104,7 @@
 				}
 			},
 			error: function(result) {
-				if (result.status==500){
+				if (result.status >= 500){
 					var message = result.statusText;
 				} else {
 					var error = JSON.parse(result.responseText);
