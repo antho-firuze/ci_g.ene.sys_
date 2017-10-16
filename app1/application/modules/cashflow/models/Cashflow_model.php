@@ -1190,23 +1190,10 @@ class Cashflow_Model extends CI_Model
 		t1.*, 
 		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date";
 		$params['table'] 	= "(
-			select * from cf_invoice t1 
+			select * from cf_ar_ap t1 
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '1' and ar_ap_plan_id is not null and extract(month from doc_date) = extract(month from current_date) and 
-			adj_amount <> 0 and doc_date = (select doc_date from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and id = t1.ar_ap_plan_id)
-			union all
-			select * from cf_invoice t1 
-			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '1' and ar_ap_plan_id is not null and extract(month from doc_date) = extract(month from current_date) and 
-			adj_amount = 0 and doc_date > (select doc_date from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and id = t1.ar_ap_plan_id)
-			union all
-			select * from cf_invoice t1 
-			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '1' and ar_ap_plan_id is not null and extract(month from doc_date) = extract(month from current_date) and 
-			adj_amount <> 0 and doc_date > (select doc_date from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and id = t1.ar_ap_plan_id)
+			is_active = '1' and is_deleted = '0' and is_receipt = '1' and grand_total = 0
 			) t1";
 
 		$params['table'] = translate_variable($params['table']);
@@ -1221,23 +1208,10 @@ class Cashflow_Model extends CI_Model
 		t1.*, 
 		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date";
 		$params['table'] 	= "(
-			select * from cf_invoice t1 
+			select * from cf_ar_ap t1 
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and ar_ap_plan_id is not null and extract(month from doc_date) = extract(month from current_date) and 
-			adj_amount <> 0 and doc_date = (select doc_date from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and id = t1.ar_ap_plan_id)
-			union all
-			select * from cf_invoice t1 
-			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and ar_ap_plan_id is not null and extract(month from doc_date) = extract(month from current_date) and 
-			adj_amount = 0 and doc_date > (select doc_date from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and id = t1.ar_ap_plan_id)
-			union all
-			select * from cf_invoice t1 
-			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and ar_ap_plan_id is not null and extract(month from doc_date) = extract(month from current_date) and 
-			adj_amount <> 0 and doc_date > (select doc_date from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and id = t1.ar_ap_plan_id)
+			is_active = '1' and is_deleted = '0' and is_receipt = '0' and grand_total = 0
 			) t1";
 
 		$params['table'] = translate_variable($params['table']);
