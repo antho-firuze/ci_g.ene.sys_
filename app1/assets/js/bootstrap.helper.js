@@ -251,8 +251,57 @@
 	};
 	
 	/* 
-	*	BSHelper.Tabs({dataList:[ title:"", idname:"", content:"" ]}); 
-	*	BSHelper.Tabs({dataList:[ title:"", idname:"", content:function(){ return ""; } ]}); 
+	*	BSHelper.Stacked({ title:"", dataList:[{ title:"",  :"" }, { title:"", link:"" }] }); 
+	*					 
+	*/
+	BSHelper.Stacked = function(options){
+		var default_opts = {
+			cls: '',
+			bc_list: [],	// [{icon:"", title:"", link:""}, {icon:"", title:"", link:""}]
+		}
+		var o = $.extend( {}, default_opts, options );
+		var container = $('<div class="stacked" />');
+		container.append('<ul class="nav nav-pills nav-stacked" />');
+		if (o.title)
+			container.find('ul').append( $('<li class="header">'+o.title+'</li>') );
+		
+		$.each(o.dataList, function(i) {
+			var link = o.dataList[i]['link'];
+			var title = o.dataList[i]['title'];
+			var content = o.dataList[i]['content'];
+			container.find('ul').append( $('<li><a href="javascript:void(0);">'+title+'</a></li>') );
+		});
+		
+		return container;
+	};
+	
+	/* 
+	*	BSHelper.Pills({ title:"", dataList:[{ title:"", value:"" }, { title:"", value:"" }] }); 
+	*					 
+	*/
+	BSHelper.Pills = function(options){
+		var default_opts = {
+			cls: '',
+			bc_list: [],	// [{icon:"", title:"", link:""}, {icon:"", title:"", link:""}]
+		}
+		var o = $.extend( {}, default_opts, options );
+		var container = $('<div class="stacked" />');
+		container.append('<ul class="nav nav-pills nav-stacked" />');
+		if (o.title)
+			container.find('ul').append( $('<li class="header">'+o.title+'</li>') );
+		
+		$.each(o.dataList, function(i) {
+			var title = o.dataList[i]['title'];
+			var value = o.dataList[i]['value'];
+			container.find('ul').append( $('<li><a href="javascript:void(0);">'+title+' <span class="pull-right text-green">'+value+'</span></a></li>') );
+		});
+		
+		return container;
+	};
+	
+	/* 
+	*	BSHelper.SmartWizard({dataList:[ title:"", idname:"", content:"" ]}); 
+	*	BSHelper.SmartWizard({dataList:[ title:"", idname:"", content:function(){ return ""; } ]}); 
 	*					 
 	*/
 	BSHelper.SmartWizard = function(options){

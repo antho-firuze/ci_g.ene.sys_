@@ -37,26 +37,25 @@
 	{* End :: Init for Title, Breadcrumb *}
 	
 	{* For design form interface *}
-	var col = [], row = [];
-	var form1 = BSHelper.Form({ autocomplete:"off" });
-	var boxFilter = BSHelper.Box({ type:"info", });
-	var box1 = BSHelper.Box({ type:"info", header: true, title: "Server Hit Access" });
-
-	var boxFilter = BSHelper.Box();
-	col.push(BSHelper.Button({ type:"button", label:'<i class="fa fa-calendar"></i>&nbsp;<span>Date range picker</span> &nbsp;&nbsp;<i class="fa fa-caret-down"></i>', cls:"btn-danger", idname: "btn_cal", }));
-	boxFilter.find('.box-body').append(subRow(subCol(6, col)));
-	$(".content").append(boxFilter);	
-
-	
 	col = [], row = [];
+	var form1 = BSHelper.Form({ autocomplete:"off" });
 	col.push(BSHelper.Input({ type:"hidden", idname:"fdate", }));
 	col.push(BSHelper.Input({ type:"hidden", idname:"tdate", }));
 	col.push(BSHelper.Input({ type:"hidden", idname:"step", }));
 	form1.append(subRow(subCol(6, col)));
 	$(".content").append(form1);	
 
+	{* Filter *}
 	col = [], row = [];
-	box1.find('.box-header').append($('<div class="box-tools pull-right" />').append(BSHelper.GroupButton( { cls:"btn-step", list:[{ id: "btn1", title: "Hourly", text: "H" }, { id: "btn2", title: "Daily", text: "D", active: true }, { id: "btn3", title: "Weekly", text: "W" }, { id: "btn4", title: "Monthly", text: "M" }, ]} )) );
+	var boxFilter = BSHelper.Box();
+	col.push(BSHelper.Button({ type:"button", label:'<i class="fa fa-calendar"></i>&nbsp;<span>Date range picker</span> &nbsp;&nbsp;<i class="fa fa-caret-down"></i>', cls:"btn-danger", idname: "btn_cal", }));
+	boxFilter.find('.box-body').append(subRow(subCol(6, col)));
+	$(".content").append(boxFilter);	
+
+	{* Main Info () *}
+	{* var col = [], row = []; *}
+	{* var box1 = BSHelper.Box({ type:"info", header: true, title: "Hit Access" }); *}
+	{* box1.find('.box-header').append($('<div class="box-tools pull-right" />').append(BSHelper.GroupButton( { cls:"btn-step", list:[{ id: "btn1", title: "Hourly", text: "H" }, { id: "btn2", title: "Daily", text: "D", active: true }, { id: "btn3", title: "Weekly", text: "W" }, { id: "btn4", title: "Monthly", text: "M" }, ]} )) ); *}
 	{* col.push($('<div class="box-tools" />').append(BSHelper.GroupButton(  *}
 		{* [ *}
 			{* { id: "btn1", title: "Hourly", text: "Hourly" },  *}
@@ -65,42 +64,87 @@
 			{* { id: "btn4", title: "Monthly", text: "Monthly" },  *}
 		{* ]  *}
 	{* ))); *}
-	col.push('<div class="chart"><canvas id="lineChart" style="height:250px"></canvas></div>');
-	row.push(subCol(12, col)); col = [];
-	col.push('<div class="description-block border-right"><span></div>');
-	row.push(subCol(6, col)); col = [];
-	box1.find('.box-body').append(subRow(row));
-	$(".content").append(box1);
+	{* col.push('<div class="chart"><canvas id="lineChart" style="height:250px"></canvas></div>'); *}
+	{* row.push(subCol(12, col)); col = []; *}
+	{* col.push('<div class="description-block border-right"><span></div>'); *}
+	{* row.push(subCol(6, col)); col = []; *}
+	{* box1.find('.box-body').append(subRow(row)); *}
+	{* $(".content").append(box1); *}
 	
+	
+	{* Server Hits *}
+	{* col = [], row = []; *}
+	{* var boxHost = BSHelper.Box({ type:"info", header: true, title: "Domain", icon: "" }); *}
+	{* col.push('<div class="chart"><canvas id="host" style="height:250px"></canvas></div>'); *}
+	{* row.push(subCol(12, col)); col = []; *}
+	{* boxHost.find('.box-body').append(subRow(row)); *}
+	
+	{* col = [], row = []; *}
+	{* var boxPlatform = BSHelper.Box({ type:"info", header: true, title: "Platform", icon: "" }); *}
+	{* col.push('<div class="chart"><canvas id="platform" style="height:250px"></canvas></div>'); *}
+	{* row.push(subCol(12, col)); col = []; *}
+	{* boxPlatform.find('.box-body').append(subRow(row)); *}
+	
+	{* col = [], row = []; *}
+	{* var boxBrowser = BSHelper.Box({ type:"info", header: true, title: "Browser Usage", icon: "" }); *}
+	{* col.push('<div class="chart"><canvas id="browser" style="height:250px"></canvas></div>'); *}
+	{* row.push(subCol(12, col)); col = []; *}
+	{* boxBrowser.find('.box-body').append(subRow(row)); *}
+	
+	{* col = [], row = []; *}
+	{* var boxScreenRes = BSHelper.Box({ type:"info", header: true, title: "Screen Resolution", icon: "" }); *}
+	{* col.push('<div class="chart"><canvas id="screen_res" style="height:250px"></canvas></div>'); *}
+	{* row.push(subCol(12, col)); col = []; *}
+	{* boxScreenRes.find('.box-body').append(subRow(row)); *}
+	
+	{* col.push(subCol(3, boxHost)); *}
+	{* col.push(subCol(3, boxPlatform)); *}
+	{* col.push(subCol(3, boxBrowser)); *}
+	{* col.push(subCol(3, boxScreenRes)); *}
+	{* $(".content").append(subRow(col)); *}
+	
+	{* col.push('BoxInfo1'); *}
+	{* row.push(subCol(12, col)); col = []; *}
+	{* boxInfo4.find('.box-body').append(subRow(row)); *}
+	
+	
+	
+	col = [], row = [], boxes = [];
+	var boxInfo0 = BSHelper.Box({ type:"info", header: true, title: "Hit Access", icon: "" });
+	boxInfo0.find('.box-header').append($('<div class="box-tools pull-right" />').append(BSHelper.GroupButton( { cls:"btn-step", list:[{ id: "btn1", title: "Hourly", text: "H" }, { id: "btn2", title: "Daily", text: "D", active: true }, { id: "btn3", title: "Weekly", text: "W" }, { id: "btn4", title: "Monthly", text: "M" }, ]} )) );
+	col.push('<div class="chart"><canvas id="lineChart" style="height:180px"></canvas></div>');
+	row.push(subCol(12, col)); col = [];
+	col.push(BSHelper.Pills({ dataList:[{ title: "Hits", value: "#" },{ title: "Create (POST)", value: "#" },{ title: "Read (GET)", value: "#" },{ title: "Modify (PUT)", value: "#" }] }));
+	row.push(subCol(3, col)); col = [];
+
+	{* boxInfo0.find('.box-body').append('<div class="chart"><canvas id="lineChart" style="height:180px"></canvas></div>'); *}
+	boxInfo0.find('.box-body').append(subRow(row));
+	boxes.push(subCol(12, boxInfo0));
+	
+	{* Sub Info (4) *}
+	{* Hosting : Domain, Request Method *}
+	{* Demographics : Country/Territory, City *}
+	{* System : Browser, Operating System, Service Provider, Screen Resolution *}
+	{* Mobile : Browser, Operating System, Service Provider, Screen Resolution *}
 	col = [], row = [];
-	var boxHost = BSHelper.Box({ type:"info", header: true, title: "Domain", icon: "" });
-	col.push('<div class="chart"><canvas id="host" style="height:250px"></canvas></div>');
-	row.push(subCol(12, col)); col = [];
-	boxHost.find('.box-body').append(subRow(row));
-	
+	var boxInfo1 = BSHelper.Box({ type:"info", });
+	col.push(BSHelper.Stacked({ title: "Hosting", dataList:[{ title: "Domain", link: "#" },{ title: "Request Method", link: "#" }] }));
+	col.push(BSHelper.Stacked({ title: "Demographics", dataList:[{ title: "Country / Territory", link: "#" },{ title: "City", link: "#" }] }));
+	col.push(BSHelper.Stacked({ title: "System", dataList:[{ title: "Browser", link: "#" },{ title: "Operationg System", link: "#" },{ title: "Service Provider", link: "#" },{ title: "Screen Resolution", link: "#" }] }));
+	col.push(BSHelper.Stacked({ title: "Mobile", dataList:[{ title: "Browser", link: "#" },{ title: "Operationg System", link: "#" },{ title: "Service Provider", link: "#" },{ title: "Screen Resolution", link: "#" }] }));
+	boxInfo1.find('.box-body').append(subRow(subCol(12, col)));
+	boxes.push(subCol(4, boxInfo1));
+	{* Sub Info (5) *}
+	{* Penjelasan dari (sub (4)) *}
 	col = [], row = [];
-	var boxPlatform = BSHelper.Box({ type:"info", header: true, title: "Platform", icon: "" });
-	col.push('<div class="chart"><canvas id="platform" style="height:250px"></canvas></div>');
-	row.push(subCol(12, col)); col = [];
-	boxPlatform.find('.box-body').append(subRow(row));
-	
+	var boxInfo2 = BSHelper.Box({ type:"info", });
+	boxes.push(subCol(5, boxInfo2));
+	{* Sub Info (3) *}
+	{* Pendukung dari (sub (5)) *}
 	col = [], row = [];
-	var boxBrowser = BSHelper.Box({ type:"info", header: true, title: "Browser Usage", icon: "" });
-	col.push('<div class="chart"><canvas id="browser" style="height:250px"></canvas></div>');
-	row.push(subCol(12, col)); col = [];
-	boxBrowser.find('.box-body').append(subRow(row));
-	
-	col = [], row = [];
-	var boxScreenRes = BSHelper.Box({ type:"info", header: true, title: "Screen Resolution", icon: "" });
-	col.push('<div class="chart"><canvas id="screen_res" style="height:250px"></canvas></div>');
-	row.push(subCol(12, col)); col = [];
-	boxScreenRes.find('.box-body').append(subRow(row));
-	
-	col.push(subCol(3, boxHost));
-	col.push(subCol(3, boxPlatform));
-	col.push(subCol(3, boxBrowser));
-	col.push(subCol(3, boxScreenRes));
-	$(".content").append(subRow(col));
+	var boxInfo3 = BSHelper.Box({ type:"info", });
+	boxes.push(subCol(3, boxInfo3));
+	$(".content").append(subRow(boxes));
 	
 	{* Initialization *}
 	var start = moment().subtract(6, 'days');
@@ -226,7 +270,7 @@
 		update_chart();
 	});
 	
-	var hitsChart = new Chart("lineChart", { type: "line",	data: dataHits, options: optHits });
+	{* var hitsChart = new Chart("lineChart", { type: "line",	data: dataHits, options: optHits }); *}
 	{* var hostChart = new Chart("host", { type: "doughnut",	data: dataHost, options: optHost }); *}
 	{* var hostPlatform = new Chart("platform", { type: "pie",	data: dataHost, options: optHost }); *}
 	
@@ -264,12 +308,14 @@
 		{* return false; *}
 		$.getJSON($url_module, form1.serializeOBJ(), function(result){ 
 			$.each(result.host, function(k, v){ console.log(k+' - '+v); });
-			hitsChart.data = result.dataHits;
-			hitsChart.update();
-			var hostChart = new Chart("host", { type: "pie",	data: result.dataHost, options: optHost });
-			var hostPlatform = new Chart("platform", { type: "pie",	data: result.dataPlatform, options: optHost });
-			var hostBrowser = new Chart("browser", { type: "pie",	data: result.dataBrowser, options: optHost });
-			var hostScreenRes = new Chart("screen_res", { type: "pie",	data: result.dataScreenRes, options: optHost });
+			{* hitsChart.data = result.dataHits; *}
+			{* hitsChart.update(); *}
+			var hitsChart = new Chart("lineChart", { type: "line",	data: result.dataHits, options: optHits });
+			{* var hostChart = new Chart("host", { type: "pie",	data: result.dataHost, options: optHost }); *}
+			{* var hostPlatform = new Chart("platform", { type: "pie",	data: result.dataPlatform, options: optHost }); *}
+			{* var hostBrowser = new Chart("browser", { type: "pie",	data: result.dataBrowser, options: optHost }); *}
+			{* var hostScreenRes = new Chart("screen_res", { type: "pie",	data: result.dataScreenRes, options: optHost }); *}
+			
 			{* hostChart.data = result.dataHost; *}
 			{* hostChart.update(); *}
 			{* if (!isempty_obj(result.data)){ *}
@@ -292,6 +338,16 @@
 			});
 		});
 	}
+	
+	$("a").each(function(e){
+		var anchor = $(this);
+		
+		anchor.on("click", function(e){
+			console.log(anchor);
+		});
+		
+	
+	});
 	
 	setTimeout(function(){
 		update_chart();
