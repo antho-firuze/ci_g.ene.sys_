@@ -2725,7 +2725,7 @@ class Cashflow extends Getmeb
 			foreach($arr as $i =>$v){
 				$str .= 
 				"(
-					select coalesce(sum(amount), 0) * (case (select is_receipt from cf_account where id = t1.account_id) when '1' then 1 else -1 end)".' as "'.$v['title'].'"' ." 
+					select coalesce(sum(net_amount), 0) * (case (select is_receipt from cf_account where id = t1.account_id) when '1' then 1 else -1 end)".' as "'.$v['title'].'"' ." 
 					from cf_invoice 
 					where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
 					is_active = '1' and is_deleted = '0' and account_id = t1.account_id
@@ -3171,6 +3171,20 @@ class Cashflow extends Getmeb
 					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
 				$str = "and t1.received_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
+				
+				// if ($this->params->period_by == 'so_date')
+					// $str = "and t2.doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
+				// if ($this->params->period_by == 'so_invoice_plan_date')
+					// $str = "and t1.doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
+				// if ($this->params->period_by == 'so_received_plan_date')
+					// $str = "and t1.received_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
+				// if ($this->params->period_by == 'invoice_date')
+					// $str = "and t3.doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
+				// if ($this->params->period_by == 'received_plan_date')
+					// $str = "and t3.received_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
+				// if ($this->params->period_by == 'actual_received_date')
+					// $str = "and exists(select 1 from cf_cashbank where id = t4.cashbank_id and doc_date between '".$this->params->fdate."' and '".$this->params->tdate."')";
+				
 			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
 					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
@@ -3304,12 +3318,12 @@ class Cashflow extends Getmeb
 				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
 					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
-				$str = "and t1.doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
+				$str = "and t2.received_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
 			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
 					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
-				$str = "and t1.doc_date >= '".$this->params->fdate."'";
+				$str = "and t2.received_plan_date >= '".$this->params->fdate."'";
 			}
 				
 			/* Re-quering Data */
@@ -3358,12 +3372,12 @@ class Cashflow extends Getmeb
 				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
 					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
-				$str = "and t1.doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
+				$str = "and t2.payment_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
 			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
 					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
-				$str = "and t1.doc_date >= '".$this->params->fdate."'";
+				$str = "and t2.payment_plan_date >= '".$this->params->fdate."'";
 			}
 				
 			/* Re-quering Data */
@@ -3539,6 +3553,84 @@ class Cashflow extends Getmeb
 				$this->xresponse(FALSE, ['message' => $this->db->error()['message']]);
 			}
 			$result['data'] = $qry->result();
+			$this->xresponse(TRUE, $result);
+		}
+	}
+	
+	function rpt_cashflow_projection_detail()
+	{
+		if ($this->r_method == 'GET') {
+			if (isset($this->params['peek_account']) && !empty($this->params['peek_account'])) {
+				$this->_get_filtered(TRUE, TRUE, []);
+				if (! $result['data'] = $this->{$this->mdl}->cf_account($this->params)){
+					$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				} else {
+					$this->xresponse(TRUE, $result);
+				}
+			}
+		}
+		if ($this->r_method == 'OPTIONS') {
+			/* Validation */
+			// debug($this->params);
+			if (empty($this->params->fdate) && empty($this->params->tdate))
+				$this->xresponse(FALSE, ['message' => lang('error_filling_params')],401);
+			
+			$str = "";
+			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
+				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
+					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
+				
+				$str .= "and (received_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."' or payment_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."')";
+			} 
+			if (!empty($this->params->account_id))
+				$str .= "and account_id = ".$this->params->account_id;
+				
+			/* Re-quering Data */
+			$str = "select 
+			(select name from a_org where id = t1.org_id) as org_name, 
+			(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+			(select name from c_bpartner where id = t1.bpartner_id) as customer_name,
+			(select name from cf_account where id = t1.account_id) as account_name,
+			case doc_type 
+			when '1' then 'Sales Order' 
+			when '2' then 'Purchase Order'
+			when '3' then 'Purchase Order Clearance'
+			when '4' then 'Purchase Order Custom Duty'
+			when '5' then 'Other Inflow'
+			when '6' then 'Other Outflow'
+			end as doc_type_name,
+			case doc_type 
+			when '1' then (select doc_no from cf_order where id = t1.order_id) 
+			when '2' then (select doc_no from cf_order where id = t1.order_id)
+			when '3' then (select doc_no from cf_order where id = t1.order_id)
+			when '4' then (select doc_no from cf_order where id = t1.order_id)
+			when '5' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
+			when '6' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
+			end as doc_type_reference,
+			doc_no as invoice_no, invoice_plan_date, doc_date as invoice_date, received_plan_date, note, description, amount, adj_amount, net_amount,
+			(select (select doc_no from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_no, 
+			(select (select doc_date from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_date
+			from cf_invoice t1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+			is_active = '1' and is_deleted = '0' ".$str;
+			$str = $this->translate_variable($str);
+			// debug($str);
+			if (! $qry = $this->db->query($str))
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->db->error()['message']], 401);;
+			
+			// $rows = $qry->result();
+			// debug($this->params);
+			/* Export the result to client */
+			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
+			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
+				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+				$this->xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
+			}
+			/* Update status on process table */
+			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+			/* Unset id_process, so can't be called again from client  */
+			// $this->session->unset_userdata('id_process');
+			$result['message'] = lang('success_import_data');
 			$this->xresponse(TRUE, $result);
 		}
 	}

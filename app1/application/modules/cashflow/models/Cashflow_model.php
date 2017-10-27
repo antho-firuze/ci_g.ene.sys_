@@ -12,7 +12,7 @@ class Cashflow_Model extends CI_Model
 	function cf_account($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_method." as t1";
+		$params['table'] 	= "cf_account as t1";
 		return $this->base_model->mget_rec($params);
 	}
 	

@@ -77,8 +77,8 @@ $hook['pre_controller'] = function()
 						'".$data['mobile']."',
 						'".$data['browser']."',
 						'".$data['browser_ver']."',
-						'".$data['width']."',
-						'".$data['height']."'
+						".$data['width'].",
+						".$data['height']."
 					);");
 					$conn = null;
 				}

@@ -26,13 +26,23 @@
 	{* col.push(BSHelper.Input({ horz:false, type:"date", label:"Period From", idname:"fdate", cls:"auto_ymd", format:"mm-yyyy", required: true })); *}
 	{* col.push(BSHelper.Input({ horz:false, type:"date", label:"Period To", idname:"tdate", cls:"auto_ymd", format:"mm-yyyy", required: true })); *}
 	{* a = []; *}
-	{* a.push(subCol(6, BSHelper.Input({ horz: true, lblsize: "col-sm-4", colsize: "col-sm-8", type:"date", label:"Date From", idname:"fdate", cls:"auto_ymd", format:"{$.session.date_format}", required: false }))); *}
-	{* a.push(subCol(6, BSHelper.Input({ horz: true, lblsize: "col-sm-4", colsize: "col-sm-8", type:"date", label:"Date To", idname:"tdate", cls:"auto_ymd", format:"{$.session.date_format}", required: false }))); *}
+	{* a.push(subCol(6, BSHelper.Input({ horz: true, lblsize: "col-sm-5", colsize: "col-sm-7", type:"date", label:"Date From", idname:"fdate", cls:"auto_ymd", format:"{$.session.date_format}", required: true }))); *}
+	{* a.push(subCol(6, BSHelper.Input({ horz: true, lblsize: "col-sm-5", colsize: "col-sm-7", type:"date", label:"Date To", idname:"tdate", cls:"auto_ymd", format:"{$.session.date_format}", required: false }))); *}
 	{* col.push(BSHelper.Label({ horz: false, label:"Period :", idname:"fperiod", required: false, elcustom:subRow(a) })); *}
-	{* col.push(BSHelper.Combobox({ horz:false, label:"SO No", cls:"order_id", label_link:"", textField:"doc_no", idname:"order_id", url:"{$.php.base_url('cashflow/rpt_cf_trace_performance_delivery')}?peek_so=1", remote: true, required: false })); *}
+	{* col.push(BSHelper.Combobox({ label:"Period by", idname:"period_by", required: true, 
+		list:[
+			{ id:"so_date", name:"Order Date (SO)" },
+			{ id:"so_invoice_plan_date", name:"Invoice Plan Date (SO)" },
+			{ id:"so_received_plan_date", name:"Received Plan Date (SO)" },
+			{ id:"invoice_date", name:"Invoice Date" },
+			{ id:"received_plan_date", name:"Received Plan Date (Invoice)" },
+			{ id:"actual_received_date", name:"Actual Received Date" },
+		] 
+	})); *}
 	a = [];
 	a.push(BSHelper.Button({ type:"button", label:'<i class="fa fa-calendar"></i>&nbsp;<span>Date range picker</span> &nbsp;&nbsp;<i class="fa fa-caret-down"></i>', cls:"btn-danger", idname: "btn_cal", }));
-	col.push(BSHelper.Label({ horz: false, label:"Period Received Plan Date", idname:"fperiod", required: false, elcustom: a }));
+	col.push(BSHelper.Label({ horz: false, label:"Period Received/Payment Plan Date", idname:"fperiod", required: false, elcustom: a }));
+	col.push(BSHelper.Combobox({ horz:false, label:"Account No", textField:"code_name", idname:"account_id", url: $url_module+"?peek_account=1", remote: true, required: false }));
 	row.push(subCol(6, col)); col = [];
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
@@ -45,8 +55,6 @@
 	box1.find('.box-body').append(form1);
 	$(".content").append(box1);
 
-	{* $("[data-mask]").inputmask(); *}
-	
 	{* INITILIZATION *}
 	var start = moment().startOf('month');
 	var end = moment().endOf('month');
