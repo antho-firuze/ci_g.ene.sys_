@@ -2726,9 +2726,10 @@ class Cashflow extends Getmeb
 				$str .= 
 				"(
 					select coalesce(sum(net_amount), 0) * (case (select is_receipt from cf_account where id = t1.account_id) when '1' then 1 else -1 end)".' as "'.$v['title'].'"' ." 
-					from cf_invoice 
+					from cf_invoice s1
 					where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
 					is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+					and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
 					and ((extract(month from received_plan_date),extract(year from received_plan_date)) = ".$v['period']." or (extract(month from payment_plan_date),extract(year from payment_plan_date)) = ".$v['period'].")
 				)";
 				$str = $this->translate_variable($str);
