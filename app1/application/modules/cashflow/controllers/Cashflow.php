@@ -3612,8 +3612,9 @@ class Cashflow extends Getmeb
 			(select (select doc_no from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_no, 
 			(select (select doc_date from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_date
 			from cf_invoice t1
-			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
-			is_active = '1' and is_deleted = '0' ".$str;
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) 
+			and is_active = '1' and is_deleted = '0' ".$str;
 			$str = $this->translate_variable($str);
 			// debug($str);
 			if (! $qry = $this->db->query($str))
