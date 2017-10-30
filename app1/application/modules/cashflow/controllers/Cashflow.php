@@ -1563,6 +1563,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			/* Checking, is data so already shipment ? */
+			if ($this->params['event'] == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$doc_no = [];
+				foreach($ids as $id){
+					$header = $this->base_model->isDataExist('cf_inout', ['order_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($header) {
+						$doc_no[] = $header->doc_no;
+					}
+				}
+				if ($doc_no){
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_so_had_shipment'), implode(',',array_unique($doc_no)))], 401);
+				}
+			}
 			if ($this->params['event'] == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
 				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
@@ -1622,6 +1636,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			/* Checking, is data line already shipment ? */
+			if ($this->params['event'] == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$doc_no = [];
+				foreach($ids as $id){
+					$line = $this->base_model->isDataExist('cf_inout_line', ['order_line_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($line) {
+						$doc_no[] = $this->base_model->getValue('doc_no', 'cf_inout', ['id','is_active','is_deleted'], [$line->inout_id,'1','0'])->doc_no;
+					}
+				}
+				if ($doc_no){
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_so_line_had_shipment'), implode(',',array_unique($doc_no)))], 401);
+				}
+			}
 			if ($this->params['event'] == 'post_delete'){
 				$this->params['is_line'] = 1;
 				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
@@ -1922,6 +1950,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			/* Checking, is data po already mr ? */
+			if ($this->params['event'] == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$doc_no = [];
+				foreach($ids as $id){
+					$header = $this->base_model->isDataExist('cf_inout', ['order_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($header) {
+						$doc_no[] = $header->doc_no;
+					}
+				}
+				if ($doc_no){
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_po_had_received'), implode(',',array_unique($doc_no)))], 401);
+				}
+			}
 			if ($this->params['event'] == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
 				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
@@ -1980,6 +2022,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			/* Checking, is data line already mr ? */
+			if ($this->params['event'] == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$doc_no = [];
+				foreach($ids as $id){
+					$line = $this->base_model->isDataExist('cf_inout_line', ['order_line_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($line) {
+						$doc_no[] = $this->base_model->getValue('doc_no', 'cf_inout', ['id','is_active','is_deleted'], [$line->inout_id,'1','0'])->doc_no;
+					}
+				}
+				if ($doc_no){
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_po_line_had_received'), implode(',',array_unique($doc_no)))], 401);
+				}
+			}
 			if ($this->params['event'] == 'post_delete'){
 				$this->params['is_line'] = 1;
 				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
