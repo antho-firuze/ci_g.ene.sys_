@@ -1530,7 +1530,7 @@ class Systems extends Getmeb
 		$this->identity_keys = ['name', 'parent_id'];
 		
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, FALSE);
+			$this->_get_filtered(TRUE, FALSE, ['method','title','title_desc']);
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
