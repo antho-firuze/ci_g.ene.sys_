@@ -237,7 +237,7 @@ class Base_Model extends CI_Model
 		$qry = $this->db->get_where($table, $where);
 		// debug($this->db->last_query());
 		return $qry->num_rows() > 0 
-			? TRUE 
+			? $qry->row() 
 			: FALSE;
 	}
 	

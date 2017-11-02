@@ -11,7 +11,8 @@
 var $q = getURLParameter("q"), 
 	$id = getURLParameter("id"), 
 	$pageid = getURLParameter("pageid"), 
-	$filter = getURLParameter("filter");
+	$filter = getURLParameter("filter"),
+	$cfilter = getURLParameter("cfilter");
 
 var origin_url = window.location.origin+window.location.pathname;
 var dataTable1;
@@ -114,7 +115,8 @@ function initDataTable()
 	$qq = $q ? '&q='+$q : '';
 	$o = $ob ? $ob : '';
 	$i = $id ? '&id='+$id : '';
-	$query = '?'+$p+$f+$qq+$o+$i;
+	$cf = $cfilter ? '&cfilter='+$cfilter : '';
+	$query = '?'+$p+$f+$qq+$o+$i+$cf;
 	// console.log(origin_url + $query);
 	// dataTable1.ajax.reload( null, false );
 	// history.pushState({}, '', origin_url + $query);

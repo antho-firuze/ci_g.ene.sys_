@@ -143,6 +143,26 @@ function format_dmy(tdate){
 	return (d<10?('0'+d):d)+'/'+(m<10?('0'+m):m)+'/'+y;
 }
 
+function unix_timestamp_format(unix_timestamp, format){
+	if(typeof(unix_timestamp)==='undefined') unix_timestamp = 0;
+	if(typeof(format)==='undefined') format = 'yyyy-mm-dd';
+	if (unix_timestamp==0)
+	{
+		var f = new Date();
+		var y = f.getFullYear();
+		var m = f.getMonth()+1;
+		var d = f.getDate();
+	}
+	else
+	{
+		var f = new Date(unix_timestamp);
+		var y = f.getFullYear();
+		var m = f.getMonth()+1;
+		var d = f.getDate();
+	}
+	return (y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d));
+}
+
 function format_ymd(tdate, format){
 	if(typeof(tdate)==='undefined') tdate = 0;
 	if(typeof(format)==='undefined') format = 'dd/mm/yyyy';

@@ -39,4 +39,8 @@ $lang['error_unpost_plan_has_payment'] 		= "Error: Cannot unposting plan, becaus
 $lang['error_delete_invoice_has_payment'] 		= "Error: Cannot delete invoice, because this invoice has Actual Payment !";
 $lang['error_update_outbound_completed'] 		= "Error: Cannot edit/delete this Outbound, because this Outbound has had an Inbound !";
 $lang['error_update_inbound_completed'] 		= "Error: Cannot edit/delete this Inbound, because this Inbound has been Completed !";
+$lang['error_so_had_shipment'] 		= "Error: Data cannot be delete, because this SO has been Shipment. <br>Plase Delete Shipment first for this Plan !<br><br>Shipment no: %s";
+$lang['error_po_had_received'] 		= "Error: Data cannot be delete, because this PO has been received. <br>Plase Delete MR first for this Plan !<br><br>MR no: %s";
+$lang['error_so_line_had_shipment'] 		= "Error: Data cannot be delete, because this SO Line has been Shipment. <br>Plase Delete Shipment first for this Plan !<br><br>Shipment no: %s";
+$lang['error_po_line_had_received'] 		= "Error: Data cannot be delete, because this PO Line has been received. <br>Plase Delete MR first for this Plan !<br><br>MR no: %s";
 /* Information: info_ */

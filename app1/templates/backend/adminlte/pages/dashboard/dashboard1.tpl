@@ -171,7 +171,24 @@
 		var col = [], row = [];
 		var box1 = BSHelper.Box({ type:"info", header:true, title:"Calendar", icon:"fa fa-calendar", toolbtn:['min','rem'] });
 		box1.find('.box-body').append($('<div id="calendar" style="width: 100%"> </div>'));
-		box1.find("#calendar").datepicker({ todayHighlight:true });
+		box1.find("#calendar").datepicker({ todayHighlight: true, format:"yyyy-mm-dd",
+			beforeShowDay: function(date){
+				{* var dateFormat = date.getUTCFullYear() + '-' + (date.getUTCMonth()+1) + '-' + date.getUTCDate(); *}
+				var dateFormat = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
+				{* console.log(dateFormat); *}
+				if (dateFormat == '2017-10-1'){
+					{* console.log(dateFormat); *}
+					return { classes: 'highlight', tooltip: 'Title' };
+				}
+			}
+		})
+			.on("changeDate", function(e){
+				console.log(e.format());
+			})
+			.on("changeMonth", function(e){
+				{* console.log(e.timeStamp); *}
+				{* console.log(unix_timestamp_format(e.timeStamp)); *}
+			});
 		return box1;
 	}
 	

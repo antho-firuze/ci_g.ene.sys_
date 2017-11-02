@@ -1896,6 +1896,32 @@ class Cashflow extends Getmeb
 				}
 			}
 			
+			if (isset($this->params['cfilter']) && !empty($this->params['cfilter'])) {
+				foreach (explode(",", $this->params['cfilter']) as $value) {
+					if ($value == 'for_uninvoiced_po') {
+						$this->params['where_custom'] = "(
+							exists (select distinct(order_id) from cf_order_plan f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = f1.id))
+							or 
+							exists (select distinct(order_id) from cf_order_plan_clearance f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_clearance_id = f1.id))
+							or
+							exists (select distinct(order_id) from cf_order_plan_import f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_import_id = f1.id))
+						)";
+					}
+					if ($value == 'for_uninvoiced_plan') {
+						$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_plan f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id 
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = f1.id))";
+					}
+					if ($value == 'for_uninvoiced_plan_clearance') {
+						$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_plan_clearance f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id 
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_clearance_id = f1.id))";
+					}
+					if ($value == 'for_uninvoiced_plan_import') {
+						$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_plan_import f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id 
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_import_id = f1.id))";
+					}
+				}
+			}
+			
 			$this->params['level'] = 1;
 			$this->params['where']['is_sotrx'] = '0';
 			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
@@ -3392,7 +3418,9 @@ class Cashflow extends Getmeb
 				(select received_plan_date as inv_received_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
 				(select (select doc_no as voucher_no from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id)),
 				(select amount as act_amount from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id)),
-				(select (select doc_date as act_payment_date from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id))
+				(select (select doc_date as act_payment_date from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id)),
+				(select name from a_user where id = t1.created_by) as created_by_name,
+				(select name from a_user where id = t1.updated_by) as updated_by_name
 				from cf_ar_ap t1
 				inner join cf_ar_ap_plan t2 on t1.id = t2.ar_ap_id
 				where t1.client_id = {client_id} and t1.org_id = {org_id} and t1.orgtrx_id in {orgtrx} and t1.is_active = '1' and t1.is_deleted = '0' and t1.is_receipt = '1' ".$str;
@@ -3446,7 +3474,9 @@ class Cashflow extends Getmeb
 				(select payment_plan_date as inv_payment_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id),
 				(select (select doc_no as voucher_no from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id)),
 				(select amount as act_amount from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id)),
-				(select (select doc_date as act_payment_date from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id))
+				(select (select doc_date as act_payment_date from cf_cashbank where id = a1.cashbank_id) from cf_cashbank_line a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_invoice where ar_ap_id = t2.ar_ap_id and ar_ap_plan_id = t2.id and id = a1.invoice_id)),
+				(select name from a_user where id = t1.created_by) as created_by_name,
+				(select name from a_user where id = t1.updated_by) as updated_by_name
 				from cf_ar_ap t1
 				inner join cf_ar_ap_plan t2 on t1.id = t2.ar_ap_id
 				where t1.client_id = {client_id} and t1.org_id = {org_id} and t1.orgtrx_id in {orgtrx} and t1.is_active = '1' and t1.is_deleted = '0' and t1.is_receipt = '0' ".$str;
@@ -3666,7 +3696,9 @@ class Cashflow extends Getmeb
 			end as doc_type_reference,
 			doc_no as invoice_no, invoice_plan_date, doc_date as invoice_date, received_plan_date, note, description, amount, adj_amount, net_amount,
 			(select (select doc_no from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_no, 
-			(select (select doc_date from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_date
+			(select (select doc_date from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_date,
+			(select name from a_user where id = t1.created_by) as created_by_name,
+			(select name from a_user where id = t1.updated_by) as updated_by_name
 			from cf_invoice t1
 			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}
 			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) 
@@ -4347,4 +4379,22 @@ class Cashflow extends Getmeb
 		}
 	}
 
+	function rpt_cf_statement_invoice()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			// $this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+	
 }
