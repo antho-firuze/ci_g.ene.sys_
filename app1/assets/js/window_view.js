@@ -110,12 +110,12 @@ function initDataTable()
 	// var url = $url_module+window.location.search+$ob;
 	
 	/* pushing url to browser address */
-	$p = $pageid ? 'pageid='+$pageid : '';
-	$f = $filter ? '&filter='+$filter : '';
-	$qq = $q ? '&q='+$q : '';
-	$o = $ob ? $ob : '';
-	$i = $id ? '&id='+$id : '';
-	$cf = $cfilter ? '&cfilter='+$cfilter : '';
+	var $p = $pageid ? 'pageid='+$pageid : '';
+	var $f = $filter ? '&filter='+$filter : '';
+	var $qq = $q ? '&q='+$q : '';
+	var $o = $ob ? $ob : '';
+	var $i = $id ? '&id='+$id : '';
+	var $cf = $cfilter ? '&cfilter='+$cfilter : '';
 	$query = '?'+$p+$f+$qq+$o+$i+$cf;
 	// console.log(origin_url + $query);
 	// dataTable1.ajax.reload( null, false );
