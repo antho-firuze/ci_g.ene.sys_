@@ -1614,45 +1614,153 @@ class Cashflow_Model extends CI_Model
 	function rpt_cf_statement_invoice($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
+		t1.account_id, (select is_receipt from cf_account where id = t1.account_id), type, seq, description, 
+		(
+			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as prev_90_after 
+			from cf_invoice s1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+			is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
+			and (received_plan_date < ('2017-11-01'::date - interval '90 day')::date or payment_plan_date < ('2017-11-01'::date - interval '90 day')::date)
+		),
+		(
+			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as prev_90 
+			from cf_invoice s1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+			is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
+			and (received_plan_date between ('2017-11-01'::date - interval '90 day')::date and ('2017-11-01'::date - interval '61 day')::date or payment_plan_date between ('2017-11-01'::date - interval '90 day')::date and ('2017-11-01'::date - interval '61 day')::date)
+		),
+		(
+			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as prev_60 
+			from cf_invoice s1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+			is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
+			and (received_plan_date between ('2017-11-01'::date - interval '60 day')::date and ('2017-11-01'::date - interval '31 day')::date or payment_plan_date between ('2017-11-01'::date - interval '60 day')::date and ('2017-11-01'::date - interval '31 day')::date)
+		),
+		(
+			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as prev_30 
+			from cf_invoice s1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+			is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
+			and (received_plan_date between ('2017-11-01'::date - interval '30 day')::date and ('2017-11-01'::date - interval '1 day')::date or payment_plan_date between ('2017-11-01'::date - interval '30 day')::date and ('2017-11-01'::date - interval '1 day')::date)
+		),
+		(
+			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as total_outstanding 
+			from cf_invoice s1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+			is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
+			and (received_plan_date < '2017-11-01' or payment_plan_date < '2017-11-01')
+		),
+		(
+			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as total_projection 
+			from cf_invoice s1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+			is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
+			and (received_plan_date >= '2017-11-01' or payment_plan_date >= '2017-11-01')
+		),
+		(
+			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as grand_total 
+			from cf_invoice s1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+			is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
+		),
+		(
+			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as today 
+			from cf_invoice s1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+			is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
+			and (received_plan_date = '2017-11-01' or payment_plan_date = '2017-11-01')
+		),
+		(
+			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as next_30 
+			from cf_invoice s1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+			is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
+			and (received_plan_date between ('2017-11-01'::date + interval '1 day')::date and ('2017-11-01'::date + interval '30 day')::date or payment_plan_date between ('2017-11-01'::date + interval '1 day')::date and ('2017-11-01'::date + interval '30 day')::date)
+		),
+		(
+			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as next_60 
+			from cf_invoice s1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+			is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
+			and (received_plan_date between ('2017-11-01'::date + interval '31 day')::date and ('2017-11-01'::date + interval '60 day')::date or payment_plan_date between ('2017-11-01'::date + interval '31 day')::date and ('2017-11-01'::date + interval '60 day')::date)
+		),
+		(
+			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as next_90 
+			from cf_invoice s1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+			is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
+			and (received_plan_date between ('2017-11-01'::date + interval '61 day')::date and ('2017-11-01'::date + interval '90 day')::date or payment_plan_date between ('2017-11-01'::date + interval '61 day')::date and ('2017-11-01'::date + interval '90 day')::date)
+		),
+		(
+			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as next_90_after 
+			from cf_invoice s1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+			is_active = '1' and is_deleted = '0' and account_id = t1.account_id
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
+			and (received_plan_date > ('2017-11-01'::date + interval '90 day')::date or payment_plan_date > ('2017-11-01'::date + interval '90 day')::date)
+		),
+		'account_id='||t1.account_id||',(received_plan_date<'''||('2017-11-01'::date - interval '90 day')::date||''' or payment_plan_date<'''||('2017-11-01'::date - interval '90 day')::date||''')' as prev_90_after_param,
+		'account_id='||t1.account_id||',(received_plan_date between '''||('2017-11-01'::date - interval '90 day')::date||''' and '''||('2017-11-01'::date - interval '61 day')::date||''' or payment_plan_date between '''||('2017-11-01'::date - interval '90 day')::date||'''  and '''||('2017-11-01'::date - interval '61 day')::date||''')' as prev_90_param,
+		'account_id='||t1.account_id||',(received_plan_date between '''||('2017-11-01'::date - interval '60 day')::date||''' and '''||('2017-11-01'::date - interval '31 day')::date||''' or payment_plan_date between '''||('2017-11-01'::date - interval '60 day')::date||'''  and '''||('2017-11-01'::date - interval '31 day')::date||''')' as prev_60_param,
+		'account_id='||t1.account_id||',(received_plan_date between '''||('2017-11-01'::date - interval '30 day')::date||''' and '''||('2017-11-01'::date - interval '1 day')::date||''' or payment_plan_date between '''||('2017-11-01'::date - interval '30 day')::date||'''  and '''||('2017-11-01'::date - interval '1 day')::date||''')' as prev_30_param,
+		'account_id='||t1.account_id||',(received_plan_date='''||'2017-11-01'::date||''' or payment_plan_date='''||'2017-11-01'::date||''')' as today_param,
+		'account_id='||t1.account_id||',(received_plan_date between '''||('2017-11-01'::date + interval '1 day')::date||''' and '''||('2017-11-01'::date + interval '30 day')::date||''' or payment_plan_date between '''||('2017-11-01'::date + interval '1 day')::date||'''  and '''||('2017-11-01'::date + interval '30 day')::date||''')' as next_30_param,
+		'account_id='||t1.account_id||',(received_plan_date between '''||('2017-11-01'::date + interval '31 day')::date||''' and '''||('2017-11-01'::date + interval '60 day')::date||''' or payment_plan_date between '''||('2017-11-01'::date + interval '31 day')::date||'''  and '''||('2017-11-01'::date + interval '60 day')::date||''')' as next_60_param,
+		'account_id='||t1.account_id||',(received_plan_date between '''||('2017-11-01'::date + interval '61 day')::date||''' and '''||('2017-11-01'::date + interval '90 day')::date||''' or payment_plan_date between '''||('2017-11-01'::date + interval '61 day')::date||'''  and '''||('2017-11-01'::date + interval '90 day')::date||''')' as next_90_param,
+		'account_id='||t1.account_id||',(received_plan_date>'''||('2017-11-01'::date + interval '90 day')::date||''' or payment_plan_date>'''||('2017-11-01'::date + interval '90 day')::date||''')' as next_90_after_param"
+		;
+		$params['table'] = "cf_rpt_cashflow_projection as t1";
+		$params['select'] = translate_variable($params['select']);
+		$params['xdel'] = false;
+		return $this->base_model->mget_rec($params);
+	}
+
+	function rpt_cf_statement_invoice_detail($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
-		t1.*, 
-		(select name from c_bpartner where id = (select bpartner_id from cf_order where id = t1.order_id)) as bpartner_name, 
-		(select doc_no from cf_order where id = t1.order_id) as doc_no_order,
-		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_plan_date, 
-		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date, 
-		to_char(t1.payment_plan_date_invoice, '".$this->session->date_format."') as payment_plan_date_invoice, 
-		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date_order"
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name,
+		(select name from cf_account where id = t1.account_id) as account_name,
+		case doc_type 
+		when '1' then 'Sales Order' 
+		when '2' then 'Purchase Order'
+		when '3' then 'Purchase Order Clearance'
+		when '4' then 'Purchase Order Custom Duty'
+		when '5' then 'Other Inflow'
+		when '6' then 'Other Outflow'
+		end as doc_type_name,
+		case doc_type 
+		when '1' then (select doc_no from cf_order where id = t1.order_id) 
+		when '2' then (select doc_no from cf_order where id = t1.order_id)
+		when '3' then (select doc_no from cf_order where id = t1.order_id)
+		when '4' then (select doc_no from cf_order where id = t1.order_id)
+		when '5' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
+		when '6' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
+		end as doc_type_reference,
+		doc_no as invoice_no, 
+		to_char(invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
+		to_char(doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(received_plan_date, '".$this->session->date_format."') as received_plan_date, 
+		to_char(payment_plan_date, '".$this->session->date_format."') as payment_plan_date, 
+		note, description, amount, adj_amount, net_amount,
+		(select (select doc_no from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_no, 
+		(select (select to_char(doc_date, '".$this->session->date_format."') from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_date,
+		(select name from a_user where id = t1.created_by) as created_by_name,
+		(select name from a_user where id = t1.updated_by) as updated_by_name, is_receipt"
 		;
-		$params['table'] = "(
-			select *, (select bpartner_id from cf_order where id = t0.order_id) from 
-			(
-			select *, 
-			(select orgtrx_id from cf_order where is_active = '1' and is_deleted = '0' and id = t1.order_id), 
-			(select payment_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id) as payment_plan_date_invoice
-			from cf_order_plan t1 where is_active = '1' and is_deleted = '0' 
-			and client_id = {client_id} and org_id = {org_id} and exists(select 1 from cf_order where is_active = '1' and is_deleted = '0' and id = t1.order_id and orgtrx_id in {orgtrx} and is_sotrx = '0') 
-			and exists(select 1 from cf_invoice f1 where is_active = '1' and is_deleted = '0' and doc_type = '2' 
-			and payment_plan_date > t1.payment_plan_date and order_plan_id = t1.id and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id))
-			union all
-			select *, 
-			(select orgtrx_id from cf_order where is_active = '1' and is_deleted = '0' and id = t1.order_id), 
-			(select payment_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_clearance_id = t1.id) as payment_plan_date_invoice
-			from cf_order_plan_clearance t1 where is_active = '1' and is_deleted = '0' 
-			and client_id = {client_id} and org_id = {org_id} and exists(select 1 from cf_order where is_active = '1' and is_deleted = '0' and id = t1.order_id and orgtrx_id in {orgtrx} and is_sotrx = '0') 
-			and exists(select 1 from cf_invoice f1 where is_active = '1' and is_deleted = '0' and doc_type = '3' 
-			and payment_plan_date > t1.payment_plan_date and order_plan_clearance_id = t1.id and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id))
-			union all
-			select *, 
-			(select orgtrx_id from cf_order where is_active = '1' and is_deleted = '0' and id = t1.order_id), 
-			(select payment_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_import_id = t1.id) as payment_plan_date_invoice
-			from cf_order_plan_import t1 where is_active = '1' and is_deleted = '0' 
-			and client_id = {client_id} and org_id = {org_id} and exists(select 1 from cf_order where is_active = '1' and is_deleted = '0' and id = t1.order_id and orgtrx_id in {orgtrx} and is_sotrx = '0') 
-			and exists(select 1 from cf_invoice f1 where is_active = '1' and is_deleted = '0' and doc_type = '4' 
-			and payment_plan_date > t1.payment_plan_date and order_plan_import_id = t1.id and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id))
-			) t0
-		) t1";
-		$params['table'] = translate_variable($params['table']);
+		$params['table'] = "cf_invoice as t1";
 		return $this->base_model->mget_rec($params);
 	}
 

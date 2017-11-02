@@ -102,6 +102,18 @@ function initDataTable()
 			{ width:"10px", orderable:false, className:"dt-body-center", title:"<center><input type='checkbox' class='head-check'></center>", render:function(data, type, row){ return '<input type="checkbox" class="line-check">'; } },
 			{ width:"10px", orderable:false, className:"dt-head-center dt-body-center", title:"", render: function(data, type, row){ return act_menu_container.prop('outerHTML'); } },
 	];
+	var tableColumns;
+	if (DataTable_Init.showColumnMenu == false)
+		tableColumns = DataTable_Init.columns;
+	else 
+		tableColumns = left_column.concat(DataTable_Init.columns);
+
+	var fixedColumn;
+	if (! isempty_obj(DataTable_Init.fixedColumn))
+		fixedColumn = DataTable_Init.fixedColumns;
+	else 
+		fixedColumn = {};
+
 	/* Create order params */
 	var $ob = '';
 	if (DataTable_Init.order)
@@ -124,7 +136,7 @@ function initDataTable()
 	
 	var url = $url_module+window.location.search;
 
-	dataTable1 = tableData1.DataTable({ "pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, "scrollX": true,
+	dataTable1 = tableData1.DataTable({ "pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, "scrollX": true, "iDisplayLength": DataTable_Init.length ? DataTable_Init.length : 10,
 		"ajax": {
 			"url": url,
 			"data": function(d){ return $.extend({}, d, { "q": $q });	},
@@ -138,8 +150,9 @@ function initDataTable()
 				}
 			}
 		},
-		"columns": left_column.concat(DataTable_Init.columns),
+		"columns": tableColumns,
 		"order": [],
+		"fixedColumns": DataTable_Init.fixedColumns,
 		"fnDrawCallback": function( oSettings ) {
 			/* For Adding Tooltip to the "tr body datatables" */
 			if (oSettings.aoData.length < 1)
@@ -185,7 +198,13 @@ function initDataTable()
 	});		
 	
 	$('div.dataTables_wrapper').find('div.row:first').insertBefore('div.datagrid').addClass('dataTables_wrapper').addClass('dataTables_filter');
+	if (DataTable_Init.showFilter == false) {
+		$('div.dataTables_wrapper.dataTables_filter').css('display', 'none');
+	}
 	$('div.dataTables_wrapper').find('div.row:last').insertAfter('div.datagrid').addClass('dataTables_wrapper').addClass('dataTables_paginate');
+	if (DataTable_Init.showPaginate == false) {
+		$('div.dataTables_wrapper.dataTables_paginate').css('display', 'none');
+	}
 	$('div.box').css('margin-bottom','10px');
 	
 	/* Init Checklist for DataTable */

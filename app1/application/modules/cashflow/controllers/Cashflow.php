@@ -3664,7 +3664,7 @@ class Cashflow extends Getmeb
 			
 			$str = "";
 			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
-				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
+				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 190 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
 					$this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
 				$str .= "and (received_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."' or payment_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."')";
@@ -4382,9 +4382,48 @@ class Cashflow extends Getmeb
 	function rpt_cf_statement_invoice()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE);
+			$this->_get_filtered(FALSE, FALSE);
 			
-			// $this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+	
+	function rpt_cf_statement_invoice_detail()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no', 'note',
+			'(select name from a_org where id = t1.org_id)',
+			'(select name from a_org where id = t1.orgtrx_id)',
+			'(select name from c_bpartner where id = t1.bpartner_id)',
+			'(select name from a_user where id = t1.created_by)',
+			'(select name from a_user where id = t1.updated_by)',
+			"case doc_type 
+			when '1' then (select doc_no from cf_order where id = t1.order_id) 
+			when '2' then (select doc_no from cf_order where id = t1.order_id)
+			when '3' then (select doc_no from cf_order where id = t1.order_id)
+			when '4' then (select doc_no from cf_order where id = t1.order_id)
+			when '5' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
+			when '6' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
+			end",
+			]);
+			
+			if (isset($this->params['cfilter']) && !empty($this->params['cfilter'])) {
+				foreach (explode(",", $this->params['cfilter']) as $value) {
+					$this->params['where_custom'][] = $value;
+				}
+			}
+			
+			$this->params['where']['t1.is_active'] = '1';
+			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			$this->params['where_custom'][] = "not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = t1.id)";
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}

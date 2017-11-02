@@ -157,7 +157,8 @@ class Base_Model extends CI_Model
 		if (key_exists('xdel', $this->params) && ($this->params['xdel'] == '1') && ($this->session->user_id == 11)){
 			$this->db->where('t1.is_deleted', '1');
 		} else {
-			$this->db->where('t1.is_deleted', '0');
+			if (!key_exists('xdel', $params))
+				$this->db->where('t1.is_deleted', '0');
 		}
 		
 		if ($counter){

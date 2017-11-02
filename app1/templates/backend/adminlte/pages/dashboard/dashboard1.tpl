@@ -183,7 +183,10 @@
 			}
 		})
 			.on("changeDate", function(e){
-				console.log(e.format());
+				var link = $BASE_URL+"systems/x_page?pageid=231";
+				window.location.replace(link);
+
+				{* console.log(e.format()); *}
 			})
 			.on("changeMonth", function(e){
 				{* console.log(e.timeStamp); *}
