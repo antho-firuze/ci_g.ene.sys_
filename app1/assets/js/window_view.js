@@ -12,7 +12,8 @@ var $q = getURLParameter("q"),
 	$id = getURLParameter("id"), 
 	$pageid = getURLParameter("pageid"), 
 	$filter = getURLParameter("filter"),
-	$cfilter = getURLParameter("cfilter");
+	$cfilter = getURLParameter("cfilter"),
+	$title = getURLParameter("title");
 
 var origin_url = window.location.origin+window.location.pathname;
 var dataTable1;
@@ -128,7 +129,8 @@ function initDataTable()
 	var $o = $ob ? $ob : '';
 	var $i = $id ? '&id='+$id : '';
 	var $cf = $cfilter ? '&cfilter='+$cfilter : '';
-	$query = '?'+$p+$f+$qq+$o+$i+$cf;
+	var $ttl = $title ? '&title='+$title : '';
+	$query = '?'+$p+$f+$qq+$o+$i+$cf+$ttl;
 	// console.log(origin_url + $query);
 	// dataTable1.ajax.reload( null, false );
 	// history.pushState({}, '', origin_url + $query);
@@ -152,7 +154,8 @@ function initDataTable()
 		},
 		"columns": tableColumns,
 		"order": [],
-		"fixedColumns": DataTable_Init.fixedColumns,
+		"scrollCollapse": true,
+		"fixedColumns": { leftColumns: 1 },
 		"fnDrawCallback": function( oSettings ) {
 			/* For Adding Tooltip to the "tr body datatables" */
 			if (oSettings.aoData.length < 1)

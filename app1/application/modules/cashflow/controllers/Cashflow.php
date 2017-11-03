@@ -4384,6 +4384,12 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(FALSE, FALSE);
 			
+			if (isset($this->params['cfilter']) && !empty($this->params['cfilter'])) {
+				// foreach (explode(",", $this->params['cfilter']) as $value) {
+					$this->params['date'] = $this->params['cfilter'];
+				// }
+			}
+			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}

@@ -10,6 +10,7 @@
 </div>
 <!-- /.content-wrapper -->
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/datatables/extensions/FixedColumns/js/dataTables.fixedColumns.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Toolbar Init *}
@@ -32,23 +33,32 @@
 		tableWidth: '150%',
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [],
+		fixedColumns: {
+			leftColumns: 1,
+		},
 		columns: [
-			{ width:"200px", orderable:false, data:"description", title:"Description" },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"prev_90_after", title:"< 90 <br>Outstanding", render: function(data, type, row){ return '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.prev_90_after_param+'" title="'+row.description+'">'+format_money(data)+'</a>'; } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"prev_90", title:"60-90 <br>Outstanding", render: function(data, type, row){ return '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.prev_90_param+'" title="'+row.description+'">'+format_money(data)+'</a>'; } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"prev_60", title:"30-60 <br>Outstanding", render: function(data, type, row){ return '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.prev_60_param+'" title="'+row.description+'">'+format_money(data)+'</a>'; } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"prev_30", title:"1-30 <br>Outstanding", render: function(data, type, row){ return '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.prev_30_param+'" title="'+row.description+'">'+format_money(data)+'</a>'; } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"total_outstanding", title:"Total <br>Outstanding", render: function(data, type, row){ return '<span title="'+row.description+'">'+format_money(data)+'</span>'; } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"total_projection", title:"Total <br>Projection", render: function(data, type, row){ return '<span title="'+row.description+'">'+format_money(data)+'</span>'; } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return '<span title="'+row.description+'">'+format_money(data)+'</span>'; } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"today", title:"Today <br>Projection", render: function(data, type, row){ return '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.today_param+'" title="'+row.description+'">'+format_money(data)+'</a>'; } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"next_30", title:"1-30 <br>Projection", render: function(data, type, row){ return '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.next_30_param+'" title="'+row.description+'">'+format_money(data)+'</a>'; } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"next_60", title:"30-60 <br>Projection", render: function(data, type, row){ return '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.next_60_param+'" title="'+row.description+'">'+format_money(data)+'</a>'; } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"next_90", title:"60-90 <br>Projection", render: function(data, type, row){ return '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.next_90_param+'" title="'+row.description+'">'+format_money(data)+'</a>'; } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"next_90_after", title:"> 90 <br>Projection", render: function(data, type, row){ return '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.next_90_after_param+'" title="'+row.description+'">'+format_money(data)+'</a>'; } },
+			{ width:"200px", orderable:false, data:"description", title:"Description", render: function(data, type, row){ return (row.type == 'T' || row.type == 'L') ? '<b>'+data+'</b>' : data; } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"prev_90_after", title:"< 90 <br>Outstanding", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.prev_90_after_param+'&title='+row.prev_90_after_title+'">'+format_money(data)+'</a>' : format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"prev_90", title:"60-90 <br>Outstanding", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.prev_90_param+'&title='+row.prev_90_title+'">'+format_money(data)+'</a>' : format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"prev_60", title:"30-60 <br>Outstanding", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.prev_60_param+'&title='+row.prev_60_title+'">'+format_money(data)+'</a>' : format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"prev_30", title:"1-30 <br>Outstanding", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.prev_30_param+'&title='+row.prev_30_title+'">'+format_money(data)+'</a>' : format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"total_outstanding", title:"Total <br>Outstanding", render: function(data, type, row){ return (row.type == 'T') ? '' : '<span title="'+row.description+'">'+format_money(data)+'</span>'; } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"total_projection", title:"Total <br>Projection", render: function(data, type, row){ return (row.type == 'T') ? '' : '<span title="'+row.description+'">'+format_money(data)+'</span>'; } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return (row.type == 'T') ? '' : '<span title="'+row.description+'">'+format_money(data)+'</span>'; } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"today", title:"Today <br>Projection", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.today_param+'&title='+row.today_title+'">'+format_money(data)+'</a>' : format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"next_30", title:"1-30 <br>Projection", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.next_30_param+'&title='+row.next_30_title+'">'+format_money(data)+'</a>' : format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"next_60", title:"30-60 <br>Projection", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.next_60_param+'&title='+row.next_60_title+'">'+format_money(data)+'</a>' : format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"next_90", title:"60-90 <br>Projection", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.next_90_param+'&title='+row.next_90_title+'">'+format_money(data)+'</a>' : format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"next_90_after", title:"> 90 <br>Projection", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&cfilter='+row.next_90_after_param+'&title='+row.next_90_after_title+'">'+format_money(data)+'</a>' : format_money(data); } },
 		],
 		order: ['seq asc'],
 	};
+	
+	{* INITILIZATION *}
+	setTimeout(function(){
+		var $cfilter = format_dmy(getURLParameter("cfilter"));
+		$(".content-header").find("h1").text($(".content-header").find("h1").text()+" as per "+$cfilter);
+	}, 500);
 	
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>

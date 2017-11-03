@@ -32,9 +32,6 @@
 		tableWidth: '150%',
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [],
-		fixedColumns: {
-				leftColumns: 1,
-		},
 		columns: [
 			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
 			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
@@ -58,6 +55,12 @@
 		],
 		order: ['id desc'],
 	};
+	
+	{* INITILIZATION *}
+	setTimeout(function(){
+		var $title = getURLParameter("title");
+		$(".content-header").find("h1").text($(".content-header").find("h1").text()+" ("+$title+")");
+	}, 500);
 	
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>

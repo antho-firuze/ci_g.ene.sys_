@@ -6,6 +6,17 @@
 	/* margin: 0 0 -5px; */
 	/* font-size: 13px; */
 /* } */
+.DTFC_ScrollWrapper {
+	height: auto !important;
+}
+.DTFC_LeftBodyLiner, .DTFC_Cloned {
+	background-color: white;
+	width: auto !important;
+	overflow-y: hidden !important;
+}
+table.dataTable.DTFC_Cloned {
+	margin-top: -2px !important;
+}
 .bootstrap-tagsinput {
 	width: 100%;
 	border-radius: 0px !important;

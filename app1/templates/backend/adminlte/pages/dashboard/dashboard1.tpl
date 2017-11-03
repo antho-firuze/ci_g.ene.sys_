@@ -174,17 +174,18 @@
 		box1.find("#calendar").datepicker({ todayHighlight: true, format:"yyyy-mm-dd",
 			beforeShowDay: function(date){
 				{* var dateFormat = date.getUTCFullYear() + '-' + (date.getUTCMonth()+1) + '-' + date.getUTCDate(); *}
-				var dateFormat = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate();
+				{* var dateFormat = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate(); *}
 				{* console.log(dateFormat); *}
-				if (dateFormat == '2017-10-1'){
+				{* if (dateFormat == '2017-10-1'){ *}
 					{* console.log(dateFormat); *}
-					return { classes: 'highlight', tooltip: 'Title' };
-				}
+					{* return { classes: 'highlight', tooltip: 'Title', content:'<a target="_blank" href="#">'+date.getDate()+'</a>' }; *}
+				{* } *}
 			}
 		})
 			.on("changeDate", function(e){
-				var link = $BASE_URL+"systems/x_page?pageid=231";
-				window.location.replace(link);
+				var link = $BASE_URL+"systems/x_page?pageid=231&cfilter="+e.format();
+				window.open(link, "_blank");
+				{* window.location.replace(link); *}
 
 				{* console.log(e.format()); *}
 			})
