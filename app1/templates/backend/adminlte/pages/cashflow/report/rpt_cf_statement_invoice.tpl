@@ -30,7 +30,7 @@
 		showFilter: false,
 		showPaginate: false,
 		showColumnMenu: false,
-		tableWidth: '150%',
+		tableWidth: '200%',
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [],
 		fixedColumns: {
