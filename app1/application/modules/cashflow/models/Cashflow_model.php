@@ -1671,7 +1671,7 @@ class Cashflow_Model extends CI_Model
 			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
 		),
 		(
-			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as today 
+			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as current 
 			from cf_invoice s1
 			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
 			is_active = '1' and is_deleted = '0' and account_id = ANY(ARRAY[t1.accounts])
@@ -1732,7 +1732,44 @@ class Cashflow_Model extends CI_Model
 		$params['table'] = "cf_rpt_cashflow_projection as t1";
 		$params['select'] = translate_variable($params['select']);
 		$params['xdel'] = false;
-		return $this->base_model->mget_rec($params);
+		$result = $this->base_model->mget_rec($params);
+		
+		// Processed to calculate CASH & CASH EQUIVALENT
+		$qry = "select coalesce(sum(amount), 0) as amount from cf_cashbank_balance 
+		where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+		is_active = '1' and is_deleted = '0' and doc_date = '".$params['date']."'";
+		$qry = translate_variable($qry);
+		$cb_amount = $this->db->query($qry)->row()->amount;
+		
+		foreach ($result['rows'] as $k => $v){
+			if ($v->seq == 41) {
+				$amount[0] = $v->current;
+				$amount[1] = $v->next_30;
+				$amount[2] = $v->next_60;
+				$amount[3] = $v->next_90;
+				$amount[4] = $v->next_90_after;
+			}
+			if ($v->seq == 45) {
+				$amount[0] += $v->current;
+				$amount[1] += $v->next_30;
+				$amount[2] += $v->next_60;
+				$amount[3] += $v->next_90;
+				$amount[4] += $v->next_90_after;
+			}
+			if ($v->seq == 47) {
+				$result['rows'][46]->current = $cb_amount;
+				$result['rows'][47]->current = $cb_amount + $amount[0];
+				$result['rows'][46]->next_30 = $result['rows'][47]->current;
+				$result['rows'][47]->next_30 = $result['rows'][47]->current + $amount[1];
+				$result['rows'][46]->next_60 = $result['rows'][47]->next_30;
+				$result['rows'][47]->next_60 = $result['rows'][47]->next_30 + $amount[2];
+				$result['rows'][46]->next_90 = $result['rows'][47]->next_60;
+				$result['rows'][47]->next_90 = $result['rows'][47]->next_60 + $amount[3];
+				$result['rows'][46]->next_90_after = $result['rows'][47]->next_90;
+				$result['rows'][47]->next_90_after = $result['rows'][47]->next_90 + $amount[4];
+			}
+		}
+		return $result;
 	}
 
 	function rpt_cf_statement_invoice_detail($params)
