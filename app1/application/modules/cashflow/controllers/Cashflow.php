@@ -2326,7 +2326,7 @@ class Cashflow extends Getmeb
 			$this->mixed_data['doc_type'] = '3';
 			$this->mixed_data['order_id'] = $this->params->order_id;
 			$this->mixed_data['order_plan_clearance_id'] = $this->params->id;
-			$this->mixed_data['bpartner_id'] = $header->bpartner_id;
+			$this->mixed_data['bpartner_id'] = $this->params->bpartner_id;
 			$this->mixed_data['doc_no'] = $header->doc_no;
 			$this->mixed_data['note'] = $this->params->note;
 			$this->mixed_data['description'] = $this->params->description;
@@ -2471,7 +2471,7 @@ class Cashflow extends Getmeb
 			$this->mixed_data['doc_type'] = '4';
 			$this->mixed_data['order_id'] = $this->params->order_id;
 			$this->mixed_data['order_plan_import_id'] = $this->params->id;
-			$this->mixed_data['bpartner_id'] = $header->bpartner_id;
+			$this->mixed_data['bpartner_id'] = $this->params->bpartner_id;
 			$this->mixed_data['doc_no'] = $header->doc_no;
 			$this->mixed_data['note'] = $this->params->note;
 			$this->mixed_data['description'] = $this->params->description;

@@ -139,6 +139,7 @@ class Cashflow_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['received_plan_date'] = ['type' => 'DATE', 'null' => TRUE];
@@ -153,6 +154,7 @@ class Cashflow_db extends CI_Controller {
 	{
 		$fields = $this->field_00_Main();
 		$fields['order_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['bpartner_id'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['seq'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['doc_date'] = ['type' => 'DATE', 'null' => TRUE];
 		$fields['received_plan_date'] = ['type' => 'DATE', 'null' => TRUE];
