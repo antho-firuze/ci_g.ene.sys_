@@ -411,10 +411,12 @@
 		var lbllink = o.label_link ? '<a href="'+o.label_link+'">'+o.label+'</a>' : o.label;
 		var lblname = o.required ? '&nbsp;<span style="color:red;">'+lbllink+' *</span>' : lbllink;
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
-		var input = $('<select />', {class:"form-control", id:o.idname, name:o.idname, value:o.value}); 
+		var input = $('<select />', {class:"form-control", id:o.idname, name:(o.name ? o.name : o.idname), value:o.value}); 
+		var input2 = $('<input />', {type:"hidden", id:o.idname, name:(o.name ? o.name : o.idname), value:''}); 
 		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
 		
 		input.attr('multiple','multiple');		
+		input.attr('multiselect','');
 		if (o.horz) { container.find('label').addClass(o.lblsize); container.find('.control-input').addClass(o.colsize); }
 		if (!o.label) { container.find('label').remove(); /* container.removeClass('form-group'); */ }
 		if (o.required) input.attr('required',''); 
@@ -426,7 +428,7 @@
 		if (o.style && o.style != 'bs3') input.attr('style', o.style);
 		if (o.role) input.attr('data-role', o.role);
 		if (o.hidden) { input.closest(".form-group").css("display", "none"); }
-		container.find('.control-input').append(input).append(help);
+		container.find('.control-input').append(input).append(input2).append(help);
 		
 		if (o.url) input.attr('url',o.url);
 		return container;
