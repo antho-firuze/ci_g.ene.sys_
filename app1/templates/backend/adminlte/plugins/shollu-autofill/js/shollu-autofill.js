@@ -19,6 +19,14 @@
 						if (field_name == k || field_id == k) { 
 							switch (field_type)
 							{
+							case "select-multiple":
+								if ($(form[i]).attr('multiselect') != 'undefined' && jQuery().multiselect){
+									$(form[i]).val(v);
+									$(form[i]).multiselect('select', v.replace(/\s+/g, '').split(','));
+								} else {
+									$(form[i]).val(v.replace(/\s+/g, '').split(','));
+								}
+								break;
 							case "text":
 							case "email":
 							case "number":
@@ -41,7 +49,8 @@
 								break;
 							case "hidden":
 								if (field_id == field_name) {
-									if (! $(form[i]).hasClass('checkbox'))
+									// if (!$(form[i]).hasClass('checkbox') && !$(form[i]).hasClass('multiselect'))
+									if (!$(form[i]).is('.checkbox, .multiselect'))
 										form[i].value = v;
 								} else {
 									// var shollu = $(form).find('#'+field_name).data('init-shollu_cb')?'shollu_cb':'';
@@ -73,11 +82,6 @@
 								}
 								break;
 							case "select-one":
-							case "select-multi":
-								console.log('field_type');
-								console.log(field_type);
-								// form[i].selectedIndex = -1;
-								break;
 							default:
 								break;
 							}
@@ -98,6 +102,14 @@
 
 					switch (field_type)
 					{
+					case "select-multiple":
+						if ($(form[i]).attr('multiselect') != 'undefined' && jQuery().multiselect){
+							// $(form[i]).val([]);
+							$(form[i]).multiselect('deselectAll', false).multiselect('refresh');
+						} else {
+							$(form[i]).val([]);
+						}
+						break;
 					case "textarea":
 						if ($(form[i]).hasClass('summernote') && jQuery().summernote){
 							$(form[i]).summernote('code', '');
