@@ -412,7 +412,7 @@
 		var lblname = o.required ? '&nbsp;<span style="color:red;">'+lbllink+' *</span>' : lbllink;
 		var container = $('<div class="form-group"><label class="control-label" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
 		var input = $('<select />', {class:"form-control", id:o.idname, name:(o.name ? o.name : o.idname), value:o.value}); 
-		var input2 = $('<input />', {type:"hidden", id:o.idname, name:(o.name ? o.name : o.idname), value:''}); 
+		var input2 = $('<input />', {class:"multiselect", type:"hidden", id:o.idname, name:(o.name ? o.name : o.idname), value:''}); 
 		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
 		
 		input.attr('multiple','multiple');		
@@ -428,9 +428,48 @@
 		if (o.style && o.style != 'bs3') input.attr('style', o.style);
 		if (o.role) input.attr('data-role', o.role);
 		if (o.hidden) { input.closest(".form-group").css("display", "none"); }
+		if (o.url) input.attr('url',o.url);
 		container.find('.control-input').append(input).append(input2).append(help);
 		
-		if (o.url) input.attr('url',o.url);
+		if (o.remote && o.remote != 'undefined') {
+			$.getJSON(o.url, {}, function(result){ 
+				if (!isempty_obj(result.data.rows)) { 
+					input.empty();
+					$.each(result.data.rows, function(i, item) {
+						input.append('<option value="' + item.id + '">' + item.code_name + '</option>');
+					});
+					
+					if (o.build || o.build == undefined){
+						if (jQuery().multiselect){
+							input.multiselect({
+								includeSelectAllOption: true,
+								enableFiltering: true,
+								filterBehavior: "text",
+								enableCaseInsensitiveFiltering: true,
+								maxHeight: 200,
+								onChange: function(element, checked) {
+									// console.log(input.val());
+									if (o.onChange) window[o.onChange](input.val());
+								},
+								onSelectAll: function() {
+									// console.log(input.val());
+									if (o.onChange) window[o.onChange](input.val());
+								},
+								onDeselectAll: function() {
+									// console.log(input.val());
+									if (o.onChange) window[o.onChange](input.val());
+								}
+							});
+							if (o.value) input.multiselect('select', o.value.replace(/\s+/g, '').split(','));
+						} else {
+							if (o.value) input.val(o.value.replace(/\s+/g, '').split(','));
+						}
+					} else {
+						if (o.value) input.val(o.value.replace(/\s+/g, '').split(','));
+					}
+				}
+			});
+		}
 		return container;
 	};
 	
