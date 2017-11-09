@@ -31,10 +31,8 @@
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", cls:"summernote", height:50 }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Valid From", idname:"valid_from", cls:"auto_ymd", format:"{$.session.datetime_format}", required: false }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Valid Till", idname:"valid_till", cls:"auto_ymd", format:"{$.session.datetime_format}", required: false }));
-	col.push(BSHelper.Input({ horz:false, type:"hidden", idname:"valid_org" }));
-	col.push(BSHelper.Input({ horz:false, type:"hidden", idname:"valid_orgtrx" }));
-	col.push(BSHelper.Multiselect({ horz:false, label:"Valid Org", idname:"select_valid_org", url:"{$.php.base_url('systems/a_org?for_user=1')}", required: false }));
-	col.push(BSHelper.Multiselect({ horz:false, label:"Valid OrgTrx", idname:"select_valid_orgtrx", url:"{$.php.base_url('systems/a_orgtrx?for_user=1')}", required: false }));
+	col.push(BSHelper.Multiselect({ horz:false, label:"Valid Org", idname:"valid_org", url:"{$.php.base_url('systems/a_org?for_user=1')}", required: false, remote: true, onChange: "filter_orgtrx" }));
+	col.push(BSHelper.Multiselect({ horz:false, label:"Valid OrgTrx", idname:"valid_orgtrx", url:"{$.php.base_url('systems/a_orgtrx?for_user=1')}", required: false, remote: true, build: true }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	row.push(subCol(12, col)); col = [];
 	form1.append(subRow(row));
@@ -47,115 +45,33 @@
 	box1.find('.box-body').append(form1);
 	$(".content").append(box1);
 
-	function requery_valid_org(){
-		$.getJSON($("#select_valid_org").attr('url'), {}, function(result){ 
-			if (!isempty_obj(result.data.rows)) { 
-				$("#select_valid_org").empty();
-				$.each(result.data.rows, function(i, item) {
-					$("#select_valid_org").append('<option value="' + item.id + '">' + item.code_name + '</option>');
-				});
-				$("#select_valid_org")
-					.multiselect("destroy")
-					.multiselect({
-						includeSelectAllOption: true,
-						enableFiltering: true,
-						filterBehavior: "text",
-						enableCaseInsensitiveFiltering: true,
-						onChange: function(element, checked) {
-							var selected = [];
-							$('#select_valid_org option:selected').each(function(index, brand){
-									selected.push([$(this).val()]);
-							});
-							$("#valid_org").val(selected.join(","));
-							requery_valid_orgtrx(selected.join(","));
-							{* console.log(selected); *}
-						},
-						onSelectAll: function() {
-							var selected = [];
-							$('#select_valid_org option:selected').each(function(index, brand){
-									selected.push([$(this).val()]);
-							});
-							$("#valid_org").val(selected.join(","));
-							requery_valid_orgtrx(selected.join(","));
-							{* console.log(selected.join(",")); *}
-						},
-						onDeselectAll: function() {
-							var selected = [];
-							$('#select_valid_org option:selected').each(function(index, brand){
-									selected.push([$(this).val()]);
-							});
-							$("#valid_org").val(selected.join(","));
-							requery_valid_orgtrx(selected.join(","));
-							{* console.log(selected.join(",")); *}
-						}
-				});
-			}
-		});
-	}
-	
-	function requery_valid_orgtrx(parent_id){
-		if (isempty_arr(parent_id)) {
-			$("#select_valid_orgtrx").multiselect();
+	function filter_orgtrx(data, val){
+		var select = $("#valid_orgtrx");
+		if (isempty_arr(data)) {
+			select.empty();
+			select.multiselect("rebuild");
 			return false;
 		}
-		$.getJSON($("#select_valid_orgtrx").attr('url'), { parent_id: parent_id }, function(result){ 
+		
+		var params = { parent_id: data.join(',') };
+		$.getJSON(select.attr('url'), params, function(result){ 
 			if (!isempty_obj(result.data.rows)) { 
-				$("#select_valid_orgtrx").empty();
+				select.empty();
 				$.each(result.data.rows, function(i, item) {
-					$("#select_valid_orgtrx").append('<option value="' + item.id + '">' + item.parent_name + ' => ' + item.code_name + '</option>');
+					select.append('<option value="' + item.id + '">' + item.parent_name + ' => ' + item.code_name + '</option>');
 				});
-				$("#select_valid_orgtrx")
+				select
 					.multiselect("destroy")
-					.multiselect({
-						includeSelectAllOption: true,
-						enableFiltering: true,
-						filterBehavior: "text",
-						enableCaseInsensitiveFiltering: true,
-						onChange: function(element, checked) {
-							var selected = [];
-							$('#select_valid_orgtrx option:selected').each(function(index, brand){
-									selected.push([$(this).val()]);
-							});
-							$("#valid_orgtrx").val(selected.join(","));
-							{* console.log(selected); *}
-						},
-						onSelectAll: function() {
-							var selected = [];
-							$('#select_valid_orgtrx option:selected').each(function(index, brand){
-									selected.push([$(this).val()]);
-							});
-							$("#valid_orgtrx").val(selected.join(","));
-							{* console.log(selected.join(",")); *}
-						},
-						onDeselectAll: function() {
-							var selected = [];
-							$('#select_valid_orgtrx option:selected').each(function(index, brand){
-									selected.push([$(this).val()]);
-							});
-							$("#valid_orgtrx").val(selected.join(","));
-							{* console.log(selected.join(",")); *}
-						}
-				});
+					.multiselect({ includeSelectAllOption: true, enableFiltering: true,	filterBehavior: "text",	enableCaseInsensitiveFiltering: true,	maxHeight: 200,	});
+				if (val) select.multiselect('select', val.replace(/\s+/g, '').split(','));
 			}
 		});
 	}
 	
-	requery_valid_org(); 
-	requery_valid_orgtrx();
-	
 	setTimeout(function(){
-		if ($act == 'edt'){
-			var str = $("#valid_org").val();
-			$("#valid_org").val(str.replace(/[{}]/g, ""));
-			$("#select_valid_org").multiselect("select", str.replace(/[{}]/g, "").split(","));
-			requery_valid_orgtrx(str.replace(/[{}]/g, ""));
-			str = $("#valid_orgtrx").val();
-			setTimeout(function(){
-				$("#valid_orgtrx").val(str.replace(/[{}]/g, ""));
-				$("#select_valid_orgtrx").multiselect("select", str.replace(/[{}]/g, "").split(","));
-			}, 1000);
-		}
-	}, 2000);
+		if ($("#valid_org").val())
+			filter_orgtrx($("#valid_org").val(), $("#valid_orgtrx").attr("data-value"));
+	}, 1000);
 	
 </script>
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>
