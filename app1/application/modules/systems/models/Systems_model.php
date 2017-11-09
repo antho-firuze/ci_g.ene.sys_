@@ -455,7 +455,9 @@ class Systems_Model extends CI_model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*,
 		to_char(t1.valid_from, '".$this->session->date_format." HH24:MI') as valid_from,
-		to_char(t1.valid_till, '".$this->session->date_format." HH24:MI') as valid_till
+		to_char(t1.valid_till, '".$this->session->date_format." HH24:MI') as valid_till,
+		array_to_string(valid_org, ',') as valid_org,
+		array_to_string(valid_orgtrx, ',') as valid_orgtrx
 		";
 		$params['table'] 	= "a_info as t1";
 		return $this->base_model->mget_rec($params);

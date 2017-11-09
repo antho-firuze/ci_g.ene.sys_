@@ -362,7 +362,15 @@ class Cashflow_Model extends CI_Model
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
-		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.etd, '".$this->session->date_format."') as etd, to_char(t1.expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
+		to_char(t1.etd, '".$this->session->date_format."') as etd, 
+		to_char(t1.expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, 
+		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name,
+		array_to_string(scm_dt_reasons, ',') as scm_dt_reasons";
 		$params['table'] 	= "cf_order as t1";
 		return $this->base_model->mget_rec($params);
 	}
@@ -1812,4 +1820,11 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 
+	function rf_scm_dt_reason($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params['table'] 	= "rf_scm_dt_reason as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
 }

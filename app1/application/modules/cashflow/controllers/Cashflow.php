@@ -1815,10 +1815,11 @@ class Cashflow extends Getmeb
 	function cf_sorder_etd()
 	{
 		if ($this->r_method == 'OPTIONS') {
-			$data = array_merge(['etd' => $this->params->etd], $this->update_log);
+			// debug($this->params);
+			$data = array_merge(['etd' => $this->params->etd, 'scm_dt_reasons' => ($this->params->scm_dt_reasons ? '{'.$this->params->scm_dt_reasons.'}' : NULL)], $this->update_log);
 
-			if ($this->params->description)
-				$this->db->set('description', "case when coalesce(description, '') = '' then '".$this->params->description." [by: ".$this->session->user_name."]' else coalesce(description, '') || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]' end", FALSE);
+			// if ($this->params->description)
+				// $this->db->set('description', "case when coalesce(description, '') = '' then '".$this->params->description." [by: ".$this->session->user_name."]' else coalesce(description, '') || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]' end", FALSE);
 			
 			// debug("description || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]'");
 			
@@ -4430,6 +4431,23 @@ class Cashflow extends Getmeb
 			$this->params['where']['t1.is_active'] = '1';
 			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
 			$this->params['where_custom'][] = "not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = t1.id)";
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+	
+	function rf_scm_dt_reason()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, FALSE);
+			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
