@@ -52,6 +52,10 @@
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"expected_dt_cust", title:"Expected DT Customer" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"etd", title:"ETD" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"estimation_late", title:"Estimation Late", 
+				render: function(data, type, row){ return parseInt(data) > 0 ? data : 0; },
+				createdCell: function (td, cellData, rowData, row, col) { if ( parseInt(cellData) > 0 ) { $(td).css({ 'background-color':'red', 'font-weight':'bold' }); } },
+			},
 			{ width:"150px", orderable:false, data:"bpartner_name", title:"Customer" },
 			{ width:"200px", orderable:false, data:"description", title:"Description" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_money(data); } },
@@ -60,6 +64,11 @@
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"plan_total", title:"Plan Total", render: function(data, type, row){ return format_money(data); } },
 			{* { width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } }, *}
 		],
+		{* createdRow: function( row, data, dataIndex ) { *}
+			{* if ( parseInt(data['estimation_late']) > 0 ) {         *}
+				{* $(row).attr('style', 'background-color: blue !important;'); *}
+			{* } *}
+		{* }, *}
 	};
 	
 	function update_so_etd(data) {
@@ -74,6 +83,7 @@
 		col.push( $('<dl class="dl-horizontal">').append(a) ); a = [];
 		col.push(BSHelper.Input({ horz:false, type:"date", label:"ETD", idname:"etd", cls:"auto_ymd", format:"{$.session.date_format}", value: data.etd, required: true }));
 		col.push(BSHelper.Multiselect({ horz:false, label:"Late Reason", idname:"scm_dt_reasons", url:"{$.php.base_url('cashflow/rf_scm_dt_reason')}", value: data.scm_dt_reasons, required: false, remote: true }));
+		col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 		row.push(subCol(12, col)); col = [];
 		form1.append(subRow(row));
 		

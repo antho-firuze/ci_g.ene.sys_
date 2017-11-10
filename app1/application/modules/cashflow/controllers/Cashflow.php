@@ -1818,8 +1818,8 @@ class Cashflow extends Getmeb
 			// debug($this->params);
 			$data = array_merge(['etd' => $this->params->etd, 'scm_dt_reasons' => ($this->params->scm_dt_reasons ? '{'.$this->params->scm_dt_reasons.'}' : NULL)], $this->update_log);
 
-			// if ($this->params->description)
-				// $this->db->set('description', "case when coalesce(description, '') = '' then '".$this->params->description." [by: ".$this->session->user_name."]' else coalesce(description, '') || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]' end", FALSE);
+			if ($this->params->description)
+				$this->db->set('description', "case when coalesce(description, '') = '' then '".$this->params->description." [by: ".$this->session->user_name."]' else coalesce(description, '') || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]' end", FALSE);
 			
 			// debug("description || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]'");
 			

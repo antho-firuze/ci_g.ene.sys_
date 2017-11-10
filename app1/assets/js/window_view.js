@@ -153,6 +153,8 @@ function initDataTable()
 			}
 		},
 		"columns": tableColumns,
+		// "createdRow": (DataTable_Init.createdRow != 'undefined' && DataTable_Init.createdRow ? DataTable_Init.createdRow : ''),
+		"createdRow": DataTable_Init.createdRow,
 		"order": [],
 		"scrollCollapse": true,
 		"fixedColumns": { leftColumns: 1 },

@@ -370,7 +370,8 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.etd, '".$this->session->date_format."') as etd, 
 		to_char(t1.expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, 
 		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name,
-		array_to_string(scm_dt_reasons, ',') as scm_dt_reasons";
+		array_to_string(scm_dt_reasons, ',') as scm_dt_reasons,
+		(etd - expected_dt_cust) as estimation_late";
 		$params['table'] 	= "cf_order as t1";
 		return $this->base_model->mget_rec($params);
 	}
