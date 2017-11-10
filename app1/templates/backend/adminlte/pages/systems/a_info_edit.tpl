@@ -32,7 +32,7 @@
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Valid From", idname:"valid_from", cls:"auto_ymd", format:"{$.session.datetime_format}", required: false }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Valid Till", idname:"valid_till", cls:"auto_ymd", format:"{$.session.datetime_format}", required: false }));
 	col.push(BSHelper.Multiselect({ horz:false, label:"Valid Org", idname:"valid_org", url:"{$.php.base_url('systems/a_org?for_user=1')}", required: false, remote: true, onChange: "filter_orgtrx" }));
-	col.push(BSHelper.Multiselect({ horz:false, label:"Valid OrgTrx", idname:"valid_orgtrx", url:"{$.php.base_url('systems/a_orgtrx?for_user=1')}", required: false, remote: true, build: true }));
+	col.push(BSHelper.Multiselect({ horz:false, label:"Valid OrgTrx", idname:"valid_orgtrx", url:"{$.php.base_url('systems/a_orgtrx?for_user=1')}", required: false, remote: true }));
 	col.push(BSHelper.Checkbox({ horz:false, label:"Is Active", idname:"is_active", value:1 }));
 	row.push(subCol(12, col)); col = [];
 	form1.append(subRow(row));
@@ -69,9 +69,8 @@
 	}
 	
 	setTimeout(function(){
-		if ($("#valid_org").val())
-			filter_orgtrx($("#valid_org").val(), $("#valid_orgtrx").attr("data-value"));
-	}, 1000);
+		if ($("#valid_org").val()) filter_orgtrx($("#valid_org").val(), $("#valid_orgtrx").attr("data-value"));
+	}, 2000);
 	
 </script>
 <script src="{$.const.ASSET_URL}js/window_edit.js"></script>
