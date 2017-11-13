@@ -95,6 +95,8 @@ class Cashflow_db extends CI_Controller {
 		$fields['plan_cl_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['plan_im_total'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['scm_dt_reasons'] = ['type' => 'INT[]', 'constraint' => '18,2', 'null' => TRUE];
+		$fields['penalty_percent'] 	= ['type' => 'NUMERIC', 'constraint' => '18,4', 'null' => TRUE];	
+		$fields['max_penalty_percent'] 	= ['type' => 'NUMERIC', 'constraint' => '18,4', 'null' => TRUE];	
 		return $fields;
 	}
 	

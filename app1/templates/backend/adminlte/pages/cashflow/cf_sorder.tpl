@@ -56,6 +56,7 @@
 				render: function(data, type, row){ return parseInt(data) > 0 ? data : 0; },
 				createdCell: function (td, cellData, rowData, row, col) { if ( parseInt(cellData) > 0 ) { $(td).css({ 'background-color':'red', 'font-weight':'bold' }); } },
 			},
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"estimation_penalty_amount", title:"Estimation Penalty Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"150px", orderable:false, data:"bpartner_name", title:"Customer" },
 			{ width:"200px", orderable:false, data:"description", title:"Description" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_money(data); } },

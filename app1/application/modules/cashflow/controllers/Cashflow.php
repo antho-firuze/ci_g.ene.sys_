@@ -2808,7 +2808,7 @@ class Cashflow extends Getmeb
 			foreach($arr as $i =>$v){
 				$str .= 
 				"(
-					select coalesce(sum(net_amount), 0) * (case (select is_receipt from cf_account where id = t1.account_id) when '1' then 1 else -1 end)".' as "'.$v['title'].'"' ." 
+					select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0)".' as "'.$v['title'].'"' ." 
 					from cf_invoice s1
 					where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
 					is_active = '1' and is_deleted = '0' and account_id = t1.account_id
@@ -2820,9 +2820,10 @@ class Cashflow extends Getmeb
 					$str .= ', ';
 			}
 			foreach($arr as $i =>$v){
+					// select coalesce(sum(amount), 0) * (case (select is_receipt from cf_account where id = t1.account_id) when '1' then 1 else -1 end)".' as "'.$v['title'].'_actual"' ." 
 				$str .= 
 				"(
-					select coalesce(sum(amount), 0) * (case (select is_receipt from cf_account where id = t1.account_id) when '1' then 1 else -1 end)".' as "'.$v['title'].'_actual"' ." 
+					select coalesce(sum(case (select is_receipt from cf_account where id = t1.account_id) when '1' then amount else -amount end), 0) * ".' as "'.$v['title'].'_actual"' ." 
 					from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id
 					where f1.client_id = {client_id} and f1.org_id = {org_id} and f2.orgtrx_id in {orgtrx} and
 					f1.is_active = '1' and f1.is_deleted = '0' and account_id = t1.account_id
@@ -2835,6 +2836,7 @@ class Cashflow extends Getmeb
 			$str .= " from cf_rpt_cashflow_projection t1 order by seq";
 			$qry = $this->db->query($str);
 			$rows = $qry->result();
+			debug($rows);
 			/* Start process: Compiling Report */
 			/* Define Variable */
 			foreach($arr as $v){

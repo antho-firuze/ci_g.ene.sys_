@@ -214,7 +214,12 @@ class Cashflow_Model extends CI_Model
 		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 		$params['table'] 	= "cf_invoice as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
-			$params['select'] .= ", t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order, to_char(t2.etd, '".$this->session->date_format."') as etd_order, t2.doc_ref_no as doc_ref_no_order";
+			$params['select'] .= ", 
+				t2.doc_no as doc_no_order, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_order, 
+				to_char(t2.etd, '".$this->session->date_format."') as etd_order, 
+				t2.doc_ref_no as doc_ref_no_order,
+				to_char(t3.received_plan_date, '".$this->session->date_format."') as received_plan_date_order
+				";
 			$params['join'][] = ['cf_order as t2', 't1.order_id = t2.id', 'left'];
 			$params['join'][] = ['cf_order_plan as t3', 't1.order_plan_id = t3.id', 'left'];
 		}
@@ -371,7 +376,11 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, 
 		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name,
 		array_to_string(scm_dt_reasons, ',') as scm_dt_reasons,
-		(etd - expected_dt_cust) as estimation_late";
+		(etd - expected_dt_cust) as estimation_late,
+		case when ((etd - expected_dt_cust) * penalty_percent * grand_total) > (max_penalty_percent * grand_total) 
+		then (max_penalty_percent * grand_total) 
+		else ((etd - expected_dt_cust) * penalty_percent * grand_total) 
+		end as estimation_penalty_amount";
 		$params['table'] 	= "cf_order as t1";
 		return $this->base_model->mget_rec($params);
 	}
@@ -494,7 +503,8 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
 		to_char(t1.eta, '".$this->session->date_format."') as eta, 
 		case when ((select eta from cf_request where id = t1.request_id) - t1.eta) <= 6 then 'Warning' else '' end as eta_status, 
-		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name,
+		((select eta from cf_request where id = t1.request_id) - t1.eta) as estimation_late";
 		$params['table'] 	= "cf_requisition as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
 			$params['select'] .= ", t2.doc_no as doc_no_request, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_request, to_char(t2.eta, '".$this->session->date_format."') as eta_request";

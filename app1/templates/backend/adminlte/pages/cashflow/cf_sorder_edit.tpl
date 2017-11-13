@@ -29,6 +29,8 @@
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Reference No", idname:"doc_ref_no", required: true, help:"Please fill PO Customer No", }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Reference Date", idname:"doc_ref_date", cls:"auto_ymd", format:"{$.session.date_format}", required: false }));
 	col.push(BSHelper.Input({ horz:false, type:"date", label:"Expected DT Customer", idname:"expected_dt_cust", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
+	col.push(BSHelper.Input({ horz:false, type:"number", label:"Penalty Percentage (per day)", idname:"penalty_percent", style: "text-align: right;", step: ".001", min: "0", required: false, value: 0, placeholder: "0.0000", help: "Note: One per-mille = 0.001" }));
+	col.push(BSHelper.Input({ horz:false, type:"number", label:"Max Penalty Percentage", idname:"max_penalty_percent", style: "text-align: right;", step: ".01", min: "0", required: false, value: 0, placeholder: "0.0000", help: "Note: 10% = 0.01" }));
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
 	form1.append(subRow(subCol()));
