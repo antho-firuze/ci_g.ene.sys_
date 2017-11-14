@@ -97,90 +97,118 @@ function truncate(n, len) {
 		return filename + '.' + ext;
 	}
 };
-  
-function start_month(){
-	var date = new Date();
-	var y = date.getFullYear();
-	var m = date.getMonth();
-	
-	var f = new Date(y, m, 1);
-	var y = f.getFullYear();
-	var m = f.getMonth()+1;
-	var d = f.getDate();
-	
-	return (d<10?('0'+d):d)+'/'+(m<10?('0'+m):m)+'/'+y;
+
+function isempty_obj(obj){
+	if (obj == undefined) return true;
+	return (Object.keys(obj).length > 0) ? false : true;
 }
 
-function end_month(){
-	var date = new Date();
-	var y = date.getFullYear();
-	var m = date.getMonth();
-	
-	var t = new Date(y, m+1, 0);
-	var y = t.getFullYear();
-	var m = t.getMonth()+1;
-	var d = t.getDate();
-	
-	return (d<10?('0'+d):d)+'/'+(m<10?('0'+m):m)+'/'+y;
+function isempty_arr(arr){
+	if (arr == undefined) return true;
+	return (arr.length > 0) ? false : true;
 }
 
-function format_dmy(tdate){
-	if(typeof(tdate)==='undefined') tdate = 0;
-	if (tdate==0)
-	{
-		var f = new Date();
-		var y = f.getFullYear();
-		var m = f.getMonth()+1;
-		var d = f.getDate();
+function isDate(date){
+	return date instanceof Date && !isNaN(date.valueOf());
+}
+
+function dateFormat(date, format){
+	if (typeof(date) == 'undefined') return 'undefined date';
+	if (typeof(format) == 'undefined') return 'undefined format';
+	if (! isDate(date)) return 'invalid date : '+date;
+	
+	var y = parseInt(date.getFullYear());
+	var m = parseInt(date.getMonth())+1;
+	var d = parseInt(date.getDate());
+	switch (format) {
+		case 'dd/mm/yyyy':
+			return (d<10?('0'+d):d)+'/'+(m<10?('0'+m):m)+'/'+y;
+			break;
+		case 'mm/dd/yyyy':
+			return ((m<10?('0'+m):m)+'/'+d<10?('0'+d):d)+'/'+sy;
+			break;
+		case 'dd-mm-yyyy':
+			return (d<10?('0'+d):d)+'-'+(m<10?('0'+m):m)+'-'+y;
+			break;
+		case 'mm-dd-yyyy':
+			return ((m<10?('0'+m):m)+'-'+d<10?('0'+d):d)+'-'+sy;
+			break;
+		case 'yyyy-mm-dd':
+			return y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d);
+			break;
+		default:
+			return 'invalid format : '+format;
 	}
-	else
-	{
-		var ss = tdate.split('-');
-		var y = parseInt(ss[0],10);
-		var m = parseInt(ss[1],10);
-		var d = parseInt(ss[2],10);
+}
+
+function dateParsing(date, format){
+	if (typeof(date) == 'undefined') return 'undefined date';
+	if (typeof(format) == 'undefined') return 'undefined format';
+	
+	switch (format) {
+		case 'dd/mm/yyyy':
+			var a = date.split('/');
+			var d = parseInt(a[0],10);
+			var m = parseInt(a[1],10);
+			var y = parseInt(a[2],10);
+			break;
+		case 'mm/dd/yyyy':
+			var a = date.split('/');
+			var m = parseInt(a[0],10);
+			var d = parseInt(a[1],10);
+			var y = parseInt(a[2],10);
+			break;
+		case 'dd-mm-yyyy':
+			var a = date.split('-');
+			var d = parseInt(a[0],10);
+			var m = parseInt(a[1],10);
+			var y = parseInt(a[2],10);
+			break;
+		case 'mm-dd-yyyy':
+			var a = date.split('-');
+			var m = parseInt(a[0],10);
+			var d = parseInt(a[1],10);
+			var y = parseInt(a[2],10);
+			break;
+		case 'yyyy-mm-dd':
+			var a = date.split('-');
+			var y = parseInt(a[0],10);
+			var m = parseInt(a[1],10);
+			var d = parseInt(a[2],10);
+			break;
+		default:
+			return 'invalid format : '+format;
 	}
-	return (d<10?('0'+d):d)+'/'+(m<10?('0'+m):m)+'/'+y;
+	return new Date(y,m-1,d); 
+}
+
+function start_month(date, format){
+	var date = typeof(date) == 'undefined' ? new Date() : date;
+	var format = typeof(format) == 'undefined' ? 'dd/mm/yyyy' : format;
+	
+	if (! isDate(date)) return 'invalid date : '+date;
+	
+	var date = new Date(date.getFullYear(), date.getMonth(), 1);
+	return dateFormat(date, format);
+}
+
+function end_month(date, format){
+	var date = typeof(date) == 'undefined' ? new Date() : date;
+	var format = typeof(format) == 'undefined' ? 'dd/mm/yyyy' : format;
+	
+	if (! isDate(date)) return 'invalid date : '+date;
+	
+	var date = new Date(date.getFullYear(), date.getMonth()+1, 0);
+	return dateFormat(date, format);
 }
 
 function unix_timestamp_format(unix_timestamp, format){
-	if(typeof(unix_timestamp)==='undefined') unix_timestamp = 0;
-	if(typeof(format)==='undefined') format = 'yyyy-mm-dd';
-	if (unix_timestamp==0)
-	{
-		var f = new Date();
-		var y = f.getFullYear();
-		var m = f.getMonth()+1;
-		var d = f.getDate();
-	}
-	else
-	{
-		var f = new Date(unix_timestamp);
-		var y = f.getFullYear();
-		var m = f.getMonth()+1;
-		var d = f.getDate();
-	}
-	return (y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d));
-}
-
-function format_ymd(tdate, format){
-	if(typeof(tdate)==='undefined') tdate = 0;
-	if(typeof(format)==='undefined') format = 'dd/mm/yyyy';
-	if (tdate==0)
-	{
-		var f = new Date();
-		var y = f.getFullYear();
-		var m = f.getMonth()+1;
-		var d = f.getDate();
-	}
-	else
-	{
-		var ss = tdate.split('-');
-		var y = parseInt(ss[0],10);
-		var m = parseInt(ss[1],10);
-		var d = parseInt(ss[2],10);
-	}
-	return (y+'-'+(m<10?('0'+m):m)+'-'+(d<10?('0'+d):d));
+	var format = typeof(format) == 'undefined' ? 'yyyy-mm-dd' : format;
+	
+	if (typeof(unix_timestamp) == 'undefined') return 'invalid unix timestamp : '+unix_timestamp;
+	
+	var date = new Date(unix_timestamp);
+	return dateFormat(date, format);
 }
 
 function datetime_db_format(datetime, this_format, is_datetime){
@@ -290,14 +318,4 @@ function subCol(siz, el){
 	if(typeof(el)==='undefined') el = '&nbsp;';
 	var container = $('<div class="col-md-'+ siz +'"></div>');
 	return container.append(el);
-}
-
-function isempty_obj(obj){
-	if (obj == undefined) return true;
-	return (Object.keys(obj).length > 0) ? false : true;
-}
-
-function isempty_arr(arr){
-	if (arr == undefined) return true;
-	return (arr.length > 0) ? false : true;
 }

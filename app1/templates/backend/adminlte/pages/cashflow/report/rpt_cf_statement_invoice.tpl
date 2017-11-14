@@ -56,7 +56,7 @@
 	
 	{* INITILIZATION *}
 	setTimeout(function(){
-		var $cfilter = format_dmy(getURLParameter("cfilter"));
+		var $cfilter = dateFormat(dateParsing(getURLParameter("cfilter"), "yyyy-mm-dd"), "dd/mm/yyyy");
 		$(".content-header").find("h1").text($(".content-header").find("h1").text()+" as per "+$cfilter);
 	}, 500);
 	

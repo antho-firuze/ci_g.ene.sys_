@@ -41,6 +41,16 @@
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/textfill/jquery.textfill.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/marquee/lib/jquery.marquee.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
+<style>
+{* for calendar *}
+.calDayGreen {
+	background-color: green;
+}
+.calDayRed {
+	background-color: red;
+}
+</style>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Start :: Init for Title, Breadcrumb *}
@@ -167,33 +177,67 @@
 		return box1;
 	}
 
-	function wcal(){
-		var col = [], row = [];
-		var box1 = BSHelper.Box({ type:"info", header:true, title:"Calendar", icon:"fa fa-calendar", toolbtn:['min','rem'] });
-		box1.find('.box-body').append($('<div id="calendar" style="width: 100%"> </div>'));
-		box1.find("#calendar").datepicker({ todayHighlight: true, format:"yyyy-mm-dd",
-			beforeShowDay: function(date){
-				{* var dateFormat = date.getUTCFullYear() + '-' + (date.getUTCMonth()+1) + '-' + date.getUTCDate(); *}
-				{* var dateFormat = date.getFullYear() + '-' + (date.getMonth()+1) + '-' + date.getDate(); *}
-				{* console.log(dateFormat); *}
-				{* if (dateFormat == '2017-10-1'){ *}
-					{* console.log(dateFormat); *}
-					{* return { classes: 'highlight', tooltip: 'Title', content:'<a target="_blank" href="#">'+date.getDate()+'</a>' }; *}
-				{* } *}
-			}
-		})
-			.on("changeDate", function(e){
-				var link = $BASE_URL+"systems/x_page?pageid=231&cfilter="+e.format();
-				window.open(link, "_blank");
-				{* window.location.replace(link); *}
+	function wcal(fdate, tdate){
+		var fdate = typeof(fdate) == 'undefined' ? new Date() : fdate;
+		var tdate = typeof(tdate) == 'undefined' ? new Date() : tdate;
+		var calendar_value;
 
-				{* console.log(e.format()); *}
+		fdate = isDate(fdate) ? fdate : dateParsing(fdate, "yyyy-mm-dd");
+		fdate = start_month(fdate, "yyyy-mm-dd");
+		tdate = isDate(tdate) ? tdate : dateParsing(tdate, "yyyy-mm-dd");
+		tdate = end_month(tdate, "yyyy-mm-dd");
+
+		$.getJSON("{$.php.base_url()}"+"cashflow/get_calendar_value?fdate="+fdate+"&tdate="+tdate, {}, function(response){
+			calendar_value = response.data;
+			create_cal();
+		});
+		
+		function create_cal(){
+			var box_container = $("#box-calendar");
+			if (! box_container.length) {
+				var box1 = BSHelper.Box({ type:"info", idname: "box-calendar", header:true, title:"Calendar", icon:"fa fa-calendar", toolbtn:['min','rem'] });
+				var container = $('<div id="calendar" style="width: 100%" />');
+				box1.find('.box-body').append(container);
+			} else {
+				var container = $("#box-calendar").find("#calendar");
+				if (container.length) {
+					container.datepicker("destroy");
+					container.remove();
+				} 
+				container = $('<div id="calendar" style="width: 100%" />');
+				box_container.find('.box-body').append(container);
+			}
+			
+			container.datepicker({ format:"yyyy-mm-dd", 
+				beforeShowDay: function(date){
+					var dateFormat = date.getFullYear() + '-' + ((date.getMonth()+1)<10?('0'+(date.getMonth()+1)):(date.getMonth()+1)) + '-' + (date.getDate()<10?('0'+date.getDate()):date.getDate());
+					
+					var cMoney = parseFloat(calendar_value[dateFormat]);
+					var cTitle = accounting.formatMoney(cMoney, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}");
+					var cColor = !cMoney ? "" : (cMoney > 0 ? "calDayGreen" : "calDayRed");
+					
+					return { classes: cColor, tooltip: cTitle };
+				}
+			})
+			.datepicker('setDate',fdate)
+			.on("changeDate", function(e){
+				console.log(e.format());
+				if (e.format()) {
+					var link = $BASE_URL+"systems/x_page?pageid=231&cfilter="+e.format();
+					window.open(link, "_blank");
+					container.datepicker('setDate',null);
+				}
 			})
 			.on("changeMonth", function(e){
-				{* console.log(e.timeStamp); *}
-				{* console.log(unix_timestamp_format(e.timeStamp)); *}
-			});
-		return box1;
+				var fdate = start_month(e.date, "yyyy-mm-dd");
+				var tdate = end_month(e.date, "yyyy-mm-dd");
+				wcal(fdate, tdate);
+			})
+			.datepicker('setDate',null);
+				
+			if (! box_container.length)
+				$(".col-lg-5").append(box1);
+		}
 	}
 	
 	function visitor_maps(){

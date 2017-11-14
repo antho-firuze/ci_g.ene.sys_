@@ -20,6 +20,45 @@ class Cashflow extends Getmeb
 						 ->get()->row()->is_posted;
 	}
 	
+	function get_calendar_value()
+	{
+		if ($this->r_method == 'GET') {
+			if (empty($this->params['fdate']) && empty($this->params['tdate']))
+				$this->xresponse(FALSE, ['message' => lang('error_filling_params')],401);
+			
+			if (!empty($this->params['fdate']) && empty($this->params['tdate']))
+				$this->xresponse(FALSE, ['message' => lang('error_filling_params')],401);
+			
+			if (!empty($this->params['fdate']) && !empty($this->params['tdate'])) {
+				// if (date_differ($this->params['fdate'], $this->params['tdate'], 'day') > 60 || date_differ($this->params['fdate'], $this->params['tdate'], 'day') < 0)
+					// $this->xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
+			} 
+				
+			/* Re-quering Data */
+			$str = "select to_char(i.date, 'YYYY-MM-DD') as date, 
+			(
+				select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as net_amount
+				from cf_invoice t1
+				where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+				is_active = '1' and is_deleted = '0'
+				and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = t1.id)
+				and (to_char(received_plan_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') or to_char(payment_plan_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD'))
+			) as net_amount
+			from generate_series('".$this->params['fdate']."', '".$this->params['tdate']."', '1 day'::interval) i";
+			$str = $this->translate_variable($str);
+			// debug($str);
+			$qry = $this->db->query($str);
+			// $rows = $qry->result();
+			// debug($this->params);
+			/* Extract result become {"2017-11-14":"100000"} */
+			foreach($qry->result() as $val){
+				$obj[$val->date] = $val->net_amount;
+			}
+			$result['data'] = $obj;
+			$this->xresponse(TRUE, $result);
+		}
+	}
+	
 	function cf_account()
 	{
 		if ($this->r_method == 'GET') {
