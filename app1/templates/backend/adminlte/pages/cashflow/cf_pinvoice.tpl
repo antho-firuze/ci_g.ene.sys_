@@ -142,13 +142,16 @@
 		var col = [], row = [], a = [];
 		var form1 = BSHelper.Form({ autocomplete:"off" });
 		var format_money2 = "'alias': 'currency', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'autoGroup': true, 'autoUnmask': true";
-		col.push("<h3>Invoice No : <br>"+data.doc_no+"</h3>");
-		col.push("<h3>Sales Order : <br>"+data.doc_no_order+"</h3>");
-		col.push("<h3>Business Partner : <br>"+data.bpartner_name+"</h3>");
-		col.push( $('<dl class="dl-horizontal">').append(a) ); a = [];
-		col.push(BSHelper.Input({ horz:false, type:"number", label:"Amount", idname:"amount", style: "text-align: right;", step: ".01", required: false, value: data.amount, placeholder: "0.00", readonly: true, hidden: true }));
+		col.push("<h4>Invoice No : <br>"+data.doc_no+"</h4>");
+		row.push(subCol(6, col)); col = [];
+		col.push("<h4>Sales Order : <br>"+data.doc_no_order+"</h4>");
+		row.push(subCol(6, col)); col = [];
+		col.push("<h4>Business Partner : <br>"+data.bpartner_name+"</h4>");
+		{* col.push( $('<dl class="dl-horizontal">').append(a) ); a = []; *}
+		col.push(BSHelper.Input({ horz:false, type:"text", label:"Original Amount", idname:"amount", style: "text-align: right;", step: ".01", format: format_money2, rrequired: false, value: data.amount, placeholder: "0.00", readonly: true, }));
+		col.push(BSHelper.Input({ horz:false, type:"text", label:"Final Amount", idname:"net_amount", style: "text-align: right;", format: format_money2, required: false, value: data.net_amount, placeholder: "0.00", readonly: true, }));
 		col.push(BSHelper.Input({ horz:false, type:"number", label:"Adjustment Amount", idname:"adj_amount", style: "text-align: right;", step: ".01", required: false, value: data.adj_amount, placeholder: "0.00", }));
-		col.push(BSHelper.Input({ horz:false, type:"text", label:"Net Amount", idname:"net_amount", style: "text-align: right;", format: format_money2, required: false, value: data.net_amount, readonly: true, placeholder: "0.00", }));
+		col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 		row.push(subCol(12, col)); col = [];
 		form1.append(subRow(row));
 		

@@ -1239,6 +1239,11 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'OPTIONS') {
 			$id = $this->params->id;
 			unset($this->params->id);
+			
+			if ($this->params->description) {
+				$this->db->set('description', "case when coalesce(description, '') = '' then '".$this->params->description." [by: ".$this->session->user_name."]' else coalesce(description, '') || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]' end", FALSE);
+				unset($this->params->description);
+			}
 			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
 			
 			$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$id]);
@@ -1344,6 +1349,11 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'OPTIONS') {
 			$id = $this->params->id;
 			unset($this->params->id);
+			
+			if ($this->params->description) {
+				$this->db->set('description', "case when coalesce(description, '') = '' then '".$this->params->description." [by: ".$this->session->user_name."]' else coalesce(description, '') || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]' end", FALSE);
+				unset($this->params->description);
+			}
 			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
 			
 			$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$id]);
@@ -1613,7 +1623,21 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_so_had_shipment'), implode(',',array_unique($doc_no)))], 401);
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_so_had_shipment'), implode(',',array_unique($doc_no)))], 401);
+				}
+			}
+			/* Checking, is data so plan already posted ? */
+			if ($this->params['event'] == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$doc_no = [];
+				foreach($ids as $id){
+					$header = $this->base_model->isDataExist('cf_invoice', ['order_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($header) {
+						$doc_no[] = $header->doc_no;
+					}
+				}
+				if ($doc_no){
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_so_has_been_posted'), '')], 401);
 				}
 			}
 			if ($this->params['event'] == 'post_delete'){
@@ -1686,7 +1710,7 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_so_line_had_shipment'), implode(',',array_unique($doc_no)))], 401);
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_so_line_had_shipment'), implode(',',array_unique($doc_no)))], 401);
 				}
 			}
 			if ($this->params['event'] == 'post_delete'){
@@ -2027,7 +2051,21 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_po_had_received'), implode(',',array_unique($doc_no)))], 401);
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_po_had_received'), implode(',',array_unique($doc_no)))], 401);
+				}
+			}
+			/* Checking, is data po plan already posted ? */
+			if ($this->params['event'] == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$doc_no = [];
+				foreach($ids as $id){
+					$header = $this->base_model->isDataExist('cf_invoice', ['order_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($header) {
+						$doc_no[] = $header->doc_no;
+					}
+				}
+				if ($doc_no){
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_po_has_been_posted'), '')], 401);
 				}
 			}
 			if ($this->params['event'] == 'post_delete'){
@@ -2099,7 +2137,7 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_po_line_had_received'), implode(',',array_unique($doc_no)))], 401);
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_po_line_had_received'), implode(',',array_unique($doc_no)))], 401);
 				}
 			}
 			if ($this->params['event'] == 'post_delete'){

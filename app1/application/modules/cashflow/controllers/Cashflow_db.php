@@ -97,6 +97,7 @@ class Cashflow_db extends CI_Controller {
 		$fields['scm_dt_reasons'] = ['type' => 'INT[]', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['penalty_percent'] 	= ['type' => 'NUMERIC', 'constraint' => '18,4', 'null' => TRUE];	
 		$fields['max_penalty_percent'] 	= ['type' => 'NUMERIC', 'constraint' => '18,4', 'null' => TRUE];	
+		$fields['remark'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
 	
@@ -242,6 +243,7 @@ class Cashflow_db extends CI_Controller {
 		$fields['adj_amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['net_amount'] = ['type' => 'NUMERIC', 'constraint' => '18,2', 'null' => TRUE];
 		$fields['note'] = ['type' => 'TEXT', 'null' => TRUE];
+		$fields['remark'] = ['type' => 'TEXT', 'null' => TRUE];
 		return $fields;
 	}
 	
