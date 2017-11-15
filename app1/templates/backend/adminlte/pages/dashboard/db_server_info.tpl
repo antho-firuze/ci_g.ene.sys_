@@ -7,24 +7,6 @@
 </div>
 <!-- /.content-wrapper -->
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/daterangepicker/daterangepicker.css">
-{* <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/summernote/summernote.css"> *}
-{* <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/datepicker/datepicker3.css"> *}
-{* <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/tag-it/css/jquery.tagit.css"> *}
-{* <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/tag-it/css/tagit.ui-zendesk.css"> *}
-{* <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/bootstrap-tagsinput/bootstrap-tagsinput.css"> *}
-{* <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/jvectormap/jquery-jvectormap-1.2.2.css"> *}
-{* <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script> *}
-{* <script src="{$.const.TEMPLATE_URL}plugins/jQueryUI/jquery-ui.min.js"></script> *}
-{* <script src="{$.const.TEMPLATE_URL}plugins/summernote/summernote.min.js"></script> *}
-{* <script src="{$.const.TEMPLATE_URL}plugins/datepicker/bootstrap-datepicker.js"></script> *}
-{* <script src="{$.const.TEMPLATE_URL}plugins/tag-it/js/tag-it.js"></script> *}
-{* <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-tagsinput/bootstrap-tagsinput.min.js"></script> *}
-{* <script src="{$.const.TEMPLATE_URL}plugins/jvectormap/jquery-jvectormap-1.2.2.min.js"></script> *}
-{* <script src="{$.const.TEMPLATE_URL}plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script> *}
-{* <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script> *}
-{* <script src="{$.const.TEMPLATE_URL}plugins/textfill/jquery.textfill.min.js"></script> *}
-{* <script src="{$.const.TEMPLATE_URL}plugins/moment/min/moment.min.js"></script> *}
-{* <script src="{$.const.TEMPLATE_URL}plugins/chartjs/Chart.min.js"></script> *}
 <script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/moment.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/daterangepicker.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/chartjs/Chart.bundle.min.js"></script>
@@ -181,21 +163,10 @@
 	var optHits = {
 		spanGaps: true,
 		responsive: true,
-		title:{
-				display: false,
-				text: 'Server Hit Access'
-		},
-		legend: {
-        display: false
-    },
-		tooltips: {
-				mode: 'index',
-				intersect: false,
-		},
-		hover: {
-				mode: 'nearest',
-				intersect: true
-		},
+		title:{	display: false,	text: 'Server Hit Access'	},
+		legend: { display: false },
+		tooltips: {	mode: 'index', intersect: false, },
+		hover: { mode: 'nearest',	intersect: true	},
 		scales: {
 				xAxes: [{
 						display: true,
@@ -212,51 +183,16 @@
 						}
 				}]
 		},
-		elements: {
-			line: {
-				tension: 0.000001
-			}
-		},
+		elements: {	line: {	tension: 0.000001	} },
  	};
-	var dataHits = {
-		labels: ["1", "2", "3", "4", "5", "6", "7"],
-		datasets: [
-			{
-				label: 'Hits',
-				borderColor: 'rgba(210, 180, 222, 1)',
-				data: [0, 0, 0, 0, 0, 0, 0]
-			}
-		]
-	};
-	
+	var hitsChart = new Chart("lineChart", { type: "line",	data: {}, options: optHits });
+
 	
 	var optHost = {
 		responsive: true,
-		legend: {
-				position: 'top',
-		},
-		title: {
-				display: false,
-				text: 'Chart.js Doughnut Chart'
-		},
-		animation: {
-				animateScale: true,
-				animateRotate: true
-		}
-	};
-	var dataHost = {
-		labels: ["Red", "Orange", "Yellow", "Green", "Blue"],
-		datasets: [{
-				label: 'Dataset 1',
-				data: [10, 20, 30, 40, 50],
-				backgroundColor: [
-						'rgb(255, 99, 132)',
-						'rgb(255, 159, 64)',
-						'rgb(255, 205, 86)',
-						'rgb(75, 192, 192)',
-						'rgb(54, 162, 235)',
-				],
-		}],
+		legend: {	position: 'top', },
+		title: { display: false, text: 'Chart.js Doughnut Chart' },
+		animation: { animateScale: true, animateRotate: true }
 	};
 	
 	$(".btn-group").on("click", function(e){
@@ -269,10 +205,6 @@
 		}
 		update_chart();
 	});
-	
-	{* var hitsChart = new Chart("lineChart", { type: "line",	data: dataHits, options: optHits }); *}
-	{* var hostChart = new Chart("host", { type: "doughnut",	data: dataHost, options: optHost }); *}
-	{* var hostPlatform = new Chart("platform", { type: "pie",	data: dataHost, options: optHost }); *}
 	
 	function update_chart(){
 		{* Validation *}
@@ -304,23 +236,10 @@
 		} else {
 			$("#btn3").attr("disabled", false);
 		}
-		{* console.log(durra.asDays()); *}
-		{* return false; *}
+
 		$.getJSON($url_module, form1.serializeOBJ(), function(result){ 
-			$.each(result.host, function(k, v){ console.log(k+' - '+v); });
-			{* hitsChart.data = result.dataHits; *}
-			{* hitsChart.update(); *}
-			var hitsChart = new Chart("lineChart", { type: "line",	data: result.dataHits, options: optHits });
-			{* var hostChart = new Chart("host", { type: "pie",	data: result.dataHost, options: optHost }); *}
-			{* var hostPlatform = new Chart("platform", { type: "pie",	data: result.dataPlatform, options: optHost }); *}
-			{* var hostBrowser = new Chart("browser", { type: "pie",	data: result.dataBrowser, options: optHost }); *}
-			{* var hostScreenRes = new Chart("screen_res", { type: "pie",	data: result.dataScreenRes, options: optHost }); *}
-			
-			{* hostChart.data = result.dataHost; *}
-			{* hostChart.update(); *}
-			{* if (!isempty_obj(result.data)){ *}
-				{* console.log(result.data); *}
-			{* } *}
+			hitsChart.data = result.dataHits;
+			hitsChart.update();
 		}).fail(function(data) {
 			{* console.log(data); *}
 			if (data.status >= 500){
