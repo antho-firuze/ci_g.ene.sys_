@@ -268,8 +268,8 @@
 	
 	});
 	
-	setTimeout(function(){
+	{* setTimeout(function(){ *}
 		update_chart();
-	}, 1000);
+	{* }, 1000); *}
 	
 </script>

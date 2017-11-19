@@ -376,6 +376,7 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, 
 		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name,
 		array_to_string(scm_dt_reasons, ',') as scm_dt_reasons,
+		(select string_agg(name, E',') from rf_scm_dt_reason where id = ANY(t1.scm_dt_reasons)) as reason_name,
 		(etd - expected_dt_cust) as estimation_late,
 		case when ((etd - expected_dt_cust) * penalty_percent * grand_total) > (max_penalty_percent * grand_total) 
 		then (max_penalty_percent * grand_total) 
@@ -411,7 +412,11 @@ class Cashflow_Model extends CI_Model
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
-		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select po_top from c_bpartner where id = t1.bpartner_id) as po_top, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.eta, '".$this->session->date_format."') as eta, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select po_top from c_bpartner where id = t1.bpartner_id) as po_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.eta, '".$this->session->date_format."') as eta, 
+		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 		$params['table'] 	= "cf_order as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
 			$params['select'] .= ", t2.doc_no as doc_no_requisition, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_requisition, to_char(t2.eta, '".$this->session->date_format."') as eta_requisition";
@@ -1348,6 +1353,7 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, 
 		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name,
 		array_to_string(scm_dt_reasons, ',') as scm_dt_reasons,
+		(select string_agg(name, E',') from rf_scm_dt_reason where id = ANY(t1.scm_dt_reasons)) as reason_name,
 		(etd - expected_dt_cust) as estimation_late,
 		case when ((etd - expected_dt_cust) * penalty_percent * grand_total) > (max_penalty_percent * grand_total) 
 		then (max_penalty_percent * grand_total) 

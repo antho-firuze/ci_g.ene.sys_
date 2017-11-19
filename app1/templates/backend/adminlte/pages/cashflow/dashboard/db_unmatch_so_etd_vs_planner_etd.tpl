@@ -42,6 +42,7 @@
 				createdCell: function (td, cellData, rowData, row, col) { if ( parseInt(cellData) > 0 ) { $(td).css({ 'background-color':'red', 'font-weight':'bold' }); } },
 			},
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"estimation_penalty_amount", title:"Estimation Penalty Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"200px", orderable:false, data:"reason_name", title:"Late Reason", createdCell: function (td, cellData, rowData, row, col) { $(td).css({ 'text-overflow':'unset', 'overflow-x':'auto' }); } },
 			{ width:"100px", orderable:false, data:"residence", title:"Residence" },
 			{ width:"100px", orderable:false, data:"category_name", title:"Category" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },

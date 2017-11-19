@@ -28,6 +28,7 @@ function setToolbarBtn(btnList)
 													'<div class="btn-group btnGroup3" />'+
 													'<div class="btn-group btnGroup4" />'+
 													'<div class="btn-group btnGroup5" />'+
+													'<div class="btn-group btnGroup6" />'+
 												'</div>'+
 											'</div>'+
 										'</div>');
@@ -41,7 +42,8 @@ function setToolbarBtn(btnList)
 		"btn-print": 		{group:3, id:"btn-print", title:"Print", bstyle:"bg-purple", icon:"glyphicon glyphicon-print"},
 		"btn-import": 	{group:3, id:"btn-import", title:"Import", bstyle:"btn-warning", icon:"glyphicon glyphicon-open"},
 		"btn-viewlog": 	{group:4, id:"btn-viewlog", title:"Record Info", bstyle:"btn-default", icon:"fa fa-info fa-lg", style:"width:35px; height:35px;"},
-		"btn-process": 	{group:5, id:"btn-process", title:"Process", bstyle:"bg-purple", icon:"glyphicon glyphicon-cog dropdown-toggle", data_toggle:"dropdown"},
+		"btn-filter": 	{group:5, id:"btn-filter", title:"Filter", bstyle:"btn-success", icon:"fa fa-filter fa-lg", style:"width:35px; height:35px;"},
+		"btn-process": 	{group:6, id:"btn-process", title:"Process", bstyle:"bg-purple", icon:"glyphicon glyphicon-cog dropdown-toggle", data_toggle:"dropdown"},
 	};
 	$.each(btnList, function(k,v){
 		var btn = $('<button/>', { type:"button", id:buttons[v].id, title:buttons[v].title, 'class':'btn '+buttons[v].bstyle+' '+buttons[v].icon, style:buttons[v].style, 'data-toggle':buttons[v].data_toggle });
@@ -607,6 +609,13 @@ $('.toolbar_container').click('button', function(e){
 			break;
 		case 'btn-import':
 			window.location.href = getURLOrigin()+window.location.search+"&action=imp";
+			break;
+		case 'btn-filter':
+			if (! $.isFunction(window['func_filter'])) {
+				BootstrapDialog.alert("Database Filter is not defined !");
+				return false;
+			}	
+			window['func_filter'](data);
 			break;
 	}
 });

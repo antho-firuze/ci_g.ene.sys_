@@ -4539,4 +4539,51 @@ class Cashflow extends Getmeb
 		}
 	}
 	
+	function dashboard_sales()
+	{
+		if ($this->r_method == 'GET') {
+			$fdate = $this->params['fdate'];
+			$tdate = $this->params['tdate'];
+			$str = "select i.date, (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE as end_of_month, to_char(i.date, 'Mon') as month,
+			(select count(*) from cf_order where is_active = '1' and is_deleted = '0' and doc_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE) as total_so,
+			(select count(*) from cf_order where is_active = '1' and is_deleted = '0' and doc_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and etd > expected_dt_cust) as total_so_late
+			from generate_series('$fdate', '$tdate', '1 month'::interval) i;";
+			$qry = $this->db->query($str);
+			if ($qry->num_rows() > 0) {
+				// $arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
+				foreach($qry->result() as $row){
+					$arr['labels'][] = $row->month;
+					$arr['data_so'][] = $row->total_so;
+					$arr['data_so_late'][] = $row->total_so_late;
+				}
+				$result['data']['labels'] = $arr['labels'];
+				$result['data']['datasets'][] = ['label' => 'Sales Order', 'borderColor' => get_rgba(), 'data' => $arr['data_so']];
+				$result['data']['datasets'][] = ['label' => 'Sales Order (Late)', 'borderColor' => get_rgba(), 'data' => $arr['data_so_late']];
+			}	
+			/* total_so */
+			$str = "select coalesce(count(*), 0) as total from cf_order t1 where is_active = '1' and is_deleted = '0' and doc_date between '$fdate' and '$tdate';";
+			$row = $this->db->query($str)->row();
+			$result['data']['total_so'] = $row->total;
+			/* total_so_amount */
+			$str = "select trim(to_char(coalesce(sum(grand_total), 0), '99G999G999G999')) as total from cf_order t1 where is_active = '1' and is_deleted = '0' and doc_date between '$fdate' and '$tdate';";
+			$row = $this->db->query($str)->row();
+			$result['data']['total_so_amount'] = $row->total;
+			/* total_so_late */
+			$str = "select coalesce(count(*), 0) as total from cf_order t1 where is_active = '1' and is_deleted = '0' and etd > expected_dt_cust and doc_date between '$fdate' and '$tdate';";
+			$row = $this->db->query($str)->row();
+			$result['data']['total_so_late'] = $row->total;
+			/* total_so_penalty */
+			$str = "select trim(to_char(coalesce(sum(
+			case when ((etd - expected_dt_cust) * penalty_percent * grand_total) > (max_penalty_percent * grand_total) 
+			then (max_penalty_percent * grand_total) 
+			else ((etd - expected_dt_cust) * penalty_percent * grand_total) 
+			end), 0), '99G999G999G999')) as total 
+			from cf_order t1 where is_active = '1' and is_deleted = '0' and etd > expected_dt_cust and doc_date between '$fdate' and '$tdate';";
+			$row = $this->db->query($str)->row();
+			$result['data']['total_so_penalty'] = $row->total;
+			
+			$this->xresponse(TRUE, $result);
+		}
+	}
+	
 }

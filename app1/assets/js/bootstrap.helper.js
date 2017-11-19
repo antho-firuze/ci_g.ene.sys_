@@ -48,9 +48,10 @@
 		}
 		var o = $.extend( {}, default_opts, options );
 		var link = o.link ? '<a href="'+o.link+'" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>' : '<div class="small-box-footer">&nbsp;</div>';
+		var num = o.seq ? '<div class="pull-right"><span data-toggle="tooltip" class="badge bg-yellow" data-original-title="Number #'+o.seq+'">'+o.seq+'</span></div>' : '';
 		return $('<div class="col-lg-3 col-xs-6">'+
-								'<div class="small-box '+o.color+'" data-toggle="tooltip" data-placement="bottom" title="'+(o.tooltip ? o.tooltip : '')+'">'+
-									'<div class="pull-right"><span data-toggle="tooltip" class="badge bg-yellow" data-original-title="Number #'+o.seq+'">'+o.seq+'</span></div>'+
+								'<div class="small-box '+o.color+'" data-toggle="tooltip" data-placement="bottom" id="'+(o.idname ? o.idname : '')+'" title="'+(o.tooltip ? o.tooltip : '')+'">'+
+									num+
 									'<div class="inner">'+
 										'<div class="val"><h3><span>'+o.value+'</span></h3></div>'+
 										'<div class="title"><p style="white-space: nowrap;"><span>'+o.title+'</span></p></div>'+

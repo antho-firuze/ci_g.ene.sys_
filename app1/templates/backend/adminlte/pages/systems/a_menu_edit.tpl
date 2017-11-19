@@ -39,6 +39,7 @@
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Table", idname:"table" }));
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Title", idname:"title" }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Title Description", idname:"title_desc" }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Icon", idname:"icon" }));
 	row.push(subCol(6, col));
 	form1.append(subRow(row));
 	form1.append(subRow(subCol()));

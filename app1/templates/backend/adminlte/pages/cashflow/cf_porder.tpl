@@ -15,8 +15,8 @@
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		enable: true,
-		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process'],
-		disableBtn: ['btn-copy','btn-message','btn-process'],
+		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process','btn-filter'],
+		disableBtn: ['btn-copy','btn-message','btn-print','btn-process'],
 		hiddenBtn: ['btn-copy','btn-message'],
 		processMenu: [{ id:"btn-process1", title:"Process 1" }, { id:"btn-process2", title:"Process 2" }, ],
 		processMenuDisable: ['btn-process1'],
@@ -56,6 +56,62 @@
 		],
 		order: ['id desc'],
 	};
+	
+	{* Initialization *}
+	function func_filter(data) {
+		var col = [], row = [], a = [];
+		var form1 = BSHelper.Form({ autocomplete:"off" });
+		{* col.push("<h3>Sales Order : <br>"+data.doc_no+"</h3>"); *}
+		{* a.push(BSHelper.LineDesc({ label:"Doc Date", value: data.doc_date })); *}
+		{* a.push(BSHelper.LineDesc({ label:"Customer", value: data.bpartner_name })); *}
+		{* a.push(BSHelper.LineDesc({ label:"Reference No", value: data.doc_ref_no })); *}
+		{* a.push(BSHelper.LineDesc({ label:"Reference Date", value: data.doc_ref_date })); *}
+		{* a.push(BSHelper.LineDesc({ label:"Expected DT Customer", value: data.expected_dt_cust })); *}
+		col.push(BSHelper.Input({ horz:false, type:"date", label:"ETD", idname:"etd", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
+		col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
+		row.push(subCol(12, col)); col = [];
+		form1.append(subRow(row));
+		
+		form1.on('submit', function(e){ e.preventDefault(); });
+		
+		BootstrapDialog.show({ title: 'Filter Record/s', type: BootstrapDialog.TYPE_SUCCESS, message: form1,
+			buttons: [{
+				icon: 'glyphicon glyphicon-send',
+				cssClass: 'btn-success',
+				label: '&nbsp;&nbsp;Filter',
+				action: function(dialog) {
+					var button = this;
+					button.spin();
+					
+					var $xdel = getURLParameter("xdel") ? "&xdel=1" : "";
+					$.ajax({ url: $url_module+"?id="+ids.join()+$xdel, method: "DELETE", async: true, dataType: 'json',
+						success: function(data) {
+							dialog.close();
+							dataTable1.ajax.reload( null, false );
+							BootstrapDialog.alert(data.message);
+						},
+						error: function(data) {
+							if (data.status >= 500){
+								var message = data.statusText;
+							} else {
+								var error = JSON.parse(data.responseText);
+								var message = error.message;
+							}
+							button.stopSpin();
+							dialog.enableButtons(true);
+							dialog.setClosable(true);
+							BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+						}
+					});
+				}
+			}, {
+					label: 'Cancel',
+					action: function(dialog) { dialog.close(); }
+			}],
+			onshown: function(dialog) {
+			}
+		}); 
+	}
 	
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>
