@@ -57,8 +57,8 @@
 	$(".content").append(subRow(boxes));
 	
 	{* Initialization *}
-	var start = moment().startOf('month');
-	var end = moment().endOf('month');
+	var start = moment().startOf('year');
+	var end = moment().endOf('year');
 	{* //Date range as a button *}
 	$('#btn_cal').daterangepicker(
 			{
@@ -71,8 +71,8 @@
 					'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
 					'This Year': [moment().startOf('year'), moment().endOf('year')],
 				},
-				startDate: moment().startOf('month'),
-				endDate: moment().endOf('month')
+				startDate: moment().startOf('year'),
+				endDate: moment().endOf('year')
 			},
 			function (start, end) {
 				{* console.log(start.format('YYYY-MM-DD') + ' - ' + end.format('MMMM D, YYYY')); *}

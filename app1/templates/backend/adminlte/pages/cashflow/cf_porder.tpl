@@ -9,6 +9,10 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/css/query-builder.default.min.css">
+<script src="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/js/query-builder.standalone.min.js"></script>
+{* <script src="{$.const.TEMPLATE_URL}plugins/interact/interact.js"></script> *}
+<script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/moment.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
@@ -67,13 +71,77 @@
 		{* a.push(BSHelper.LineDesc({ label:"Reference No", value: data.doc_ref_no })); *}
 		{* a.push(BSHelper.LineDesc({ label:"Reference Date", value: data.doc_ref_date })); *}
 		{* a.push(BSHelper.LineDesc({ label:"Expected DT Customer", value: data.expected_dt_cust })); *}
-		col.push(BSHelper.Input({ horz:false, type:"date", label:"ETD", idname:"etd", cls:"auto_ymd", format:"{$.session.date_format}", required: true }));
-		col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
+		{* col.push(BSHelper.Input({ horz:false, type:"date", label:"ETD", idname:"etd", cls:"auto_ymd", format:"{$.session.date_format}", required: true })); *}
+		{* col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", })); *}
+		col.push($('<div id="builder" />'));
 		row.push(subCol(12, col)); col = [];
 		form1.append(subRow(row));
 		
 		form1.on('submit', function(e){ e.preventDefault(); });
 		
+  var options = {
+    allow_empty: true,
+
+    sort_filters: true,
+
+    plugins: {
+      {* 'bt-tooltip-errors': { delay: 100 }, *}
+      {* 'sortable': null, *}
+      {* 'filter-description': { mode: 'bootbox' }, *}
+      {* 'bt-selectpicker': null, *}
+      {* 'unique-filter': null, *}
+      {* 'bt-checkbox': { color: 'primary' }, *}
+      {* 'invert': null, *}
+      {* 'not-group': null *}
+    },
+
+    operators: [
+      { type: 'equal', optgroup: 'basic' },
+      { type: 'not_equal', optgroup: 'basic' },
+      { type: 'in', optgroup: 'basic' },
+      { type: 'not_in', optgroup: 'basic' },
+      { type: 'less', optgroup: 'numbers' },
+      { type: 'less_or_equal', optgroup: 'numbers' },
+      { type: 'greater', optgroup: 'numbers' },
+      { type: 'greater_or_equal', optgroup: 'numbers' },
+      { type: 'between', optgroup: 'numbers' },
+      { type: 'not_between', optgroup: 'numbers' },
+      { type: 'begins_with', optgroup: 'strings' },
+      { type: 'not_begins_with', optgroup: 'strings' },
+      { type: 'contains', optgroup: 'strings' },
+      { type: 'not_contains', optgroup: 'strings' },
+      { type: 'ends_with', optgroup: 'strings' },
+      { type: 'not_ends_with', optgroup: 'strings' },
+      { type: 'is_empty' },
+      { type: 'is_not_empty' },
+      { type: 'is_null' },
+      { type: 'is_not_null' }
+    ],
+
+    filters: [
+      {
+        id: 'is_import',
+        label: 'Is Import',
+        type: 'string',
+        input: 'radio',
+        values: {
+          '1': 'Yes',
+          '0': 'No'
+        },
+        operators: ['equal']
+      },
+		],
+  };
+
+  $('.parse-sql').on('click', function() {
+    var res = $('#builder').queryBuilder('getSQL', $(this).data('stmt'), false);
+    $('#result').removeClass('hide')
+      .find('pre').html(
+      res.sql + (res.params ? '\n\n' + JSON.stringify(res.params, undefined, 2) : '')
+    );
+  });
+  form1.find('#builder').queryBuilder(options);
+
 		BootstrapDialog.show({ title: 'Filter Record/s', type: BootstrapDialog.TYPE_SUCCESS, message: form1,
 			buttons: [{
 				icon: 'glyphicon glyphicon-send',
@@ -82,6 +150,10 @@
 				action: function(dialog) {
 					var button = this;
 					button.spin();
+					
+					var res = form1.find('#builder').queryBuilder('getSQL', false, false);
+					console.log(res.sql);
+					return false;
 					
 					var $xdel = getURLParameter("xdel") ? "&xdel=1" : "";
 					$.ajax({ url: $url_module+"?id="+ids.join()+$xdel, method: "DELETE", async: true, dataType: 'json',
