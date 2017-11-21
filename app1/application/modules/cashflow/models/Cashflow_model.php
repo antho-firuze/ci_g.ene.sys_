@@ -1614,9 +1614,9 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date_order"
 		;
 		$params['table'] = "(
-			select *, (select bpartner_id from cf_order where id = t0.order_id) from 
+			select * from 
 			(
-			select *, 
+			select *, (select bpartner_id from cf_order where id = t0.order_id), 
 			(select orgtrx_id from cf_order where is_active = '1' and is_deleted = '0' and id = t1.order_id), 
 			(select payment_plan_date from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id) as payment_plan_date_invoice
 			from cf_order_plan t1 where is_active = '1' and is_deleted = '0' 
