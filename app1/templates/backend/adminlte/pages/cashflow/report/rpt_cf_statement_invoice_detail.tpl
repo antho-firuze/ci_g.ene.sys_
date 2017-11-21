@@ -25,9 +25,6 @@
 	var format_money = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
 	var DataTable_Init = {
 		enable: true,
-		{* length: 20, *}
-		{* showFilter: false, *}
-		{* showPaginate: false, *}
 		showColumnMenu: false,
 		tableWidth: '150%',
 		act_menu: { copy: true, edit: true, delete: true },

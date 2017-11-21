@@ -69,6 +69,20 @@ function get(name) {
 	}
 }
 
+/**
+* Remove a prestored setting
+*
+* @param String name Name of of the setting
+* @returns String The value of the setting | null
+*/
+function remove(name) {
+	if (typeof (Storage) !== "undefined") {
+		return localStorage.removeItem(name);
+	} else {
+		window.alert('Please use a modern browser to properly view this template!');
+	}
+}
+
 function _href(){
 	$protocol = window.location.protocol;
 	$hostname = window.location.hostname;

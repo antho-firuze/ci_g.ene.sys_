@@ -631,7 +631,9 @@ QueryBuilder.OPERATORS = {
     is_empty:         { type: 'is_empty',         nb_inputs: 0, multiple: false, apply_to: ['string'] },
     is_not_empty:     { type: 'is_not_empty',     nb_inputs: 0, multiple: false, apply_to: ['string'] },
     is_null:          { type: 'is_null',          nb_inputs: 0, multiple: false, apply_to: ['string', 'number', 'datetime', 'boolean'] },
-    is_not_null:      { type: 'is_not_null',      nb_inputs: 0, multiple: false, apply_to: ['string', 'number', 'datetime', 'boolean'] }
+    is_not_null:      { type: 'is_not_null',      nb_inputs: 0, multiple: false, apply_to: ['string', 'number', 'datetime', 'boolean'] },
+    asc:      				{ type: 'asc',      				nb_inputs: 0, multiple: false, apply_to: ['string', 'number', 'datetime', 'boolean'] },
+    desc:      				{ type: 'desc',      				nb_inputs: 0, multiple: false, apply_to: ['string', 'number', 'datetime', 'boolean'] },
 };
 
 /**
@@ -699,7 +701,9 @@ QueryBuilder.DEFAULTS = {
         'is_empty',
         'is_not_empty',
         'is_null',
-        'is_not_null'
+        'is_not_null',
+        'asc',
+        'desc',
     ],
 
     icons: {
@@ -4595,7 +4599,9 @@ QueryBuilder.defaults({
         'is_empty':         'is_not_empty',
         'is_not_empty':     'is_empty',
         'is_null':          'is_not_null',
-        'is_not_null':      'is_null'
+        'is_not_null':      'is_null',
+        'asc':      				'asc',
+        'desc':      				'desc',
     },
 
     conditionOpposites: {
@@ -5484,7 +5490,9 @@ QueryBuilder.defaults({
         is_empty: { op: '= \'\'' },
         is_not_empty: { op: '!= \'\'' },
         is_null: { op: 'IS NULL' },
-        is_not_null: { op: 'IS NOT NULL' }
+        is_not_null: { op: 'IS NOT NULL' },
+				asc: { op: 'ASC' },
+				desc: { op: 'DESC' },
     },
 
     // operators for SQL -> internal conversion
@@ -5582,7 +5590,19 @@ QueryBuilder.defaults({
                 Utils.error('SQLParse', 'Invalid value for IS operator');
             }
             return { val: null, op: 'is_not_null' };
-        }
+        },
+        'ASC': function(v) {
+            if (v !== null) {
+                Utils.error('SQLParse', 'Invalid value for IS operator');
+            }
+            return { val: null, op: 'ASC' };
+        },
+        'DESC': function(v) {
+            if (v !== null) {
+                Utils.error('SQLParse', 'Invalid value for IS operator');
+            }
+            return { val: null, op: 'DESC' };
+        },
     },
 
     // statements for internal -> SQL conversion
@@ -6243,7 +6263,9 @@ QueryBuilder.regional['en'] = {
     "is_empty": "is empty",
     "is_not_empty": "is not empty",
     "is_null": "is null",
-    "is_not_null": "is not null"
+    "is_not_null": "is not null",
+    "asc": "asc",
+    "desc": "desc",
   },
   "errors": {
     "no_filter": "No filter selected",

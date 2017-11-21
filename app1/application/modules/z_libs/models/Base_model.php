@@ -153,6 +153,12 @@ class Base_Model extends CI_Model
 			}
 		}
 
+		/* SQL Filter
+		 * sample: &sfilter=is_import='1' and name like '%anonym%' */
+		if (key_exists('sfilter', $this->params) && !empty($this->params['sfilter'])){
+			$this->db->where($this->params['sfilter'], NULL, FALSE);
+		}
+
 		/* Special feature for showing deleted records */
 		if (key_exists('xdel', $this->params) && ($this->params['xdel'] == '1') && ($this->session->user_id == 11)){
 			$this->db->where('t1.is_deleted', '1');

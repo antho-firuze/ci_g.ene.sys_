@@ -4464,10 +4464,11 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(FALSE, FALSE);
 			
-			if (isset($this->params['cfilter']) && !empty($this->params['cfilter'])) {
-				// foreach (explode(",", $this->params['cfilter']) as $value) {
-					$this->params['date'] = $this->params['cfilter'];
-				// }
+			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
+				list($k, $v) = explode('=', $this->params['filter']);
+				$this->params['date'] = $v;
+				
+				unset($this->params['filter']);
 			}
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
@@ -4501,10 +4502,12 @@ class Cashflow extends Getmeb
 			end",
 			]);
 			
-			if (isset($this->params['cfilter']) && !empty($this->params['cfilter'])) {
-				foreach (explode(",", $this->params['cfilter']) as $value) {
+			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
+				foreach (explode(",", $this->params['filter']) as $value) {
 					$this->params['where_custom'][] = $value;
 				}
+				
+				unset($this->params['filter']);
 			}
 			
 			$this->params['where']['t1.is_active'] = '1';

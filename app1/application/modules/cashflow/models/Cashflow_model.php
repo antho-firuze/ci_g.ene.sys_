@@ -378,9 +378,10 @@ class Cashflow_Model extends CI_Model
 		array_to_string(scm_dt_reasons, ',') as scm_dt_reasons,
 		(select string_agg(name, E',') from rf_scm_dt_reason where id = ANY(t1.scm_dt_reasons)) as reason_name,
 		(etd - expected_dt_cust) as estimation_late,
-		case when ((etd - expected_dt_cust) * penalty_percent * grand_total) > (max_penalty_percent * grand_total) 
+		case 
+		when ((etd - expected_dt_cust) * penalty_percent * grand_total) > (max_penalty_percent * grand_total) 
 		then (max_penalty_percent * grand_total) 
-		else ((etd - expected_dt_cust) * penalty_percent * grand_total) 
+		else (case when (etd - expected_dt_cust) > 0 then ((etd - expected_dt_cust) * penalty_percent * grand_total) else 0 end) 
 		end as estimation_penalty_amount";
 		$params['table'] 	= "cf_order as t1";
 		return $this->base_model->mget_rec($params);

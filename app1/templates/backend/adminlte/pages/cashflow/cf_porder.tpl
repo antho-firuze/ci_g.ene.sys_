@@ -10,8 +10,9 @@
 </div>
 <!-- /.content-wrapper -->
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/css/query-builder.default.min.css">
-<script src="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/js/query-builder.standalone.min.js"></script>
-{* <script src="{$.const.TEMPLATE_URL}plugins/interact/interact.js"></script> *}
+<script src="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/js/query-builder.standalone.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/interact/dist/interact.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/sql-parser/browser/sql-parser.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/moment.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
@@ -19,7 +20,7 @@
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		enable: true,
-		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process','btn-filter'],
+		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process','btn-filter','btn-sort'],
 		disableBtn: ['btn-copy','btn-message','btn-print','btn-process'],
 		hiddenBtn: ['btn-copy','btn-message'],
 		processMenu: [{ id:"btn-process1", title:"Process 1" }, { id:"btn-process2", title:"Process 2" }, ],
@@ -42,6 +43,7 @@
 		columns: [
 			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
 			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
+			{ width:"150px", orderable:false, data:"bpartner_name", title:"Vendor" },
 			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_import", title:"Import", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
@@ -49,7 +51,6 @@
 			{ width:"100px", orderable:false, data:"doc_no_requisition", title:"PR Doc No" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_requisition", title:"PR Doc Date" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"eta_requisition", title:"PR ETA" },
-			{ width:"150px", orderable:false, data:"bpartner_name", title:"Vendor" },
 			{ width:"200px", orderable:false, data:"description", title:"Description" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Total", render: function(data, type, row){ return format_money(data); } },
@@ -63,118 +64,182 @@
 	
 	{* Initialization *}
 	function func_filter(data) {
-		var col = [], row = [], a = [];
+		var col = [], row = [];
 		var form1 = BSHelper.Form({ autocomplete:"off" });
-		{* col.push("<h3>Sales Order : <br>"+data.doc_no+"</h3>"); *}
-		{* a.push(BSHelper.LineDesc({ label:"Doc Date", value: data.doc_date })); *}
-		{* a.push(BSHelper.LineDesc({ label:"Customer", value: data.bpartner_name })); *}
-		{* a.push(BSHelper.LineDesc({ label:"Reference No", value: data.doc_ref_no })); *}
-		{* a.push(BSHelper.LineDesc({ label:"Reference Date", value: data.doc_ref_date })); *}
-		{* a.push(BSHelper.LineDesc({ label:"Expected DT Customer", value: data.expected_dt_cust })); *}
-		{* col.push(BSHelper.Input({ horz:false, type:"date", label:"ETD", idname:"etd", cls:"auto_ymd", format:"{$.session.date_format}", required: true })); *}
-		{* col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", })); *}
 		col.push($('<div id="builder" />'));
-		row.push(subCol(12, col)); col = [];
+		row.push(subCol(12, col));
 		form1.append(subRow(row));
-		
 		form1.on('submit', function(e){ e.preventDefault(); });
 		
-  var options = {
-    allow_empty: true,
+		var options = {
+			allow_empty: true,
+			sort_filters: true,
+			plugins: {
+				'bt-tooltip-errors': { delay: 100 },
+				'sortable': null,
+				{* 'filter-description': { mode: 'bootbox' }, *}
+				{* 'bt-selectpicker': null, *}
+				'unique-filter': null,
+				{* 'bt-checkbox': { color: 'primary' }, *}
+				{* 'invert': null, *}
+				{* 'not-group': null *}
+			},
+			operators: [
+				{ type: 'equal', optgroup: 'basic' },
+				{ type: 'not_equal', optgroup: 'basic' },
+				{ type: 'in', optgroup: 'basic' },
+				{ type: 'not_in', optgroup: 'basic' },
+				{ type: 'less', optgroup: 'numbers' },
+				{ type: 'less_or_equal', optgroup: 'numbers' },
+				{ type: 'greater', optgroup: 'numbers' },
+				{ type: 'greater_or_equal', optgroup: 'numbers' },
+				{ type: 'between', optgroup: 'numbers' },
+				{ type: 'not_between', optgroup: 'numbers' },
+				{ type: 'begins_with', optgroup: 'strings' },
+				{ type: 'not_begins_with', optgroup: 'strings' },
+				{ type: 'contains', optgroup: 'strings' },
+				{ type: 'not_contains', optgroup: 'strings' },
+				{ type: 'ends_with', optgroup: 'strings' },
+				{ type: 'not_ends_with', optgroup: 'strings' },
+				{ type: 'is_empty' },
+				{ type: 'is_not_empty' },
+				{ type: 'is_null' },
+				{ type: 'is_not_null' }
+			],
+			filters: [
+				{
+					unique: true,
+					id: 'is_import',
+					label: 'Is Import',
+					type: 'string',
+					input: 'radio',
+					values: {
+						'1': 'Yes',
+						'0': 'No'
+					},
+					operators: ['equal'],
+				},
+				{
+					unique: true,
+					id: 'grand_total',
+					label: 'Grand Total',
+					type: 'double',
+					size: 5,
+					validation: {
+						min: 0,
+						step: 0.01
+					},
+				},
+				{
+					unique: true,
+					id: 'doc_date',
+					label: 'Doc Date',
+					type: 'datetime',
+				},
+			],
+		};
 
-    sort_filters: true,
-
-    plugins: {
-      {* 'bt-tooltip-errors': { delay: 100 }, *}
-      {* 'sortable': null, *}
-      {* 'filter-description': { mode: 'bootbox' }, *}
-      {* 'bt-selectpicker': null, *}
-      {* 'unique-filter': null, *}
-      {* 'bt-checkbox': { color: 'primary' }, *}
-      {* 'invert': null, *}
-      {* 'not-group': null *}
-    },
-
-    operators: [
-      { type: 'equal', optgroup: 'basic' },
-      { type: 'not_equal', optgroup: 'basic' },
-      { type: 'in', optgroup: 'basic' },
-      { type: 'not_in', optgroup: 'basic' },
-      { type: 'less', optgroup: 'numbers' },
-      { type: 'less_or_equal', optgroup: 'numbers' },
-      { type: 'greater', optgroup: 'numbers' },
-      { type: 'greater_or_equal', optgroup: 'numbers' },
-      { type: 'between', optgroup: 'numbers' },
-      { type: 'not_between', optgroup: 'numbers' },
-      { type: 'begins_with', optgroup: 'strings' },
-      { type: 'not_begins_with', optgroup: 'strings' },
-      { type: 'contains', optgroup: 'strings' },
-      { type: 'not_contains', optgroup: 'strings' },
-      { type: 'ends_with', optgroup: 'strings' },
-      { type: 'not_ends_with', optgroup: 'strings' },
-      { type: 'is_empty' },
-      { type: 'is_not_empty' },
-      { type: 'is_null' },
-      { type: 'is_not_null' }
-    ],
-
-    filters: [
-      {
-        id: 'is_import',
-        label: 'Is Import',
-        type: 'string',
-        input: 'radio',
-        values: {
-          '1': 'Yes',
-          '0': 'No'
-        },
-        operators: ['equal']
-      },
-		],
-  };
-
-  $('.parse-sql').on('click', function() {
-    var res = $('#builder').queryBuilder('getSQL', $(this).data('stmt'), false);
-    $('#result').removeClass('hide')
-      .find('pre').html(
-      res.sql + (res.params ? '\n\n' + JSON.stringify(res.params, undefined, 2) : '')
-    );
-  });
-  form1.find('#builder').queryBuilder(options);
+		form1.find('#builder').queryBuilder(options);
+		var $method = $url_module.split('/')[4];
+		var $sfilter = get('sfilter_'+$method);
+		if ($sfilter && typeof($sfilter) !== null)
+			form1.find('#builder').queryBuilder('setRulesFromSQL', $sfilter);
 
 		BootstrapDialog.show({ title: 'Filter Record/s', type: BootstrapDialog.TYPE_SUCCESS, message: form1,
 			buttons: [{
 				icon: 'glyphicon glyphicon-send',
 				cssClass: 'btn-success',
-				label: '&nbsp;&nbsp;Filter',
+				label: '&nbsp;&nbsp;Submit',
 				action: function(dialog) {
 					var button = this;
 					button.spin();
 					
 					var res = form1.find('#builder').queryBuilder('getSQL', false, false);
-					console.log(res.sql);
-					return false;
+					if (res.sql) {
+						store('sfilter_'+$method, res.sql);
+						var url = URI(dataTable1.ajax.url()).removeSearch('sfilter').addSearch('sfilter', res.sql);
+					}	else {
+						remove('sfilter_'+$method);
+						var url = URI(dataTable1.ajax.url()).removeSearch('sfilter');
+					}
+					dataTable1.ajax.url( url ).load();
+					dialog.close();
+				}
+			}, {
+					label: 'Cancel',
+					action: function(dialog) { dialog.close(); }
+			}],
+			onshown: function(dialog) {
+			}
+		}); 
+	}
+	
+	function func_sort(data) {
+		var col = [], row = [];
+		var form1 = BSHelper.Form({ autocomplete:"off" });
+		col.push($('<div id="builder" />'));
+		row.push(subCol(12, col));
+		form1.append(subRow(row));
+		form1.on('submit', function(e){ e.preventDefault(); });
+		
+		var options = {
+			conditions: ['AND'],
+			allow_empty: true,
+			allow_groups: false,
+			plugins: {
+				'bt-tooltip-errors': { delay: 100 },
+				'unique-filter': null,
+			},
+			filters: [
+				{
+					unique: true,
+					id: 'doc_no',
+					label: 'Doc No',
+					type: 'string',
+					operators: ['asc', 'desc'],
+				},
+				{
+					unique: true,
+					id: 'doc_date',
+					label: 'Doc Date',
+					type: 'string',
+					operators: ['asc', 'desc'],
+				},
+			],
+		};
+
+		form1.find('#builder').queryBuilder(options);
+		var $method = $url_module.split('/')[4];
+		var $ob = get('ob_'+$method);
+		if ($ob && typeof($ob) !== null) {
+			var rules = [];
+			$.each($ob.split(', '), function(k, v){
+				rules.push({ "id":v.split(' ')[0], "operator":v.split(' ')[1].toLowerCase() }); 
+			});
+			form1.find('#builder').queryBuilder('setRules', { "condition":"AND", "rules":rules });
+		}
+
+		BootstrapDialog.show({ title: 'Sorting Records', type: BootstrapDialog.TYPE_SUCCESS, message: form1,
+			buttons: [{
+				icon: 'glyphicon glyphicon-send',
+				cssClass: 'btn-success',
+				label: '&nbsp;&nbsp;Submit',
+				action: function(dialog) {
+					var button = this;
+					button.spin();
 					
-					var $xdel = getURLParameter("xdel") ? "&xdel=1" : "";
-					$.ajax({ url: $url_module+"?id="+ids.join()+$xdel, method: "DELETE", async: true, dataType: 'json',
-						success: function(data) {
-							dialog.close();
-							dataTable1.ajax.reload( null, false );
-							BootstrapDialog.alert(data.message);
-						},
-						error: function(data) {
-							if (data.status >= 500){
-								var message = data.statusText;
-							} else {
-								var error = JSON.parse(data.responseText);
-								var message = error.message;
-							}
-							button.stopSpin();
-							dialog.enableButtons(true);
-							dialog.setClosable(true);
-							BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
-						}
-					});
+					var res = form1.find('#builder').queryBuilder('getSQL', false, false);
+					{* console.log(res.sql.split(' AND').join()); *}
+					{* return false; *}
+					if (res.sql) {
+						store('ob_'+$method, res.sql.split(' AND').join());
+						var url = URI(dataTable1.ajax.url()).removeSearch('ob').addSearch('ob', res.sql.split(' AND').join());
+					}	else {
+						remove('ob_'+$method);
+						var url = URI(dataTable1.ajax.url()).removeSearch('ob');
+					}
+					dataTable1.ajax.url( url ).load();
+					dialog.close();
 				}
 			}, {
 					label: 'Cancel',

@@ -12,11 +12,19 @@ var $q = getURLParameter("q"),
 	$id = getURLParameter("id"), 
 	$pageid = getURLParameter("pageid"), 
 	$filter = getURLParameter("filter"),
-	$cfilter = getURLParameter("cfilter"),
-	$title = getURLParameter("title");
+	$title = getURLParameter("title"),
+	$method = $url_module.split('/')[4];
 
 var origin_url = window.location.origin+window.location.pathname;
 var dataTable1;
+
+/* pushing url to browser address */
+origin_url = $pageid ? URI(origin_url).addSearch('pageid', $pageid) : origin_url;
+origin_url = $filter ? URI(origin_url).addSearch('filter', $filter) : origin_url;
+origin_url = $q ? URI(origin_url).addSearch('q', $q) : origin_url;
+origin_url = $id ? URI(origin_url).addSearch('id', $id) : origin_url;
+origin_url = $title ? URI(origin_url).addSearch('title', $title) : origin_url;
+history.replaceState ("", document.title, origin_url);
 
 function setToolbarBtn(btnList)
 {
@@ -43,6 +51,7 @@ function setToolbarBtn(btnList)
 		"btn-import": 	{group:3, id:"btn-import", title:"Import", bstyle:"btn-warning", icon:"glyphicon glyphicon-open"},
 		"btn-viewlog": 	{group:4, id:"btn-viewlog", title:"Record Info", bstyle:"btn-default", icon:"fa fa-info fa-lg", style:"width:35px; height:35px;"},
 		"btn-filter": 	{group:5, id:"btn-filter", title:"Filter", bstyle:"btn-success", icon:"fa fa-filter fa-lg", style:"width:35px; height:35px;"},
+		"btn-sort": 		{group:5, id:"btn-sort", title:"Sort", bstyle:"btn-success", icon:"fa fa-sort-amount-asc fa-lg", style:"width:35px; height:35px;"},
 		"btn-process": 	{group:6, id:"btn-process", title:"Process", bstyle:"bg-purple", icon:"glyphicon glyphicon-cog dropdown-toggle", data_toggle:"dropdown"},
 	};
 	$.each(btnList, function(k,v){
@@ -88,6 +97,7 @@ function initToolbarButton()
 
 function initDataTable()
 {
+	var url = $url_module;
 	/* Get variable DataTable_Init */
 	if (!DataTable_Init.enable)
 		return false;
@@ -117,29 +127,42 @@ function initDataTable()
 	else 
 		fixedColumn = {};
 
-	/* Create order params */
-	var $ob = '';
-	if (DataTable_Init.order)
-		if (DataTable_Init.order.length > 0)
-			$ob = '&ob='+DataTable_Init.order.join();
-	// var url = $url_module+window.location.search+$ob;
+	/* Create datatable params */
+	/* param order by */
+	var $ob = get('ob_'+$method);
+	if ($ob) {
+		url = URI(url).addSearch('ob', $ob);
+		store('ob_'+$method, $ob);
+	} else if (DataTable_Init.order && DataTable_Init.order.length > 0) {
+		$ob = DataTable_Init.order.join();
+		url = URI(url).addSearch('ob', $ob);
+		// store('ob_'+$method, $ob);
+	} else {
+		remove('ob_'+$method);
+	}
+	/* param rows length */
+	var $rows = get('rows_'+$method);
+	if (!$rows && $rows === null) {
+		if (DataTable_Init.rows && DataTable_Init.rows !== undefined) {
+			$rows = DataTable_Init.rows;
+		} else {
+			$rows = 10;
+		}
+	}
+	/* param filter */
+	if ($filter) {
+		url = URI(url).addSearch('filter', $filter);
+	}
+	/* param filter */
+	var $sfilter = get('sfilter_'+$method);
+	if ($sfilter && $sfilter !== null) {
+		url = URI(url).addSearch('sfilter', $sfilter);
+		store('sfilter_'+$method, $sfilter);
+	} else {
+		url = URI(url).removeSearch('sfilter');
+		remove('sfilter_'+$method);
+	}
 	
-	/* pushing url to browser address */
-	var $p = $pageid ? 'pageid='+$pageid : '';
-	var $f = $filter ? '&filter='+$filter : '';
-	var $qq = $q ? '&q='+$q : '';
-	var $o = $ob ? $ob : '';
-	var $i = $id ? '&id='+$id : '';
-	var $cf = $cfilter ? '&cfilter='+$cfilter : '';
-	var $ttl = $title ? '&title='+$title : '';
-	$query = '?'+$p+$f+$qq+$o+$i+$cf+$ttl;
-	// console.log(origin_url + $query);
-	// dataTable1.ajax.reload( null, false );
-	// history.pushState({}, '', origin_url + $query);
-	history.replaceState ("", document.title, origin_url + $query);
-	
-	var url = $url_module+window.location.search;
-
 	dataTable1 = tableData1.DataTable({ "pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, "scrollX": true, "iDisplayLength": DataTable_Init.length ? DataTable_Init.length : 10,
 		"ajax": {
 			"url": url,
@@ -154,6 +177,7 @@ function initDataTable()
 				}
 			}
 		},
+		"pageLength": $rows,
 		"columns": tableColumns,
 		// "createdRow": (DataTable_Init.createdRow != 'undefined' && DataTable_Init.createdRow ? DataTable_Init.createdRow : ''),
 		"createdRow": DataTable_Init.createdRow,
@@ -199,9 +223,18 @@ function initDataTable()
 	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
 		// console.log('Datatables parsing URL Parameter for search/filter.');
 		$q = $(this).val();
-		$url = insertParam('q', $q);
+		// $url = insertParam('q', $q);
 		dataTable1.ajax.reload( null, false );
-		history.pushState({}, '', origin_url +'?'+ $url);
+		
+		origin_url = $q ? URI(origin_url).setSearch('q', $q) : URI(origin_url).removeSearch('q');
+		history.pushState({}, '', origin_url);
+		// history.pushState({}, '', origin_url +'?'+ $url);
+	});		
+	
+	$('.dataTables_length select').bind().change(function() {
+		// console.log('Datatables parsing URL Parameter for search/filter.');
+		$rows = $(this).val();
+		store('rows_'+$method, $rows);
 	});		
 	
 	$('div.dataTables_wrapper').find('div.row:first').insertBefore('div.datagrid').addClass('dataTables_wrapper').addClass('dataTables_filter');
@@ -616,6 +649,13 @@ $('.toolbar_container').click('button', function(e){
 				return false;
 			}	
 			window['func_filter'](data);
+			break;
+		case 'btn-sort':
+			if (! $.isFunction(window['func_sort'])) {
+				BootstrapDialog.alert("Database Sorting is not defined !");
+				return false;
+			}	
+			window['func_sort'](data);
 			break;
 	}
 });

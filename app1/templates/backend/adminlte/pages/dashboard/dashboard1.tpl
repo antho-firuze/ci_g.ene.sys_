@@ -221,9 +221,11 @@
 			})
 			.datepicker('setDate',fdate)
 			.on("changeDate", function(e){
-				console.log(e.format());
+				{* console.log(e.format()); *}
 				if (e.format()) {
-					var link = $BASE_URL+"systems/x_page?pageid=231&cfilter="+e.format();
+					{* var link = $BASE_URL+"systems/x_page?pageid=231&cfilter="+e.format(); *}
+					var param = ["date", e.format()];
+					var link = URI($BASE_URL+"systems/x_page?pageid=231").addSearch("filter", param.join("="));
 					window.open(link, "_blank");
 					container.datepicker('setDate',null);
 				}
