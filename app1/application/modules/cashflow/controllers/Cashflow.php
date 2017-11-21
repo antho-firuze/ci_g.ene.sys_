@@ -1727,7 +1727,11 @@ class Cashflow extends Getmeb
 			$this->_get_filtered(TRUE, TRUE, [], TRUE);
 			
 			if (isset($this->params['get_custom_field']) && !empty($this->params['get_custom_field'])) {
-				$qry = "select to_char(t1.etd, '".$this->session->date_format."') as etd, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top from cf_order t1 where t1.id = ".$this->params['order_id'];
+				$qry = "select 
+				to_char(t1.etd, '".$this->session->date_format."') as etd, 
+				(select so_top from c_bpartner where id = t1.bpartner_id) as so_top,
+				(grand_total - (select coalesce(sum(amount),0) from cf_order_plan where is_active = '1' and is_deleted = '0' and order_id = t1.id)) as amount
+				from cf_order t1 where t1.id = ".$this->params['order_id'];
 				$result = $this->db->query($qry)->row_array();
 				$this->xresponse(TRUE, ['data' => $result]);
 			}

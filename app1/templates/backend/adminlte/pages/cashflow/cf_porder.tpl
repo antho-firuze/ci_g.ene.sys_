@@ -158,9 +158,11 @@
 					if (res.sql) {
 						store('sfilter_'+$method, res.sql);
 						var url = URI(dataTable1.ajax.url()).removeSearch('sfilter').addSearch('sfilter', res.sql);
+						$("#btn-filter").addClass("active");
 					}	else {
 						remove('sfilter_'+$method);
 						var url = URI(dataTable1.ajax.url()).removeSearch('sfilter');
+						$("#btn-filter").removeClass("active");
 					}
 					dataTable1.ajax.url( url ).load();
 					dialog.close();
@@ -234,9 +236,11 @@
 					if (res.sql) {
 						store('ob_'+$method, res.sql.split(' AND').join());
 						var url = URI(dataTable1.ajax.url()).removeSearch('ob').addSearch('ob', res.sql.split(' AND').join());
+						$("#btn-sort").addClass("active");
 					}	else {
 						remove('ob_'+$method);
 						var url = URI(dataTable1.ajax.url()).removeSearch('ob');
+						$("#btn-sort").removeClass("active");
 					}
 					dataTable1.ajax.url( url ).load();
 					dialog.close();

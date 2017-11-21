@@ -67,6 +67,7 @@
 			if (!isempty_obj(result.data)){
 				$("#so_etd").val(result.data.etd);
 				$("#so_top").val(result.data.so_top);
+				$("#amount").val(result.data.amount);
 			} 
 		});
 	}

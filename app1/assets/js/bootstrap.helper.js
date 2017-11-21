@@ -98,7 +98,8 @@
 			break;
 		}
 		
-		return $('<div class="alert alert-'+o.type+'">'+
+		return $('<div class="alert alert-'+o.type+' alert-dismissable">'+
+								(o.closable ? '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>' : '')+
 								'<h4>'+o.icon+o.title+'</h4>'+
 								'<p>'+o.description+'</p>'+
 							'</div>');
@@ -131,7 +132,7 @@
 		}
 		
 		return $('<div class="callout callout-'+o.type+'">'+
-								'<h4>'+o.title+'</h4>'+
+								(o.title ? '<h4>'+o.title+'</h4>' : '')+
 								'<p>'+o.description+'</p>'+
 							'</div>');
 	}

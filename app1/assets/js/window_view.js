@@ -133,12 +133,14 @@ function initDataTable()
 	if ($ob) {
 		url = URI(url).addSearch('ob', $ob);
 		store('ob_'+$method, $ob);
+		$("#btn-sort").addClass("active");
 	} else if (DataTable_Init.order && DataTable_Init.order.length > 0) {
 		$ob = DataTable_Init.order.join();
 		url = URI(url).addSearch('ob', $ob);
 		// store('ob_'+$method, $ob);
 	} else {
 		remove('ob_'+$method);
+		$("#btn-sort").removeClass("active");
 	}
 	/* param rows length */
 	var $rows = get('rows_'+$method);
@@ -158,9 +160,11 @@ function initDataTable()
 	if ($sfilter && $sfilter !== null) {
 		url = URI(url).addSearch('sfilter', $sfilter);
 		store('sfilter_'+$method, $sfilter);
+		$("#btn-filter").addClass("active");
 	} else {
 		url = URI(url).removeSearch('sfilter');
 		remove('sfilter_'+$method);
+		$("#btn-filter").removeClass("active");
 	}
 	
 	dataTable1 = tableData1.DataTable({ "pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, "scrollX": true, "iDisplayLength": DataTable_Init.length ? DataTable_Init.length : 10,
