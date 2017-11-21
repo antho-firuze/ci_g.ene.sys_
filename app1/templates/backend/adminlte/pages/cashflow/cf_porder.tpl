@@ -132,7 +132,7 @@
 				},
 				{
 					unique: true,
-					id: 'doc_date',
+					id: 't1.doc_date',
 					label: 'Doc Date',
 					type: 'datetime',
 				},
@@ -145,7 +145,7 @@
 		if ($sfilter && typeof($sfilter) !== null)
 			form1.find('#builder').queryBuilder('setRulesFromSQL', $sfilter);
 
-		BootstrapDialog.show({ title: 'Filter Record/s', type: BootstrapDialog.TYPE_SUCCESS, message: form1,
+		BootstrapDialog.show({ title: 'Filter Records', type: BootstrapDialog.TYPE_SUCCESS, size: BootstrapDialog.SIZE_WIDE, message: form1,
 			buttons: [{
 				icon: 'glyphicon glyphicon-send',
 				cssClass: 'btn-success',
@@ -202,7 +202,7 @@
 				},
 				{
 					unique: true,
-					id: 'doc_date',
+					id: 't1.doc_date',
 					label: 'Doc Date',
 					type: 'string',
 					operators: ['asc', 'desc'],
