@@ -10,10 +10,13 @@
 </div>
 <!-- /.content-wrapper -->
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/css/query-builder.default.min.css">
+<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/datepicker/datepicker3.css">
 <script src="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/js/query-builder.standalone.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/interact/dist/interact.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/bootbox/bootbox.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/sql-parser/browser/sql-parser.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/moment.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/datepicker/bootstrap-datepicker.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
@@ -77,7 +80,7 @@
 			plugins: {
 				'bt-tooltip-errors': { delay: 100 },
 				'sortable': null,
-				{* 'filter-description': { mode: 'bootbox' }, *}
+				'filter-description': { mode: 'bootbox' },
 				{* 'bt-selectpicker': null, *}
 				'unique-filter': null,
 				{* 'bt-checkbox': { color: 'primary' }, *}
@@ -135,6 +138,10 @@
 					id: 't1.doc_date',
 					label: 'Doc Date',
 					type: 'datetime',
+					plugin: 'datepicker',
+					plugin_config: { format: "yyyy-mm-dd", todayBtn: 'linked', todayHighlight: true, autoclose: true },
+					input_event: 'dp.change',
+					description: 'Format date yyyy-mm-dd. Ex: 2017-11-22',
 				},
 			],
 		};
