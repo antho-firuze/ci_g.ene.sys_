@@ -271,7 +271,8 @@
 			var link = o.dataList[i]['link'];
 			var title = o.dataList[i]['title'];
 			var content = o.dataList[i]['content'];
-			container.find('ul').append( $('<li><a href="javascript:void(0);">'+title+'</a></li>') );
+			var active = o.dataList[i]['active'] ? ' class="active"' : '';
+			container.find('ul').append( $('<li'+active+'><a href="javascript:void(0);">'+title+'</a></li>') );
 		});
 		
 		return container;
@@ -294,10 +295,48 @@
 		
 		$.each(o.dataList, function(i) {
 			var title = o.dataList[i]['title'];
-			var value = o.dataList[i]['value'];
-			container.find('ul').append( $('<li><a href="javascript:void(0);">'+title+' <span class="pull-right text-green">'+value+'</span></a></li>') );
+			var value = o.dataList[i]['value'] ? ' <span class="pull-right text-green">'+o.dataList[i]['value']+'</span>' : '';
+			var active = o.dataList[i]['active'] ? ' class="active"' : '';
+			container.find('ul').append( $('<li'+active+'><a href="javascript:void(0);">'+title+value+'</a></li>') );
 		});
 		
+		return container;
+	};
+	
+	/* 
+	*	BSHelper.List({ title:"", dataList:[{ title:"", value:"" }, { title:"", value:"" }] }); 
+	*					 
+	*/
+	BSHelper.List = function(options){
+		var default_opts = {
+			cls: '',
+			title: '',
+			title_right: '',
+			bc_list: [],	// [{icon:"", title:"", link:""}, {icon:"", title:"", link:""}]
+		}
+		var o = $.extend( {}, default_opts, options );
+		var container = $('<div class="stacked" />');
+		container.append('<ul class="products-list product-list-in-box" />');
+		
+		var title_right = o.title_right ? ' <span class="pull-right">'+o.title_right+'</span>' : '';
+			
+		if (o.title)
+			container.find('ul').append( $('<li class="header" style="border-bottom: 1px solid #ddd; color: #777; margin-bottom: 10px; padding: 5px 10px; text-transform: uppercase;">'+o.title+title_right+'</li>') );
+		
+		$.each(o.dataList, function(i) {
+			var title = o.dataList[i]['title'];
+			var value = o.dataList[i]['value'] ? ' <span class="pull-right text-green">'+o.dataList[i]['value']+'</span>' : '';
+			if (i < 5)
+				container.find('ul').append( $('<li class="item">'+title+'<a href="javascript:void(0);">'+value+'</a></li>') );
+			else 
+				container.find('ul').append( $('<li class="item">'+title+'<a href="javascript:void(0);">'+value+'</a></li>').hide() );
+		});
+		
+		container.find('ul').append( $('<li class="footer" style="border-top: 1px solid #ddd; color: #777; margin-bottom: 10px; padding-top: 5px;"><span class="pull-right"><a href="javascript:void(0);" class="view-more">view more</a></span></li>') );
+		container.find('ul li a.view-more').on("click", function(){
+			container.find('ul li').show();
+			$(this).parent().parent().hide();
+		});
 		return container;
 	};
 	

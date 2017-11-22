@@ -11,6 +11,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/daterangepicker.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/chartjs/Chart.bundle.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/textfill/jquery.textfill.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Start :: Init for Title, Breadcrumb *}
@@ -49,14 +50,29 @@
 	{* Chart Sales Order *}
 	col = [], row = [], boxes = [];
 	var boxInfo0 = BSHelper.Box({ type:"info", header: true, title: "Sales Orders VS Late", icon: "" });
-	{* boxInfo0.find('.box-header').append($('<div class="box-tools pull-right" />').append(BSHelper.GroupButton( { cls:"btn-step", list:[{ id: "btn1", title: "All", text: "All" }, { id: "btn2", title: "Complete", text: "Complete", active: true }, { id: "btn3", title: "Incomplete", text: "Incomplete" }, ]} )) ); *}
-	col.push('<div class="chart"><canvas id="lineChart" style="height:200px"></canvas></div>');
+	col.push('<div class="chart"><canvas id="lineChart" style="height:200px" /></div>');
 	row.push(subCol(12, col)); col = [];
 	boxInfo0.find('.box-body').append(subRow(row));
 	boxes.push(subCol(12, boxInfo0));
+	col = [], row = [];
+	var boxInfo1 = BSHelper.Box({ type:"info", });
+	col.push(BSHelper.Stacked({ title: "Sales Order Late", dataList:[{ title: "All Status", link: "#", active: true },{ title: "Complete", link: "#" },{ title: "Incomplete", link: "#" }] }));
+	boxInfo1.find('.box-body').append(subRow(subCol(12, col)));
+	boxes.push(subCol(3, boxInfo1));
+	col = [], row = [];
+	var boxInfo2 = BSHelper.Box({ type:"info", });
+	boxes.push(subCol(4, boxInfo2));
+	col = [], row = [];
+	var boxInfo3 = BSHelper.Box({ type:"info", });
+	col.push('<div class="canvas-holder"><canvas id="pieChart" /></div>');
+	row.push(subCol(12, col)); col = [];
+	boxInfo3.find('.box-body').append(subRow(row));
+	boxes.push(subCol(5, boxInfo3));
 	$(".content").append(subRow(boxes));
 	
 	{* Initialization *}
+	var format_money = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
+	var format_percent = function(value){ return accounting.formatMoney(value, { symbol: "%", format: "%v%s" }) };
 	var start = moment().startOf('year');
 	var end = moment().endOf('year');
 	{* //Date range as a button *}
@@ -80,7 +96,7 @@
 				$("#fdate").val(start.format('YYYY-MM-DD'));
 				$("#tdate").val(end.format('YYYY-MM-DD'));
 				
-				update_chart();
+				update_datas();
 			}
 	);
 	
@@ -110,45 +126,41 @@
  	};
 	var lineChart = new Chart("lineChart", { type: "line",	data: {}, options: optLineChart1 });
 	
-	function update_chart(){
+	var optPieChart1 = {
+		responsive: true,
+		legend: { display: false },
+ 	};
+	var pieChart = new Chart("pieChart", { type: "pie",	data: {}, options: optPieChart1 });
+	
+	$("ul.nav-stacked li").on("click", function(){
+		$(this).parent().find("li").removeClass("active");
+		$(this).addClass("active");
+
+		switch($(this).text().toLowerCase()){
+		case "all status":
+			list_table(0);
+			break;
+		case "complete":
+			list_table(1);
+			break;
+		case "incomplete":
+			list_table(2);
+			break;
+		}
+	});
+	
+	var result;
+	function update_datas(){
 		{* Validation *}
 		var fdate = moment($("#fdate").val(), 'YYYY-MM-DD');
 		var tdate =	moment($("#tdate").val(), 'YYYY-MM-DD');
-		{* var durra = moment.duration(tdate.diff(fdate)); *}
 		
-		{* if (durra.asDays() > 1) { *}
-			{* $("#btn1").attr("disabled", true); *}
-			{* $(".btn-step>button").removeClass("active"); *}
-			{* $("#btn2").addClass("active"); *}
-			{* $("#step").val('D'); *}
-		{* } else { *}
-			{* $("#btn1").attr("disabled", false); *}
-		{* } *}
-		{* if (durra.asDays() > 30) { *}
-			{* $("#btn2").attr("disabled", true); *}
-			{* $(".btn-step>button").removeClass("active"); *}
-			{* $("#btn3").addClass("active"); *}
-			{* $("#step").val('W'); *}
-		{* } else { *}
-			{* $("#btn2").attr("disabled", false); *}
-		{* } *}
-		{* if (durra.asDays() > 180) { *}
-			{* $("#btn3").attr("disabled", true); *}
-			{* $(".btn-step>button").removeClass("active"); *}
-			{* $("#btn4").addClass("active"); *}
-			{* $("#step").val('M'); *}
-		{* } else { *}
-			{* $("#btn3").attr("disabled", false); *}
-		{* } *}
-
-		$.getJSON($url_module, form1.serializeOBJ(), function(result){ 
-			lineChart.data = result.data;
-			lineChart.update();
+		$.getJSON($url_module, form1.serializeOBJ(), function(response){ 
+			result = response;
 			
-			$("#box3_total_so .val span").text(result.data.total_so);
-			$("#box3_total_so_amount .val span").text(result.data.total_so_amount);
-			$("#box3_total_so_late .val span").text(result.data.total_so_late);
-			$("#box3_total_so_penalty .val span").text(result.data.total_so_penalty);
+			small_boxes();
+			line_chart();
+			list_table(0);
 			
 		}).fail(function(data) {
 			{* console.log(data); *}
@@ -166,8 +178,38 @@
 				}],
 			});
 		});
+		
 	}
 	
-	update_chart();
+	function small_boxes(){
+		$("#box3_total_so .val span").text(result.data.total_so);
+		$("#box3_total_so_amount .val span").text(result.data.total_so_amount);
+		$("#box3_total_so_late .val span").text(result.data.total_so_late);
+		$("#box3_total_so_penalty .val span").text(result.data.total_so_penalty);
+	}
+	
+	function line_chart(){
+		lineChart.data = result.data;
+		lineChart.update();
+	}
+	
+	function list_table(opt){
+		var opt_data_list = ['so_late_all','so_late_complete','so_late_incomplete'];
+		var opt_data_chart = ['so_late_all_chart','so_late_complete_chart','so_late_incomplete_chart',];
+		col = []; 
+		boxInfo2.find('.box-body').empty();
+
+		var datas = [];
+		$.each(result.data[opt_data_list[opt]], function(i, v){
+			datas.push({ title: v.name, link: "#", value: v.count +' ('+ format_percent(v.percent) +')' });
+		});
+		col.push(BSHelper.List({ title: "Reasons", title_right: "Value (%)", dataList: datas }));
+		boxInfo2.find('.box-body').append(subRow(subCol(12, col)));
+		
+		pieChart.data = result.data[opt_data_chart[opt]];
+		pieChart.update();
+	}
+	
+	update_datas();
 	
 </script>

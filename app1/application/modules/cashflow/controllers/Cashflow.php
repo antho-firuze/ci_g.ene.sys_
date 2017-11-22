@@ -4559,15 +4559,16 @@ class Cashflow extends Getmeb
 			$str = translate_variable($str);
 			$qry = $this->db->query($str);
 			if ($qry->num_rows() > 0) {
+				$arr['labels'] = [];
 				foreach($qry->result() as $row){
 					$arr['labels'][] = $row->month;
-					$arr['data_so'][] = $row->total_so;
-					$arr['data_so_late'][] = $row->total_so_late;
+					$arr['data1'][] = $row->total_so;
+					$arr['data2'][] = $row->total_so_late;
 				}
 				/* datasets for line chart so vs so_late */
 				$result['data']['labels'] = $arr['labels'];
-				$result['data']['datasets'][] = ['label' => 'Sales Order', 'borderColor' => get_rgba(), 'data' => $arr['data_so']];
-				$result['data']['datasets'][] = ['label' => 'Sales Order (Late)', 'borderColor' => get_rgba(), 'data' => $arr['data_so_late']];
+				$result['data']['datasets'][] = ['label' => 'Sales Order', 'borderColor' => get_rgba(), 'data' => $arr['data1']];
+				$result['data']['datasets'][] = ['label' => 'Sales Order (Late)', 'borderColor' => get_rgba(), 'data' => $arr['data2']];
 			}	
 			/* total_so */
 			$str = "select coalesce(count(*), 0) as total from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between '$fdate' and '$tdate';";
@@ -4575,10 +4576,16 @@ class Cashflow extends Getmeb
 			$row = $this->db->query($str)->row();
 			$result['data']['total_so'] = $row->total;
 			/* total_so_amount */
-			$str = "select trim(to_char(coalesce(sum(grand_total), 0), '99G999G999G999')) as total from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between '$fdate' and '$tdate';";
+			$str = "select 
+			case 
+			when coalesce(sum(grand_total), 0) < 1000000 then trim(to_char(sum(grand_total)/1000, '999D9')||' RB')
+			when coalesce(sum(grand_total), 0) between 1000000 and 999999999 then trim(to_char(sum(grand_total)/1000000, '999D9')||' JT')
+			when coalesce(sum(grand_total), 0) >= 1000000000 then trim(to_char(sum(grand_total)/1000000000, '999D9')||' M')
+			end as sorten,
+			trim(to_char(coalesce(sum(grand_total), 0), '99G999G999G999')) as total from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between '$fdate' and '$tdate';";
 			$str = translate_variable($str);
 			$row = $this->db->query($str)->row();
-			$result['data']['total_so_amount'] = $row->total;
+			$result['data']['total_so_amount'] = $row->sorten;
 			/* total_so_late */
 			$str = "select coalesce(count(*), 0) as total from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust and doc_date between '$fdate' and '$tdate';";
 			$str = translate_variable($str);
@@ -4594,7 +4601,74 @@ class Cashflow extends Getmeb
 			$str = translate_variable($str);
 			$row = $this->db->query($str)->row();
 			$result['data']['total_so_penalty'] = $row->total;
-			
+			/* SO Late All */
+			$str = "with el as (
+			select unnest(scm_dt_reasons) as reason, doc_no, doc_date from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust 
+			and doc_date between '$fdate' and '$tdate'
+			union all
+			select 0 as reason, doc_no, doc_date from cf_order t1 where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust and scm_dt_reasons is null
+			and doc_date between '$fdate' and '$tdate'
+			) select coalesce((select name from rf_scm_dt_reason where id = el.reason), 'Undefined') as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from el group by 1 order by 2 desc;";
+			$str = translate_variable($str);
+			$qry = $this->db->query($str);
+			$result['data']['so_late_all'] = $qry->result();
+			/* SO Late All (Chart) */
+			$arr['labels'] = []; $arr['data1'] = [];
+			foreach($qry->result() as $row){
+				$arr['labels'][] = $row->name;
+				$arr['data1'][] = $row->count;
+				$arr['color'][] = get_rgba();
+			}
+			$result['data']['so_late_all_chart']['labels'] = $arr['labels'];
+			$result['data']['so_late_all_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
+			/* SO Late Complete */
+			$str = "with el as (
+			select unnest(scm_dt_reasons) as reason, doc_no, doc_date from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust 
+			and (select count(*) as ship from cf_inout_line a1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and exists(select 1 from cf_order_line where id = a1.order_line_id and order_id = t1.id)) >= 
+			(select count(*) as line from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = t1.id group by order_id)
+			and doc_date between '$fdate' and '$tdate'
+			union all
+			select 0 as reason, doc_no, doc_date from cf_order t1 where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust and scm_dt_reasons is null
+			and (select count(*) as ship from cf_inout_line a1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and exists(select 1 from cf_order_line where id = a1.order_line_id and order_id = t1.id)) >= 
+			(select count(*) as line from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = t1.id group by order_id)
+			and doc_date between '$fdate' and '$tdate'
+			) select coalesce((select name from rf_scm_dt_reason where id = el.reason), 'Undefined') as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from el group by 1 order by 2 desc;";
+			$str = translate_variable($str);
+			$qry = $this->db->query($str);
+			$result['data']['so_late_complete'] = $qry->result();
+			/* SO Late All (Chart) */
+			$arr['labels'] = []; $arr['data1'] = [];
+			foreach($qry->result() as $row){
+				$arr['labels'][] = $row->name;
+				$arr['data1'][] = $row->count;
+				$arr['color'][] = get_rgba();
+			}
+			$result['data']['so_late_complete_chart']['labels'] = $arr['labels'];
+			$result['data']['so_late_complete_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
+			/* SO Late Incomplete */
+			$str = "with el as (
+			select unnest(scm_dt_reasons) as reason, doc_no, doc_date from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust 
+			and (select count(*) as ship from cf_inout_line a1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and exists(select 1 from cf_order_line where id = a1.order_line_id and order_id = t1.id)) < 
+			(select count(*) as line from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = t1.id group by order_id)
+			and doc_date between '$fdate' and '$tdate'
+			union all
+			select 0 as reason, doc_no, doc_date from cf_order t1 where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust and scm_dt_reasons is null
+			and (select count(*) as ship from cf_inout_line a1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and exists(select 1 from cf_order_line where id = a1.order_line_id and order_id = t1.id)) < 
+			(select count(*) as line from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = t1.id group by order_id)
+			and doc_date between '$fdate' and '$tdate'
+			) select coalesce((select name from rf_scm_dt_reason where id = el.reason), 'Undefined') as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from el group by 1 order by 2 desc;";
+			$str = translate_variable($str);
+			$qry = $this->db->query($str);
+			$result['data']['so_late_incomplete'] = $qry->result();
+			/* SO Late All (Chart) */
+			$arr['labels'] = []; $arr['data1'] = [];
+			foreach($qry->result() as $row){
+				$arr['labels'][] = $row->name;
+				$arr['data1'][] = $row->count;
+				$arr['color'][] = get_rgba();
+			}
+			$result['data']['so_late_incomplete_chart']['labels'] = $arr['labels'];
+			$result['data']['so_late_incomplete_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
 			$this->xresponse(TRUE, $result);
 		}
 	}

@@ -96,8 +96,8 @@
 	boxInfo0.find('.box-header').append($('<div class="box-tools pull-right" />').append(BSHelper.GroupButton( { cls:"btn-step", list:[{ id: "btn1", title: "Hourly", text: "H" }, { id: "btn2", title: "Daily", text: "D", active: true }, { id: "btn3", title: "Weekly", text: "W" }, { id: "btn4", title: "Monthly", text: "M" }, ]} )) );
 	col.push('<div class="chart"><canvas id="lineChart" style="height:180px"></canvas></div>');
 	row.push(subCol(12, col)); col = [];
-	col.push(BSHelper.Pills({ dataList:[{ title: "Hits", value: "#" },{ title: "Create (POST)", value: "#" },{ title: "Read (GET)", value: "#" },{ title: "Modify (PUT)", value: "#" }] }));
-	row.push(subCol(3, col)); col = [];
+	{* col.push(BSHelper.Pills({ dataList:[{ title: "Hits", value: "#" },{ title: "Create (POST)", value: "#" },{ title: "Read (GET)", value: "#" },{ title: "Modify (PUT)", value: "#" }] })); *}
+	{* row.push(subCol(3, col)); col = []; *}
 
 	{* boxInfo0.find('.box-body').append('<div class="chart"><canvas id="lineChart" style="height:180px"></canvas></div>'); *}
 	boxInfo0.find('.box-body').append(subRow(row));
@@ -112,20 +112,23 @@
 	var boxInfo1 = BSHelper.Box({ type:"info", });
 	col.push(BSHelper.Stacked({ title: "Hosting", dataList:[{ title: "Domain", link: "#" },{ title: "Request Method", link: "#" }] }));
 	col.push(BSHelper.Stacked({ title: "Demographics", dataList:[{ title: "Country / Territory", link: "#" },{ title: "City", link: "#" }] }));
-	col.push(BSHelper.Stacked({ title: "System", dataList:[{ title: "Browser", link: "#" },{ title: "Operationg System", link: "#" },{ title: "Service Provider", link: "#" },{ title: "Screen Resolution", link: "#" }] }));
-	col.push(BSHelper.Stacked({ title: "Mobile", dataList:[{ title: "Browser", link: "#" },{ title: "Operationg System", link: "#" },{ title: "Service Provider", link: "#" },{ title: "Screen Resolution", link: "#" }] }));
+	col.push(BSHelper.Stacked({ title: "System", dataList:[{ title: "Browser", link: "#" },{ title: "Operating System", link: "#" },{ title: "Service Provider", link: "#" },{ title: "Screen Resolution", link: "#" }] }));
+	col.push(BSHelper.Stacked({ title: "Mobile", dataList:[{ title: "Browser", link: "#" },{ title: "Operating System", link: "#" },{ title: "Service Provider", link: "#" },{ title: "Screen Resolution", link: "#" }] }));
 	boxInfo1.find('.box-body').append(subRow(subCol(12, col)));
-	boxes.push(subCol(4, boxInfo1));
+	boxes.push(subCol(3, boxInfo1));
 	{* Sub Info (5) *}
 	{* Penjelasan dari (sub (4)) *}
 	col = [], row = [];
 	var boxInfo2 = BSHelper.Box({ type:"info", });
-	boxes.push(subCol(5, boxInfo2));
+	boxes.push(subCol(4, boxInfo2));
 	{* Sub Info (3) *}
 	{* Pendukung dari (sub (5)) *}
 	col = [], row = [];
 	var boxInfo3 = BSHelper.Box({ type:"info", });
-	boxes.push(subCol(3, boxInfo3));
+	col.push('<div class="canvas-holder"><canvas id="pieChart" /></div>');
+	row.push(subCol(12, col)); col = [];
+	boxInfo3.find('.box-body').append(subRow(row));
+	boxes.push(subCol(5, boxInfo3));
 	$(".content").append(subRow(boxes));
 	
 	{* Initialization *}
@@ -151,7 +154,7 @@
 				$("#fdate").val(start.format('YYYY-MM-DD'));
 				$("#tdate").val(end.format('YYYY-MM-DD'));
 				
-				update_chart();
+				update_datas();
 			}
 	);
 	
@@ -160,13 +163,14 @@
 	$("#tdate").val(end.format('YYYY-MM-DD'));
 	$("#step").val('D');
 	
-	var optHits = {
+	var optLineChart1 = {
 		spanGaps: true,
 		responsive: true,
 		title:{	display: false,	text: 'Server Hit Access'	},
 		legend: { display: false },
 		tooltips: {	mode: 'index', intersect: false, },
 		hover: { mode: 'nearest',	intersect: true	},
+		elements: {	line: {	tension: 0.000001	} },
 		scales: {
 				xAxes: [{
 						display: true,
@@ -183,10 +187,14 @@
 						}
 				}]
 		},
-		elements: {	line: {	tension: 0.000001	} },
  	};
-	var hitsChart = new Chart("lineChart", { type: "line",	data: {}, options: optHits });
+	var lineChart = new Chart("lineChart", { type: "line",	data: {}, options: optLineChart1 });
 
+	var optPieChart1 = {
+		responsive: true,
+		legend: { display: false },
+ 	};
+	var pieChart = new Chart("pieChart", { type: "pie",	data: {}, options: optPieChart1 });
 	
 	var optHost = {
 		responsive: true,
@@ -203,10 +211,43 @@
 			case 'btn3': $("#step").val('W');	break;
 			case 'btn4': $("#step").val('M');	break;
 		}
-		update_chart();
+		update_datas();
 	});
 	
-	function update_chart(){
+	$("ul.nav-stacked li").on("click", function(){
+		$(this).parent().parent().parent().find("li").removeClass("active");
+		$(this).addClass("active");
+
+		switch($(this).text().toLowerCase()){
+		case "domain":
+			{* list_table(0); *}
+			break;
+		case "request method":
+			{* list_table(1); *}
+			break;
+		case "country / territory":
+			{* list_table(2); *}
+			break;
+		case "city":
+			{* list_table(2); *}
+			break;
+		case "browser":
+			{* list_table(2); *}
+			break;
+		case "operating system":
+			{* list_table(2); *}
+			break;
+		case "service provider":
+			{* list_table(2); *}
+			break;
+		case "screen resolution":
+			{* list_table(2); *}
+			break;
+		}
+	});
+	
+	var result;
+	function update_datas(){
 		{* Validation *}
 		var fdate = moment($("#fdate").val(), 'YYYY-MM-DD');
 		var tdate =	moment($("#tdate").val(), 'YYYY-MM-DD');
@@ -237,9 +278,12 @@
 			$("#btn3").attr("disabled", false);
 		}
 
-		$.getJSON($url_module, form1.serializeOBJ(), function(result){ 
-			hitsChart.data = result.dataHits;
-			hitsChart.update();
+		$.getJSON($url_module, form1.serializeOBJ(), function(response){ 
+			result = response;
+			
+			line_chart();
+			{* list_table(0); *}
+			
 		}).fail(function(data) {
 			{* console.log(data); *}
 			if (data.status >= 500){
@@ -258,18 +302,29 @@
 		});
 	}
 	
-	$("a").each(function(e){
-		var anchor = $(this);
-		
-		anchor.on("click", function(e){
-			console.log(anchor);
+	function line_chart(){
+		lineChart.data = result.dataHits;
+		lineChart.update();
+	}
+	
+	function list_table(opt){
+		var opt_data_title = ['Domain','Request Method','so_late_incomplete'];
+		var opt_data_list = ['domain','so_late_complete','so_late_incomplete'];
+		var opt_data_chart = ['domain_chart','so_late_complete_chart','so_late_incomplete_chart',];
+		col = []; 
+		boxInfo2.find('.box-body').empty();
+
+		var datas = [];
+		$.each(result.data[opt_data_list[opt]], function(i, v){
+			datas.push({ title: v.name, link: "#", value: v.count +' ('+ format_percent(v.percent) +')' });
 		});
+		col.push(BSHelper.List({ title: opt_data_title[opt], title_right: "Value (%)", dataList: datas }));
+		boxInfo2.find('.box-body').append(subRow(subCol(12, col)));
 		
+		pieChart.data = result.data[opt_data_chart[opt]];
+		pieChart.update();
+	}
 	
-	});
-	
-	{* setTimeout(function(){ *}
-		update_chart();
-	{* }, 1000); *}
+	update_datas();
 	
 </script>
