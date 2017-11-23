@@ -131,78 +131,110 @@ class Systems extends Getmeb
 					$result['step'] = $step;
 				}
 			}	
-			$str = "select method, count(*) from a_access_log where created_at between '$fdate' and '$tdate' group by method";
+			/* method */
+			$str = "select method as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from a_access_log where created_at between '$fdate' and '$tdate' group by 1 order by 2 desc";
 			$qry = $this->db->query($str);
-			if ($qry->num_rows() > 0) {
-				foreach($qry->result() as $row){
-					$result['method'][$row->method] = $row->count;
-				}
-			}	
-			/* Host */
-			$str = "select host as labels, count(*) as data from a_access_log where created_at between '$fdate' and '$tdate' group by 1";
+			$result['data']['method'] = $qry->result();
+			/* method (Chart) */
+			$arr['labels'] = []; $arr['data1'] = [];
+			foreach($qry->result() as $row){
+				$arr['labels'][] = $row->name;
+				$arr['data1'][] = $row->count;
+				$arr['color'][] = get_rgba();
+			}
+			$result['data']['method_chart']['labels'] = $arr['labels'];
+			$result['data']['method_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
+			/* domain/host */
+			$str = "select host as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from a_access_log where created_at between '$fdate' and '$tdate' group by 1 order by 2 desc";
 			$qry = $this->db->query($str);
-			if ($qry->num_rows() > 0) {
-				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
-				foreach($qry->result() as $row){
-					$arr['labels'][] = $row->labels;
-					$arr['data'][] = $row->data;
-					$arr['bgcolor'][] = get_rgba();
-				}
-				$result['dataHost']['labels'] = $arr['labels'];
-				$result['dataHost']['datasets'][] = ['label' => 'Host', 'backgroundColor' => $arr['bgcolor'], 'data' => $arr['data']];
-			}	
-			/* Platform */
-			$str = "select platform as labels, count(*) as data from a_access_log where created_at between '$fdate' and '$tdate' group by 1";
+			$result['data']['domain'] = $qry->result();
+			/* domain/host (Chart) */
+			$arr['labels'] = []; $arr['data1'] = [];
+			foreach($qry->result() as $row){
+				$arr['labels'][] = $row->name;
+				$arr['data1'][] = $row->count;
+				$arr['color'][] = get_rgba();
+			}
+			$result['data']['domain_chart']['labels'] = $arr['labels'];
+			$result['data']['domain_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
+			/* platform/os */
+			$str = "select platform as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from a_access_log where created_at between '$fdate' and '$tdate' group by 1 order by 2 desc";
 			$qry = $this->db->query($str);
-			if ($qry->num_rows() > 0) {
-				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
-				foreach($qry->result() as $row){
-					$arr['labels'][] = $row->labels;
-					$arr['data'][] = $row->data;
-					$arr['bgcolor'][] = get_rgba();
-				}
-				$result['dataPlatform']['labels'] = $arr['labels'];
-				$result['dataPlatform']['datasets'][] = ['label' => 'Host', 'backgroundColor' => $arr['bgcolor'], 'data' => $arr['data']];
-			}	
-			/* Browser */
-			$str = "select browser as labels, count(*) as data from a_access_log where created_at between '$fdate' and '$tdate' group by 1";
+			$result['data']['os'] = $qry->result();
+			/* platform/os (Chart) */
+			$arr['labels'] = []; $arr['data1'] = [];
+			foreach($qry->result() as $row){
+				$arr['labels'][] = $row->name;
+				$arr['data1'][] = $row->count;
+				$arr['color'][] = get_rgba();
+			}
+			$result['data']['os_chart']['labels'] = $arr['labels'];
+			$result['data']['os_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
+			/* browser */
+			$str = "select browser as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from a_access_log where created_at between '$fdate' and '$tdate' group by 1 order by 2 desc";
 			$qry = $this->db->query($str);
-			if ($qry->num_rows() > 0) {
-				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
-				foreach($qry->result() as $row){
-					$arr['labels'][] = $row->labels;
-					$arr['data'][] = $row->data;
-					$arr['bgcolor'][] = get_rgba();
-				}
-				$result['dataBrowser']['labels'] = $arr['labels'];
-				$result['dataBrowser']['datasets'][] = ['label' => 'Host', 'backgroundColor' => $arr['bgcolor'], 'data' => $arr['data']];
-			}	
-			/* Screen Res */
-			$str = "select width ||'x'|| height as labels, count(*) as data from a_access_log where created_at between '$fdate' and '$tdate' group by 1";
+			$result['data']['browser'] = $qry->result();
+			/* browser (Chart) */
+			$arr['labels'] = []; $arr['data1'] = [];
+			foreach($qry->result() as $row){
+				$arr['labels'][] = $row->name;
+				$arr['data1'][] = $row->count;
+				$arr['color'][] = get_rgba();
+			}
+			$result['data']['browser_chart']['labels'] = $arr['labels'];
+			$result['data']['browser_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
+			/* screen_res */
+			$str = "select width ||'x'|| height as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from a_access_log where created_at between '$fdate' and '$tdate' group by 1 order by 2 desc";
 			$qry = $this->db->query($str);
-			if ($qry->num_rows() > 0) {
-				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
-				foreach($qry->result() as $row){
-					$arr['labels'][] = $row->labels;
-					$arr['data'][] = $row->data;
-					$arr['bgcolor'][] = get_rgba();
-				}
-				$result['dataScreenRes']['labels'] = $arr['labels'];
-				$result['dataScreenRes']['datasets'][] = ['label' => 'Host', 'backgroundColor' => $arr['bgcolor'], 'data' => $arr['data']];
-			}	
-			/* Country */
-			$str = "select coalesce(country, 'unknown') as labels, count(*) as data from a_access_log where created_at between '$fdate' and '$tdate' group by 1 order by 2 desc";
+			$result['data']['screen_res'] = $qry->result();
+			/* screen_res (Chart) */
+			$arr['labels'] = []; $arr['data1'] = [];
+			foreach($qry->result() as $row){
+				$arr['labels'][] = $row->name;
+				$arr['data1'][] = $row->count;
+				$arr['color'][] = get_rgba();
+			}
+			$result['data']['screen_res_chart']['labels'] = $arr['labels'];
+			$result['data']['screen_res_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
+			/* country */
+			$str = "select coalesce(country, 'unknown') as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from a_access_log where created_at between '$fdate' and '$tdate' group by 1 order by 2 desc";
 			$qry = $this->db->query($str);
-			if ($qry->num_rows() > 0) {
-				$arr['labels'] = []; $arr['data'] = []; $arr['bgcolor'] = [];
-				foreach($qry->result() as $row){
-					$arr['labels'][] = $row->labels;
-					$arr['data'][] = $row->data;
-					$arr['bgcolor'][] = get_rgba();
-				}
-				$result['dataCountry']['labels'] = $arr['labels'];
-				$result['dataCountry']['datasets'][] = ['label' => 'Screen Resolution', 'backgroundColor' => $arr['bgcolor'], 'data' => $arr['data']];
-			}	
+			$result['data']['country'] = $qry->result();
+			/* country (Chart) */
+			$arr['labels'] = []; $arr['data1'] = [];
+			foreach($qry->result() as $row){
+				$arr['labels'][] = $row->name;
+				$arr['data1'][] = $row->count;
+				$arr['color'][] = get_rgba();
+			}
+			$result['data']['country_chart']['labels'] = $arr['labels'];
+			$result['data']['country_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
+			/* city */
+			$str = "select coalesce(city, 'unknown') as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from a_access_log where created_at between '$fdate' and '$tdate' group by 1 order by 2 desc";
+			$qry = $this->db->query($str);
+			$result['data']['city'] = $qry->result();
+			/* city (Chart) */
+			$arr['labels'] = []; $arr['data1'] = [];
+			foreach($qry->result() as $row){
+				$arr['labels'][] = $row->name;
+				$arr['data1'][] = $row->count;
+				$arr['color'][] = get_rgba();
+			}
+			$result['data']['city_chart']['labels'] = $arr['labels'];
+			$result['data']['city_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
+			/* isp */
+			$str = "select coalesce(isp, 'unknown') as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from a_access_log where created_at between '$fdate' and '$tdate' group by 1 order by 2 desc";
+			$qry = $this->db->query($str);
+			$result['data']['isp'] = $qry->result();
+			/* isp (Chart) */
+			$arr['labels'] = []; $arr['data1'] = [];
+			foreach($qry->result() as $row){
+				$arr['labels'][] = $row->name;
+				$arr['data1'][] = $row->count;
+				$arr['color'][] = get_rgba();
+			}
+			$result['data']['isp_chart']['labels'] = $arr['labels'];
+			$result['data']['isp_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
 			// $this->xresponse(FALSE, ['message' => 'Failure !']);
 			
 			$this->xresponse(TRUE, $result);

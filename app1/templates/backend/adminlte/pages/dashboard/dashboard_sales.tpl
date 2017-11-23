@@ -136,17 +136,9 @@
 		$(this).parent().find("li").removeClass("active");
 		$(this).addClass("active");
 
-		switch($(this).text().toLowerCase()){
-		case "all status":
-			list_table(0);
-			break;
-		case "complete":
-			list_table(1);
-			break;
-		case "incomplete":
-			list_table(2);
-			break;
-		}
+		var opt = { "all_status":0, "complete":1, "incomplete":2 };
+		var txt = $(this).text().toLowerCase().replace(/\s/g, "_");
+		list_table(opt[txt]);
 	});
 	
 	var result;

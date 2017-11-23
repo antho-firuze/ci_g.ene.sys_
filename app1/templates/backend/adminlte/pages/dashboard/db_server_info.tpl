@@ -10,6 +10,8 @@
 <script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/moment.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/daterangepicker.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/chartjs/Chart.bundle.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/textfill/jquery.textfill.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Start :: Init for Title, Breadcrumb *}
@@ -132,6 +134,8 @@
 	$(".content").append(subRow(boxes));
 	
 	{* Initialization *}
+	var format_money = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
+	var format_percent = function(value){ return accounting.formatMoney(value, { symbol: "%", format: "%v%s" }) };
 	var start = moment().subtract(6, 'days');
 	var end = moment();
 	{* //Date range as a button *}
@@ -218,32 +222,22 @@
 		$(this).parent().parent().parent().find("li").removeClass("active");
 		$(this).addClass("active");
 
-		switch($(this).text().toLowerCase()){
-		case "domain":
-			{* list_table(0); *}
-			break;
-		case "request method":
-			{* list_table(1); *}
-			break;
-		case "country / territory":
-			{* list_table(2); *}
-			break;
-		case "city":
-			{* list_table(2); *}
-			break;
-		case "browser":
-			{* list_table(2); *}
-			break;
-		case "operating system":
-			{* list_table(2); *}
-			break;
-		case "service provider":
-			{* list_table(2); *}
-			break;
-		case "screen resolution":
-			{* list_table(2); *}
-			break;
-		}
+		var opt = [ "hosting_domain", 
+								"hosting_request_method", 
+								"demographics_country_/_territory", 
+								"demographics_city", 
+								"system_browser", 
+								"system_operating_system", 
+								"system_service_provider", 
+								"system_screen_resolution", 
+								"mobile_browser", 
+								"mobile_operating_system", 
+								"mobile_service_provider", 
+								"mobile_screen_resolution", 
+							];
+		var parent = $(this).parent().find("li.header").text().toLowerCase().replace(/\s/g, "_");
+		var txt = $(this).text().toLowerCase().replace(/\s/g, "_");
+		list_table($.inArray( parent+'_'+txt, opt));
 	});
 	
 	var result;
@@ -282,7 +276,7 @@
 			result = response;
 			
 			line_chart();
-			{* list_table(0); *}
+			list_table(0);
 			
 		}).fail(function(data) {
 			{* console.log(data); *}
@@ -308,9 +302,9 @@
 	}
 	
 	function list_table(opt){
-		var opt_data_title = ['Domain','Request Method','so_late_incomplete'];
-		var opt_data_list = ['domain','so_late_complete','so_late_incomplete'];
-		var opt_data_chart = ['domain_chart','so_late_complete_chart','so_late_incomplete_chart',];
+		var opt_data_title = ['Domain','Request Method','Country/Territory','City','System Browser','Operating System','Service Provider','Screen Resolution','Mobile Browser','Mobile OS','Mobile ISP','Mobile Resolution',];
+		var opt_data_list = ['domain','method','country','city','browser','os','isp','screen_res','m_browser','m_os','m_isp','m_screen_res',];
+		var opt_data_chart = ['domain_chart','method_chart','country_chart','city_chart','browser_chart','os_chart','isp_chart','screen_res_chart','m_browser_chart','m_os_chart','m_isp_chart','m_screen_res_chart',];
 		col = []; 
 		boxInfo2.find('.box-body').empty();
 
