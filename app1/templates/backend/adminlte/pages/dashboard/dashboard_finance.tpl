@@ -35,29 +35,48 @@
 	boxFilter.find('.box-body').append(subRow(subCol(6, col)));
 	$(".content").append(boxFilter);	
 	
-	col = [], row = [];
-	col.push(BSHelper.WidgetBox3({ idname:"box3_total_so", title:"Total SO", color:"bg-blue", value:0, icon:"ion ion-pie-graph", link:"", tooltip:"" }));
-	col.push(BSHelper.WidgetBox3({ idname:"box3_total_so_amount", title:"Total SO (Rp)", color:"bg-blue", value:0, icon:"ion ion-cash", link:"", tooltip:"" }));
-	col.push(BSHelper.WidgetBox3({ idname:"box3_total_so_late", title:"Total (Late)", color:"bg-red", value:0, icon:"ion ion-clock", link:"", tooltip:"" }));
-	col.push(BSHelper.WidgetBox3({ idname:"box3_total_so_penalty", title:"Total Penalty (Rp)", color:"bg-red", value:0, icon:"ion ion-alert-circled", link:"", tooltip:"" }));
-	{* row.push(subCol(3, col)); col = []; *}
-	{* row.push(subCol(12, col)); col = []; *}
-	$(".content").append(subRow(col));	
-	$('div.small-box div.val').textfill({	maxFontPixels: 38 });
-	$('div.small-box div.title').textfill({	maxFontPixels: 15 });
+	{* col = [], row = []; *}
+	{* col.push(BSHelper.WidgetBox3({ idname:"box3_total_so", title:"Total Receipt by SO", color:"bg-blue", value:0, icon:"ion ion-pie-graph", link:"", tooltip:"" })); *}
+	{* col.push(BSHelper.WidgetBox3({ idname:"box3_total_so_amount", title:"Total SO (Rp)", color:"bg-blue", value:0, icon:"ion ion-cash", link:"", tooltip:"" })); *}
+	{* col.push(BSHelper.WidgetBox3({ idname:"box3_total_so_late", title:"Total (Late)", color:"bg-red", value:0, icon:"ion ion-clock", link:"", tooltip:"" })); *}
+	{* col.push(BSHelper.WidgetBox3({ idname:"box3_total_so_penalty", title:"Total Penalty (Rp)", color:"bg-red", value:0, icon:"ion ion-alert-circled", link:"", tooltip:"" })); *}
+	{* $(".content").append(subRow(col));	 *}
+	{* $('div.small-box div.val').textfill({	maxFontPixels: 38 }); *}
+	{* $('div.small-box div.title').textfill({	maxFontPixels: 15 }); *}
 	
-	{* Chart Sales Order *}
+	{* Line Chart *}
 	col = [], row = [], boxes = [];
-	var boxInfo0 = BSHelper.Box({ type:"info", header: true, title: "Sales Orders VS Late", icon: "" });
+	var boxInfo0 = BSHelper.Box({ type:"info", header: true, title: "Invoice Customer vs Release Invoice", icon: "" });
 	col.push('<div class="chart"><canvas id="lineChart" style="height:200px" /></div>');
 	row.push(subCol(12, col)); col = [];
 	boxInfo0.find('.box-body').append(subRow(row));
 	boxes.push(subCol(12, boxInfo0));
 	col = [], row = [];
 	var boxInfo1 = BSHelper.Box({ type:"info", });
-	col.push(BSHelper.Stacked({ title: "Sales Order Late", dataList:[{ title: "All Status", link: "#", active: true },{ title: "Complete", link: "#" },{ title: "Incomplete", link: "#" }] }));
-	boxInfo1.find('.box-body').append(subRow(subCol(12, col)));
+	{* col.push(BSHelper.Stacked({ title: "Sales Order Late", dataList:[{ title: "All Status", link: "#", active: true },{ title: "Complete", link: "#" },{ title: "Incomplete", link: "#" }] })); *}
+	{* boxInfo1.find('.box-body').append(subRow(subCol(12, col))); *}
 	boxes.push(subCol(3, boxInfo1));
+	{* Line Chart 2*}
+	col = [], row = [];
+	var boxInfo02 = BSHelper.Box({ type:"info", header: true, title: "Invoice Inflow vs Release Invoice", icon: "" });
+	col.push('<div class="chart"><canvas id="lineChart2" style="height:200px" /></div>');
+	row.push(subCol(12, col)); col = [];
+	boxInfo02.find('.box-body').append(subRow(row));
+	boxes.push(subCol(12, boxInfo02));
+	{* Line Chart 3*}
+	col = [], row = [];
+	var boxInfo03 = BSHelper.Box({ type:"info", header: true, title: "Invoice Vendor vs Release Invoice", icon: "" });
+	col.push('<div class="chart"><canvas id="lineChart3" style="height:200px" /></div>');
+	row.push(subCol(12, col)); col = [];
+	boxInfo03.find('.box-body').append(subRow(row));
+	boxes.push(subCol(12, boxInfo03));
+	{* Line Chart 4*}
+	col = [], row = [];
+	var boxInfo04 = BSHelper.Box({ type:"info", header: true, title: "Invoice Outflow vs Release Invoice", icon: "" });
+	col.push('<div class="chart"><canvas id="lineChart4" style="height:200px" /></div>');
+	row.push(subCol(12, col)); col = [];
+	boxInfo04.find('.box-body').append(subRow(row));
+	boxes.push(subCol(12, boxInfo04));
 	col = [], row = [];
 	var boxInfo2 = BSHelper.Box({ type:"info", });
 	boxes.push(subCol(4, boxInfo2));
@@ -123,6 +142,9 @@
 		},
  	};
 	var lineChart = new Chart("lineChart", { type: "line",	data: {}, options: optLineChart1 });
+	var lineChart2 = new Chart("lineChart2", { type: "line",	data: {}, options: optLineChart1 });
+	var lineChart3 = new Chart("lineChart3", { type: "line",	data: {}, options: optLineChart1 });
+	var lineChart4 = new Chart("lineChart4", { type: "line",	data: {}, options: optLineChart1 });
 	
 	var optPieChart1 = {
 		responsive: true,
@@ -148,9 +170,9 @@
 		$.getJSON($url_module, form1.serializeOBJ(), function(response){ 
 			result = response;
 			
-			small_boxes();
+			{* small_boxes(); *}
 			line_chart();
-			list_table(0);
+			{* list_table(0); *}
 			
 		}).fail(function(data) {
 			{* console.log(data); *}
@@ -172,15 +194,26 @@
 	}
 	
 	function small_boxes(){
-		$("#box3_total_so .val span").text(result.data.total_so);
-		$("#box3_total_so_amount .val span").text(result.data.total_so_amount);
-		$("#box3_total_so_late .val span").text(result.data.total_so_late + ' ('+ format_percent(result.data.total_so_late_percent) +')');
-		$("#box3_total_so_penalty .val span").text(result.data.total_so_penalty + ' ('+ format_percent(result.data.total_so_penalty_percent) +')');
+		col = []; 
+		boxInfo1.find('.box-body').empty();
+
+		var datas = [];
+		$.each(result.data.total_by_document], function(i, v){
+			datas.push({ title: v.name, link: "#", value: v.count +' ('+ format_percent(v.percent) +')' });
+		});
+		col.push(BSHelper.List({ title: "Reasons", title_right: "Value (%)", dataList: datas }));
+		boxInfo1.find('.box-body').append(subRow(subCol(12, col)));
 	}
 	
 	function line_chart(){
 		lineChart.data = result.data.linechart;
 		lineChart.update();
+		lineChart2.data = result.data.linechart2;
+		lineChart2.update();
+		lineChart3.data = result.data.linechart3;
+		lineChart3.update();
+		lineChart4.data = result.data.linechart4;
+		lineChart4.update();
 	}
 	
 	function list_table(opt){

@@ -1964,8 +1964,8 @@ class Cashflow extends Getmeb
 				}
 			}
 			
-			if (isset($this->params['cfilter']) && !empty($this->params['cfilter'])) {
-				foreach (explode(",", $this->params['cfilter']) as $value) {
+			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
+				foreach (explode(",", $this->params['filter']) as $value) {
 					if ($value == 'for_uninvoiced_po') {
 						$this->params['where_custom'] = "(
 							exists (select distinct(order_id) from cf_order_plan f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = f1.id))
@@ -1977,17 +1977,19 @@ class Cashflow extends Getmeb
 					}
 					if ($value == 'for_uninvoiced_plan') {
 						$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_plan f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id 
-							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = f1.id))";
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = f1.order_id and order_plan_id = f1.id))";
 					}
 					if ($value == 'for_uninvoiced_plan_clearance') {
 						$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_plan_clearance f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id 
-							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_clearance_id = f1.id))";
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = f1.order_id and order_plan_clearance_id = f1.id))";
 					}
 					if ($value == 'for_uninvoiced_plan_import') {
 						$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_plan_import f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id 
-							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_import_id = f1.id))";
+							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = f1.order_id and order_plan_import_id = f1.id))";
 					}
 				}
+				
+				unset($this->params['filter']);
 			}
 			
 			$this->params['level'] = 1;
@@ -4551,24 +4553,32 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$fdate = $this->params['fdate'];
 			$tdate = $this->params['tdate'];
-			
-			$str = "select i.date, (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE as end_of_month, to_char(i.date, 'Mon') as month,
-			(select count(*) from cf_order where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE) as total_so,
-			(select count(*) from cf_order where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and etd > expected_dt_cust) as total_so_late
-			from generate_series('$fdate', '$tdate', '1 month'::interval) i;";
+
+			/* line chart */
+			if (date_differ($fdate, $tdate, 'day') < 32) {
+				$str = "select i.date, to_char(i.date, 'Mon DD') as name,
+				(select count(*) from cf_order where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date = i.date) as total_so,
+				(select count(*) from cf_order where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date = i.date and etd > expected_dt_cust) as total_so_late
+				from generate_series('$fdate', '$tdate', '1 day'::interval) i;";
+			} else {
+				$str = "select i.date, (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE as end_of_month, to_char(i.date, 'Mon') as name,
+				(select count(*) from cf_order where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE) as total_so,
+				(select count(*) from cf_order where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and etd > expected_dt_cust) as total_so_late
+				from generate_series('$fdate', '$tdate', '1 month'::interval) i;";
+			}
 			$str = translate_variable($str);
 			$qry = $this->db->query($str);
 			if ($qry->num_rows() > 0) {
 				$arr['labels'] = [];
 				foreach($qry->result() as $row){
-					$arr['labels'][] = $row->month;
+					$arr['labels'][] = $row->name;
 					$arr['data1'][] = $row->total_so;
 					$arr['data2'][] = $row->total_so_late;
 				}
 				/* datasets for line chart so vs so_late */
-				$result['data']['labels'] = $arr['labels'];
-				$result['data']['datasets'][] = ['label' => 'Sales Order', 'borderColor' => get_rgba(), 'data' => $arr['data1']];
-				$result['data']['datasets'][] = ['label' => 'Sales Order (Late)', 'borderColor' => get_rgba(), 'data' => $arr['data2']];
+				$result['data']['linechart']['labels'] = $arr['labels'];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Sales Order', 'borderColor' => get_rgba(), 'data' => $arr['data1']];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Sales Order (Late)', 'borderColor' => get_rgba(), 'data' => $arr['data2']];
 			}	
 			/* total_so */
 			$str = "select coalesce(count(*), 0) as total from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between '$fdate' and '$tdate';";
@@ -4587,20 +4597,29 @@ class Cashflow extends Getmeb
 			$row = $this->db->query($str)->row();
 			$result['data']['total_so_amount'] = $row->sorten;
 			/* total_so_late */
-			$str = "select coalesce(count(*), 0) as total from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust and doc_date between '$fdate' and '$tdate';";
+			$str = "select coalesce(count(*), 0) as total, 
+			100 * count(*) / coalesce((select coalesce(count(*), 0) as total from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between '$fdate' and '$tdate'), 1)::float as percent 
+			from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust and doc_date between '$fdate' and '$tdate';";
 			$str = translate_variable($str);
 			$row = $this->db->query($str)->row();
 			$result['data']['total_so_late'] = $row->total;
+			$result['data']['total_so_late_percent'] = $row->percent;
 			/* total_so_penalty */
 			$str = "select trim(to_char(coalesce(sum(
 			case when ((etd - expected_dt_cust) * penalty_percent * grand_total) > (max_penalty_percent * grand_total) 
 			then (max_penalty_percent * grand_total) 
 			else ((etd - expected_dt_cust) * penalty_percent * grand_total) 
-			end), 0), '99G999G999G999')) as total 
+			end), 0), '99G999G999G999')) as total,
+			100 * (coalesce(sum(
+			case when ((etd - expected_dt_cust) * penalty_percent * grand_total) > (max_penalty_percent * grand_total) 
+			then (max_penalty_percent * grand_total) 
+			else ((etd - expected_dt_cust) * penalty_percent * grand_total) 
+			end), 0)) / coalesce(sum(grand_total), 1)::float as percent 
 			from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust and doc_date between '$fdate' and '$tdate';";
 			$str = translate_variable($str);
 			$row = $this->db->query($str)->row();
 			$result['data']['total_so_penalty'] = $row->total;
+			$result['data']['total_so_penalty_percent'] = $row->percent;
 			/* SO Late All */
 			$str = "with el as (
 			select unnest(scm_dt_reasons) as reason, doc_no, doc_date from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust 
@@ -4669,6 +4688,213 @@ class Cashflow extends Getmeb
 			}
 			$result['data']['so_late_incomplete_chart']['labels'] = $arr['labels'];
 			$result['data']['so_late_incomplete_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
+			$this->xresponse(TRUE, $result);
+		}
+	}
+	
+	function dashboard_finance()
+	{
+		if ($this->r_method == 'GET') {
+			$fdate = $this->params['fdate'];
+			$tdate = $this->params['tdate'];
+
+			/* line chart */
+			if (date_differ($fdate, $tdate, 'day') < 32) {
+				$str = "select i.date, to_char(i.date, 'Mon DD') as name,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date = i.date) as total_projection1,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date = i.date) as total_projection2,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date = i.date) as total_projection3,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date = i.date) as total_projection4,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date = i.date and doc_date = invoice_plan_date) as total_release1,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date = i.date and doc_date = invoice_plan_date) as total_release2,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date = i.date and doc_date = invoice_plan_date) as total_release3,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date = i.date and doc_date = invoice_plan_date) as total_release4,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date = i.date and doc_date < invoice_plan_date) as total_release_early1,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date = i.date and doc_date < invoice_plan_date) as total_release_early2,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date = i.date and doc_date < invoice_plan_date) as total_release_early3,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date = i.date and doc_date < invoice_plan_date) as total_release_early4,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date = i.date and doc_date > invoice_plan_date) as total_release_late1,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date = i.date and doc_date > invoice_plan_date) as total_release_late2,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date = i.date and doc_date > invoice_plan_date) as total_release_late3,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date = i.date and doc_date > invoice_plan_date) as total_release_late4,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date = i.date and doc_date is null) as total_unrelease1,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date = i.date and doc_date is null) as total_unrelease2,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date = i.date and doc_date is null) as total_unrelease3,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date = i.date and doc_date is null) as total_unrelease4
+				from generate_series('$fdate', '$tdate', '1 day'::interval) i;";
+			} else {
+				$str = "select i.date, (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE as end_of_month, to_char(i.date, 'Mon') as name,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE) as total_projection1,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE) as total_projection2,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE) as total_projection3,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE) as total_projection4,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and doc_date = invoice_plan_date) as total_release1,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and doc_date = invoice_plan_date) as total_release2,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and doc_date = invoice_plan_date) as total_release3,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and doc_date = invoice_plan_date) as total_release4,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and doc_date < invoice_plan_date) as total_release_early1,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and doc_date < invoice_plan_date) as total_release_early2,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and doc_date < invoice_plan_date) as total_release_early3,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and doc_date < invoice_plan_date) as total_release_early4,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and doc_date > invoice_plan_date) as total_release_late1,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and doc_date > invoice_plan_date) as total_release_late2,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and doc_date > invoice_plan_date) as total_release_late3,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and doc_date > invoice_plan_date) as total_release_late4,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and doc_date is null) as total_unrelease1,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and doc_date is null) as total_unrelease2,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and doc_date is null) as total_unrelease3,
+				(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and doc_date is null) as total_unrelease4
+				from generate_series('$fdate', '$tdate', '1 month'::interval) i;";
+			}
+			$str = translate_variable($str);
+			// debug($str);
+			$qry = $this->db->query($str);
+			if ($qry->num_rows() > 0) {
+				$arr['labels'] = [];
+				foreach($qry->result() as $row){
+					$arr['labels'][] = $row->name;
+					$arr['data1'][] = $row->total_projection1;
+					$arr['data2'][] = $row->total_release1;
+					$arr['data3'][] = $row->total_release_early1;
+					$arr['data4'][] = $row->total_release_late1;
+					$arr['data5'][] = $row->total_unrelease1;
+					$arr2['labels'][] = $row->name;
+					$arr2['data1'][] = $row->total_projection2;
+					$arr2['data2'][] = $row->total_release2;
+					$arr2['data3'][] = $row->total_release_early2;
+					$arr2['data4'][] = $row->total_release_late2;
+					$arr2['data5'][] = $row->total_unrelease2;
+					$arr3['labels'][] = $row->name;
+					$arr3['data1'][] = $row->total_projection3;
+					$arr3['data2'][] = $row->total_release3;
+					$arr3['data3'][] = $row->total_release_early3;
+					$arr3['data4'][] = $row->total_release_late3;
+					$arr3['data5'][] = $row->total_unrelease3;
+					$arr4['labels'][] = $row->name;
+					$arr4['data1'][] = $row->total_projection4;
+					$arr4['data2'][] = $row->total_release4;
+					$arr4['data3'][] = $row->total_release_early4;
+					$arr4['data4'][] = $row->total_release_late4;
+					$arr4['data5'][] = $row->total_unrelease4;
+				}
+				/* datasets for line chart */
+				$result['data']['linechart']['labels'] = $arr['labels'];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Invoice Customer', 'borderColor' => get_rgba(), 'data' => $arr['data1']];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Release', 'borderColor' => get_rgba(), 'data' => $arr['data2']];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Release Early', 'borderColor' => get_rgba(), 'data' => $arr['data3']];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Release Late', 'borderColor' => get_rgba(), 'data' => $arr['data4']];
+				$result['data']['linechart']['datasets'][] = ['label' => 'UnRelease', 'borderColor' => get_rgba(), 'data' => $arr['data5']];
+				/* datasets for line chart2 */
+				$result['data']['linechart2']['labels'] = $arr2['labels'];
+				$result['data']['linechart2']['datasets'][] = ['label' => 'Invoice Inflow', 'borderColor' => get_rgba(), 'data' => $arr2['data1']];
+				$result['data']['linechart2']['datasets'][] = ['label' => 'Release', 'borderColor' => get_rgba(), 'data' => $arr2['data2']];
+				$result['data']['linechart2']['datasets'][] = ['label' => 'Release Early', 'borderColor' => get_rgba(), 'data' => $arr2['data3']];
+				$result['data']['linechart2']['datasets'][] = ['label' => 'Release Late', 'borderColor' => get_rgba(), 'data' => $arr2['data4']];
+				$result['data']['linechart2']['datasets'][] = ['label' => 'UnRelease', 'borderColor' => get_rgba(), 'data' => $arr2['data5']];
+				/* datasets for line chart3 */
+				$result['data']['linechart3']['labels'] = $arr3['labels'];
+				$result['data']['linechart3']['datasets'][] = ['label' => 'Invoice Vendor', 'borderColor' => get_rgba(), 'data' => $arr3['data1']];
+				$result['data']['linechart3']['datasets'][] = ['label' => 'Release', 'borderColor' => get_rgba(), 'data' => $arr3['data2']];
+				$result['data']['linechart3']['datasets'][] = ['label' => 'Release Early', 'borderColor' => get_rgba(), 'data' => $arr3['data3']];
+				$result['data']['linechart3']['datasets'][] = ['label' => 'Release Late', 'borderColor' => get_rgba(), 'data' => $arr3['data4']];
+				$result['data']['linechart3']['datasets'][] = ['label' => 'UnRelease', 'borderColor' => get_rgba(), 'data' => $arr3['data5']];
+				/* datasets for line chart4 */
+				$result['data']['linechart4']['labels'] = $arr4['labels'];
+				$result['data']['linechart4']['datasets'][] = ['label' => 'Invoice Outflow', 'borderColor' => get_rgba(), 'data' => $arr4['data1']];
+				$result['data']['linechart4']['datasets'][] = ['label' => 'Release', 'borderColor' => get_rgba(), 'data' => $arr4['data2']];
+				$result['data']['linechart4']['datasets'][] = ['label' => 'Release Early', 'borderColor' => get_rgba(), 'data' => $arr4['data3']];
+				$result['data']['linechart4']['datasets'][] = ['label' => 'Release Late', 'borderColor' => get_rgba(), 'data' => $arr4['data4']];
+				$result['data']['linechart4']['datasets'][] = ['label' => 'UnRelease', 'borderColor' => get_rgba(), 'data' => $arr4['data5']];
+			}	
+			/* total & release by document */
+			$str = "with tmp as (
+			select 
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate') as total_projection1,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date between '$fdate' and '$tdate') as total_projection2,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate') as total_projection3,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date between '$fdate' and '$tdate') as total_projection4,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date = invoice_plan_date) as total_release1,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date = invoice_plan_date) as total_release2,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date = invoice_plan_date) as total_release3,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date = invoice_plan_date) as total_release4,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date < invoice_plan_date) as total_release_early1,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date < invoice_plan_date) as total_release_early2,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date < invoice_plan_date) as total_release_early3,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date < invoice_plan_date) as total_release_early4,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date > invoice_plan_date) as total_release_late1,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date > invoice_plan_date) as total_release_late2,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date > invoice_plan_date) as total_release_late3,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date > invoice_plan_date) as total_release_late4,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease1,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease2,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease3,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease4
+			) select *, 
+			(100 * t1.total_release1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_release_percent1, 
+			(100 * t1.total_release2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_release_percent2, 
+			(100 * t1.total_release3 / coalesce(nullif(t1.total_projection3, 0), 1)::float) as total_release_percent3, 
+			(100 * t1.total_release4 / coalesce(nullif(t1.total_projection4, 0), 1)::float) as total_release_percent4, 
+			(100 * t1.total_release_early1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_release_early_percent1, 
+			(100 * t1.total_release_early2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_release_early_percent2, 
+			(100 * t1.total_release_early3 / coalesce(nullif(t1.total_projection3, 0), 1)::float) as total_release_early_percent3, 
+			(100 * t1.total_release_early4 / coalesce(nullif(t1.total_projection4, 0), 1)::float) as total_release_early_percent4, 
+			(100 * t1.total_release_late1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_release_late_percent1, 
+			(100 * t1.total_release_late2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_release_late_percent2, 
+			(100 * t1.total_release_late3 / coalesce(nullif(t1.total_projection3, 0), 1)::float) as total_release_late_percent3, 
+			(100 * t1.total_release_late4 / coalesce(nullif(t1.total_projection4, 0), 1)::float) as total_release_late_percent4, 
+			(100 * t1.total_unrelease1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_unrelease_percent1,
+			(100 * t1.total_unrelease2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_unrelease_percent2,
+			(100 * t1.total_unrelease3 / coalesce(nullif(t1.total_projection3, 0), 1)::float) as total_unrelease_percent3,
+			(100 * t1.total_unrelease4 / coalesce(nullif(t1.total_projection4, 0), 1)::float) as total_unrelease_percent4
+			from tmp as t1;";
+			$str = translate_variable($str);
+			$row = $this->db->query($str)->row();
+			$result['data']['total_by_document'] = $row;
+			/* total & release by amount */
+			$str = "with tmp as (
+			select 
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate') as total_projection1,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date between '$fdate' and '$tdate') as total_projection2,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate') as total_projection3,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date between '$fdate' and '$tdate') as total_projection4,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date = invoice_plan_date) as total_release1,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date = invoice_plan_date) as total_release2,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date = invoice_plan_date) as total_release3,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date = invoice_plan_date) as total_release4,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date < invoice_plan_date) as total_release_early1,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date < invoice_plan_date) as total_release_early2,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date < invoice_plan_date) as total_release_early3,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date < invoice_plan_date) as total_release_early4,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date > invoice_plan_date) as total_release_late1,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date > invoice_plan_date) as total_release_late2,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date > invoice_plan_date) as total_release_late3,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date > invoice_plan_date) as total_release_late4,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease1,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease2,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease3,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease4
+			) select *, 
+			(100 * t1.total_release1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_release_percent1, 
+			(100 * t1.total_release2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_release_percent2, 
+			(100 * t1.total_release3 / coalesce(nullif(t1.total_projection3, 0), 1)::float) as total_release_percent3, 
+			(100 * t1.total_release4 / coalesce(nullif(t1.total_projection4, 0), 1)::float) as total_release_percent4, 
+			(100 * t1.total_release_early1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_release_early_percent1, 
+			(100 * t1.total_release_early2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_release_early_percent2, 
+			(100 * t1.total_release_early3 / coalesce(nullif(t1.total_projection3, 0), 1)::float) as total_release_early_percent3, 
+			(100 * t1.total_release_early4 / coalesce(nullif(t1.total_projection4, 0), 1)::float) as total_release_early_percent4, 
+			(100 * t1.total_release_late1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_release_late_percent1, 
+			(100 * t1.total_release_late2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_release_late_percent2, 
+			(100 * t1.total_release_late3 / coalesce(nullif(t1.total_projection3, 0), 1)::float) as total_release_late_percent3, 
+			(100 * t1.total_release_late4 / coalesce(nullif(t1.total_projection4, 0), 1)::float) as total_release_late_percent4, 
+			(100 * t1.total_unrelease1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_unrelease_percent1,
+			(100 * t1.total_unrelease2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_unrelease_percent2,
+			(100 * t1.total_unrelease3 / coalesce(nullif(t1.total_projection3, 0), 1)::float) as total_unrelease_percent3,
+			(100 * t1.total_unrelease4 / coalesce(nullif(t1.total_projection4, 0), 1)::float) as total_unrelease_percent4
+			from tmp as t1;";
+			$str = translate_variable($str);
+			$row = $this->db->query($str)->row();
+			$result['data']['total_by_amount'] = $row;
+			
 			$this->xresponse(TRUE, $result);
 		}
 	}

@@ -95,11 +95,19 @@
 	
 	col = [], row = [], boxes = [];
 	var boxInfo0 = BSHelper.Box({ type:"info", header: true, title: "Hit Access", icon: "" });
-	boxInfo0.find('.box-header').append($('<div class="box-tools pull-right" />').append(BSHelper.GroupButton( { cls:"btn-step", list:[{ id: "btn1", title: "Hourly", text: "H" }, { id: "btn2", title: "Daily", text: "D", active: true }, { id: "btn3", title: "Weekly", text: "W" }, { id: "btn4", title: "Monthly", text: "M" }, ]} )) );
+	{* boxInfo0.find('.box-header').append($('<div class="box-tools pull-right" />').append(BSHelper.GroupButton( { cls:"btn-step", list:[{ id: "btn1", title: "Hourly", text: "H" }, { id: "btn2", title: "Daily", text: "D", active: true }, { id: "btn3", title: "Weekly", text: "W" }, { id: "btn4", title: "Monthly", text: "M" }, ]} )) ); *}
 	col.push('<div class="chart"><canvas id="lineChart" style="height:180px"></canvas></div>');
 	row.push(subCol(12, col)); col = [];
-	{* col.push(BSHelper.Pills({ dataList:[{ title: "Hits", value: "#" },{ title: "Create (POST)", value: "#" },{ title: "Read (GET)", value: "#" },{ title: "Modify (PUT)", value: "#" }] })); *}
-	{* row.push(subCol(3, col)); col = []; *}
+	col.push(BSHelper.Pills({ dataList:[{ title: "Total", idname: "total", value: 0 }] }));
+	row.push(subCol(3, col)); col = [];
+	col.push(BSHelper.Pills({ dataList:[{ title: "Avg/Hour", idname: "avg_hour", value: 0 }] }));
+	row.push(subCol(2, col)); col = [];
+	col.push(BSHelper.Pills({ dataList:[{ title: "Avg/Day", idname: "avg_day", value: 0 }] }));
+	row.push(subCol(2, col)); col = [];
+	col.push(BSHelper.Pills({ dataList:[{ title: "Avg/Week", idname: "avg_week", value: 0 }] }));
+	row.push(subCol(2, col)); col = [];
+	col.push(BSHelper.Pills({ dataList:[{ title: "Avg/Month", idname: "avg_month", value: 0 }] }));
+	row.push(subCol(3, col)); col = [];
 
 	{* boxInfo0.find('.box-body').append('<div class="chart"><canvas id="lineChart" style="height:180px"></canvas></div>'); *}
 	boxInfo0.find('.box-body').append(subRow(row));
@@ -112,7 +120,7 @@
 	{* Mobile : Browser, Operating System, Service Provider, Screen Resolution *}
 	col = [], row = [];
 	var boxInfo1 = BSHelper.Box({ type:"info", });
-	col.push(BSHelper.Stacked({ title: "Hosting", dataList:[{ title: "Domain", link: "#" },{ title: "Request Method", link: "#" }] }));
+	col.push(BSHelper.Stacked({ title: "Hosting", dataList:[{ title: "Domain", link: "#", active: true },{ title: "Request Method", link: "#" }] }));
 	col.push(BSHelper.Stacked({ title: "Demographics", dataList:[{ title: "Country / Territory", link: "#" },{ title: "City", link: "#" }] }));
 	col.push(BSHelper.Stacked({ title: "System", dataList:[{ title: "Browser", link: "#" },{ title: "Operating System", link: "#" },{ title: "Service Provider", link: "#" },{ title: "Screen Resolution", link: "#" }] }));
 	col.push(BSHelper.Stacked({ title: "Mobile", dataList:[{ title: "Browser", link: "#" },{ title: "Operating System", link: "#" },{ title: "Service Provider", link: "#" },{ title: "Screen Resolution", link: "#" }] }));
@@ -136,6 +144,7 @@
 	{* Initialization *}
 	var format_money = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
 	var format_percent = function(value){ return accounting.formatMoney(value, { symbol: "%", format: "%v%s" }) };
+	var format_average = function(value){ return accounting.formatMoney(value, '', 2, '', '.') };
 	var start = moment().subtract(6, 'days');
 	var end = moment();
 	{* //Date range as a button *}
@@ -200,25 +209,7 @@
  	};
 	var pieChart = new Chart("pieChart", { type: "pie",	data: {}, options: optPieChart1 });
 	
-	var optHost = {
-		responsive: true,
-		legend: {	position: 'top', },
-		title: { display: false, text: 'Chart.js Doughnut Chart' },
-		animation: { animateScale: true, animateRotate: true }
-	};
-	
-	$(".btn-group").on("click", function(e){
-		{* console.log($(e.target).attr('id')); *}
-		switch ($(e.target).attr('id')) {
-			case 'btn1': $("#step").val('H');	break;
-			case 'btn2': $("#step").val('D');	break;
-			case 'btn3': $("#step").val('W');	break;
-			case 'btn4': $("#step").val('M');	break;
-		}
-		update_datas();
-	});
-	
-	$("ul.nav-stacked li").on("click", function(){
+	$("ul.nav-stacked-link li").on("click", function(){
 		$(this).parent().parent().parent().find("li").removeClass("active");
 		$(this).addClass("active");
 
@@ -245,9 +236,9 @@
 		{* Validation *}
 		var fdate = moment($("#fdate").val(), 'YYYY-MM-DD');
 		var tdate =	moment($("#tdate").val(), 'YYYY-MM-DD');
-		var durra = moment.duration(tdate.diff(fdate));
+		{* var durra = moment.duration(tdate.diff(fdate)); *}
 		
-		if (durra.asDays() > 1) {
+		{* if (durra.asDays() > 1) {
 			$("#btn1").attr("disabled", true);
 			$(".btn-step>button").removeClass("active");
 			$("#btn2").addClass("active");
@@ -270,12 +261,13 @@
 			$("#step").val('M');
 		} else {
 			$("#btn3").attr("disabled", false);
-		}
+		} *}
 
 		$.getJSON($url_module, form1.serializeOBJ(), function(response){ 
 			result = response;
 			
 			line_chart();
+			small_boxes();
 			list_table(0);
 			
 		}).fail(function(data) {
@@ -294,6 +286,14 @@
 				}],
 			});
 		});
+	}
+	
+	function small_boxes(){
+		$("#total a span").text(result.data.total);
+		$("#avg_hour a span").text(format_average(result.data.avg_hour));
+		$("#avg_day a span").text(format_average(result.data.avg_day));
+		$("#avg_week a span").text(format_average(result.data.avg_week));
+		$("#avg_month a span").text(format_average(result.data.avg_month));
 	}
 	
 	function line_chart(){

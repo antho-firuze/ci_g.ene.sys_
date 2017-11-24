@@ -263,7 +263,7 @@
 		}
 		var o = $.extend( {}, default_opts, options );
 		var container = $('<div class="stacked" />');
-		container.append('<ul class="nav nav-pills nav-stacked" />');
+		container.append('<ul class="nav nav-stacked nav-stacked-link" />');
 		if (o.title)
 			container.find('ul').append( $('<li class="header">'+o.title+'</li>') );
 		
@@ -295,9 +295,10 @@
 		
 		$.each(o.dataList, function(i) {
 			var title = o.dataList[i]['title'];
-			var value = o.dataList[i]['value'] ? ' <span class="pull-right text-green">'+o.dataList[i]['value']+'</span>' : '';
+			var value = ' <span class="pull-right text-green">'+o.dataList[i]['value']+'</span>';
 			var active = o.dataList[i]['active'] ? ' class="active"' : '';
-			container.find('ul').append( $('<li'+active+'><a href="javascript:void(0);">'+title+value+'</a></li>') );
+			var idname = o.dataList[i]['idname'] ? ' id="'+o.dataList[i]['idname']+'"' : '';
+			container.find('ul').append( $('<li'+idname+active+'><a href="javascript:void(0);">'+title+value+'</a></li>') );
 		});
 		
 		return container;
@@ -331,12 +332,14 @@
 			else 
 				container.find('ul').append( $('<li class="item">'+title+'<a href="javascript:void(0);">'+value+'</a></li>').hide() );
 		});
-		
-		container.find('ul').append( $('<li class="footer" style="border-top: 1px solid #ddd; color: #777; margin-bottom: 10px; padding-top: 5px;"><span class="pull-right"><a href="javascript:void(0);" class="view-more">view more</a></span></li>') );
-		container.find('ul li a.view-more').on("click", function(){
-			container.find('ul li').show();
-			$(this).parent().parent().hide();
-		});
+
+		if (o.dataList.length > 5) {
+			container.find('ul').append( $('<li class="footer" style="border-top: 1px solid #ddd; color: #777; margin-bottom: 10px; padding-top: 5px;"><span class="pull-right"><a href="javascript:void(0);" class="view-more">view more</a></span></li>') );
+			container.find('ul li a.view-more').on("click", function(){
+				container.find('ul li').show();
+				$(this).parent().parent().hide();
+			});
+		}
 		return container;
 	};
 	
