@@ -51,11 +51,6 @@
 	row.push(subCol(12, col)); col = [];
 	boxInfo0.find('.box-body').append(subRow(row));
 	boxes.push(subCol(12, boxInfo0));
-	col = [], row = [];
-	var boxInfo1 = BSHelper.Box({ type:"info", });
-	{* col.push(BSHelper.Stacked({ title: "Sales Order Late", dataList:[{ title: "All Status", link: "#", active: true },{ title: "Complete", link: "#" },{ title: "Incomplete", link: "#" }] })); *}
-	{* boxInfo1.find('.box-body').append(subRow(subCol(12, col))); *}
-	boxes.push(subCol(3, boxInfo1));
 	{* Line Chart 2*}
 	col = [], row = [];
 	var boxInfo02 = BSHelper.Box({ type:"info", header: true, title: "Invoice Inflow vs Release Invoice", icon: "" });
@@ -77,15 +72,41 @@
 	row.push(subCol(12, col)); col = [];
 	boxInfo04.find('.box-body').append(subRow(row));
 	boxes.push(subCol(12, boxInfo04));
+	{* Info Box *}
 	col = [], row = [];
-	var boxInfo2 = BSHelper.Box({ type:"info", });
-	boxes.push(subCol(4, boxInfo2));
+	var boxInfo11 = BSHelper.Box({ type:"info", });
+	boxes.push(subCol(3, boxInfo11));
 	col = [], row = [];
-	var boxInfo3 = BSHelper.Box({ type:"info", });
-	col.push('<div class="canvas-holder"><canvas id="pieChart" /></div>');
-	row.push(subCol(12, col)); col = [];
-	boxInfo3.find('.box-body').append(subRow(row));
-	boxes.push(subCol(5, boxInfo3));
+	var boxInfo12 = BSHelper.Box({ type:"info", });
+	boxes.push(subCol(3, boxInfo12));
+	col = [], row = [];
+	var boxInfo13 = BSHelper.Box({ type:"info", });
+	boxes.push(subCol(3, boxInfo13));
+	col = [], row = [];
+	var boxInfo14 = BSHelper.Box({ type:"info", });
+	boxes.push(subCol(3, boxInfo14));
+	{* Info Box *}
+	col = [], row = [];
+	var boxInfo21 = BSHelper.Box({ type:"info", });
+	boxes.push(subCol(3, boxInfo21));
+	col = [], row = [];
+	var boxInfo22 = BSHelper.Box({ type:"info", });
+	boxes.push(subCol(3, boxInfo22));
+	col = [], row = [];
+	var boxInfo23 = BSHelper.Box({ type:"info", });
+	boxes.push(subCol(3, boxInfo23));
+	col = [], row = [];
+	var boxInfo24 = BSHelper.Box({ type:"info", });
+	boxes.push(subCol(3, boxInfo24));
+	{* col = [], row = []; *}
+	{* var boxInfo2 = BSHelper.Box({ type:"info", }); *}
+	{* boxes.push(subCol(4, boxInfo2)); *}
+	{* col = [], row = []; *}
+	{* var boxInfo3 = BSHelper.Box({ type:"info", }); *}
+	{* col.push('<div class="canvas-holder"><canvas id="pieChart" /></div>'); *}
+	{* row.push(subCol(12, col)); col = []; *}
+	{* boxInfo3.find('.box-body').append(subRow(row)); *}
+	{* boxes.push(subCol(5, boxInfo3)); *}
 	$(".content").append(subRow(boxes));
 	
 	{* Initialization *}
@@ -146,11 +167,11 @@
 	var lineChart3 = new Chart("lineChart3", { type: "line",	data: {}, options: optLineChart1 });
 	var lineChart4 = new Chart("lineChart4", { type: "line",	data: {}, options: optLineChart1 });
 	
-	var optPieChart1 = {
-		responsive: true,
-		legend: { display: false },
- 	};
-	var pieChart = new Chart("pieChart", { type: "pie",	data: {}, options: optPieChart1 });
+	{* var optPieChart1 = { *}
+		{* responsive: true, *}
+		{* legend: { display: false }, *}
+ 	{* }; *}
+	{* var pieChart = new Chart("pieChart", { type: "pie",	data: {}, options: optPieChart1 }); *}
 	
 	$("ul.nav-stacked li").on("click", function(){
 		$(this).parent().find("li").removeClass("active");
@@ -170,7 +191,8 @@
 		$.getJSON($url_module, form1.serializeOBJ(), function(response){ 
 			result = response;
 			
-			{* small_boxes(); *}
+			info_box_by_document();
+			info_box_by_amount();
 			line_chart();
 			{* list_table(0); *}
 			
@@ -193,16 +215,79 @@
 		
 	}
 	
-	function small_boxes(){
-		col = []; 
-		boxInfo1.find('.box-body').empty();
+	{* Ditaruh diatas biar bisa masuk ke variable window *}
+	var datas1 = []; {* invoice customer *}
+	var datas2 = []; {* invoice inflow *}
+	var datas3 = []; {* invoice vendor *}
+	var datas4 = []; {* invoice outflow *}
+	function info_box_by_document(){
+		datas1 = [];
+		datas2 = [];
+		datas3 = [];
+		datas4 = [];
+		var grp = ["","Invoice Customer","Invoice Inflow","Invoice Vendor","Invoice Outflow"];
+		var title = ["Total","Release","Early","Late","Unrelease"];
+		var field = ["","total_release","total_release_early","total_release_late","total_unrelease"];
+		var field_percent = ["","total_release_percent","total_release_early_percent","total_release_late_percent","total_unrelease_percent"];
 
-		var datas = [];
-		$.each(result.data.total_by_document], function(i, v){
-			datas.push({ title: v.name, link: "#", value: v.count +' ('+ format_percent(v.percent) +')' });
-		});
-		col.push(BSHelper.List({ title: "Reasons", title_right: "Value (%)", dataList: datas }));
-		boxInfo1.find('.box-body').append(subRow(subCol(12, col)));
+		datas1.push({ title: title[0], link: "#", value: result.data.total_by_document['total_projection1'] });
+		datas2.push({ title: title[0], link: "#", value: result.data.total_by_document['total_projection2'] });
+		datas3.push({ title: title[0], link: "#", value: result.data.total_by_document['total_projection3'] });
+		datas4.push({ title: title[0], link: "#", value: result.data.total_by_document['total_projection4'] });
+		for (var i = 1; i < title.length; i++){
+			for (var j = 1; j < field.length; j++){
+				var v = result.data.total_by_document[field[j]+i];
+				var vp = result.data.total_by_document[field_percent[j]+i];
+				window['datas'+i].push({ title: title[j], link: "#", value: '('+ format_percent(vp) +') ' + v });
+			}
+		}
+		
+		{* Auto *}
+		for (var i = 1; i < grp.length; i++){
+			window['boxInfo1'+i].find('.box-body').empty().append(subRow(subCol(12, BSHelper.Pills({ title: grp[i], dataList: window['datas'+i] }))));
+			window['datas'+i] = [];
+		}
+		
+		{* Manual *}
+		{* boxInfo11.find('.box-body').empty().append(subRow(subCol(12, BSHelper.Pills({ title: "Invoice Customer", dataList: datas1 })))); *}
+		{* boxInfo12.find('.box-body').empty().append(subRow(subCol(12, BSHelper.Pills({ title: "Invoice Inflow", dataList: datas2 })))); *}
+		{* boxInfo13.find('.box-body').empty().append(subRow(subCol(12, BSHelper.Pills({ title: "Invoice Vendor", dataList: datas3 })))); *}
+		{* boxInfo14.find('.box-body').empty().append(subRow(subCol(12, BSHelper.Pills({ title: "Invoice Outflow", dataList: datas4 })))); *}
+	}
+	
+	function info_box_by_amount(){
+		datas1 = [];
+		datas2 = [];
+		datas3 = [];
+		datas4 = [];
+		var grp = ["","Invoice Customer","Invoice Inflow","Invoice Vendor","Invoice Outflow"];
+		var title = ["Total","Release","Early","Late","Unrelease"];
+		var field = ["","total_release","total_release_early","total_release_late","total_unrelease"];
+		var field_percent = ["","total_release_percent","total_release_early_percent","total_release_late_percent","total_unrelease_percent"];
+
+		datas1.push({ title: title[0], link: "#", value: format_money(result.data.total_by_amount['total_projection1']) });
+		datas2.push({ title: title[0], link: "#", value: format_money(result.data.total_by_amount['total_projection2']) });
+		datas3.push({ title: title[0], link: "#", value: format_money(result.data.total_by_amount['total_projection3']) });
+		datas4.push({ title: title[0], link: "#", value: format_money(result.data.total_by_amount['total_projection4']) });
+		for (var i = 1; i < title.length; i++){
+			for (var j = 1; j < field.length; j++){
+				var v = result.data.total_by_amount[field[j]+i];
+				var vp = result.data.total_by_amount[field_percent[j]+i];
+				window['datas'+i].push({ title: title[j], link: "#", value: '('+ format_percent(vp) +') ' + format_money(v) });
+			}
+		}
+		
+		{* Auto *}
+		for (var i = 1; i < grp.length; i++){
+			window['boxInfo2'+i].find('.box-body').empty().append(subRow(subCol(12, BSHelper.Pills({ title: grp[i], dataList: window['datas'+i] }))));
+			window['datas'+i] = [];
+		}
+		
+		{* Manual *}
+		{* boxInfo21.find('.box-body').empty().append(subRow(subCol(12, BSHelper.Pills({ title: "Invoice Customer", dataList: datas1 })))); *}
+		{* boxInfo22.find('.box-body').empty().append(subRow(subCol(12, BSHelper.Pills({ title: "Invoice Inflow", dataList: datas2 })))); *}
+		{* boxInfo23.find('.box-body').empty().append(subRow(subCol(12, BSHelper.Pills({ title: "Invoice Vendor", dataList: datas3 })))); *}
+		{* boxInfo24.find('.box-body').empty().append(subRow(subCol(12, BSHelper.Pills({ title: "Invoice Outflow", dataList: datas4 })))); *}
 	}
 	
 	function line_chart(){
