@@ -97,7 +97,7 @@
 					body += '<br>field name: '+result.data.field_name;
 					body += '<br>row count: '+result.data.num_rows;
 					body += '<br>row value: '+result.data.row_value;
-					{* body += '<br>message: '+result.message; *}
+					body += '<br>Query String:<br><div style="background-color: white; color: black; padding: 7px 10px 7px 10px; margin-top: 4px;">'+result.data.qry_str+'</div>';
 					BootstrapDialog.show({ closable: false, message: body, 
 						buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],
 					});

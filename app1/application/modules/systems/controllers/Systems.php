@@ -1521,6 +1521,7 @@ class Systems extends Getmeb
 						$this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
 					} else {
 						// debugf(count($qry->list_fields()));
+						$result['data']['qry_str'] = $query;
 						$result['data']['num_fields'] = count($qry->list_fields());
 						$result['data']['num_rows'] = $qry->num_rows();
 						$result['data']['field_name'] = implode(', ', $qry->list_fields());
