@@ -1974,22 +1974,24 @@ class Cashflow extends Getmeb
 							or
 							exists (select distinct(order_id) from cf_order_plan_import f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_import_id = f1.id))
 						)";
+						unset($this->params['filter']);
 					}
 					if ($value == 'for_uninvoiced_plan') {
 						$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_plan f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id 
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = f1.order_id and order_plan_id = f1.id))";
+						unset($this->params['filter']);
 					}
 					if ($value == 'for_uninvoiced_plan_clearance') {
 						$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_plan_clearance f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id 
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = f1.order_id and order_plan_clearance_id = f1.id))";
+						unset($this->params['filter']);
 					}
 					if ($value == 'for_uninvoiced_plan_import') {
 						$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_plan_import f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id 
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = f1.order_id and order_plan_import_id = f1.id))";
+						unset($this->params['filter']);
 					}
 				}
-				
-				unset($this->params['filter']);
 			}
 			
 			$this->params['level'] = 1;
