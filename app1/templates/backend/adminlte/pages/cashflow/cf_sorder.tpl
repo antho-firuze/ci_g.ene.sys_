@@ -10,6 +10,15 @@
 </div>
 <!-- /.content-wrapper -->
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-multiselect/css/bootstrap-multiselect.css')}
+<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/css/query-builder.default.min.css">
+<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/datepicker/datepicker3.css">
+<script src="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/js/query-builder.standalone.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/interact/dist/interact.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/bootbox/bootbox.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/sql-parser/browser/sql-parser.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/moment.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/datepicker/bootstrap-datepicker.js"></script>
+
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/inputmask.js"></script>
@@ -64,39 +73,8 @@
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"plan_total", title:"Plan Total", render: function(data, type, row){ return format_money(data); } },
 			{ width:"200px", orderable:true, data:"description", title:"Description" },
 		],
-		{* createdRow: function( row, data, dataIndex ) { *}
-			{* if ( parseInt(data['estimation_late']) > 0 ) {         *}
-				{* $(row).attr('style', 'background-color: blue !important;'); *}
-			{* } *}
-		{* }, *}
 	};
-</script>
-<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/css/query-builder.default.min.css">
-<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/datepicker/datepicker3.css">
-<script src="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/js/query-builder.standalone.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/interact/dist/interact.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/bootbox/bootbox.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/sql-parser/browser/sql-parser.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/moment.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/datepicker/bootstrap-datepicker.js"></script>
-<script>
-	var Sorting_Fields = [
-		{	id: 'org_name', label: 'Org Name' },
-		{	id: 'orgtrx_name', label: 'Org Trx Name' },
-		{	id: 'bpartner_name', label: 'Customer' },
-		{	id: 'doc_no',	label: 'Doc No'	},
-		{	id: 'doc_date',	label: 'Doc Date'	},
-		{	id: 'expected_dt_cust',	label: 'Expected DT Customer'	},
-		{	id: 'etd',	label: 'ETD'	},
-		{	id: 'estimation_late', label: 'Estimation Late'	},
-		{	id: 'estimation_penalty_amount', label: 'Estimation Penalty Amount'	},
-		{	id: 'reason_name', label: 'Late Reason'	},
-		{	id: 'sub_total', label: 'Sub Total'	},
-		{	id: 'vat_total', label: 'Vat Total'	},
-		{	id: 'grand_total', label: 'Grand Total'	},
-		{	id: 'plan_total', label: 'Plan Total'	},
-	];
-	
+
 	function update_so_etd(data) {
 		var col = [], row = [], a = [];
 		var form1 = BSHelper.Form({ autocomplete:"off" });

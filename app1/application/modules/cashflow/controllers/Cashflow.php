@@ -1547,7 +1547,7 @@ class Cashflow extends Getmeb
 					'grand_total' => 'coalesce(grand_total, 0)', 
 					'plan_total' 	=> 'coalesce(plan_total, 0)', 
 				];
-				$this->params['ob'] = str_replace(array_keys($sortFields), $sortFields, $this->params['ob']);
+				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
 			}
 			
 			if (isset($this->params['for_shipment']) && !empty($this->params['for_shipment'])) {
@@ -1934,6 +1934,24 @@ class Cashflow extends Getmeb
 				'(select name from a_org where id = t1.org_id)',
 				'(select name from a_org where id = t1.orgtrx_id)',
 				'(select doc_no from cf_requisition where id = t1.requisition_id)']);
+			
+			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'eta' 				=> 't1.eta', 
+					'doc_no_requisition' 		=> 't2.doc_no', 
+					'doc_date_requisition' 	=> 't2.doc_date', 
+					'eta_requisition' 			=> 't2.eta', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+					'plan_total' 	=> 'coalesce(plan_total, 0)', 
+					'plan_cl_total' 	=> 'coalesce(plan_cl_total, 0)', 
+					'plan_im_total' 	=> 'coalesce(plan_im_total, 0)', 
+				];
+				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
+			}
 			
 			if (isset($this->params['for_material_receipt']) && !empty($this->params['for_material_receipt'])) {
 				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {

@@ -836,14 +836,26 @@ $('.toolbar_container').click('button', function(e){
 				// return false;
 			// }	
 			// window['func_sort'](data);
-			if (typeof(Sorting_Fields) === 'undefined') {
-				BootstrapDialog.alert("Database Sorting is not defined !");
+			
+			// if (typeof(Sorting_Fields) === 'undefined') {
+				// BootstrapDialog.alert("Database Sorting is not defined !");
+				// return false;
+			// }
+			
+			// $.each(Sorting_Fields, function(i, v){
+				// Sorting_Fields[i]['unique'] = true;
+			// });
+			
+			var Sorting_Fields = [];
+			$.each(DataTable_Init.columns, function(i, v){
+				if (v.orderable)
+					Sorting_Fields.push({ id: v.data, label: v.title, unique: true })
+			});
+			
+			if (isempty_arr(Sorting_Fields)) {
+				BootstrapDialog.alert("Field Sorting is not defined !");
 				return false;
 			}
-			
-			$.each(Sorting_Fields, function(i, v){
-				Sorting_Fields[i]['unique'] = true;
-			});
 			
 			var col = [], row = [];
 			var form1 = BSHelper.Form({ autocomplete:"off" });
