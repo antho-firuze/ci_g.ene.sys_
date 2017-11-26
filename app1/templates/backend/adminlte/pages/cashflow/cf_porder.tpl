@@ -9,14 +9,6 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
-<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/css/query-builder.default.min.css">
-<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/datepicker/datepicker3.css">
-<script src="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/js/query-builder.standalone.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/interact/dist/interact.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/bootbox/bootbox.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/sql-parser/browser/sql-parser.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/moment.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/datepicker/bootstrap-datepicker.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
@@ -64,202 +56,58 @@
 		],
 		order: ['id desc'],
 	};
+</script>
+<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/css/query-builder.default.min.css">
+<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/datepicker/datepicker3.css">
+<script src="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/js/query-builder.standalone.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/interact/dist/interact.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/bootbox/bootbox.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/sql-parser/browser/sql-parser.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/moment.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/datepicker/bootstrap-datepicker.js"></script>
+<script>
+	var Filter_Fields = [
+		{
+			unique: true,
+			id: 'is_import',
+			label: 'Is Import',
+			type: 'string',
+			input: 'radio',
+			values: {
+				'1': 'Yes',
+				'0': 'No'
+			},
+			operators: ['equal'],
+		},
+		{
+			unique: true,
+			id: 'grand_total',
+			label: 'Grand Total',
+			type: 'double',
+			size: 5,
+			validation: {
+				min: 0,
+				step: 0.01
+			},
+		},
+		{
+			unique: true,
+			id: 't1.doc_date',
+			label: 'Doc Date',
+			type: 'datetime',
+			plugin: 'datepicker',
+			plugin_config: { format: "yyyy-mm-dd", todayBtn: 'linked', todayHighlight: true, autoclose: true },
+			input_event: 'dp.change',
+			description: 'Format date yyyy-mm-dd. Ex: 2017-11-22',
+		},
+	];
+	
+	var Sorting_Fields = [
+		{	id: 'doc_no',	label: 'Doc No'	},
+		{	id: 't1.doc_date', label: 'Doc Date' },
+	];
 	
 	{* Initialization *}
-	function func_filter(data) {
-		var col = [], row = [];
-		var form1 = BSHelper.Form({ autocomplete:"off" });
-		col.push($('<div id="builder" />'));
-		row.push(subCol(12, col));
-		form1.append(subRow(row));
-		form1.on('submit', function(e){ e.preventDefault(); });
-		
-		var options = {
-			allow_empty: true,
-			sort_filters: true,
-			plugins: {
-				'bt-tooltip-errors': { delay: 100 },
-				'sortable': null,
-				'filter-description': { mode: 'bootbox' },
-				{* 'bt-selectpicker': null, *}
-				'unique-filter': null,
-				{* 'bt-checkbox': { color: 'primary' }, *}
-				{* 'invert': null, *}
-				{* 'not-group': null *}
-			},
-			operators: [
-				{ type: 'equal', optgroup: 'basic' },
-				{ type: 'not_equal', optgroup: 'basic' },
-				{ type: 'in', optgroup: 'basic' },
-				{ type: 'not_in', optgroup: 'basic' },
-				{ type: 'less', optgroup: 'numbers' },
-				{ type: 'less_or_equal', optgroup: 'numbers' },
-				{ type: 'greater', optgroup: 'numbers' },
-				{ type: 'greater_or_equal', optgroup: 'numbers' },
-				{ type: 'between', optgroup: 'numbers' },
-				{ type: 'not_between', optgroup: 'numbers' },
-				{ type: 'begins_with', optgroup: 'strings' },
-				{ type: 'not_begins_with', optgroup: 'strings' },
-				{ type: 'contains', optgroup: 'strings' },
-				{ type: 'not_contains', optgroup: 'strings' },
-				{ type: 'ends_with', optgroup: 'strings' },
-				{ type: 'not_ends_with', optgroup: 'strings' },
-				{ type: 'is_empty' },
-				{ type: 'is_not_empty' },
-				{ type: 'is_null' },
-				{ type: 'is_not_null' }
-			],
-			filters: [
-				{
-					unique: true,
-					id: 'is_import',
-					label: 'Is Import',
-					type: 'string',
-					input: 'radio',
-					values: {
-						'1': 'Yes',
-						'0': 'No'
-					},
-					operators: ['equal'],
-				},
-				{
-					unique: true,
-					id: 'grand_total',
-					label: 'Grand Total',
-					type: 'double',
-					size: 5,
-					validation: {
-						min: 0,
-						step: 0.01
-					},
-				},
-				{
-					unique: true,
-					id: 't1.doc_date',
-					label: 'Doc Date',
-					type: 'datetime',
-					plugin: 'datepicker',
-					plugin_config: { format: "yyyy-mm-dd", todayBtn: 'linked', todayHighlight: true, autoclose: true },
-					input_event: 'dp.change',
-					description: 'Format date yyyy-mm-dd. Ex: 2017-11-22',
-				},
-			],
-		};
-
-		form1.find('#builder').queryBuilder(options);
-		var $method = $url_module.split('/')[4];
-		var $sfilter = get('sfilter_'+$method);
-		if ($sfilter && typeof($sfilter) !== null)
-			form1.find('#builder').queryBuilder('setRulesFromSQL', $sfilter);
-
-		BootstrapDialog.show({ title: 'Filter Records', type: BootstrapDialog.TYPE_SUCCESS, size: BootstrapDialog.SIZE_WIDE, message: form1,
-			buttons: [{
-				icon: 'glyphicon glyphicon-send',
-				cssClass: 'btn-success',
-				label: '&nbsp;&nbsp;Submit',
-				action: function(dialog) {
-					var button = this;
-					button.spin();
-					
-					var res = form1.find('#builder').queryBuilder('getSQL', false, false);
-					if (res.sql) {
-						store('sfilter_'+$method, res.sql);
-						var url = URI(dataTable1.ajax.url()).removeSearch('sfilter').addSearch('sfilter', res.sql);
-						$("#btn-filter").addClass("active");
-					}	else {
-						remove('sfilter_'+$method);
-						var url = URI(dataTable1.ajax.url()).removeSearch('sfilter');
-						$("#btn-filter").removeClass("active");
-					}
-					dataTable1.ajax.url( url ).load();
-					dialog.close();
-				}
-			}, {
-					label: 'Cancel',
-					action: function(dialog) { dialog.close(); }
-			}],
-			onshown: function(dialog) {
-			}
-		}); 
-	}
-	
-	function func_sort(data) {
-		var col = [], row = [];
-		var form1 = BSHelper.Form({ autocomplete:"off" });
-		col.push($('<div id="builder" />'));
-		row.push(subCol(12, col));
-		form1.append(subRow(row));
-		form1.on('submit', function(e){ e.preventDefault(); });
-		
-		var options = {
-			conditions: ['AND'],
-			allow_empty: true,
-			allow_groups: false,
-			plugins: {
-				'bt-tooltip-errors': { delay: 100 },
-				'unique-filter': null,
-			},
-			filters: [
-				{
-					unique: true,
-					id: 'doc_no',
-					label: 'Doc No',
-					type: 'string',
-					operators: ['asc', 'desc'],
-				},
-				{
-					unique: true,
-					id: 't1.doc_date',
-					label: 'Doc Date',
-					type: 'string',
-					operators: ['asc', 'desc'],
-				},
-			],
-		};
-
-		form1.find('#builder').queryBuilder(options);
-		var $method = $url_module.split('/')[4];
-		var $ob = get('ob_'+$method);
-		if ($ob && typeof($ob) !== null) {
-			var rules = [];
-			$.each($ob.split(', '), function(k, v){
-				rules.push({ "id":v.split(' ')[0], "operator":v.split(' ')[1].toLowerCase() }); 
-			});
-			form1.find('#builder').queryBuilder('setRules', { "condition":"AND", "rules":rules });
-		}
-
-		BootstrapDialog.show({ title: 'Sorting Records', type: BootstrapDialog.TYPE_SUCCESS, message: form1,
-			buttons: [{
-				icon: 'glyphicon glyphicon-send',
-				cssClass: 'btn-success',
-				label: '&nbsp;&nbsp;Submit',
-				action: function(dialog) {
-					var button = this;
-					button.spin();
-					
-					var res = form1.find('#builder').queryBuilder('getSQL', false, false);
-					{* console.log(res.sql.split(' AND').join()); *}
-					{* return false; *}
-					if (res.sql) {
-						store('ob_'+$method, res.sql.split(' AND').join());
-						var url = URI(dataTable1.ajax.url()).removeSearch('ob').addSearch('ob', res.sql.split(' AND').join());
-						$("#btn-sort").addClass("active");
-					}	else {
-						remove('ob_'+$method);
-						var url = URI(dataTable1.ajax.url()).removeSearch('ob');
-						$("#btn-sort").removeClass("active");
-					}
-					dataTable1.ajax.url( url ).load();
-					dialog.close();
-				}
-			}, {
-					label: 'Cancel',
-					action: function(dialog) { dialog.close(); }
-			}],
-			onshown: function(dialog) {
-			}
-		}); 
-	}
 	
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>

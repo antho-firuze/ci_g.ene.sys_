@@ -1534,6 +1534,21 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+
+			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'expected_dt_cust' 	=> 't1.expected_dt_cust', 
+					'etd' 				=> 't1.etd', 
+					'estimation_late' 	=> 'coalesce(etd - expected_dt_cust, 0)', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+					'plan_total' 	=> 'coalesce(plan_total, 0)', 
+				];
+				$this->params['ob'] = str_replace(array_keys($sortFields), $sortFields, $this->params['ob']);
+			}
 			
 			if (isset($this->params['for_shipment']) && !empty($this->params['for_shipment'])) {
 				// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';

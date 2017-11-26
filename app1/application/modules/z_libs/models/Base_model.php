@@ -140,6 +140,18 @@ class Base_Model extends CI_Model
 				}
 			}
 		}
+		if (key_exists('order', $this->params) && isset($this->params['order'])) {
+			foreach($this->params['order'] as $k => $v){
+				// $this->db->order_by('t1.'.$this->params['columns'][$v['column']]['data'], $v['dir']);
+				$this->db->order_by($this->params['columns'][$v['column']]['data'], $v['dir']);
+			}
+			
+			// $sort = '';
+			// foreach($this->params['order'] as $k => $v){
+				// $sort .= ($sort ? ', ' : '').$this->params['columns'][$v['column']]['data'].' '.$v['dir'];
+			// }
+			// debug($sort);
+		}
 		
 		/* sample: &filter=field1=value1,field2=value2... */
 		if (key_exists('filter', $this->params) && !empty($this->params['filter'])){

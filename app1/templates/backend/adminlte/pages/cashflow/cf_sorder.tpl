@@ -21,7 +21,7 @@
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		enable: true,
-		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process'],
+		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process','btn-filter','btn-sort'],
 		disableBtn: ['btn-copy','btn-message','btn-print','btn-process'],
 		hiddenBtn: ['btn-copy','btn-message'],
 		processMenu: [{ id:"btn-process1", title:"Process 1" }, { id:"btn-process2", title:"Process 2" }, ],
@@ -44,27 +44,25 @@
 			{* { pageid: 127, subKey: 'order_id', title: 'Update ETD' }, *}
 		],
 		order: ['id desc'],
-		{* order: ['doc_no'], *}
 		columns: [
-			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
-			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
-			{ width:"150px", orderable:false, data:"bpartner_name", title:"Customer" },
+			{ width:"100px", orderable:true, data:"org_name", title:"Org Name" },
+			{ width:"100px", orderable:true, data:"orgtrx_name", title:"Org Trx Name" },
+			{ width:"150px", orderable:true, data:"bpartner_name", title:"Customer" },
 			{ width:"100px", orderable:true, data:"doc_no", title:"Doc No" },
-			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"expected_dt_cust", title:"Expected DT Customer" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"etd", title:"ETD" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"estimation_late", title:"Estimation Late", 
+			{ width:"60px", orderable:true, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"expected_dt_cust", title:"Expected DT Customer" },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"etd", title:"ETD" },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimation_late", title:"Estimation Late", 
 				render: function(data, type, row){ return parseInt(data) > 0 ? data : 0; },
 				createdCell: function (td, cellData, rowData, row, col) { if ( parseInt(cellData) > 0 ) { $(td).css({ 'background-color':'red', 'font-weight':'bold' }); } },
 			},
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"estimation_penalty_amount", title:"Estimation Penalty Amount", render: function(data, type, row){ return format_money(data); } },
-			{ width:"200px", orderable:false, data:"reason_name", title:"Late Reason", createdCell: function (td, cellData, rowData, row, col) { $(td).css({ 'text-overflow':'unset', 'overflow-x':'auto' }); } },
-			{ width:"200px", orderable:false, data:"description", title:"Description" },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Total", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"plan_total", title:"Plan Total", render: function(data, type, row){ return format_money(data); } },
-			{* { width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } }, *}
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"estimation_penalty_amount", title:"Estimation Penalty Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"200px", orderable:true, data:"reason_name", title:"Late Reason", createdCell: function (td, cellData, rowData, row, col) { $(td).css({ 'text-overflow':'unset', 'overflow-x':'auto' }); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Total", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"plan_total", title:"Plan Total", render: function(data, type, row){ return format_money(data); } },
+			{ width:"200px", orderable:true, data:"description", title:"Description" },
 		],
 		{* createdRow: function( row, data, dataIndex ) { *}
 			{* if ( parseInt(data['estimation_late']) > 0 ) {         *}
@@ -72,6 +70,32 @@
 			{* } *}
 		{* }, *}
 	};
+</script>
+<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/css/query-builder.default.min.css">
+<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/datepicker/datepicker3.css">
+<script src="{$.const.TEMPLATE_URL}plugins/jQuery-QueryBuilder/js/query-builder.standalone.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/interact/dist/interact.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/bootbox/bootbox.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/sql-parser/browser/sql-parser.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/moment.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/datepicker/bootstrap-datepicker.js"></script>
+<script>
+	var Sorting_Fields = [
+		{	id: 'org_name', label: 'Org Name' },
+		{	id: 'orgtrx_name', label: 'Org Trx Name' },
+		{	id: 'bpartner_name', label: 'Customer' },
+		{	id: 'doc_no',	label: 'Doc No'	},
+		{	id: 'doc_date',	label: 'Doc Date'	},
+		{	id: 'expected_dt_cust',	label: 'Expected DT Customer'	},
+		{	id: 'etd',	label: 'ETD'	},
+		{	id: 'estimation_late', label: 'Estimation Late'	},
+		{	id: 'estimation_penalty_amount', label: 'Estimation Penalty Amount'	},
+		{	id: 'reason_name', label: 'Late Reason'	},
+		{	id: 'sub_total', label: 'Sub Total'	},
+		{	id: 'vat_total', label: 'Vat Total'	},
+		{	id: 'grand_total', label: 'Grand Total'	},
+		{	id: 'plan_total', label: 'Plan Total'	},
+	];
 	
 	function update_so_etd(data) {
 		var col = [], row = [], a = [];

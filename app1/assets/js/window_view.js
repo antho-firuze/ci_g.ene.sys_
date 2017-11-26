@@ -43,7 +43,7 @@ function setToolbarBtn(btnList)
 	var buttons = {
 		"btn-new": 			{group:1, id:"btn-new", title:"New (Press Insert)", bstyle:"btn-success", icon:"glyphicon glyphicon-plus"},
 		"btn-copy": 		{group:1, id:"btn-copy", title:"Copy", bstyle:"btn-success", icon:"glyphicon glyphicon-duplicate"},
-		"btn-refresh": 	{group:1, id:"btn-refresh", title:"Refresh", bstyle:"btn-success", icon:"glyphicon glyphicon-refresh"},
+		"btn-refresh": 	{group:1, id:"btn-refresh", title:"Clear Sorting & Refresh", bstyle:"btn-success", icon:"glyphicon glyphicon-refresh"},
 		"btn-delete": 	{group:1, id:"btn-delete", title:"Batch Delete", bstyle:"btn-danger", icon:"glyphicon glyphicon-trash"},
 		"btn-message": 	{group:2, id:"btn-message", title:"Chat/Message/Attach", bstyle:"btn-info", icon:"glyphicon glyphicon-comment"},
 		"btn-export": 	{group:3, id:"btn-export", title:"Export", bstyle:"btn-warning", icon:"glyphicon glyphicon-save"},
@@ -130,11 +130,11 @@ function initDataTable()
 	/* Create datatable params */
 	/* param order by */
 	var $ob = get('ob_'+$method);
-	if ($ob) {
+	if ($ob && $ob !== 'null') {
 		url = URI(url).addSearch('ob', $ob);
 		store('ob_'+$method, $ob);
 		$("#btn-sort").addClass("active");
-	} else if (DataTable_Init.order && DataTable_Init.order.length > 0) {
+	} else if (DataTable_Init.order && DataTable_Init.order.length > 0 && $ob !== 'null') {
 		$ob = DataTable_Init.order.join();
 		url = URI(url).addSearch('ob', $ob);
 		// store('ob_'+$method, $ob);
@@ -189,6 +189,9 @@ function initDataTable()
 		"scrollCollapse": true,
 		"fixedColumns": { leftColumns: 1 },
 		"fnDrawCallback": function( oSettings ) {
+			/* For adding sorting status on header table */
+			update_header_by_sort_field();
+
 			/* For Adding Tooltip to the "tr body datatables" */
 			if (oSettings.aoData.length < 1)
 				return;
@@ -208,6 +211,7 @@ function initDataTable()
 				});
 				$(this).attr('title', title);
 			});
+			
 		},
 		/* "footerCallback": function ( row, data, start, end, display ) {
 			if (typeof DataTable_Init.footerCallback !== 'undefined')
@@ -223,6 +227,88 @@ function initDataTable()
 	})
 	.search($q ? $q : '');
 
+	$('.table thead th').unbind('click.DT');
+	$('.table thead th').click(function(){
+		var columns = dataTable1.settings().init().columns;
+		var field = columns[$(this).index()].data;
+		var $ob = get('ob_'+$method);		
+	
+		if ($(this).hasClass('sorting_asc')) {
+			$ob = enumerate_sort($ob, field, 'DESC');
+		} else if ($(this).hasClass('sorting_desc')) {
+			$ob = enumerate_sort($ob, field, '');
+		} else {
+			$ob = enumerate_sort($ob, field, 'ASC');
+		}
+		
+		if ($ob && $ob !== 'null') {
+			url = URI(url).setSearch('ob', $ob);
+			store('ob_'+$method, $ob);
+			dataTable1.ajax.url( url ).load();
+			$("#btn-sort").addClass("active");
+			// dataTable1.order([$(this).index(), 'ASC']).draw();
+		}	else {
+			url = URI(url).setSearch('ob', $ob);
+			remove('ob_'+$method);
+			dataTable1.ajax.url( url ).load();
+			$("#btn-sort").removeClass("active");
+		}
+	});
+	
+	function update_header_by_sort_field() {
+		var columns = dataTable1.settings().init().columns;
+		var sort_dir = { "ASC":"sorting_asc", "DESC":"sorting_desc" };
+		var sql = get('ob_'+$method);
+		// var sql = "orgtrx_name ASC, bpartner_name DESC";
+		var sort_field_exists;
+		if (sql && sql !== 'null') {
+			$.each(sql.split(', '), function(i, v){
+				sort_field_exists = v.split(' ');
+				$.each(sort_field_exists, function(j, v){
+					if (j==0){
+						$.each(columns, function(y, z){
+							if (z.data == sort_field_exists[0]) {
+								$('.table thead th').eq(y).addClass(sort_dir[sort_field_exists[1]]);
+							}
+						});
+					}
+				});
+			});
+		}
+		$('.table thead th').focusout();
+	}
+	
+	function enumerate_sort(sql, field, direction){
+		// var sql = "orgtrx_name ASC, bpartner_name DESC";
+		var sort_result = [], sort_field_exists, flag_del = -1;
+		if (!sql || sql === 'null')
+			return [field, direction].join(' ');
+		
+		if (sql.indexOf(field) >= 0) {
+			$.each(sql.split(', '), function(i, v){
+				sort_field_exists = v.split(' ');
+				$.each(sort_field_exists, function(j, v){
+					if (j==0){
+						if (sort_field_exists[0] == field) {
+							if ($.inArray(direction, ['ASC','DESC']) === -1)
+								flag_del = i;
+							else
+								sort_field_exists[1] = direction;
+						}		
+					}
+				});
+				sort_result.push(sort_field_exists.join(' '));
+				if (flag_del !== -1) {
+					sort_result.splice(flag_del, 1);
+					flag_del = -1;
+				}
+			});
+			return sort_result.join(', ');
+		} else {
+			return sql + ', ' + ([field, direction].join(' '));
+		}
+	}
+	
 	/* For parsing URL Parameters */
 	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
 		// console.log('Datatables parsing URL Parameter for search/filter.');
@@ -447,15 +533,17 @@ function initCheckList(tableData1, dataTable1){
 				else
 					dataTable1.rows().deselect();
 			} else {
-				console.log("Debug: Head Clicked");
-				console.log($(e.target));
+				// console.log("Debug: Head Clicked");
+				// console.log($(e.target));
 				// console.log($(e.target).is("th.sorting"));
-				if ($(e.target).is("th")) {
-					console.log("wooow");
-					e.stopPropagation();
-					e.preventDefault();
-					return false;
-				}
+				// if ($(e.target).is("th")) {
+		// dataTable1.fnSort([]);
+			// console.log(dataTable1.state.loaded());
+					// console.log("wooow");
+					// e.stopPropagation();
+					// e.preventDefault();
+					// return false;
+				// }
 				/* Prepare for sorting datatables */
 			}
 		});
@@ -540,7 +628,10 @@ $('.toolbar_container').click('button', function(e){
 			break;
 			
 		case 'btn-refresh':
-			dataTable1.ajax.reload( null, false );
+			if (dataTable1.order().length > 0)
+				dataTable1.order([]).draw();
+			else
+				dataTable1.ajax.reload( null, false );
 			break;
 			
 		case 'btn-viewlog':
@@ -648,18 +739,174 @@ $('.toolbar_container').click('button', function(e){
 			window.location.href = getURLOrigin()+window.location.search+"&action=imp";
 			break;
 		case 'btn-filter':
-			if (! $.isFunction(window['func_filter'])) {
+			// if (! $.isFunction(window['func_filter'])) {
+				// BootstrapDialog.alert("Database Filter is not defined !");
+				// return false;
+			// }	
+			// window['func_filter'](data);
+			if (typeof(Filter_Fields) === 'undefined') {
 				BootstrapDialog.alert("Database Filter is not defined !");
 				return false;
-			}	
-			window['func_filter'](data);
+			}
+			
+			var col = [], row = [];
+			var form1 = BSHelper.Form({ autocomplete:"off" });
+			col.push($('<div id="builder" />'));
+			row.push(subCol(12, col));
+			form1.append(subRow(row));
+			form1.on('submit', function(e){ e.preventDefault(); });
+			
+			var options = {
+				allow_empty: true,
+				sort_filters: true,
+				plugins: {
+					'bt-tooltip-errors': { delay: 100 },
+					'sortable': null,
+					'filter-description': { mode: 'bootbox' },
+					// {* 'bt-selectpicker': null, *}
+					'unique-filter': null,
+					// {* 'bt-checkbox': { color: 'primary' }, *}
+					// {* 'invert': null, *}
+					// {* 'not-group': null *}
+				},
+				operators: [
+					{ type: 'equal', optgroup: 'basic' },
+					{ type: 'not_equal', optgroup: 'basic' },
+					{ type: 'in', optgroup: 'basic' },
+					{ type: 'not_in', optgroup: 'basic' },
+					{ type: 'less', optgroup: 'numbers' },
+					{ type: 'less_or_equal', optgroup: 'numbers' },
+					{ type: 'greater', optgroup: 'numbers' },
+					{ type: 'greater_or_equal', optgroup: 'numbers' },
+					{ type: 'between', optgroup: 'numbers' },
+					{ type: 'not_between', optgroup: 'numbers' },
+					{ type: 'begins_with', optgroup: 'strings' },
+					{ type: 'not_begins_with', optgroup: 'strings' },
+					{ type: 'contains', optgroup: 'strings' },
+					{ type: 'not_contains', optgroup: 'strings' },
+					{ type: 'ends_with', optgroup: 'strings' },
+					{ type: 'not_ends_with', optgroup: 'strings' },
+					{ type: 'is_empty' },
+					{ type: 'is_not_empty' },
+					{ type: 'is_null' },
+					{ type: 'is_not_null' }
+				],
+				filters: Filter_Fields,
+			};
+
+			form1.find('#builder').queryBuilder(options);
+			var $method = $url_module.split('/')[4];
+			var $sfilter = get('sfilter_'+$method);
+			if ($sfilter && typeof($sfilter) !== null)
+				form1.find('#builder').queryBuilder('setRulesFromSQL', $sfilter);
+
+			BootstrapDialog.show({ title: 'Filter Records', type: BootstrapDialog.TYPE_SUCCESS, size: BootstrapDialog.SIZE_WIDE, message: form1,
+				buttons: [{
+					icon: 'glyphicon glyphicon-send',
+					cssClass: 'btn-success',
+					label: '&nbsp;&nbsp;Submit',
+					action: function(dialog) {
+						var button = this;
+						button.spin();
+						
+						var res = form1.find('#builder').queryBuilder('getSQL', false, false);
+						if (res.sql) {
+							store('sfilter_'+$method, res.sql);
+							var url = URI(dataTable1.ajax.url()).removeSearch('sfilter').addSearch('sfilter', res.sql);
+							$("#btn-filter").addClass("active");
+						}	else {
+							remove('sfilter_'+$method);
+							var url = URI(dataTable1.ajax.url()).removeSearch('sfilter');
+							$("#btn-filter").removeClass("active");
+						}
+						dataTable1.ajax.url( url ).load();
+						dialog.close();
+					}
+				}, {
+						label: 'Cancel',
+						action: function(dialog) { dialog.close(); }
+				}],
+				onshown: function(dialog) {
+				}
+			}); 
 			break;
 		case 'btn-sort':
-			if (! $.isFunction(window['func_sort'])) {
+			// if (! $.isFunction(window['func_sort'])) {
+				// BootstrapDialog.alert("Database Sorting is not defined !");
+				// return false;
+			// }	
+			// window['func_sort'](data);
+			if (typeof(Sorting_Fields) === 'undefined') {
 				BootstrapDialog.alert("Database Sorting is not defined !");
 				return false;
-			}	
-			window['func_sort'](data);
+			}
+			
+			$.each(Sorting_Fields, function(i, v){
+				Sorting_Fields[i]['unique'] = true;
+			});
+			
+			var col = [], row = [];
+			var form1 = BSHelper.Form({ autocomplete:"off" });
+			col.push($('<div id="builder" />'));
+			row.push(subCol(12, col));
+			form1.append(subRow(row));
+			form1.on('submit', function(e){ e.preventDefault(); });
+			
+			var options = {
+				conditions: ['AND'],
+				allow_empty: true,
+				allow_groups: false,
+				plugins: {
+					'bt-tooltip-errors': { delay: 100 },
+					'unique-filter': null,
+				},
+				operators: [
+					{ type: 'asc' },
+					{ type: 'desc' }
+				],
+				filters: Sorting_Fields,
+			};
+
+			form1.find('#builder').queryBuilder(options);
+			var $method = $url_module.split('/')[4];
+			var $ob = get('ob_'+$method);
+			if ($ob && typeof($ob) !== null) {
+				var rules = [];
+				$.each($ob.split(', '), function(k, v){
+					rules.push({ "id":v.split(' ')[0], "operator":v.split(' ')[1].toLowerCase() }); 
+				});
+				form1.find('#builder').queryBuilder('setRules', { "condition":"AND", "rules":rules });
+			}
+
+			BootstrapDialog.show({ title: 'Sorting Records', type: BootstrapDialog.TYPE_SUCCESS, message: form1,
+				buttons: [{
+					icon: 'glyphicon glyphicon-send',
+					cssClass: 'btn-success',
+					label: '&nbsp;&nbsp;Submit',
+					action: function(dialog) {
+						var button = this;
+						button.spin();
+						
+						var res = form1.find('#builder').queryBuilder('getSQL', false, false);
+						if (res.sql) {
+							store('ob_'+$method, res.sql.split(' AND').join());
+							var url = URI(dataTable1.ajax.url()).removeSearch('ob').addSearch('ob', res.sql.split(' AND').join());
+							$("#btn-sort").addClass("active");
+						}	else {
+							remove('ob_'+$method);
+							var url = URI(dataTable1.ajax.url()).removeSearch('ob');
+							$("#btn-sort").removeClass("active");
+						}
+						dataTable1.ajax.url( url ).load();
+						dialog.close();
+					}
+				}, {
+						label: 'Cancel',
+						action: function(dialog) { dialog.close(); }
+				}],
+				onshown: function(dialog) {
+				}
+			}); 
 			break;
 	}
 });
