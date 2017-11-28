@@ -173,7 +173,7 @@
 	BSHelper.Form = function(options){
 		var default_opts = {
 			cls: '',
-			autocomplete: 'on',
+			autocomplete: 'off',
 			action: '',
 			enctype: 'application/x-www-form-urlencoded', // application/x-www-form-urlencoded, multipart/form-data, text/plain
 			method: 'get',	// get, post
@@ -183,7 +183,7 @@
 		}
 		var o = $.extend( {}, default_opts, options );
 		var form = $('<form />');
-		// form.attr('autocomplete', o.autocomplete);
+		form.attr('autocomplete', o.autocomplete);
 		form.attr('enctype', o.enctype);
 		form.attr('target', o.target);
 		form.attr('method', o.method);
