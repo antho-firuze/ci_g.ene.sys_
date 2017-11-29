@@ -894,19 +894,19 @@ class Cashflow_Model extends CI_Model
 		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
 		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
 		to_char(doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, 
 		to_char(etd, '".$this->session->date_format."') as etd, 
 		to_char(delivery_date, '".$this->session->date_format."') as delivery_date, 
-		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
 		$params['table'] 	= "(
-			select t1.*, order_id, delivery_date from (
-				select order_id, 
-				max((select (select max(delivery_date) from cf_inout where id = f1.inout_id) as delivery_date from cf_inout_line f1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id limit 1)) as delivery_date
-				from cf_order_line t1
-				where client_id = {client_id} and org_id = {org_id} and
-				is_active = '1' and is_deleted = '0' and exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id) 
-				group by 1
-				) t2 inner join cf_order t1 on t2.order_id = t1.id where delivery_date > etd and extract(month from etd) = extract(month from current_date) 
-			)t1";
+			select * from (
+				select *,	(select max(delivery_date) from cf_inout where is_active = '1' and is_deleted = '0' and order_id = a1.id limit 1) as delivery_date
+				from cf_order a1 
+				where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+				is_active = '1' and is_deleted = '0' and is_sotrx = '1'
+			) r1
+			where extract(month from etd) = extract(month from current_date) and (delivery_date > etd or delivery_date is null)
+		) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}

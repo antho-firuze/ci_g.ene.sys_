@@ -32,18 +32,19 @@
 		columns: [
 			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
 			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
-			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
+			{ width:"100px", orderable:false, data:"bpartner_name", title:"Business Partner" },
+			{ width:"100px", orderable:false, data:"doc_no", title:"SO No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"SO Date" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"expected_dt_cust", title:"DT Customer" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"etd", title:"ETD" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"delivery_date", title:"Delivery Date" },
-			{ width:"100px", orderable:false, data:"bpartner_name", title:"Business Partner" },
 			{ width:"100px", orderable:false, data:"residence", title:"Residence" },
 			{ width:"100px", orderable:false, data:"category_name", title:"Category" },
-			{ width:"250px", orderable:false, data:"description", title:"Description" },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"20px", orderable:false, className:"dt-head-center dt-body-center", data:"so_top", title:"TOP" },
+			{ width:"250px", orderable:false, data:"description", title:"Description" },
 		],
 	};
 	
