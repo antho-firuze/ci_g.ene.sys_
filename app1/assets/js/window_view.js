@@ -137,7 +137,7 @@ function initDataTable()
 	} else if (DataTable_Init.order && DataTable_Init.order.length > 0 && $ob !== 'null') {
 		$ob = DataTable_Init.order.join();
 		url = URI(url).addSearch('ob', $ob);
-		// store('ob_'+$method, $ob);
+		remove('ob_'+$method);
 	} else {
 		remove('ob_'+$method);
 		$("#btn-sort").removeClass("active");
