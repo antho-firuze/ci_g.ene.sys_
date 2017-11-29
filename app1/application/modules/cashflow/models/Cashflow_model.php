@@ -897,10 +897,18 @@ class Cashflow_Model extends CI_Model
 		to_char(expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, 
 		to_char(etd, '".$this->session->date_format."') as etd, 
 		to_char(delivery_date, '".$this->session->date_format."') as delivery_date, 
-		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name,
+		(select string_agg(name, E',') from rf_scm_dt_reason where id = ANY(t1.scm_dt_reasons)) as reason_name,
+		coalesce((case when delivery_date is null then current_date else delivery_date end) - expected_dt_cust, 0) as late,
+		coalesce(current_date - expected_dt_cust, 0) as estimation_late,
+		case 
+		when (((case when delivery_date is null then current_date else delivery_date end) - expected_dt_cust) * penalty_percent * grand_total) > (max_penalty_percent * grand_total) 
+		then (max_penalty_percent * grand_total) 
+		else (case when ((case when delivery_date is null then current_date else delivery_date end) - expected_dt_cust) > 0 then (((case when delivery_date is null then current_date else delivery_date end) - expected_dt_cust) * penalty_percent * grand_total) else 0 end) 
+		end as penalty_amount";
 		$params['table'] 	= "(
 			select * from (
-				select *,	(select max(delivery_date) from cf_inout where is_active = '1' and is_deleted = '0' and order_id = a1.id limit 1) as delivery_date
+				select *,	(select max(delivery_date) from cf_inout where is_active = '1' and is_deleted = '0' and order_id = a1.id limit 1) as delivery_date, current_date
 				from cf_order a1 
 				where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 				is_active = '1' and is_deleted = '0' and is_sotrx = '1'

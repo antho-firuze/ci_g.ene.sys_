@@ -23,6 +23,7 @@
 	};
 	{* DataTable Init *}
 	var format_money = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
+	var format_percent = function(value){ return accounting.formatMoney(value, { symbol: "%", format: "%v%s" }) };
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '130%',
@@ -38,11 +39,20 @@
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"expected_dt_cust", title:"DT Customer" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"etd", title:"ETD" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"delivery_date", title:"Delivery Date" },
-			{ width:"100px", orderable:false, data:"residence", title:"Residence" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"estimation_late", title:"DT to Deadline", },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"late", title:"Late", 
+				render: function(data, type, row){ return parseInt(data) > 0 ? data : 0; },
+				createdCell: function (td, cellData, rowData, row, col) { if ( parseInt(cellData) > 0 ) { $(td).css({ 'background-color':'red', 'font-weight':'bold' }); } },
+			},
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"penalty_amount", title:"Penalty Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"200px", orderable:false, data:"reason_name", title:"Late Reason", createdCell: function (td, cellData, rowData, row, col) { $(td).css({ 'text-overflow':'unset', 'overflow-x':'auto' }); } },
 			{ width:"100px", orderable:false, data:"category_name", title:"Category" },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Amount", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Amount", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Total", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"penalty_percent", title:"Penalty Percent", render: function(data, type, row){ return format_percent(data * 100); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"max_penalty_percent", title:"Max Penalty Percent", render: function(data, type, row){ return format_percent(data * 100); } },
+			{ width:"100px", orderable:false, data:"residence", title:"Residence" },
 			{ width:"20px", orderable:false, className:"dt-head-center dt-body-center", data:"so_top", title:"TOP" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 		],
