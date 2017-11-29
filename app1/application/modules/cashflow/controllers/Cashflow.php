@@ -2733,6 +2733,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			/* Checking, is data request already pr ? */
+			if ($this->params['event'] == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$doc_no = [];
+				foreach($ids as $id){
+					$header = $this->base_model->isDataExist('cf_requisition', ['request_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($header) {
+						$doc_no[] = $header->doc_no;
+					}
+				}
+				if ($doc_no){
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_request_had_pr'), implode(',',array_unique($doc_no)))], 401);
+				}
+			}
 			if ($this->params['event'] == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('request_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
 			}
@@ -2774,6 +2788,22 @@ class Cashflow extends Getmeb
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				$this->xresponse(TRUE, $result);
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			/* Checking, is data line already pr ? */
+			if ($this->params['event'] == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$doc_no = [];
+				foreach($ids as $id){
+					$line = $this->base_model->isDataExist('cf_requisition_line', ['request_line_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($line) {
+						$doc_no[] = $this->base_model->getValue('doc_no', 'cf_requisition', ['id','is_active','is_deleted'], [$line->requisition_id,'1','0'])->doc_no;
+					}
+				}
+				if ($doc_no){
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_request_line_had_pr'), implode(',',array_unique($doc_no)))], 401);
+				}
 			}
 		}
 	}
@@ -2855,6 +2885,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
+			/* Checking, is data pr already po ? */
+			if ($this->params['event'] == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$doc_no = [];
+				foreach($ids as $id){
+					$header = $this->base_model->isDataExist('cf_order', ['requisition_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($header) {
+						$doc_no[] = $header->doc_no;
+					}
+				}
+				if ($doc_no){
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_pr_had_po'), implode(',',array_unique($doc_no)))], 401);
+				}
+			}
 			if ($this->params['event'] == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('requisition_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
 			}
@@ -2889,6 +2933,22 @@ class Cashflow extends Getmeb
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()],401);
 			} else {
 				$this->xresponse(TRUE, $result);
+			}
+		}
+		if ($this->r_method == 'DELETE') {
+			/* Checking, is data line already po ? */
+			if ($this->params['event'] == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$doc_no = [];
+				foreach($ids as $id){
+					$line = $this->base_model->isDataExist('cf_order_line', ['requisition_line_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
+					if ($line) {
+						$doc_no[] = $this->base_model->getValue('doc_no', 'cf_order', ['id','is_active','is_deleted'], [$line->order_id,'1','0'])->doc_no;
+					}
+				}
+				if ($doc_no){
+					$this->xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_pr_line_had_po'), implode(',',array_unique($doc_no)))], 401);
+				}
 			}
 		}
 	}

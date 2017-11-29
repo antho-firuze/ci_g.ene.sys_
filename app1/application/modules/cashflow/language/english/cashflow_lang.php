@@ -41,8 +41,12 @@ $lang['error_update_outbound_completed'] 		= "Error: Cannot edit/delete this Out
 $lang['error_update_inbound_completed'] 		= "Error: Cannot edit/delete this Inbound, because this Inbound has been Completed !";
 $lang['error_delete_so_had_shipment'] 		= "Error: Data cannot be delete, because this SO has been Shipment. <br>Plase Delete Shipment first for this SO !<br><br>Shipment no: %s";
 $lang['error_delete_so_has_been_posted'] 		= "Error: Data cannot be delete, because this SO Plan has been Posted. <br>Plase Unposting SO Plan first for deleting this SO !";
+$lang['error_delete_so_line_had_shipment'] 		= "Error: Data cannot be delete, because this SO Line has been Shipment. <br>Plase Delete Shipment first for this Line !<br><br>Shipment no: %s";
 $lang['error_delete_po_had_received'] 		= "Error: Data cannot be delete, because this PO has been received. <br>Plase Delete MR first for this PO !<br><br>MR no: %s";
 $lang['error_delete_po_has_been_posted'] 		= "Error: Data cannot be delete, because this PO Plan has been Posted. <br>Plase Unposting PO Plan first for deleting this PO !";
-$lang['error_delete_so_line_had_shipment'] 		= "Error: Data cannot be delete, because this SO Line has been Shipment. <br>Plase Delete Shipment first for this Line !<br><br>Shipment no: %s";
 $lang['error_delete_po_line_had_received'] 		= "Error: Data cannot be delete, because this PO Line has been received. <br>Plase Delete MR first for this Line !<br><br>MR no: %s";
+$lang['error_delete_pr_had_po'] 		= "Error: Data cannot be delete, because this Requisition has been made PO. <br>Plase Delete PO first for this Requisition !<br><br>PO no: %s";
+$lang['error_delete_pr_line_had_po'] 		= "Error: Data cannot be delete, because this Requisition Line has been made PO. <br>Plase Delete PO first for this Line !<br><br>PO no: %s";
+$lang['error_delete_request_had_pr'] 		= "Error: Data cannot be delete, because this Request has been made PR. <br>Plase Delete PR first for this Request !<br><br>PR no: %s";
+$lang['error_delete_request_line_had_pr'] 		= "Error: Data cannot be delete, because this Request Line has been made PR. <br>Plase Delete PR first for this Line !<br><br>PR no: %s";
 /* Information: info_ */
