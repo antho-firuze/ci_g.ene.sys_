@@ -130,7 +130,7 @@ function initDataTable()
 	/* Create datatable params */
 	/* param order by */
 	var $ob = get('ob_'+$method);
-	if ($ob && $ob !== 'null') {
+	if ($ob && $ob !== 'null' && $ob !== 'ASC') {
 		url = URI(url).addSearch('ob', $ob);
 		store('ob_'+$method, $ob);
 		$("#btn-sort").addClass("active");
