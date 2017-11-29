@@ -1491,15 +1491,18 @@ class Cashflow_Model extends CI_Model
 		(select po_top from c_bpartner where id = t1.bpartner_id) as po_top, 
 		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
 		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
-		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date,
-		to_char(t1.received_date, '".$this->session->date_format."') as received_date";
+		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date,
+		to_char(t1.payment_date, '".$this->session->date_format."') as payment_date";
 		$params['table'] 	= "(
-			select *, (select received_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id),
-			(select f2.doc_no as voucher_no from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id) from cf_invoice t1 
-			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and extract(month from received_plan_date) = extract(month from current_date) and 
-			received_plan_date < (select received_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = t1.id)
+				select * from (
+					select *, (select payment_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = a1.id) 
+					, (select f2.doc_no as voucher_no from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = a1.id) 
+					from cf_invoice a1 
+					where 
+					client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+					is_active = '1' and is_deleted = '0' and is_receipt = '0' 
+				) t1
+				where extract(month from payment_plan_date) = extract(month from current_date) and (payment_date > payment_plan_date or payment_date is null)
 			) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
