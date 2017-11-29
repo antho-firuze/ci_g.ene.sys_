@@ -46,28 +46,28 @@
 	
 	{* Line Chart *}
 	col = [], row = [], boxes = [];
-	var boxInfo0 = BSHelper.Box({ type:"info", header: true, title: "Invoice Customer vs Release Invoice", icon: "" });
+	var boxInfo0 = BSHelper.Box({ type:"info", header: true, title: "Invoice Customer Plan vs Release", icon: "" });
 	col.push('<div class="chart"><canvas id="lineChart" style="height:200px" /></div>');
 	row.push(subCol(12, col)); col = [];
 	boxInfo0.find('.box-body').append(subRow(row));
 	boxes.push(subCol(12, boxInfo0));
 	{* Line Chart 2*}
 	col = [], row = [];
-	var boxInfo02 = BSHelper.Box({ type:"info", header: true, title: "Invoice Inflow vs Release Invoice", icon: "" });
+	var boxInfo02 = BSHelper.Box({ type:"info", header: true, title: "Invoice Inflow Plan vs Release", icon: "" });
 	col.push('<div class="chart"><canvas id="lineChart2" style="height:200px" /></div>');
 	row.push(subCol(12, col)); col = [];
 	boxInfo02.find('.box-body').append(subRow(row));
 	boxes.push(subCol(12, boxInfo02));
 	{* Line Chart 3*}
 	col = [], row = [];
-	var boxInfo03 = BSHelper.Box({ type:"info", header: true, title: "Invoice Vendor vs Release Invoice", icon: "" });
+	var boxInfo03 = BSHelper.Box({ type:"info", header: true, title: "Invoice Vendor Plan vs Release", icon: "" });
 	col.push('<div class="chart"><canvas id="lineChart3" style="height:200px" /></div>');
 	row.push(subCol(12, col)); col = [];
 	boxInfo03.find('.box-body').append(subRow(row));
 	boxes.push(subCol(12, boxInfo03));
 	{* Line Chart 4*}
 	col = [], row = [];
-	var boxInfo04 = BSHelper.Box({ type:"info", header: true, title: "Invoice Outflow vs Release Invoice", icon: "" });
+	var boxInfo04 = BSHelper.Box({ type:"info", header: true, title: "Invoice Outflow Plan vs Release", icon: "" });
 	col.push('<div class="chart"><canvas id="lineChart4" style="height:200px" /></div>');
 	row.push(subCol(12, col)); col = [];
 	boxInfo04.find('.box-body').append(subRow(row));
@@ -226,7 +226,7 @@
 		datas3 = [];
 		datas4 = [];
 		var grp = ["","Invoice Customer","Invoice Inflow","Invoice Vendor","Invoice Outflow"];
-		var title = ["Total","Release","Early","Late","Unrelease"];
+		var title = ["Total (By Plan)","Release","Early","Late","Unrelease"];
 		var field = ["","total_release","total_release_early","total_release_late","total_unrelease"];
 		var field_percent = ["","total_release_percent","total_release_early_percent","total_release_late_percent","total_unrelease_percent"];
 
@@ -261,7 +261,7 @@
 		datas3 = [];
 		datas4 = [];
 		var grp = ["","Invoice Customer","Invoice Inflow","Invoice Vendor","Invoice Outflow"];
-		var title = ["Total","Release","Early","Late","Unrelease"];
+		var title = ["Total (By Plan)","Release","Early","Late","Unrelease"];
 		var field = ["","total_release","total_release_early","total_release_late","total_unrelease"];
 		var field_percent = ["","total_release_percent","total_release_early_percent","total_release_late_percent","total_unrelease_percent"];
 

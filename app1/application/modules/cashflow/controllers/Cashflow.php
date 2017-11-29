@@ -4878,28 +4878,28 @@ class Cashflow extends Getmeb
 				$result['data']['linechart']['datasets'][] = ['label' => 'Release', 'borderColor' => get_rgba(), 'data' => $arr['data2']];
 				$result['data']['linechart']['datasets'][] = ['label' => 'Release Early', 'borderColor' => get_rgba(), 'data' => $arr['data3']];
 				$result['data']['linechart']['datasets'][] = ['label' => 'Release Late', 'borderColor' => get_rgba(), 'data' => $arr['data4']];
-				$result['data']['linechart']['datasets'][] = ['label' => 'UnRelease', 'borderColor' => get_rgba(), 'data' => $arr['data5']];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Unrelease', 'borderColor' => get_rgba(), 'data' => $arr['data5']];
 				/* datasets for line chart2 */
 				$result['data']['linechart2']['labels'] = $arr2['labels'];
 				$result['data']['linechart2']['datasets'][] = ['label' => 'Invoice Inflow', 'borderColor' => get_rgba(), 'data' => $arr2['data1']];
 				$result['data']['linechart2']['datasets'][] = ['label' => 'Release', 'borderColor' => get_rgba(), 'data' => $arr2['data2']];
 				$result['data']['linechart2']['datasets'][] = ['label' => 'Release Early', 'borderColor' => get_rgba(), 'data' => $arr2['data3']];
 				$result['data']['linechart2']['datasets'][] = ['label' => 'Release Late', 'borderColor' => get_rgba(), 'data' => $arr2['data4']];
-				$result['data']['linechart2']['datasets'][] = ['label' => 'UnRelease', 'borderColor' => get_rgba(), 'data' => $arr2['data5']];
+				$result['data']['linechart2']['datasets'][] = ['label' => 'Unrelease', 'borderColor' => get_rgba(), 'data' => $arr2['data5']];
 				/* datasets for line chart3 */
 				$result['data']['linechart3']['labels'] = $arr3['labels'];
 				$result['data']['linechart3']['datasets'][] = ['label' => 'Invoice Vendor', 'borderColor' => get_rgba(), 'data' => $arr3['data1']];
 				$result['data']['linechart3']['datasets'][] = ['label' => 'Release', 'borderColor' => get_rgba(), 'data' => $arr3['data2']];
 				$result['data']['linechart3']['datasets'][] = ['label' => 'Release Early', 'borderColor' => get_rgba(), 'data' => $arr3['data3']];
 				$result['data']['linechart3']['datasets'][] = ['label' => 'Release Late', 'borderColor' => get_rgba(), 'data' => $arr3['data4']];
-				$result['data']['linechart3']['datasets'][] = ['label' => 'UnRelease', 'borderColor' => get_rgba(), 'data' => $arr3['data5']];
+				$result['data']['linechart3']['datasets'][] = ['label' => 'Unrelease', 'borderColor' => get_rgba(), 'data' => $arr3['data5']];
 				/* datasets for line chart4 */
 				$result['data']['linechart4']['labels'] = $arr4['labels'];
 				$result['data']['linechart4']['datasets'][] = ['label' => 'Invoice Outflow', 'borderColor' => get_rgba(), 'data' => $arr4['data1']];
 				$result['data']['linechart4']['datasets'][] = ['label' => 'Release', 'borderColor' => get_rgba(), 'data' => $arr4['data2']];
 				$result['data']['linechart4']['datasets'][] = ['label' => 'Release Early', 'borderColor' => get_rgba(), 'data' => $arr4['data3']];
 				$result['data']['linechart4']['datasets'][] = ['label' => 'Release Late', 'borderColor' => get_rgba(), 'data' => $arr4['data4']];
-				$result['data']['linechart4']['datasets'][] = ['label' => 'UnRelease', 'borderColor' => get_rgba(), 'data' => $arr4['data5']];
+				$result['data']['linechart4']['datasets'][] = ['label' => 'Unrelease', 'borderColor' => get_rgba(), 'data' => $arr4['data5']];
 			}	
 			/* total & release by document */
 			$str = "with tmp as (
