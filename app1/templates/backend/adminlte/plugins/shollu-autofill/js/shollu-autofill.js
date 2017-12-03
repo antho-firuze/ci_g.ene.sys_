@@ -20,14 +20,16 @@
 							switch (field_type)
 							{
 							case "select-multiple":
-								if ($(form[i]).attr('multiselect') != 'undefined' && jQuery().multiselect){
-									$(form[i]).val(v.replace(/\s+/g, '').split(','));
-									$(form[i]).attr('data-value', v.replace(/\s+/g, '').split(','));
-									if($(form[i]).data('multiselect')) {
-										$(form[i]).multiselect('select', v.replace(/\s+/g, '').split(','));
+								if (v) {
+									if ($(form[i]).attr('multiselect') != 'undefined' && jQuery().multiselect){
+											$(form[i]).val(v.replace(/\s+/g, '').split(','));
+											$(form[i]).attr('data-value', v.replace(/\s+/g, '').split(','));
+											if($(form[i]).data('multiselect')) {
+												$(form[i]).multiselect('select', v.replace(/\s+/g, '').split(','));
+											}
+									} else {
+										$(form[i]).val(v.replace(/\s+/g, '').split(','));
 									}
-								} else {
-									$(form[i]).val(v.replace(/\s+/g, '').split(','));
 								}
 								break;
 							case "text":

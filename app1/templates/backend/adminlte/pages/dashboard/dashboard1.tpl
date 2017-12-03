@@ -25,7 +25,6 @@
   
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/summernote/summernote.css">
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/datepicker/datepicker3.css">
-<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/marquee/css/jquery.marquee.min.css">
 {* <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/tag-it/css/jquery.tagit.css"> *}
 {* <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/tag-it/css/tagit.ui-zendesk.css"> *}
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/bootstrap-tagsinput/bootstrap-tagsinput.css">
@@ -40,7 +39,6 @@
 <script src="{$.const.TEMPLATE_URL}plugins/jvectormap/jquery-jvectormap-world-mill-en.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/shollu-autofill/js/shollu-autofill.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/textfill/jquery.textfill.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/marquee/lib/jquery.marquee.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <style>
 {* for calendar *}
@@ -249,7 +247,9 @@
 		return box1;
 	}
 	
-	$.ajax({ url: "{$.const.X_INFO_LNK}?valid=1", method: "GET", async: true, dataType: 'json',
+	var $pageid = getURLParameter("pageid");
+	var url = URI($X_INFO_LNK).addSearch('valid', 1).addSearch('pageid', $pageid);
+	$.ajax({ url: url, method: "GET", async: true, dataType: 'json',
 		success: function(result) {
 			if (! isempty_arr(result.data.rows)) {
 				var info_list = $('<ul id="info_marquee" class="info-marquee marquee" />');

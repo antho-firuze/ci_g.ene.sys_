@@ -15,6 +15,7 @@ var $q = getURLParameter("q"),
 	$title = getURLParameter("title"),
 	$method = $url_module.split('/')[4];
 
+var url;
 var origin_url = window.location.origin+window.location.pathname;
 var dataTable1;
 
@@ -34,6 +35,37 @@ window.onkeydown = function(e){
 
 window.onkeyup = function(e){
 	is_shiftkeypressed = false;
+}
+
+function initFlashMessage() 
+{
+	url = URI($X_INFO_LNK).addSearch('valid', 1).addSearch('pageid', $pageid);
+	
+	$.ajax({ url: url, method: "GET", async: true, dataType: 'json',
+		success: function(result) {
+			if (! isempty_arr(result.data.rows)) {
+				var info_list = $('<ul id="info_marquee" class="info-marquee marquee" />');
+				var info = [];
+				$.each(result.data.rows, function(k, v){
+					if (v.description) {
+						console.log(v.description);
+						info_list.append($('<li />').html(v.description));
+					}
+				});
+				$(".content-header").before(info_list);
+				$("#info_marquee").marquee({ yScroll: "bottom" });
+			}
+		},
+		error: function(data) {
+			if (data.status==500){
+				var message = data.statusText;
+			} else {
+				var error = JSON.parse(data.responseText);
+				var message = error.message;
+			}
+			console.log('[Error: info_list]: '+message);
+		}
+	});
 }
 
 function setToolbarBtn(btnList)
@@ -107,7 +139,7 @@ function initToolbarButton()
 
 function initDataTable()
 {
-	var url = $url_module;
+	url = $url_module;
 	/* Get variable DataTable_Init */
 	if (!DataTable_Init.enable)
 		return false;
@@ -622,6 +654,8 @@ function initCheckList(tableData1, dataTable1){
 		bc_list: $bread
 	}));
 
+	/* Init for Flash Message */
+	initFlashMessage();
 	/* Init for Toolbar */
 	initToolbarButton();
 	/* Init for DataTable */

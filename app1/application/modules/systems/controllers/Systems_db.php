@@ -102,6 +102,7 @@ class Systems_db extends CI_Controller {
 		$fields['valid_orgtrx'] = ['type' => 'INT[]', 'constraint' => '32', 'null' => TRUE];
 		$fields['valid_orgdept']= ['type' => 'INT[]', 'constraint' => '32', 'null' => TRUE];
 		$fields['valid_orgdiv'] = ['type' => 'INT[]', 'constraint' => '32', 'null' => TRUE];
+		$fields['valid_menu'] = ['type' => 'INT[]', 'constraint' => '32', 'null' => TRUE];
 		return $fields;
 	}
 	

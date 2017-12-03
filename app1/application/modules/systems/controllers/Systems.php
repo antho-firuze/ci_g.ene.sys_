@@ -636,6 +636,10 @@ class Systems extends Getmeb
 				$this->params['where_custom'][] = "(valid_till >= '". date('Y-m-d H:i:s') ."' or valid_till is null)";
 			}
 			
+			if (isset($this->params['pageid']) && ($this->params['pageid'])) {
+				$this->params['where_custom'][] = $this->params['pageid'] . " = ANY (valid_menu)";
+			}
+			
 			$this->params['sort'] = 'seq';
 			if (! $result['data'] = $this->{$this->mdl}->a_info($this->params)){
 				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
@@ -2005,6 +2009,7 @@ class Systems extends Getmeb
 			if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['valid_org'] = '{'.$this->params->valid_org.'}';
 				$this->mixed_data['valid_orgtrx'] = '{'.$this->params->valid_orgtrx.'}';
+				$this->mixed_data['valid_menu'] = '{'.$this->params->valid_menu.'}';
 				// debug($this->mixed_data);
 			}
 		}

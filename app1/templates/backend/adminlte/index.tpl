@@ -24,6 +24,7 @@
 {$.php.link_tag($.const.TEMPLATE_URL~'dist/css/AdminLTE.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'dist/css/skins/_all-skins.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/autoComplete/jquery.auto-complete.min.css')}
+{$.php.link_tag($.const.TEMPLATE_URL~'plugins/marquee/css/jquery.marquee.min.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'css/custom.css')}
 {$.php.link_tag($.const.TEMPLATE_URL~'plugins/pace/pace-center-circle.css')}
 {* {$.php.link_tag($.const.TEMPLATE_URL~'plugins/iCheck/flat/blue.css')} *}
@@ -43,6 +44,7 @@
 	var $lockscreen = 'lockscreen{$.const.DEFAULT_CLIENT_ID~$.const.DEFAULT_ORG_ID}';
 	var $BASE_URL = '{$.php.base_url()}';
 	var $APPS_LNK = '{$.const.APPS_LNK}';
+	var $X_INFO_LNK = '{$.const.X_INFO_LNK}';
 	var $TEMPLATE_URL = '{$.const.TEMPLATE_URL}';
 	var $HEAD_TITLE = '{$.session.head_title}';
 	{* Defined Language *}
@@ -69,6 +71,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/slimScroll/jquery.slimscroll.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/fastclick/fastclick.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/autoComplete/jquery.auto-complete.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/marquee/lib/jquery.marquee.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/uri.js/URI.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}dist/js/app.min.js"></script>
 <script src="{$.const.ASSET_URL}js/common.extend.func.js"></script>

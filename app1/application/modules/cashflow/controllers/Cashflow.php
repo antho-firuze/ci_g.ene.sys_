@@ -1163,6 +1163,19 @@ class Cashflow extends Getmeb
 				'(select doc_ref_no from cf_order where id = t1.order_id)',
 			]);
 			
+			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'invoice_plan_date' 		=> 't1.invoice_plan_date', 
+					'received_plan_date' 	=> 't1.received_plan_date', 
+					'amount' 	=> 'coalesce(amount, 0)', 
+					'adj_amount' 	=> 'coalesce(adj_amount, 0)', 
+					'net_amount' => 'coalesce(net_amount, 0)', 
+				];
+				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
+			}
+			
 			$this->params['level'] = 1;
 			$this->params['where']['t1.doc_type'] = '1';
 			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
@@ -1265,6 +1278,19 @@ class Cashflow extends Getmeb
 				'(select name from a_org where id = t1.orgtrx_id)',
 				'(select doc_no from cf_order where id = t1.order_id)',
 				"case when t1.doc_date is null then 'Projection' else 'Actual' end"]);
+			
+			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'invoice_plan_date' 		=> 't1.invoice_plan_date', 
+					'received_plan_date' 	=> 't1.received_plan_date', 
+					'amount' 	=> 'coalesce(amount, 0)', 
+					'adj_amount' 	=> 'coalesce(adj_amount, 0)', 
+					'net_amount' => 'coalesce(net_amount, 0)', 
+				];
+				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
+			}
 			
 			$this->params['level'] = 1;
 			$this->params['where_in']['t1.doc_type'] = ['2', '3', '4'];

@@ -32,6 +32,7 @@
 			{ width:"45px", orderable:false, className:"dt-head-center dt-body-center", data:"seq", title:"Line", render:function(data, type, row){ return '<input type="number" class="seq" style="width:50px; text-align:center;" min="1" value="'+data+'">'; } },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"valid_from", title:"Valid From" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"valid_till", title:"Valid Till" },
+			{ width:"200px", orderable:false, data:"menu_name", title:"Valid Menu" },
 			{ width:"200px", orderable:false, data:"description", title:"Description" },
 			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
