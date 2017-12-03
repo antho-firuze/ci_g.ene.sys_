@@ -7,14 +7,6 @@ class Urls extends Getmeb
 	function __construct() {
 		parent::__construct();
 		
-		$this->load->model('urls/urls_model');
-	}
-	
-	function _remap($method, $params = array())
-	{
-		$this->c_method = $method;
-		
-		return call_user_func_array(array($this, $method), $params);
 	}
 	
 	function w_shortenurls()
@@ -26,7 +18,7 @@ class Urls extends Getmeb
 			if (key_exists('q', $this->params) && !empty($this->params['q']))
 				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
 
-			if (($result['data'] = $this->system_model->{'get_'.$this->c_method}($this->params)) === FALSE){
+			if (($result['data'] = $this->system_model->{$this->c_method}($this->params)) === FALSE){
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$this->xresponse(FALSE, $result);

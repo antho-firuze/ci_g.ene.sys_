@@ -9,7 +9,7 @@ class Urls_Model extends CI_Model
 		
 	}
 
-	function get_w_shortenurls($params)
+	function w_shortenurls($params)
 	{
 		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "w_shortenurls as t1";
@@ -28,19 +28,19 @@ class Urls_Model extends CI_Model
     */
 		$i = 0;
     do {
-      $url_code = random_string('alnum', 5); 
+      $code = random_string('alnum', 5); 
 
-      $this->db->where('url_code = ', $url_code);
-      $this->db->from('urls');
+      $this->db->where('code', $code);
+      $this->db->from('w_shortenurls');
       $num = $this->db->count_all_results();
 			$i++;
     } while ($num >= 1);
 
-    $query = "INSERT INTO `w_shortenurls` (`code`, `address`, `counter`) VALUES (?,?,?) ";
-    $result = $this->db->query($query, array($url_code, $params['address'], $i));
+    $query = "INSERT INTO w_shortenurls (`code`, `address`, `counter`) VALUES (?,?,?) ";
+    $result = $this->db->query($query, array($code, $params['address'], $i));
 
     if ($result) {
-      return $url_code;
+      return $code;
     } else {
       return false;
     }	
