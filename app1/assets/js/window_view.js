@@ -26,6 +26,16 @@ origin_url = $id ? URI(origin_url).addSearch('id', $id) : origin_url;
 origin_url = $title ? URI(origin_url).addSearch('title', $title) : origin_url;
 history.replaceState ("", document.title, origin_url);
 
+var is_shiftkeypressed = false;
+window.onkeydown = function(e){
+	if(e.shiftKey)
+		is_shiftkeypressed = true;
+}
+
+window.onkeyup = function(e){
+	is_shiftkeypressed = false;
+}
+
 function setToolbarBtn(btnList)
 {
 	var container = $('<div class="row toolbar_container">'+
@@ -227,8 +237,8 @@ function initDataTable()
 	})
 	.search($q ? $q : '');
 
-	$('.table thead th').unbind('click.DT');
-	$('.table thead th').click(function(){
+	$('.table thead th.sorting').unbind('click.DT');
+	$('.table thead th.sorting').click(function(){
 		var columns = dataTable1.settings().init().columns;
 		var field = columns[$(this).index()].data;
 		var $ob = get('ob_'+$method);		
@@ -285,27 +295,41 @@ function initDataTable()
 			return [field, direction].join(' ');
 		
 		if (sql.indexOf(field) >= 0) {
-			$.each(sql.split(', '), function(i, v){
-				sort_field_exists = v.split(' ');
-				$.each(sort_field_exists, function(j, v){
-					if (j==0){
-						if (sort_field_exists[0] == field) {
-							if ($.inArray(direction, ['ASC','DESC']) === -1)
-								flag_del = i;
-							else
-								sort_field_exists[1] = direction;
-						}		
+			if (is_shiftkeypressed) {
+				$.each(sql.split(', '), function(i, v){
+					sort_field_exists = v.split(' ');
+					$.each(sort_field_exists, function(j, v){
+						if (j==0){
+							if (sort_field_exists[0] == field) {
+								if ($.inArray(direction, ['ASC','DESC']) === -1)
+									flag_del = i;
+								else
+									sort_field_exists[1] = direction;
+							}		
+						}
+					});
+					sort_result.push(sort_field_exists.join(' '));
+					if (flag_del !== -1) {
+						sort_result.splice(flag_del, 1);
+						flag_del = -1;
 					}
 				});
-				sort_result.push(sort_field_exists.join(' '));
-				if (flag_del !== -1) {
-					sort_result.splice(flag_del, 1);
-					flag_del = -1;
+				return sort_result.join(', ');
+			} else {
+				if (sql.split(', ').length > 1) {
+					return [field, 'ASC'].join(' ');
+				} else {
+					if (! direction) 
+						return false;
+					
+					return [field, direction].join(' ');
 				}
-			});
-			return sort_result.join(', ');
+			}
 		} else {
-			return sql + ', ' + ([field, direction].join(' '));
+			if (is_shiftkeypressed)
+				return sql + ', ' + ([field, direction].join(' '));
+			else
+				return [field, direction].join(' ');
 		}
 	}
 	
