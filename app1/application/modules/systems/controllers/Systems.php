@@ -400,6 +400,7 @@ class Systems extends Getmeb
 				$password = $_SERVER['PHP_AUTH_PW'];
 			}
 
+			$username = strtolower($username);
 			$rememberme = isset($this->params['rememberme']) && $this->params['rememberme'] ? TRUE : FALSE;
 			/* Try to login */
 			if (! $user_id = $this->auth->login($username, $password, $rememberme)) {

@@ -4012,6 +4012,21 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(FALSE, FALSE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
 			
+			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'expected_dt_cust' 	=> 't1.expected_dt_cust', 
+					'etd' 				=> 't1.etd', 
+					'delivery_date' 		=> 't1.delivery_date', 
+					'estimation_late' 	=> 'coalesce(etd - expected_dt_cust, 0)', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
+			}
+			
 			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -4029,6 +4044,19 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'eta' 				=> 't1.eta', 
+					'received_date' 		=> 't1.received_date', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
+			}
 			
 			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
@@ -4077,6 +4105,18 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'eta' 				=> 't1.eta', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
+			}
 			
 			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
 			if (isset($this->params['export']) && !empty($this->params['export'])) {

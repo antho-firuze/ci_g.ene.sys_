@@ -30,9 +30,9 @@
 		sub_menu: [],
 		order: ['id desc'],
 		columns: [
-			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
-			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
-			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
+			{ width:"100px", orderable:true, data:"org_name", title:"Org Name" },
+			{ width:"100px", orderable:true, data:"orgtrx_name", title:"Org Trx Name" },
+			{ width:"100px", orderable:true, data:"doc_no", title:"Doc No" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"etd", title:"ETD" },
 			{ width:"100px", orderable:true, data:"bpartner_name", title:"Business Partner" },
