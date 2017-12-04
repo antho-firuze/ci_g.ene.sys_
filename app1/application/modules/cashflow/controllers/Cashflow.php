@@ -3027,7 +3027,7 @@ class Cashflow extends Getmeb
 					// select coalesce(sum(amount), 0) * (case (select is_receipt from cf_account where id = t1.account_id) when '1' then 1 else -1 end)".' as "'.$v['title'].'_actual"' ." 
 				$str .= 
 				"(
-					select coalesce(sum(case (select is_receipt from cf_account where id = t1.account_id) when '1' then amount else -amount end), 0) * ".' as "'.$v['title'].'_actual"' ." 
+					select coalesce(sum(case (select is_receipt from cf_account where id = t1.account_id) when '1' then amount else -amount end), 0) ".' as "'.$v['title'].'_actual"' ." 
 					from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id
 					where f1.client_id = {client_id} and f1.org_id = {org_id} and f2.orgtrx_id in {orgtrx} and
 					f1.is_active = '1' and f1.is_deleted = '0' and account_id = t1.account_id
@@ -3040,7 +3040,6 @@ class Cashflow extends Getmeb
 			$str .= " from cf_rpt_cashflow_projection t1 order by seq";
 			$qry = $this->db->query($str);
 			$rows = $qry->result();
-			debug($rows);
 			/* Start process: Compiling Report */
 			/* Define Variable */
 			foreach($arr as $v){
@@ -4048,6 +4047,18 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'etd' 				=> 't1.etd', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
+			}
 			
 			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
