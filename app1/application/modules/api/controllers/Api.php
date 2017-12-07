@@ -6,12 +6,15 @@ require APPPATH . '/modules/api/libraries/API_Controller.php';
 class Api extends API_Controller {
 	
 	function __construct() {
+		debug($_SERVER['REQUEST_METHOD']);
+
 		parent::__construct();
 		
 	}
 	
 	function api_v1()
 	{
+		debug($this->r_method);
 		if ($this->r_method == 'GET') {
 			debug($this->user);
 			// if (key_exists('id', $this->params) && !empty($this->params['id'])) 
