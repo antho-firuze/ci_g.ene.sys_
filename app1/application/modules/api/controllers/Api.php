@@ -6,8 +6,6 @@ require APPPATH . '/modules/api/libraries/API_Controller.php';
 class Api extends API_Controller {
 	
 	function __construct() {
-		debug($_SERVER['REQUEST_METHOD']);
-
 		parent::__construct();
 		
 	}
