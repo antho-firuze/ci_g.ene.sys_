@@ -3,7 +3,7 @@
 // require APPPATH . '/modules/z_libs/libraries/Getmeb.php';
 
 // class Test extends Getmeb {
-class Urls_db extends CI_Controller {
+class Web_db extends CI_Controller {
 
 	function __construct() {
 		parent::__construct();
@@ -48,7 +48,7 @@ class Urls_db extends CI_Controller {
 		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
 		$fields['url'] = ['type' => 'TEXT', 'null' => TRUE];
 		$fields['counter'] 	= ['type' => 'INT', 'constraint' => '16', 'null' => TRUE];	
-		$fields['hit'] 	= ['type' => 'INT', 'constraint' => '16', 'null' => TRUE];	
+		// $fields['hit'] 	= ['type' => 'INT', 'constraint' => '16', 'null' => TRUE];	
 		return $fields;
 	}
 	
@@ -74,8 +74,6 @@ class Urls_db extends CI_Controller {
 		$fields['width'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE]; 
 		$fields['height'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE]; 
 		/* This fields are for delay update, using schedule. To avoid slow access */
-		$fields['domain_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
-		$fields['client_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['country'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['country_code'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['region'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
@@ -88,6 +86,7 @@ class Urls_db extends CI_Controller {
 		$fields['isp'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['org'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
 		$fields['as_number'] = ['type' => 'VARCHAR', 'constraint' => '100', 'null' => TRUE]; 
+		$fields['shortenurl_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		return $fields;
 	}
 	

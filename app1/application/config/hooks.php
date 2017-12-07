@@ -128,14 +128,5 @@ $hook['post_controller_constructor'] = function()
 	$data['browser'] = $ci->agent->browser();
 	$data['browser_ver'] = $ci->agent->version();
 
-	setcookie('platform', $data['platform']);
-	setcookie('is_mobile', $data['is_mobile']);
-	setcookie('mobile', $data['mobile']);
-	setcookie('is_robot', $data['is_robot']);
-	setcookie('robot', $data['robot']);
-	setcookie('is_browser', $data['is_browser']);
-	setcookie('browser', $data['browser']);
-	setcookie('browser_ver', $data['browser_ver']);
-	
 	$result = $ci->db->insert('a_access_log', $data);
 };
