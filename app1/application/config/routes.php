@@ -56,8 +56,9 @@ $route['translate_uri_dashes'] = FALSE;
 // API V1
 $route['v1'] = "api/api_v1";
 
-// FRONTEND
+// FRONTEND FOR PRODUCT QRCODE
 $route['cs/(:any)'] = "iproduct/cs/$1";
+// FRONTEND FOR WEBPAGE
 $route['page'] = "frontend/page";
 $route['page/(:any)'] = "frontend/page/$1";
 
@@ -68,4 +69,7 @@ $route['info'] = "info";
 $route['info/(:any)'] = "info/$1";
 
 // FOR TRANSLATE SHORTEN URL
-// $route['(:any)'] = 'frontend/translate_url';
+if (count($uri = explode('/', $_SERVER['REQUEST_URI'])) <= 2) {
+	if (! file_exists(APPPATH.'modules/'.$uri[1].'/controllers/'.$uri[1].'.php'))
+		$route['(:any)'] = 'frontend/translate_url';
+}

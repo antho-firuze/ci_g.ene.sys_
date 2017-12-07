@@ -781,7 +781,7 @@ if ( ! function_exists('URL_Purify'))
 		$urlParts = parse_url($url);
 
 		// remove www
-		$domain = preg_replace('/^www\./', '', $urlParts['host'].$urlParts['path']);
+		$domain = preg_replace('/^www\./', '', $urlParts['host'].(isset($urlParts['path']) ? $urlParts['path'] : '');
 
 		return $domain;
 	}
