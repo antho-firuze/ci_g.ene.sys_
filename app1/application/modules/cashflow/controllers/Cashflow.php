@@ -1167,6 +1167,8 @@ class Cashflow extends Getmeb
 				$sortFields = [
 					'doc_no' 			=> 't1.doc_no', 
 					'doc_date' 		=> 't1.doc_date', 
+					'doc_no_order' 		=> 't2.doc_no', 
+					'doc_date_order' 		=> 't2.doc_date', 
 					'invoice_plan_date' 		=> 't1.invoice_plan_date', 
 					'received_plan_date' 	=> 't1.received_plan_date', 
 					'amount' 	=> 'coalesce(amount, 0)', 
@@ -1283,6 +1285,8 @@ class Cashflow extends Getmeb
 				$sortFields = [
 					'doc_no' 			=> 't1.doc_no', 
 					'doc_date' 		=> 't1.doc_date', 
+					'doc_no_order' 		=> '(select doc_no from cf_order where id = t1.order_id)', 
+					'doc_date_order' 		=> '(select doc_date from cf_order where id = t1.order_id)', 
 					'invoice_plan_date' 		=> 't1.invoice_plan_date', 
 					'received_plan_date' 	=> 't1.received_plan_date', 
 					'amount' 	=> 'coalesce(amount, 0)', 
