@@ -68,4 +68,4 @@ $route['info'] = "info";
 $route['info/(:any)'] = "info/$1";
 
 // FOR TRANSLATE SHORTEN URL
-$route['(:any)'] = 'frontend/translate_url';
+// $route['(:any)'] = 'frontend/translate_url';
