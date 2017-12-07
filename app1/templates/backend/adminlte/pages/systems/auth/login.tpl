@@ -106,7 +106,7 @@
 		.iCheck('uncheck');
 	
 	$(document).ready(function(){
-		console.log(Cookies.get("identity"));
+		{* console.log(Cookies.get("identity")); *}
 		var $identity = Cookies.get("identity");
 		if ($identity) {
 			$("[name='username']").val($identity);
