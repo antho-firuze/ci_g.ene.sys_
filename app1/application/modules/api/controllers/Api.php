@@ -12,7 +12,6 @@ class Api extends API_Controller {
 	
 	function api_v1()
 	{
-		debug($this->r_method);
 		if ($this->r_method == 'GET') {
 			debug($this->user);
 			// if (key_exists('id', $this->params) && !empty($this->params['id'])) 

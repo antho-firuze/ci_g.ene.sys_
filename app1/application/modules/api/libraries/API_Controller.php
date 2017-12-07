@@ -34,7 +34,6 @@ abstract class API_Controller extends CI_Controller {
 	function __construct() {
 		parent::__construct();
 		$this->r_method = $_SERVER['REQUEST_METHOD'];
-		debug($this->r_method);
 		
 		/* Load models */
 		$this->mdl = strtolower(get_class($this)).'_model';
