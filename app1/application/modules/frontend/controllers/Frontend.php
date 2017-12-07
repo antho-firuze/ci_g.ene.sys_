@@ -11,9 +11,28 @@ class Frontend extends Getmef
 		$this->load->model($this->mdl);
 	}
 	
+	function _remap($method, $params = array())
+	{
+		// debug($method);
+		// debug($this->uri->segment(1));
+		if ($method == 'translate_url')
+			return call_user_func_array(array($this, $method), [$this->uri->segment(1)]);
+		
+		return call_user_func_array(array($this, $method), $params);
+	}
+	
 	function index()
 	{
 		redirect(base_url().'page');
+	}
+	
+	/* method for translate shorten url */
+	function translate_url($params)
+	{
+		if ($row = $this->base_model->getValue('url', 'w_shortenurl', 'code', $params)) 
+			header("Location: http://".$row->url);
+		else
+			show_404();
 	}
 	
 	function not_found()

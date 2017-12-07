@@ -752,14 +752,33 @@ class Systems extends Getmeb
 		}
 	}
 	
-	function a_loginattempt()
+	function a_user_reset_login_attempt()
 	{
 		if ($this->r_method == 'OPTIONS') {
-			if (! $this->deleteRecords('a_loginattempt', $this->params->id, TRUE))
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				// $this->xresponse(TRUE, ['message' => $this->messages()]);
-				$this->xresponse(TRUE, ['message' => lang('success_rla')]);
+			
+			if (isset($this->params->id) && !empty($this->params->id)) {
+				/* clear loggin attempt */
+				if (! $this->deleteRecords('a_loginattempt', $this->params->id, TRUE))
+					$this->xresponse(FALSE, ['message' => $this->messages()]);
+				else
+					$this->xresponse(TRUE, ['message' => lang('success_rla')]);
+			}
+			$this->xresponse(FALSE, ['message' => '']);
+		}
+	}
+	
+	function a_user_create_api_key()
+	{
+		if ($this->r_method == 'OPTIONS') {
+			
+			if (isset($this->params->id) && !empty($this->params->id)) {
+				/* create api key */
+				if (! $this->db->update($this->c_table, ['api_token' => create_api_key()], ['id' => $this->params->id]))
+					$this->xresponse(FALSE, ['message' => $this->db->error()['message']]);
+				else 
+					$this->xresponse(TRUE, ['message' => lang('success_create_api_key')]);
+			}
+			$this->xresponse(FALSE, ['message' => '']);
 		}
 	}
 	
@@ -826,6 +845,7 @@ class Systems extends Getmeb
 				if ($data) {
 					$this->updateRecord($this->c_method, ['photo_file'=>$data['filename']], ['id' => $id]);
 				}
+				
 				$this->xresponse(TRUE, ['id' => $id, 'message' => lang('success_saving')]);
 			}			
 		}
@@ -1603,8 +1623,8 @@ class Systems extends Getmeb
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_post'){
-				unset($this->mixed_data['client_id']);
-				unset($this->mixed_data['org_id']);
+				// unset($this->mixed_data['client_id']);
+				// unset($this->mixed_data['org_id']);
 			}
 		}
 	}

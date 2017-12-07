@@ -122,7 +122,7 @@ class Systems_Model extends CI_model
 	function a_user($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, 
-		t1.client_id, t1.user_org_id, t1.user_orgtrx_id, t1.user_role_id, t1.is_active, t1.code, t1.name, 
+		t1.client_id, t1.user_org_id, t1.user_orgtrx_id, t1.user_role_id, t1.is_active, t1.code, t1.name, api_token,
 		coalesce(t1.code, '')||'_'||t1.name as code_name, 
 		t1.description, t1.email, t1.last_login, t1.is_online, t1.supervisor_id, t1.bpartner_id, t1.is_fullbpaccess, t1.is_expired, t1.ip_address, t1.photo_file,
 		(select coalesce(code, '')||'_'||name from a_role where id = t1.user_role_id) as default_user_role_name,

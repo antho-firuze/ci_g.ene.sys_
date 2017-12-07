@@ -9,7 +9,19 @@ class Urls_Model extends CI_Model
 		
 	}
 
-	function w_shortenurls($params)
+	function _check_key_exists($key)
+	{
+		return $this->db
+				->where('api_token', $key)
+				->count_all_results('a_user') > 0;
+	}
+	
+	function _post_url($url)
+	{
+		
+	}
+	
+	function w_shortenurl($params)
 	{
 		$params['select']	= !key_exists('select', $params) ? "t1.*" : $params['select'];
 		$params['table'] 	= "w_shortenurls as t1";

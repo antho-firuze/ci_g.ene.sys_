@@ -9,7 +9,7 @@ class Urls extends Getmeb
 		
 	}
 	
-	function w_shortenurls()
+	function w_shortenurl()
 	{
 		if ($this->r_method == 'GET') {
 			if (key_exists('id', $this->params) && !empty($this->params['id'])) 
@@ -27,18 +27,23 @@ class Urls extends Getmeb
 			}
 		}
 		if ($this->r_method == 'POST') {
-			if (!key_exists('address', $this->params)) 
-				$this->xresponse(FALSE, ['message' => 'Address is not found !'], 401);
+			if (key_exists('key', $this->params) && isset($this->params->key)) {
+				
+				if (! $this->{$this->mdl}->_check_key_exists($this->params->key))
+					$this->xresponse(FALSE, ['message' => 'Invalid API Key !']);
+				
+				if (key_exists('url', $this->params) && isset($this->params->url)) {
+					$this->{$this->mdl}->_post_url($this->params->url);
+				} 
+				$this->xresponse(FALSE, ['message' => 'Invalid URL Address !']);
+			}
 			
-			if (empty($this->params['address'])) 
-				$this->xresponse(FALSE, ['message' => 'Address cannot be empty !'], 401);
+			// $result['data'] = $this->urls_model->save_url($this->params);
 			
-			$result['data'] = $this->urls_model->save_url($this->params);
-			
-			if (($result['data'] = $this->urls_model->save_url($this->params)) === FALSE)
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()], 401);
-			else
-				$this->xresponse(TRUE, $result);
+			// if (($result['data'] = $this->urls_model->save_url($this->params)) === FALSE)
+				// $this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()], 401);
+			// else
+				// $this->xresponse(TRUE, $result);
 		}
 	}
 	

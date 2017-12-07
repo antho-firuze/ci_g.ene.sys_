@@ -157,7 +157,7 @@ class Getmeb extends CI_Controller
 			// debug($this->c_table);
 		}
 		
-		/* This Request for INDERT & UPDATE Data */
+		/* This Request for INSERT & UPDATE Data */
 		if (in_array($this->r_method, ['POST','PUT'])) {
 			/* Become Object */
 			$this->params = json_decode($this->input->raw_input_stream);

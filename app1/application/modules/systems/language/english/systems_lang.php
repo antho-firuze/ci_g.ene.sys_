@@ -32,6 +32,7 @@ $lang['confirm_delete'] 		= 'Are you sure want to delete this record ?';
 $lang['confirm_rst_pwd'] 		= 'Are you sure want to RESET PASSWORD this user ?';
 $lang['confirm_export'] 		= 'Are you sure want to EXPORT this data ?';
 $lang['confirm_rla'] 		= 'Are you sure want to [Reset Login Attempt] this record ?';
+$lang['confirm_create_api_key'] 		= 'Are you want to create API Key ?';
 // $lang['confirm_copy_menu'] 		= 'From Role [%s] ==> To Role [%s] ?';
 
 /* Exclamation: error_ */
@@ -67,6 +68,7 @@ $lang['success_delete_undo'] 	= 'Undo Deleting Data Successfully !';
 $lang['success_chg_pwd'] 		= 'New Password has been activated, and after this you will logout !';
 $lang['success_rst_pwd'] 		= 'Password has been reset successfully !';
 $lang['success_rla'] 		= 'Login attempt has been cleared !';
+$lang['success_create_api_key'] 		= 'API Key has been created !';
 $lang['success_import_data']	= 'Importing Data Completed Successfully !<br><br>Note: See the result for more info.';
 
 /* Information: info_ */

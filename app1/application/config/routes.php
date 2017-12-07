@@ -53,6 +53,9 @@ $route['default_controller'] = 'frontend';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
+// API V1
+$route['v1'] = "api/api_v1";
+
 // FRONTEND
 $route['cs/(:any)'] = "iproduct/cs/$1";
 $route['page'] = "frontend/page";
@@ -64,3 +67,5 @@ $route['hrd/(:any)'] = "hrd/$1";
 $route['info'] = "info";
 $route['info/(:any)'] = "info/$1";
 
+// FOR TRANSLATE SHORTEN URL
+$route['(:any)'] = 'frontend/translate_url';

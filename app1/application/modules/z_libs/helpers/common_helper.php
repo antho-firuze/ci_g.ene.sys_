@@ -434,9 +434,9 @@ if ( ! function_exists('urlsafeB64Decode'))
 	}
 }
 
-if ( ! function_exists('get_api_sig'))
+if ( ! function_exists('create_api_key'))
 {
-    function get_api_sig(){
+    function create_api_key(){
 		$secretKey = "BismILLAHirrohmaanirrohiim";
 
 		// Generates a random string of ten digits
@@ -757,6 +757,35 @@ if ( ! function_exists('tempnam_sfx'))
    // call it like this: 
    //$file = tempnam_sfx("/tmp", ".jpg"); 
  }
+
+/* Begin::URL Refererrer */
+/**
+ *
+ * Function for get full url with parameter string
+ *
+ */
+if ( ! function_exists('URL_Purify'))
+{
+	function URL_Purify($url = '')
+	{
+		if (! $url) return false;
+		
+		// in case scheme relative URI is passed, e.g., //www.google.com/
+		$url = trim($url, '/');
+
+		// If scheme not included, prepend it
+		if (!preg_match('#^http(s)?://#', $url)) {
+				$url = 'http://' . $url;
+		}
+
+		$urlParts = parse_url($url);
+
+		// remove www
+		$domain = preg_replace('/^www\./', '', $urlParts['host'].$urlParts['path']);
+
+		return $domain;
+	}
+}
 
 /* Begin::URL Refererrer */
 /**

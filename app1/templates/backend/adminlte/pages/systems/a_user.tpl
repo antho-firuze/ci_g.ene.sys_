@@ -25,9 +25,11 @@
 	{* DataTable Init *}
 	var DataTable_Init = {
 		enable: true,
+		width: '120%',
 		act_menu: { copy: true, edit: true, delete: true },
 		add_menu: [
 			{ name: 'reset_login_attempt', title: 'Reset Login Attempt' }, 
+			{ name: 'create_api_key', title: 'Create API Key' }, 
 		],
 		sub_menu: [
 			{ pageid: 31, subKey: 'user_id', title: 'Role Access', },
@@ -36,11 +38,11 @@
 		],
 		order: ['is_online desc'],
 		columns: [
-			{ width:"130px", orderable:false, data:"name", title:"Name", render:function(data, type, row){ return ( row.is_online == '1' ? '<i class="fa fa-circle text-green" title="Online"></i>' : row.is_online == '2' ? '<i class="fa fa-circle text-gray" title="Idle"></i>' : '<i class="fa fa-circle text-red" title="Offline"></i>' )+' '+data; } },
-			{ width:"130px", orderable:false, data:"name", title:"Name" },
-			{ width:"150px", orderable:false, data:"email", title:"Email" },
-			{ width:"250px", orderable:false, data:"description", title:"Description" },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"130px", orderable:true, data:"name", title:"Name", render:function(data, type, row){ return ( row.is_online == '1' ? '<i class="fa fa-circle text-green" title="Online"></i>' : row.is_online == '2' ? '<i class="fa fa-circle text-gray" title="Idle"></i>' : '<i class="fa fa-circle text-red" title="Offline"></i>' )+' '+data; } },
+			{ width:"150px", orderable:true, data:"email", title:"Email" },
+			{ width:"250px", orderable:true, data:"description", title:"Description" },
+			{ width:"250px", orderable:true, data:"api_token", title:"API Key" },
+			{ width:"40px", orderable:true, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 		],
 	};
 	
@@ -48,10 +50,32 @@
 		if (!confirm("{$.php.lang('confirm_rla')}")) {
 			return false;
 		}
-		$.ajax({ url: '{$.php.base_url('systems/a_loginattempt')}', method: "OPTIONS", async: true, dataType: 'json',
-			data: JSON.stringify({ loginattempt:1, id:data.id }),
+		$.ajax({ url: '{$.php.base_url('systems/a_user_reset_login_attempt')}', method: "OPTIONS", async: true, dataType: 'json',
+			data: JSON.stringify({ id:data.id }),
 			success: function(data) {
 				BootstrapDialog.alert(data.message);
+			},
+			error: function(data) {
+				if (data.status==500){
+					var message = data.statusText;
+				} else {
+					var error = JSON.parse(data.responseText);
+					var message = error.message;
+				}
+				BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+			}
+		});
+	};
+	
+	function create_api_key(data) {
+		if (!confirm("{$.php.lang('confirm_create_api_key')}")) {
+			return false;
+		}
+		$.ajax({ url: '{$.php.base_url('systems/a_user_create_api_key')}', method: "OPTIONS", async: true, dataType: 'json',
+			data: JSON.stringify({ id:data.id }),
+			success: function(data) {
+				BootstrapDialog.alert(data.message);
+				dataTable1.ajax.reload( null, false );
 			},
 			error: function(data) {
 				if (data.status==500){

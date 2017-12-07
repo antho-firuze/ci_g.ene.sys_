@@ -54,6 +54,7 @@
 	a.push(subCol(6, BSHelper.Input({ type:"password", label:"", idname:"password", required: req, placeholder:"Password", minlength:6, help:"Minimum of 6 characters" })));
 	a.push(subCol(6, BSHelper.Input({ type:"password", label:"", idname:"password_confirm", required: req, placeholder:"Confirm", idmatch:"password", errormatch:"Whoops, these don't match" })));
 	col.push(BSHelper.Label({ horz:false, label:"Password", idname:"password", required: req, elcustom:subRow(a) }));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"API Key", idname:"api_token", disabled: true, placeholder:"Should be generate from context menu", }));
 	col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", placeholder:"string(2000)" }));
 	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Input({ horz:false, type:"email", label:"Email", idname:"email", required: true, placeholder:"string(255)" }));
