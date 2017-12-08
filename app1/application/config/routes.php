@@ -54,7 +54,7 @@ $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
 
 // API V1
-$route['v1'] = "api/api_v1";
+$route['api/(:any)/v1'] = "api/$1_v1";
 
 // FRONTEND FOR PRODUCT QRCODE
 $route['cs/(:any)'] = "iproduct/cs/$1";

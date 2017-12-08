@@ -9,15 +9,18 @@ class Api extends API_Controller {
 		
 	}
 	
-	function api_v1()
+	function urlshortener_v1()
 	{
+		/* Load models */
+		$this->load->model('urlshorten_model');
+		
 		if ($this->r_method == 'POST') {
-			if (key_exists('url', $this->params) && isset($this->params->url)) {
+			if (key_exists('longUrl', $this->params) && isset($this->params->longUrl)) {
 				
-				if ($url = URL_Purify($this->params->url))
-					$this->_post_url($url);
+				if ($longUrl = URL_Purify($this->params->longUrl))
+					$this->urlshorten_model->save_url($longUrl);
 			} 
-			$this->xresponse(FALSE, ['message' => 'Invalid URL Address !']);
+			xresponse(FALSE, ['message' => 'Invalid URL Address !']);
 		}
 	}
 	
