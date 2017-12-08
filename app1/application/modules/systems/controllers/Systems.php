@@ -638,7 +638,7 @@ class Systems extends Getmeb
 			}
 			
 			if (isset($this->params['pageid']) && ($this->params['pageid'])) {
-				$this->params['where_custom'][] = $this->params['pageid'] . " = ANY (valid_menu)";
+				$this->params['where_custom'][] = @end(explode(',',$this->params['pageid'])) . " = ANY (valid_menu)";
 			}
 			
 			$this->params['sort'] = 'seq';

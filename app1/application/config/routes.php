@@ -62,12 +62,6 @@ $route['cs/(:any)'] = "iproduct/cs/$1";
 $route['page'] = "frontend/page";
 $route['page/(:any)'] = "frontend/page/$1";
 
-// BACKEND
-$route['hrd'] = "hrd";
-$route['hrd/(:any)'] = "hrd/$1";
-$route['info'] = "info";
-$route['info/(:any)'] = "info/$1";
-
 // FOR TRANSLATE SHORTEN URL
 if (count($uri = explode('/', $_SERVER['REQUEST_URI'])) <= 2) {
 	if (! file_exists(APPPATH.'modules/'.$uri[1].'/controllers/'.$uri[1].'.php'))

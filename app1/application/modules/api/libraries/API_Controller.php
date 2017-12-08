@@ -58,6 +58,8 @@ abstract class API_Controller extends CI_Controller {
 				xresponse(FALSE, ['message' => 'Invalid API Key !']);
 		}
 		
+		/* Check Permission */
+		$this->_check_is_allow();
 		
 		// xresponse(TRUE, ['message' => 'OK !']);
 		$this->create_log = [
@@ -72,6 +74,31 @@ abstract class API_Controller extends CI_Controller {
 				->where('api_token', $this->params->key)
 				->get('a_user')
 				->row();
+	}
+	
+	function _check_is_allow()
+	{
+		/* Parsing request uri */
+		if (count(explode('/', $_SERVER['REQUEST_URI'])) < 4) 
+			xresponse(FALSE, ['message' => '[Unknown URI Format] : Invalid API URL Address !']);
+		/* Assign to param */
+		[, $class, $method, $version] = explode('/', $_SERVER['REQUEST_URI']);
+		/* Check menu existance on the table a_menu */
+		if (! $menu = $this->base_model->getValue('*', 'a_menu', ['class','method','is_active','is_deleted'], [$class, $method.'_'.$version, '1', '0']))
+			xresponse(FALSE, ['message' => '[Unregistered/Inactive Method] : Unrecognized API Method !']);
+		/* Check permission on the table a_user_role & a_role_menu */
+		if (! $role = $this->base_model->getValue("string_agg(trim(role_id::char(4)), ',') as id", 'a_user_role', ['user_id','is_active','is_deleted'], [$this->user->id, '1', '0']))
+			xresponse(FALSE, ['message' => '[Unregistered User Role] : Undefined User Role !']);
+		if (! $role_menu = $this->db
+				->where_in('role_id', explode(', ', $role->id))
+				->where(['menu_id' => $menu->id, 'is_active' => '1', 'is_deleted' => '0', 'permit_process' => '1'])
+				->get('a_role_menu'))
+			xresponse(FALSE, ['message' => '[Unregistered Role Menu] : Unauthorized Access !']);
+		/* Check method existance on API Controller */
+		if (! method_exists($this, $method.'_'.$version))
+			xresponse(FALSE, ['message' => '[Class API] : Undefined API Method !']);
+		
+		// xresponse(TRUE, ['message' => 'OK !']);
 	}
 	
 }
