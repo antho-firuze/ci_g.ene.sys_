@@ -50,13 +50,16 @@ abstract class API_Controller extends CI_Controller {
 		}
 		
 		/* Check Authentication */
-		if (!key_exists('key', $this->params))
-			$this->xresponse(FALSE, ['message' => 'Undefined API Key !']);
+		if ($this->r_method != 'GET') {
+			if (!key_exists('key', $this->params))
+				xresponse(FALSE, ['message' => 'Undefined API Key !']);
+			
+			if (!$this->user = $this->_check_key_exists())
+				xresponse(FALSE, ['message' => 'Invalid API Key !']);
+		}
 		
-		if (!$this->user = $this->_check_key_exists())
-			$this->xresponse(FALSE, ['message' => 'Invalid API Key !']);
 		
-		// $this->xresponse(TRUE, ['message' => 'OK !']);
+		// xresponse(TRUE, ['message' => 'OK !']);
 		$this->create_log = [
 			'created_by'	=> (!empty($this->user->id) ? $this->user->id : '0'),
 			'created_at'	=> date('Y-m-d H:i:s')

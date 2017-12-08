@@ -9,21 +9,6 @@ class Urlshorten_Model extends CI_model
 		
 	}
 
-	function save_url($url)
-	{
-		$result = $this->_generate_code();
-		
-		$data = array_merge($this->create_log, $result, ['url' => $url]);
-		
-		$result_url = $this->url_host.$data['code'];
-		
-		if (!$return = $this->db->insert('w_shortenurl', $data)) {
-			xresponse(FALSE, ['message' => $this->db->error()['message']]);
-		} else {
-			xresponse(TRUE, ['message' => 'Success', 'shortUrl' => $result_url]);
-		}
-	}
-	
 	function _generate_code()
 	{
 		$this->load->helper('string');
@@ -45,6 +30,39 @@ class Urlshorten_Model extends CI_model
     } while ($this->db->where('code', $code)->count_all_results('w_shortenurl') >= 1);
 		
 		return ['code' => $code, 'counter' => $i];
+	}
+	
+	function _check_code_exists($code)
+	{
+		return $this->db
+				->where('code', $code)
+				->get('w_shortenurl')
+				->row();
+	}
+	
+	function get_url($shortUrl)
+	{
+		[, $code] = explode('/',$shortUrl);
+		
+		if (!$row = $this->_check_code_exists($code))
+			xresponse(FALSE, ['message' => 'Invalid Shorten URL Address !']);
+		
+		xresponse(TRUE, ['message' => 'OK', 'longUrl' => $row->url]);
+	}
+	
+	function save_url($longUrl)
+	{
+		$result = $this->_generate_code();
+		
+		$data = array_merge($this->create_log, $result, ['url' => $longUrl]);
+		
+		$result_url = $this->url_host.$data['code'];
+		
+		if (!$return = $this->db->insert('w_shortenurl', $data)) {
+			xresponse(FALSE, ['message' => $this->db->error()['message']]);
+		} else {
+			xresponse(TRUE, ['message' => 'Success', 'shortUrl' => $result_url]);
+		}
 	}
 	
 }
