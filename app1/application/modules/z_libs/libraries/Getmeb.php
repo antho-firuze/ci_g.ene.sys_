@@ -286,7 +286,10 @@ class Getmeb extends CI_Controller
 	
 	function _heartbeat()
 	{
+		/* update current user heartbeat */
 		$this->db->update('a_user', ['heartbeat' => time()], ['id' => $this->session->user_id]);
+		/* update inactive user status */
+		$this->db->update('a_user', ['is_online' => '0', 'heartbeat' => null], ['(extract(epoch from now()) - heartbeat) >' => 60 * 15]);
 	}
 	
 	/* This procedure is for cleaning a tmp file & tmp_tables */
@@ -294,9 +297,6 @@ class Getmeb extends CI_Controller
 	{
 		/* Note: 60(sec) x 60(min) x 2-24(hour) x 2~(day) */
 		
-		/* Clearing user_state status */
-		$this->db->update('a_user', ['is_online' => '0', 'heartbeat' => null], ['(extract(epoch from now()) - heartbeat) >' => 60 * 15]);
-
 		/* Check & Execute for every 1 hour */
 		if (!empty($cookie = $this->input->cookie('_clear_tmp'))) {
 			if ((time()-$cookie) < 60*60) 
