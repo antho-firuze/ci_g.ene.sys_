@@ -1415,6 +1415,14 @@ class Cashflow extends Getmeb
 					} else {
 						$this->xresponse(TRUE, $result);
 					}
+				} else {
+					$this->params['where_in']['t1.orgtrx_to_id'] = $this->_get_orgtrx();
+					$this->params['level'] = 1;
+					if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+						$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+					} else {
+						$this->xresponse(TRUE, $result);
+					}
 				}
 			}
 			
