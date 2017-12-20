@@ -94,7 +94,7 @@ $scheduler->call(function () {
 	if ($handle = @opendir($dir)) {
 		while (($file = @readdir($handle)) !== false) {
 			if (preg_match('/(\.log)$/i', $file)) {
-				if ((time() - @filectime($dir.$file)) > $old) {  
+				if ((time() - @filemtime($dir.$file)) > $old) {  
 					@unlink($dir.$file);
 					$count++;
 				}
