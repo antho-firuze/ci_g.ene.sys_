@@ -35,14 +35,19 @@ $scheduler->call(function () {
 	// ->at('*/5 * * * *')
 // ;
 
-/* For rotate nginx logs “At 19:00.” */
+/* 	For rotate nginx logs 
+ * 	“At 19:00.” 
+ * 	Everuday
+ */
 $scheduler->call(function () { 
 	exec("d:/nginx/rotate.bat"); 
-	echo "Rotate nginx on machine [".gethostname()."] at ".date('Y-m-d H:i:s'); 
+	echo "Task: Rotate nginx on machine [".gethostname()."] at ".date('Y-m-d H:i:s'); 
 })
 	->configure(['email' => [
 		'from' => 'do_not_reply@hdgroup.id',
-		'subject' => 'Nginx rotate on machine ['.gethostname().'] at '.date('Y-m-d H:i:s'),
+		'subject' => 'Task: Nginx rotate on machine ['.gethostname().'] at '.date('Y-m-d H:i:s'),
+		'body' => 'Task: Rotating Nginx Log File <br><br>
+			For more information please see the attachment !',
 		'transport' => (new Swift_SmtpTransport('mail.hdgroup.id', 465, 'ssl'))->setUsername('do_not_reply@hdgroup.id')->setPassword('ReplyHDG2017'),
 	]])
 	->output(__DIR__.'/nginx_rotate.log')
@@ -51,14 +56,20 @@ $scheduler->call(function () {
 	->at('0 19 * * *')
 ;
 
-/* For backup database db_genesys “At 20:00.” */
+/* 	For backup database db_genesys 
+ *	“At 20:00.” 
+ * 	Everyday 
+ */
 $scheduler->call(function () { 
 	exec("D:/htdocs (db)/postgre/pgbackup.bat"); 
-	echo "Backup database on machine [".gethostname()."] at ".date('Y-m-d H:i:s'); 
+	$dt = date('Ymd_Hi');
+	echo "Task: Backup database on machine [".gethostname()."] at ".date('Y-m-d H:i:s')." and filename is [db_genesys_$dt.backup]"; 
 })
 	->configure(['email' => [
 		'from' => 'do_not_reply@hdgroup.id',
-		'subject' => 'Backup database on machine ['.gethostname().'] at '.date('Y-m-d H:i:s'),
+		'subject' => 'Task: Backup database on machine ['.gethostname().'] at '.date('Y-m-d H:i:s'),
+		'body' => 'Task: Backup database to the file, with extension (.backup) <br><br>
+			For more information please see the attachment !',
 		'transport' => (new Swift_SmtpTransport('mail.hdgroup.id', 465, 'ssl'))->setUsername('do_not_reply@hdgroup.id')->setPassword('ReplyHDG2017'),
 	]])
 	->output(__DIR__.'/pg_dump.log')
@@ -67,20 +78,43 @@ $scheduler->call(function () {
 	->at('0 20 * * *')
 ;
 
-/* For restart nginx “At 00:00 on Sunday.” */
+/* 	For restart nginx, remove old nginx log files (older than 1 week) 
+ *	“At 00:00 on Sunday.” 
+ *	Everyweek
+ */
 $scheduler->call(function () { 
-	exec("d:/nginx/reload.bat"); 
-	echo "Restart nginx on machine [".gethostname()."] at ".date('Y-m-d H:i:s'); 
+	/* restart nginx */
+	// exec("d:/nginx/reload.bat"); 
+	echo "Task: Restart nginx on machine [".gethostname()."] at ".date('Y-m-d H:i:s'); 
+	
+	/* remove old nginx log files (older than 1 week) */
+	$dir = 'd:\nginx/logs/';
+	$old = 60 * 60 * 24 * 7;
+	$count = 0;
+	if ($handle = @opendir($dir)) {
+		while (($file = @readdir($handle)) !== false) {
+			if (preg_match('/(\.log)$/i', $file)) {
+				if ((time() - @filectime($dir.$file)) > $old) {  
+					@unlink($dir.$file);
+					$count++;
+				}
+			}
+		}
+	}
+	echo chr(13);
+	echo "Task: Removed ($count) nginx log file(s) on machine [".gethostname()."] at ".date('Y-m-d H:i:s'); 
 })
 	->configure(['email' => [
 		'from' => 'do_not_reply@hdgroup.id',
-		'subject' => 'Nginx restart on machine ['.gethostname().'] at '.date('Y-m-d H:i:s'),
+		'subject' => 'Task: Nginx restart & clear log on machine ['.gethostname().'] at '.date('Y-m-d H:i:s'),
+		'body' => 'Task: Restart Nginx Server & clear older Nginx log file(s) <br><br>
+			For more information please see the attachment !',
 		'transport' => (new Swift_SmtpTransport('mail.hdgroup.id', 465, 'ssl'))->setUsername('do_not_reply@hdgroup.id')->setPassword('ReplyHDG2017'),
 	]])
 	->output(__DIR__.'/nginx_restart.log')
 	->email(['hertanto@fajarbenua.co.id' => 'Hertanto'])
 	->then(function(){ @unlink(__DIR__.'/nginx_restart.log'); })
-	->at('0 0 * * 0')
+	// ->at('0 0 * * 0')
 ;
 
 $scheduler->run();

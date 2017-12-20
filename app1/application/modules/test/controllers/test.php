@@ -15,6 +15,34 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
+	function remove_log_file()
+	{
+		/* Note: 60(sec) x 60(min) x 2-24(hour) x 2~(day) */
+		// $dir = array_values(preg_grep('~'.'nginx'.'~', explode(';', $_SERVER['Path'])));
+		// echo $dir ? $dir[0] : '';
+		// exit();
+		$dir = 'd:\nginx/logs/';
+		// if (! $dir) {
+			// $dir = array_values(preg_grep('~'.'nginx'.'~', explode(';', $_SERVER['Path'])));
+			// $dir = $dir ? $dir[0] : '';
+		// }
+		
+		$old = 60 * 60 * 24 * 7;
+		$result = [];
+		
+		if ($handle = @opendir($dir)) {
+			while (($file = @readdir($handle)) !== false) {
+				if (preg_match('/(\.log)$/i', $file)) {
+					if ((time() - @filectime($dir.$file)) > $old) {  
+						@unlink($dir.$file);
+					}
+				}
+			}
+		}
+		
+		// var_dump($result);
+	}
+	
 	function cron($msg = 'default')
 	{
 		$dt = date('Ymd_His');
