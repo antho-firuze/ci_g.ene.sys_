@@ -114,7 +114,7 @@ $scheduler->call(function () {
 	->output(__DIR__.'/nginx_restart.log')
 	->email(['hertanto@fajarbenua.co.id' => 'Hertanto'])
 	->then(function(){ @unlink(__DIR__.'/nginx_restart.log'); })
-	// ->at('0 0 * * 0')
+	->at('0 0 * * 0')
 ;
 
 $scheduler->run();
