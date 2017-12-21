@@ -84,7 +84,7 @@ $scheduler->call(function () {
  */
 $scheduler->call(function () { 
 	/* restart nginx */
-	// exec("d:/nginx/reload.bat"); 
+	exec("d:/nginx/reload.bat"); 
 	echo "Task: Restart nginx on machine [".gethostname()."] at ".date('Y-m-d H:i:s'); 
 	
 	/* remove old nginx log files (older than 1 week) */
