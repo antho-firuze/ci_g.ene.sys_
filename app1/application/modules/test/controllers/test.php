@@ -15,6 +15,29 @@ class Test extends CI_Controller {
 		// check_auth_restapi();
 	}
 	
+	function remove_old_file()
+	{
+		/* Note: 60(sec) x 60(min) x 2-24(hour) x 2~(day) */
+		// $dir = dirname(__FILE__).DIRECTORY_SEPARATOR.'/../../../var/tmp/';
+		$dir = 'd:\htdocs/ci/app1/var/tmp/';
+		// exit($dir);
+		$old = 60 * 60 * 1 * 1;
+		$result = [];
+		
+		if ($handle = @opendir($dir)) {
+			while (($file = @readdir($handle)) !== false) {
+				if (! preg_match('/^(\.htaccess|index\.(html|htm|php)|web\.config|\.|\.\.)$/i', $file)) {
+					if ((time() - @filectime($dir.$file)) > $old) {  
+						// @unlink($dir.$file);
+						$result[] = $dir.$file;
+					}
+				}
+			}
+		}
+		
+		var_dump($result);
+	}
+	
 	function remove_log_file()
 	{
 		/* Note: 60(sec) x 60(min) x 2-24(hour) x 2~(day) */
@@ -33,14 +56,15 @@ class Test extends CI_Controller {
 		if ($handle = @opendir($dir)) {
 			while (($file = @readdir($handle)) !== false) {
 				if (preg_match('/(\.log)$/i', $file)) {
-					if ((time() - @filectime($dir.$file)) > $old) {  
-						@unlink($dir.$file);
+					if ((time() - @filemtime($dir.$file)) > $old) {  
+						// @unlink($dir.$file);
+						$result[] = $dir.$file;
 					}
 				}
 			}
 		}
 		
-		// var_dump($result);
+		var_dump($result);
 	}
 	
 	function cron($msg = 'default')

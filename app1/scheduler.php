@@ -8,36 +8,55 @@ use GO\Scheduler;
 // Create a new scheduler
 $scheduler = new Scheduler();
 
-/* For testing */
+/**
+ *	Scheduler: Every hour
+ *	Task:
+ *	- Update IP PUBLIC (execute php function via cli)
+ *	- Clear tmp forlder FCPATH.'var/tmp/'
+ *
+ */
 $scheduler->call(function () {
-	$bin = 'd:/nginx/php/php.exe';
-	$script = 'd:/htdocs/ci/app1/index.php test/cron';
-	$dt = date('Ymd_His');
-	$params = '"Scheduler : '.$dt.'"';
-	
-	// echo "Testing output from [".gethostname()."] at ".date('Y-m-d H:i:s'); 
-	// exec($bin . ' ' . $script . ' ' . $params);
+	/* ================================================================ */
+	/* Sample for execute php function via CLI (Command Line Interface) */
+	/* Using "passthru" or "exec" =====================================	*/
+	/* ================================================================ */
+	// $bin = 'd:/nginx/php/php.exe';
+	// $script = 'd:/htdocs/ci/app1/index.php test/cron';
+	// $params = '';
 	// passthru("$bin $script $params");
-		
-})
-	->output(__DIR__.'/testing_output_'.date('Ymd_His').'.log')
-	// ->daily('20:21')->daily('20:57')
-;
-
-/* For update IP PUBLIC */
-// $scheduler->call(function () {
+	// exec($bin . ' ' . $script . ' ' . $params);
+	
+	/* For update IP PUBLIC (execute php function via cli) */
 	// $bin = 'd:/nginx/php/php.exe';
 	// $script = 'd:/htdocs/ci/app1/index.php z_libs/shared/cron_update_ip_public';
 	// $params = '';
-	
 	// passthru("$bin $script $params");
-// })
-	// ->at('*/5 * * * *')
-// ;
 
-/* 	For rotate nginx logs 
- * 	“At 19:00.” 
- * 	Everuday
+	/* Clear tmp forlder */
+	/* Note: 60(sec) x 60(min) x 2-24(hour) x 2~(day) */
+	// $dir = dirname(__FILE__).DIRECTORY_SEPARATOR.'var/tmp/';
+	$dir = 'd:\htdocs/ci/app1/var/tmp/';
+	$old = 60 * 60 * 1 * 1;
+	if ($handle = @opendir($dir)) {
+		while (($file = @readdir($handle)) !== false) {
+			if (! preg_match('/^(\.htaccess|index\.(html|htm|php)|web\.config|\.|\.\.)$/i', $file)) {
+				if ((time() - @filectime($dir.$file)) > $old) {  
+					@unlink($dir.$file);
+				}
+			}
+		}
+	}
+	
+})
+	->at('0 * * * *')
+;
+
+/**
+ *	Scheduler: Every day “At 19:00”
+ *	Task:
+ *	- Rotate Nginx Logs
+ *
+ *
  */
 $scheduler->call(function () { 
 	exec("d:/nginx/rotate.bat"); 
@@ -56,9 +75,12 @@ $scheduler->call(function () {
 	->at('0 19 * * *')
 ;
 
-/* 	For backup database db_genesys 
- *	“At 20:00.” 
- * 	Everyday 
+/**
+ *	Scheduler: Every day “At 20:00”
+ *	Task:
+ *	- Backup Database "db_genesys"
+ *
+ *
  */
 $scheduler->call(function () { 
 	exec("D:/htdocs (db)/postgre/pgbackup.bat"); 
@@ -78,9 +100,12 @@ $scheduler->call(function () {
 	->at('0 20 * * *')
 ;
 
-/* 	For restart nginx, remove old nginx log files (older than 1 week) 
- *	“At 00:00 on Sunday.” 
- *	Everyweek
+/**
+ *	Scheduler: Every week “At 00:00 on Sunday”
+ *	Task:
+ *	- Restart Nginx
+ *	- Remove old Nginx log files (older than 1 week)
+ *
  */
 $scheduler->call(function () { 
 	/* restart nginx */
@@ -88,6 +113,7 @@ $scheduler->call(function () {
 	echo "Task: Restart nginx on machine [".gethostname()."] at ".date('Y-m-d H:i:s'); 
 	
 	/* remove old nginx log files (older than 1 week) */
+	/* Note: 60(sec) x 60(min) x 2-24(hour) x 2~(day) */
 	$dir = 'd:\nginx/logs/';
 	$old = 60 * 60 * 24 * 7;
 	$count = 0;

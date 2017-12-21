@@ -279,11 +279,6 @@ class Getmeb extends CI_Controller
 		}
 	}
 	
-	function _access_log()
-	{
-		
-	}
-	
 	function _heartbeat()
 	{
 		/* update current user heartbeat */
@@ -304,15 +299,15 @@ class Getmeb extends CI_Controller
 		}
 				
 		setcookie('_clear_tmp', time());
-		if ($handle = @opendir($this->tmp_dir)) {
-			while (false !== ($file = @readdir($handle))) {
-				if (! preg_match('/^(\.htaccess|index\.(html|htm|php)|web\.config)$/i', $file)) {
-					if ((time()-filectime($this->tmp_dir.$file)) > 60*60) {  
-						@unlink($this->tmp_dir.$file);
-					}
-				}
-			}
-		}
+		// if ($handle = @opendir($this->tmp_dir)) {
+			// while (false !== ($file = @readdir($handle))) {
+				// if (! preg_match('/^(\.htaccess|index\.(html|htm|php)|web\.config)$/i', $file)) {
+					// if ((time()-filectime($this->tmp_dir.$file)) > 60*60) {  
+						// @unlink($this->tmp_dir.$file);
+					// }
+				// }
+			// }
+		// }
 		
 		/* Cleaning tmp_tables */
 		$qry = $this->db->get_where('a_tmp_tables', ['time <' => time()-60*60]);
