@@ -21,7 +21,7 @@ class Test extends CI_Controller {
 		// $dir = dirname(__FILE__).DIRECTORY_SEPARATOR.'/../../../var/tmp/';
 		$dir = 'd:\htdocs/ci/app1/var/tmp/';
 		// exit($dir);
-		$old = 60 * 60 * 1 * 1;
+		$old = 60 * 1 * 1 * 1;
 		$result = [];
 		
 		if ($handle = @opendir($dir)) {

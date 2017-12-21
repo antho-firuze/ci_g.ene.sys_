@@ -34,8 +34,8 @@ $scheduler->call(function () {
 
 	/* Clear tmp forlder */
 	/* Note: 60(sec) x 60(min) x 2-24(hour) x 2~(day) */
-	// $dir = dirname(__FILE__).DIRECTORY_SEPARATOR.'var/tmp/';
-	$dir = 'd:\htdocs/ci/app1/var/tmp/';
+	// $dir = 'd:\htdocs/ci/app1/var/tmp/';
+	$dir = dirname(__FILE__).DIRECTORY_SEPARATOR.'var/tmp/';
 	$old = 60 * 60 * 1 * 1;
 	if ($handle = @opendir($dir)) {
 		while (($file = @readdir($handle)) !== false) {
