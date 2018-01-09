@@ -433,6 +433,39 @@ class Systems_db extends CI_Controller {
 		return $fields;
 	}
 	
+	function table_a_history_log()
+	{
+		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
+		$fields['client_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['org_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['table_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['key_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['user_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['created_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
+		$fields['type'] 	= ['type' => 'CHAR', 'constraint' => '1', 'null' => TRUE];		// 1: created | 2: updated | 3: deleted | 4: comment
+		$fields['title'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_a_table()
+	{
+		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
+		$fields['is_active'] 	= ['type' => 'CHAR', 'constraint' => '1', 'default' => '1'];
+		$fields['is_deleted'] = ['type' => 'CHAR', 'constraint' => '1', 'default' => '0'];
+		$fields['created_by'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['updated_by'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['deleted_by'] = ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['created_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
+		$fields['updated_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
+		$fields['deleted_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE, 'unique' => TRUE];
+		$fields['alias'] = ['type' => 'VARCHAR', 'constraint' => '60', 'null' => FALSE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		return $fields;
+	}
+	
 	function table_a_user()
 	{
 		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];

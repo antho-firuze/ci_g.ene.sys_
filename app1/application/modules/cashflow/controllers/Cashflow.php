@@ -3422,8 +3422,11 @@ class Cashflow extends Getmeb
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as shipment_no from cf_inout where order_id = t1.id),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as mr_no from cf_inout a3 where exists(select 1 from cf_order a2 where exists(select 1 from cf_requisition a1 where exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id) and id = a2.requisition_id) and id = a3.order_id)),
 				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as po_no from cf_order a2 where exists(select 1 from cf_requisition a1 where exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id) and id = a2.requisition_id)),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as requisition_no from cf_requisition a1 where exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id)),
-				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as request_no from cf_request where order_id = t1.id)
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as requisition_no from cf_requisition a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id)),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as request_no from cf_request where is_active = '1' and is_deleted = '0' and order_id = t1.id),
+				(select string_agg(doc_no || '_' || doc_date, E'\r\n') as outbound_no from cf_movement a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id)), 
+				(select string_agg(to_char(received_date, 'yyyy-mm-dd'), E'\r\n') as inbound_date from cf_movement a1 where is_active = '1' and is_deleted = '0' and exists(select 1 from cf_request where id = a1.request_id and order_id = t1.id)), 
+				(select string_agg(name, E',') from rf_scm_dt_reason where id = ANY(t1.scm_dt_reasons)) as reason_name, description
 				from cf_order t1
 				where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' ".$str;
 			$str = $this->translate_variable($str);
