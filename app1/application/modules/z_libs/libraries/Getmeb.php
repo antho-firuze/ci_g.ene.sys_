@@ -695,6 +695,25 @@ class Getmeb extends CI_Controller
 			$this->xresponse(TRUE, ['message' => $this->messages()]);
 	} */
 	
+	function _get_table_id()
+	{
+		
+	}
+	
+	function _create_history_log($table_id = NULL, $key_id = NULL, $type = 0, $description)
+	{
+		$data['client_id'] = DEFAULT_CLIENT_ID;
+		$data['org_id'] =  $this->session->org_id;
+		$data['table_id'] = $table_id;
+		$data['key_id'] = $key_id;
+		$data['user_id'] = $this->session->user_id;
+		$data['created_at'] = date('Y-m-d H:i:s');
+		$data['type'] = $type;
+		$data['title'] = $table_id;
+		$data['description'] = $table_id;
+		$this->db->insert('a_history_log', $data);
+	}
+	
 	function _upload_file()
 	{
 		/* get the params & files (special for upload file) */
