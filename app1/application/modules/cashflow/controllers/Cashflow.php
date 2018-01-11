@@ -3915,7 +3915,7 @@ class Cashflow extends Getmeb
 			when '5' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
 			when '6' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
 			end as doc_type_reference,
-			doc_no as invoice_no, invoice_plan_date, doc_date as invoice_date, received_plan_date, note, description, amount, adj_amount, net_amount,
+			doc_no as invoice_no, invoice_plan_date, doc_date as invoice_date, received_plan_date, payment_plan_date, note, description, amount, adj_amount, net_amount,
 			(select (select doc_no from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_no, 
 			(select (select doc_date from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_date,
 			(select name from a_user where id = t1.created_by) as created_by_name,
