@@ -847,7 +847,8 @@ $('.toolbar_container').click('button', function(e){
 					{ type: 'is_empty' },
 					{ type: 'is_not_empty' },
 					{ type: 'is_null' },
-					{ type: 'is_not_null' }
+					{ type: 'is_not_null' },
+					{ type: 'contain_any', optgroup: 'custom', nb_inputs: 1, multiple: false, apply_to: ['integer'] },
 				],
 				filters: Filter_Fields,
 			};

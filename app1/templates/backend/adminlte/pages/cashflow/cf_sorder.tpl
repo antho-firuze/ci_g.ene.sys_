@@ -78,6 +78,90 @@
 		],
 	};
 
+	var Filter_Fields = [
+		{
+			unique: true,
+			id: 'grand_total',
+			label: 'Grand Total',
+			type: 'double',
+			size: 5,
+			validation: {	min: 0,	step: 0.01 },
+		},{
+			unique: true,
+			id: 'estimation_penalty_amount',
+			label: 'Estimation Penalty Amount',
+			type: 'double',
+			size: 5,
+			validation: {	min: 0,	step: 0.01 },
+		},{
+			unique: true,
+			id: 'estimation_late',
+			label: 'Estimation Late',
+			type: 'integer',
+			validation: {	min: 0,	step: 1 },
+		},{
+			unique: true,
+			id: 't1.doc_date',
+			label: 'Doc Date',
+			type: 'datetime',
+			plugin: 'datepicker',
+			plugin_config: { format: "yyyy-mm-dd", todayBtn: 'linked', todayHighlight: true, autoclose: true },
+			input_event: 'dp.change',
+			description: 'Format date yyyy-mm-dd. Ex: 2017-11-22',
+		},{
+			unique: true,
+			id: 't1.expected_dt_cust',
+			label: 'DT Customer',
+			type: 'datetime',
+			plugin: 'datepicker',
+			plugin_config: { format: "yyyy-mm-dd", todayBtn: 'linked', todayHighlight: true, autoclose: true },
+			input_event: 'dp.change',
+			description: 'Format date yyyy-mm-dd. Ex: 2017-11-22',
+		},{
+			unique: true,
+			id: 't1.etd',
+			label: 'ETD',
+			type: 'datetime',
+			plugin: 'datepicker',
+			plugin_config: { format: "yyyy-mm-dd", todayBtn: 'linked', todayHighlight: true, autoclose: true },
+			input_event: 'dp.change',
+			description: 'Format date yyyy-mm-dd. Ex: 2017-11-22',
+		}
+	];
+	
+	{* 
+		,{
+			unique: true,
+			id: 'scm_dt_reasons',
+			label: 'Late Reason',
+			type: 'integer',
+			input: 'select',
+			values: { 
+				2: "Administration", 
+				3: "Approval Drawing", 
+				4: "Clearence-Logistic Import", 
+				5: "Customer P/O - DT Expired", 
+				6: "Customer P/O Handling", 
+				7: "Document Completeness", 
+				8: "Engineering Change (Spec)", 
+				9: "External Schedule-Logistic Local", 
+				10: "Internal Schedule-Logistic Local", 
+				11: "Inventory-Reject Part", 
+				12: "Inventory Shortage-Vendor", 
+				13: "Inventory Shortage-Warehouse", 
+				14: "National Holiday", 
+				15: "Payment-Logistic Import", 
+				16: "Payment-Logistic Local", 
+				17: "Payment-Vendor", 
+				18: "Production L/T-Vendor", 
+				19: "Shipment-Vendor", 
+				20: "Urgent", 
+			},
+			operators: ['contain_any', 'is_null', 'is_not_null'],
+		},
+	*}
+	{* Initialization *}
+	
 	function update_so_etd(data) {
 		var col = [], row = [], a = [];
 		var form1 = BSHelper.Form({ autocomplete:"off" });
@@ -89,7 +173,7 @@
 		a.push(BSHelper.LineDesc({ label:"Expected DT Customer", value: data.expected_dt_cust }));
 		col.push( $('<dl class="dl-horizontal">').append(a) ); a = [];
 		col.push(BSHelper.Input({ horz:false, type:"date", label:"ETD", idname:"etd", cls:"auto_ymd", format:"{$.session.date_format}", value: data.etd, required: true }));
-		col.push(BSHelper.Multiselect({ horz:false, label:"Late Reason", idname:"scm_dt_reasons", url:"{$.php.base_url('cashflow/rf_scm_dt_reason')}", value: data.scm_dt_reasons, required: false, remote: true }));
+		col.push(BSHelper.Multiselect({ horz:false, label:"Late Reason", idname:"scm_dt_reasons", url:"{$.php.base_url('cashflow/rf_scm_dt_reason')}", value: data.scm_dt_reason, required: false, remote: true }));
 		col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 		row.push(subCol(12, col)); col = [];
 		form1.append(subRow(row));
