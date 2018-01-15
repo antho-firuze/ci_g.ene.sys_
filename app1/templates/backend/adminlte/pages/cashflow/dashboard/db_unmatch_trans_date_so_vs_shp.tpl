@@ -27,6 +27,7 @@
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '130%',
+		showColumnMenu: false,
 		act_menu: { copy: false, edit: false, delete: false },
 		sub_menu: [],
 		order: ['id desc'],

@@ -24,6 +24,7 @@
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '125%',
+		showColumnMenu: false,
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
 			{ pageid: 189, subKey: 'movement_id', title: 'Outbound Line', },

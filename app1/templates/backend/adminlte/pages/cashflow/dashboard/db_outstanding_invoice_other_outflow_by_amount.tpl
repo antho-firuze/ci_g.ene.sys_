@@ -26,6 +26,7 @@
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '130%',
+		showColumnMenu: false,
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
 			{* { pageid: 122, subKey: 'ar_ap_id', title: 'Outflow Line', }, *}
