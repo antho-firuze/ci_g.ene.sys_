@@ -46,28 +46,28 @@
 	
 	{* Line Chart *}
 	col = [], row = [], boxes = [];
-	var boxInfo0 = BSHelper.Box({ type:"info", header: true, title: "Invoice Customer Plan vs Release", icon: "" });
+	var boxInfo0 = BSHelper.Box({ type:"info", header: true, title: "Invoice Customer Plan vs Actual", icon: "" });
 	col.push('<div class="chart"><canvas id="lineChart" style="height:200px" /></div>');
 	row.push(subCol(12, col)); col = [];
 	boxInfo0.find('.box-body').append(subRow(row));
 	boxes.push(subCol(12, boxInfo0));
 	{* Line Chart 2*}
 	col = [], row = [];
-	var boxInfo02 = BSHelper.Box({ type:"info", header: true, title: "Invoice Inflow Plan vs Release", icon: "" });
+	var boxInfo02 = BSHelper.Box({ type:"info", header: true, title: "Invoice Inflow Plan vs Actual", icon: "" });
 	col.push('<div class="chart"><canvas id="lineChart2" style="height:200px" /></div>');
 	row.push(subCol(12, col)); col = [];
 	boxInfo02.find('.box-body').append(subRow(row));
 	boxes.push(subCol(12, boxInfo02));
 	{* Line Chart 3*}
 	col = [], row = [];
-	var boxInfo03 = BSHelper.Box({ type:"info", header: true, title: "Invoice Vendor Plan vs Release", icon: "" });
+	var boxInfo03 = BSHelper.Box({ type:"info", header: true, title: "Invoice Vendor Plan vs Actual", icon: "" });
 	col.push('<div class="chart"><canvas id="lineChart3" style="height:200px" /></div>');
 	row.push(subCol(12, col)); col = [];
 	boxInfo03.find('.box-body').append(subRow(row));
 	boxes.push(subCol(12, boxInfo03));
 	{* Line Chart 4*}
 	col = [], row = [];
-	var boxInfo04 = BSHelper.Box({ type:"info", header: true, title: "Invoice Outflow Plan vs Release", icon: "" });
+	var boxInfo04 = BSHelper.Box({ type:"info", header: true, title: "Invoice Outflow Plan vs Actual", icon: "" });
 	col.push('<div class="chart"><canvas id="lineChart4" style="height:200px" /></div>');
 	row.push(subCol(12, col)); col = [];
 	boxInfo04.find('.box-body').append(subRow(row));
@@ -110,8 +110,9 @@
 	$(".content").append(subRow(boxes));
 	
 	{* Initialization *}
-	var format_money = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
-	var format_percent = function(value){ return accounting.formatMoney(value, { symbol: "%", format: "%v%s" }) };
+	{* var format_money = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") }; *}
+	var format_money = function(money){ return accounting.formatMoney(money, '', 0, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
+	var format_percent = function(value){ return accounting.formatMoney(value, { symbol: "%", precision: 1, format: "%v%s" }) };
 	var start = moment().startOf('year');
 	var end = moment().endOf('year');
 	{* //Date range as a button *}
@@ -173,13 +174,11 @@
  	{* }; *}
 	{* var pieChart = new Chart("pieChart", { type: "pie",	data: {}, options: optPieChart1 }); *}
 	
-	$("ul.nav-stacked li").on("click", function(){
+	$("ul.nav-stacked li.item").on("click", function(){
 		$(this).parent().find("li").removeClass("active");
 		$(this).addClass("active");
 
-		var opt = { "all_status":0, "complete":1, "incomplete":2 };
-		var txt = $(this).text().toLowerCase().replace(/\s/g, "_");
-		list_table(opt[txt]);
+		list_table($(this).index()-1);
 	});
 	
 	var result;
@@ -225,8 +224,8 @@
 		datas2 = [];
 		datas3 = [];
 		datas4 = [];
-		var grp = ["","Invoice Customer","Invoice Inflow","Invoice Vendor","Invoice Outflow"];
-		var title = ["Total (By Plan)","Release","Early","Late","Unrelease"];
+		var grp = ["","Invoice Customer (qty)","Invoice Inflow (qty)","Invoice Vendor (qty)","Invoice Outflow (qty)"];
+		var title = ["Plan","Act (Ontime)","Act (Early)","Act (Late)","Not Yet"];
 		var field = ["","total_release","total_release_early","total_release_late","total_unrelease"];
 		var field_percent = ["","total_release_percent","total_release_early_percent","total_release_late_percent","total_unrelease_percent"];
 
@@ -238,7 +237,9 @@
 			for (var j = 1; j < field.length; j++){
 				var v = result.data.total_by_document[field[j]+i];
 				var vp = result.data.total_by_document[field_percent[j]+i];
-				window['datas'+i].push({ title: title[j], link: "#", value: '('+ format_percent(vp) +') ' + v });
+				var fmt = v + ' ('+ format_percent(vp) +')';
+				{* var fmt = '<div><div><span>'+v+'</span></div><div style=""><span>'+format_percent(vp)+'</span></div></div>'; *}
+				window['datas'+i].push({ title: title[j], link: "#", value: fmt });
 			}
 		}
 		
@@ -260,8 +261,8 @@
 		datas2 = [];
 		datas3 = [];
 		datas4 = [];
-		var grp = ["","Invoice Customer","Invoice Inflow","Invoice Vendor","Invoice Outflow"];
-		var title = ["Total (By Plan)","Release","Early","Late","Unrelease"];
+		var grp = ["","Invoice Customer (amt)","Invoice Inflow (amt)","Invoice Vendor (amt)","Invoice Outflow (amt)"];
+		var title = ["Plan","Act (Ontime)","Act (Early)","Act (Late)","Not Yet"];
 		var field = ["","total_release","total_release_early","total_release_late","total_unrelease"];
 		var field_percent = ["","total_release_percent","total_release_early_percent","total_release_late_percent","total_unrelease_percent"];
 
@@ -273,7 +274,8 @@
 			for (var j = 1; j < field.length; j++){
 				var v = result.data.total_by_amount[field[j]+i];
 				var vp = result.data.total_by_amount[field_percent[j]+i];
-				window['datas'+i].push({ title: title[j], link: "#", value: '('+ format_percent(vp) +') ' + format_money(v) });
+				var fmt = format_money(v) + ' ('+ format_percent(vp) +')';
+				window['datas'+i].push({ title: title[j], link: "#", value: fmt });
 			}
 		}
 		
@@ -302,8 +304,7 @@
 	}
 	
 	function list_table(opt){
-		var opt_data_list = ['so_late_all','so_late_complete','so_late_incomplete'];
-		var opt_data_chart = ['so_late_all_chart','so_late_complete_chart','so_late_incomplete_chart',];
+		var opt_data_list = ['shipment_all','estimate_late_shipment','estimate_ontime_shipment'];
 		col = []; 
 		boxInfo2.find('.box-body').empty();
 
@@ -311,10 +312,10 @@
 		$.each(result.data[opt_data_list[opt]], function(i, v){
 			datas.push({ title: v.name, link: "#", value: v.count +' ('+ format_percent(v.percent) +')' });
 		});
-		col.push(BSHelper.List({ title: "Reasons", title_right: "Value (%)", dataList: datas }));
+		col.push(BSHelper.List({ title: "Description", title_right: "Value (%)", dataList: datas }));
 		boxInfo2.find('.box-body').append(subRow(subCol(12, col)));
 		
-		pieChart.data = result.data[opt_data_chart[opt]];
+		pieChart.data = result.data[(opt_data_list[opt]+'_chart')];
 		pieChart.update();
 	}
 	

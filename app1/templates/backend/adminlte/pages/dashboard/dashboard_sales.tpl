@@ -38,8 +38,8 @@
 	col = [], row = [];
 	col.push(BSHelper.WidgetBox3({ idname:"box3_total_so", title:"Total SO", color:"bg-blue", value:0, icon:"ion ion-pie-graph", link:"", tooltip:"" }));
 	col.push(BSHelper.WidgetBox3({ idname:"box3_total_so_amount", title:"Total SO (Rp)", color:"bg-blue", value:0, icon:"ion ion-cash", link:"", tooltip:"" }));
-	col.push(BSHelper.WidgetBox3({ idname:"box3_total_so_late", title:"Total (Late)", color:"bg-red", value:0, icon:"ion ion-clock", link:"", tooltip:"" }));
-	col.push(BSHelper.WidgetBox3({ idname:"box3_total_so_penalty", title:"Total Penalty (Rp)", color:"bg-red", value:0, icon:"ion ion-alert-circled", link:"", tooltip:"" }));
+	col.push(BSHelper.WidgetBox3({ idname:"box3_total_so_late", title:"Estimate Late Shipment", color:"bg-red", value:0, icon:"ion ion-clock", link:"", tooltip:"" }));
+	col.push(BSHelper.WidgetBox3({ idname:"box3_total_so_penalty", title:"Estimate Penalty (Rp)", color:"bg-red", value:0, icon:"ion ion-alert-circled", link:"", tooltip:"" }));
 	{* row.push(subCol(3, col)); col = []; *}
 	{* row.push(subCol(12, col)); col = []; *}
 	$(".content").append(subRow(col));	
@@ -48,14 +48,14 @@
 	
 	{* Chart Sales Order *}
 	col = [], row = [], boxes = [];
-	var boxInfo0 = BSHelper.Box({ type:"info", header: true, title: "Sales Orders VS Late", icon: "" });
+	var boxInfo0 = BSHelper.Box({ type:"info", header: true, title: "Sales Orders VS Estimate Late Shipment", icon: "" });
 	col.push('<div class="chart"><canvas id="lineChart" style="height:200px" /></div>');
 	row.push(subCol(12, col)); col = [];
 	boxInfo0.find('.box-body').append(subRow(row));
 	boxes.push(subCol(12, boxInfo0));
 	col = [], row = [];
 	var boxInfo1 = BSHelper.Box({ type:"info", });
-	col.push(BSHelper.Stacked({ title: "Sales Order Late", dataList:[{ title: "All Status", link: "#", active: true },{ title: "Complete", link: "#" },{ title: "Incomplete", link: "#" }] }));
+	col.push(BSHelper.Stacked({ title: "Estimate Shipment", dataList:[{ title: "All", link: "#", active: true },{ title: "Estimate Late Shipment", link: "#" },{ title: "Estimate Ontime Shipment", link: "#" }] }));
 	boxInfo1.find('.box-body').append(subRow(subCol(12, col)));
 	boxes.push(subCol(3, boxInfo1));
 	col = [], row = [];
@@ -130,13 +130,11 @@
  	};
 	var pieChart = new Chart("pieChart", { type: "pie",	data: {}, options: optPieChart1 });
 	
-	$("ul.nav-stacked li").on("click", function(){
+	$("ul.nav-stacked li.item").on("click", function(){
 		$(this).parent().find("li").removeClass("active");
 		$(this).addClass("active");
 
-		var opt = { "all_status":0, "complete":1, "incomplete":2 };
-		var txt = $(this).text().toLowerCase().replace(/\s/g, "_");
-		list_table(opt[txt]);
+		list_table($(this).index()-1);
 	});
 	
 	var result;
@@ -184,8 +182,7 @@
 	}
 	
 	function list_table(opt){
-		var opt_data_list = ['so_late_all','so_late_complete','so_late_incomplete'];
-		var opt_data_chart = ['so_late_all_chart','so_late_complete_chart','so_late_incomplete_chart',];
+		var opt_data_list = ['shipment_all','estimate_late_shipment','estimate_ontime_shipment'];
 		col = []; 
 		boxInfo2.find('.box-body').empty();
 
@@ -193,10 +190,10 @@
 		$.each(result.data[opt_data_list[opt]], function(i, v){
 			datas.push({ title: v.name, link: "#", value: v.count +' ('+ format_percent(v.percent) +')' });
 		});
-		col.push(BSHelper.List({ title: "Reasons", title_right: "Value (%)", dataList: datas }));
+		col.push(BSHelper.List({ title: "Description", title_right: "Value (%)", dataList: datas }));
 		boxInfo2.find('.box-body').append(subRow(subCol(12, col)));
 		
-		pieChart.data = result.data[opt_data_chart[opt]];
+		pieChart.data = result.data[(opt_data_list[opt]+'_chart')];
 		pieChart.update();
 	}
 	

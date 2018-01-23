@@ -271,8 +271,8 @@
 			var link = o.dataList[i]['link'];
 			var title = o.dataList[i]['title'];
 			var content = o.dataList[i]['content'];
-			var active = o.dataList[i]['active'] ? ' class="active"' : '';
-			container.find('ul').append( $('<li'+active+'><a href="javascript:void(0);">'+title+'</a></li>') );
+			var active = o.dataList[i]['active'] ? ' active' : '';
+			container.find('ul').append( $('<li class="item'+active+'"><a href="javascript:void(0);">'+title+'</a></li>') );
 		});
 		
 		return container;

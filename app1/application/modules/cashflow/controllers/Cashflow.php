@@ -2915,6 +2915,7 @@ class Cashflow extends Getmeb
 					$this->xresponse(FALSE, ['data' => [], 'message' => lang('error_had_detail')], 401);
 				}
 			}
+			/* Check requisition eta */
 			if ($this->params->event == 'pre_post_put'){
 				$request = $this->base_model->getValue('*', 'cf_request', 'id', $this->params->request_id);
 				if ($this->mixed_data['eta'] >= $request->eta) {
@@ -4765,7 +4766,7 @@ class Cashflow extends Getmeb
 				/* datasets for line chart so vs so_late */
 				$result['data']['linechart']['labels'] = $arr['labels'];
 				$result['data']['linechart']['datasets'][] = ['label' => 'Sales Order', 'borderColor' => get_rgba(), 'data' => $arr['data1']];
-				$result['data']['linechart']['datasets'][] = ['label' => 'Sales Order (Late)', 'borderColor' => get_rgba(), 'data' => $arr['data2']];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Estimate Late Shipment', 'borderColor' => get_rgba(), 'data' => $arr['data2']];
 			}	
 			/* total_so */
 			$str = "select coalesce(count(*), 0) as total from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between '$fdate' and '$tdate';";
@@ -4782,8 +4783,8 @@ class Cashflow extends Getmeb
 			trim(to_char(coalesce(sum(grand_total), 0), '99G999G999G999')) as total from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between '$fdate' and '$tdate';";
 			$str = translate_variable($str);
 			$row = $this->db->query($str)->row();
-			$result['data']['total_so_amount'] = $row->sorten;
-			/* total_so_late */
+			$result['data']['total_so_amount'] = $row->total;
+			/* estimate_late_shipment */
 			$str = "select coalesce(count(*), 0) as total, 
 			100 * count(*) / coalesce((select coalesce(count(*), 0) as total from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between '$fdate' and '$tdate'), 1)::float as percent 
 			from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust and doc_date between '$fdate' and '$tdate';";
@@ -4791,7 +4792,7 @@ class Cashflow extends Getmeb
 			$row = $this->db->query($str)->row();
 			$result['data']['total_so_late'] = $row->total;
 			$result['data']['total_so_late_percent'] = $row->percent;
-			/* total_so_penalty */
+			/* estimate_penalty */
 			$str = "select trim(to_char(coalesce(sum(
 			case when ((etd - expected_dt_cust) * penalty_percent * grand_total) > (max_penalty_percent * grand_total) 
 			then (max_penalty_percent * grand_total) 
@@ -4807,74 +4808,124 @@ class Cashflow extends Getmeb
 			$row = $this->db->query($str)->row();
 			$result['data']['total_so_penalty'] = $row->total;
 			$result['data']['total_so_penalty_percent'] = $row->percent;
-			/* SO Late All */
+			
+			
+			/* Shipment All */
+			$result['data']['shipment_all'] = [
+				0	=>	['name' => 'Estimate Late Shipment', 'count' => $result['data']['total_so_late'], 'percent' => $result['data']['total_so_late_percent']],
+				1	=>	['name' => 'Estimate Ontime Shipment', 'count' => $result['data']['total_so'] - $result['data']['total_so_late'], 'percent' => 100-$result['data']['total_so_late_percent']],
+			];
+			$result['data']['shipment_all_chart']['labels'] = ['Estimate Late Shipment', 'Estimate Ontime Shipment'];
+			$result['data']['shipment_all_chart']['datasets'][] = ['label' => 'Description', 'backgroundColor' => [get_rgba(), get_rgba()], 'data' => [$result['data']['total_so_late'], $result['data']['total_so'] - $result['data']['total_so_late']]];
+			
+			/* Estimate Late Shipment */
 			$str = "with el as (
 			select unnest(scm_dt_reasons) as reason, doc_no, doc_date from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust 
 			and doc_date between '$fdate' and '$tdate'
 			union all
-			select 0 as reason, doc_no, doc_date from cf_order t1 where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust and scm_dt_reasons is null
+			select 0 as reason, doc_no, doc_date from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust and scm_dt_reasons is null
 			and doc_date between '$fdate' and '$tdate'
 			) select coalesce((select name from rf_scm_dt_reason where id = el.reason), 'Undefined') as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from el group by 1 order by 2 desc;";
 			$str = translate_variable($str);
 			$qry = $this->db->query($str);
-			$result['data']['so_late_all'] = $qry->result();
-			/* SO Late All (Chart) */
-			$arr['labels'] = []; $arr['data1'] = [];
+			$arr['labels'] = []; $arr['data1'] = []; $arr['color'] = [];
 			foreach($qry->result() as $row){
 				$arr['labels'][] = $row->name;
 				$arr['data1'][] = $row->count;
 				$arr['color'][] = get_rgba();
 			}
-			$result['data']['so_late_all_chart']['labels'] = $arr['labels'];
-			$result['data']['so_late_all_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
-			/* SO Late Complete */
+			$result['data']['estimate_late_shipment'] = $qry->result();
+			$result['data']['estimate_late_shipment_chart']['labels'] = $arr['labels'];
+			$result['data']['estimate_late_shipment_chart']['datasets'][] = ['label' => 'Description', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
+			/* Estimate Ontime Shipment */
 			$str = "with el as (
-			select unnest(scm_dt_reasons) as reason, doc_no, doc_date from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust 
-			and (select count(*) as ship from cf_inout_line a1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and exists(select 1 from cf_order_line where id = a1.order_line_id and order_id = t1.id)) >= 
-			(select count(*) as line from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = t1.id group by order_id)
+			select unnest(scm_dt_reasons) as reason, doc_no, doc_date from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd <= expected_dt_cust 
 			and doc_date between '$fdate' and '$tdate'
 			union all
-			select 0 as reason, doc_no, doc_date from cf_order t1 where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust and scm_dt_reasons is null
-			and (select count(*) as ship from cf_inout_line a1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and exists(select 1 from cf_order_line where id = a1.order_line_id and order_id = t1.id)) >= 
-			(select count(*) as line from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = t1.id group by order_id)
+			select 0 as reason, doc_no, doc_date from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd <= expected_dt_cust and scm_dt_reasons is null
 			and doc_date between '$fdate' and '$tdate'
 			) select coalesce((select name from rf_scm_dt_reason where id = el.reason), 'Undefined') as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from el group by 1 order by 2 desc;";
 			$str = translate_variable($str);
 			$qry = $this->db->query($str);
-			$result['data']['so_late_complete'] = $qry->result();
-			/* SO Late All (Chart) */
-			$arr['labels'] = []; $arr['data1'] = [];
+			$arr['labels'] = []; $arr['data1'] = []; $arr['color'] = [];
 			foreach($qry->result() as $row){
 				$arr['labels'][] = $row->name;
 				$arr['data1'][] = $row->count;
 				$arr['color'][] = get_rgba();
 			}
-			$result['data']['so_late_complete_chart']['labels'] = $arr['labels'];
-			$result['data']['so_late_complete_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
-			/* SO Late Incomplete */
-			$str = "with el as (
-			select unnest(scm_dt_reasons) as reason, doc_no, doc_date from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust 
-			and (select count(*) as ship from cf_inout_line a1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and exists(select 1 from cf_order_line where id = a1.order_line_id and order_id = t1.id)) < 
-			(select count(*) as line from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = t1.id group by order_id)
-			and doc_date between '$fdate' and '$tdate'
-			union all
-			select 0 as reason, doc_no, doc_date from cf_order t1 where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust and scm_dt_reasons is null
-			and (select count(*) as ship from cf_inout_line a1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and exists(select 1 from cf_order_line where id = a1.order_line_id and order_id = t1.id)) < 
-			(select count(*) as line from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = t1.id group by order_id)
-			and doc_date between '$fdate' and '$tdate'
-			) select coalesce((select name from rf_scm_dt_reason where id = el.reason), 'Undefined') as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from el group by 1 order by 2 desc;";
-			$str = translate_variable($str);
-			$qry = $this->db->query($str);
-			$result['data']['so_late_incomplete'] = $qry->result();
-			/* SO Late All (Chart) */
-			$arr['labels'] = []; $arr['data1'] = [];
-			foreach($qry->result() as $row){
-				$arr['labels'][] = $row->name;
-				$arr['data1'][] = $row->count;
-				$arr['color'][] = get_rgba();
-			}
-			$result['data']['so_late_incomplete_chart']['labels'] = $arr['labels'];
-			$result['data']['so_late_incomplete_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
+			$result['data']['estimate_ontime_shipment'] = $qry->result();
+			$result['data']['estimate_ontime_shipment_chart']['labels'] = $arr['labels'];
+			$result['data']['estimate_ontime_shipment_chart']['datasets'][] = ['label' => 'Description', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
+			
+			// /* SO Late All */
+			// $str = "with el as (
+			// select unnest(scm_dt_reasons) as reason, doc_no, doc_date from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust 
+			// and doc_date between '$fdate' and '$tdate'
+			// union all
+			// select 0 as reason, doc_no, doc_date from cf_order t1 where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust and scm_dt_reasons is null
+			// and doc_date between '$fdate' and '$tdate'
+			// ) select coalesce((select name from rf_scm_dt_reason where id = el.reason), 'Undefined') as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from el group by 1 order by 2 desc;";
+			// $str = translate_variable($str);
+			// $qry = $this->db->query($str);
+			// $result['data']['so_late_all'] = $qry->result();
+			// /* SO Late All (Chart) */
+			// $arr['labels'] = []; $arr['data1'] = [];
+			// foreach($qry->result() as $row){
+				// $arr['labels'][] = $row->name;
+				// $arr['data1'][] = $row->count;
+				// $arr['color'][] = get_rgba();
+			// }
+			// $result['data']['so_late_all_chart']['labels'] = $arr['labels'];
+			// $result['data']['so_late_all_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
+			
+			// /* SO Late Complete */
+			// $str = "with el as (
+			// select unnest(scm_dt_reasons) as reason, doc_no, doc_date from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust 
+			// and (select count(*) as ship from cf_inout_line a1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and exists(select 1 from cf_order_line where id = a1.order_line_id and order_id = t1.id)) >= 
+			// (select count(*) as line from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = t1.id group by order_id)
+			// and doc_date between '$fdate' and '$tdate'
+			// union all
+			// select 0 as reason, doc_no, doc_date from cf_order t1 where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust and scm_dt_reasons is null
+			// and (select count(*) as ship from cf_inout_line a1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and exists(select 1 from cf_order_line where id = a1.order_line_id and order_id = t1.id)) >= 
+			// (select count(*) as line from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = t1.id group by order_id)
+			// and doc_date between '$fdate' and '$tdate'
+			// ) select coalesce((select name from rf_scm_dt_reason where id = el.reason), 'Undefined') as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from el group by 1 order by 2 desc;";
+			// $str = translate_variable($str);
+			// $qry = $this->db->query($str);
+			// $result['data']['so_late_complete'] = $qry->result();
+			// /* SO Late All (Chart) */
+			// $arr['labels'] = []; $arr['data1'] = [];
+			// foreach($qry->result() as $row){
+				// $arr['labels'][] = $row->name;
+				// $arr['data1'][] = $row->count;
+				// $arr['color'][] = get_rgba();
+			// }
+			// $result['data']['so_late_complete_chart']['labels'] = $arr['labels'];
+			// $result['data']['so_late_complete_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
+			// /* SO Late Incomplete */
+			// $str = "with el as (
+			// select unnest(scm_dt_reasons) as reason, doc_no, doc_date from cf_order t1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust 
+			// and (select count(*) as ship from cf_inout_line a1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and exists(select 1 from cf_order_line where id = a1.order_line_id and order_id = t1.id)) < 
+			// (select count(*) as line from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = t1.id group by order_id)
+			// and doc_date between '$fdate' and '$tdate'
+			// union all
+			// select 0 as reason, doc_no, doc_date from cf_order t1 where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust and scm_dt_reasons is null
+			// and (select count(*) as ship from cf_inout_line a1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and exists(select 1 from cf_order_line where id = a1.order_line_id and order_id = t1.id)) < 
+			// (select count(*) as line from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = t1.id group by order_id)
+			// and doc_date between '$fdate' and '$tdate'
+			// ) select coalesce((select name from rf_scm_dt_reason where id = el.reason), 'Undefined') as name, count(*), 100 * count(*) / coalesce(sum(count(*)) over(), 1) as percent from el group by 1 order by 2 desc;";
+			// $str = translate_variable($str);
+			// $qry = $this->db->query($str);
+			// $result['data']['so_late_incomplete'] = $qry->result();
+			// /* SO Late All (Chart) */
+			// $arr['labels'] = []; $arr['data1'] = [];
+			// foreach($qry->result() as $row){
+				// $arr['labels'][] = $row->name;
+				// $arr['data1'][] = $row->count;
+				// $arr['color'][] = get_rgba();
+			// }
+			// $result['data']['so_late_incomplete_chart']['labels'] = $arr['labels'];
+			// $result['data']['so_late_incomplete_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
 			$this->xresponse(TRUE, $result);
 		}
 	}
@@ -4966,32 +5017,32 @@ class Cashflow extends Getmeb
 				}
 				/* datasets for line chart */
 				$result['data']['linechart']['labels'] = $arr['labels'];
-				$result['data']['linechart']['datasets'][] = ['label' => 'Invoice Customer', 'borderColor' => get_rgba(), 'data' => $arr['data1']];
-				$result['data']['linechart']['datasets'][] = ['label' => 'Release', 'borderColor' => get_rgba(), 'data' => $arr['data2']];
-				$result['data']['linechart']['datasets'][] = ['label' => 'Release Early', 'borderColor' => get_rgba(), 'data' => $arr['data3']];
-				$result['data']['linechart']['datasets'][] = ['label' => 'Release Late', 'borderColor' => get_rgba(), 'data' => $arr['data4']];
-				$result['data']['linechart']['datasets'][] = ['label' => 'Unrelease', 'borderColor' => get_rgba(), 'data' => $arr['data5']];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Invoice Customer Plan', 'borderColor' => get_rgba('red'), 'data' => $arr['data1']];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Act (Ontime)', 'borderColor' => get_rgba('blue'), 'data' => $arr['data2']];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Act (Early)', 'borderColor' => get_rgba('yellow'), 'data' => $arr['data3']];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Act (Late)', 'borderColor' => get_rgba('green'), 'data' => $arr['data4']];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Not Yet', 'borderColor' => get_rgba('purple'), 'data' => $arr['data5']];
 				/* datasets for line chart2 */
 				$result['data']['linechart2']['labels'] = $arr2['labels'];
-				$result['data']['linechart2']['datasets'][] = ['label' => 'Invoice Inflow', 'borderColor' => get_rgba(), 'data' => $arr2['data1']];
-				$result['data']['linechart2']['datasets'][] = ['label' => 'Release', 'borderColor' => get_rgba(), 'data' => $arr2['data2']];
-				$result['data']['linechart2']['datasets'][] = ['label' => 'Release Early', 'borderColor' => get_rgba(), 'data' => $arr2['data3']];
-				$result['data']['linechart2']['datasets'][] = ['label' => 'Release Late', 'borderColor' => get_rgba(), 'data' => $arr2['data4']];
-				$result['data']['linechart2']['datasets'][] = ['label' => 'Unrelease', 'borderColor' => get_rgba(), 'data' => $arr2['data5']];
+				$result['data']['linechart2']['datasets'][] = ['label' => 'Invoice Inflow Plan', 'borderColor' => get_rgba('red'), 'data' => $arr2['data1']];
+				$result['data']['linechart2']['datasets'][] = ['label' => 'Act (Ontime)', 'borderColor' => get_rgba('blue'), 'data' => $arr2['data2']];
+				$result['data']['linechart2']['datasets'][] = ['label' => 'Act (Early)', 'borderColor' => get_rgba('yellow'), 'data' => $arr2['data3']];
+				$result['data']['linechart2']['datasets'][] = ['label' => 'Act (Late)', 'borderColor' => get_rgba('green'), 'data' => $arr2['data4']];
+				$result['data']['linechart2']['datasets'][] = ['label' => 'Not Yet', 'borderColor' => get_rgba('purple'), 'data' => $arr2['data5']];
 				/* datasets for line chart3 */
 				$result['data']['linechart3']['labels'] = $arr3['labels'];
-				$result['data']['linechart3']['datasets'][] = ['label' => 'Invoice Vendor', 'borderColor' => get_rgba(), 'data' => $arr3['data1']];
-				$result['data']['linechart3']['datasets'][] = ['label' => 'Release', 'borderColor' => get_rgba(), 'data' => $arr3['data2']];
-				$result['data']['linechart3']['datasets'][] = ['label' => 'Release Early', 'borderColor' => get_rgba(), 'data' => $arr3['data3']];
-				$result['data']['linechart3']['datasets'][] = ['label' => 'Release Late', 'borderColor' => get_rgba(), 'data' => $arr3['data4']];
-				$result['data']['linechart3']['datasets'][] = ['label' => 'Unrelease', 'borderColor' => get_rgba(), 'data' => $arr3['data5']];
+				$result['data']['linechart3']['datasets'][] = ['label' => 'Invoice Vendor Plan', 'borderColor' => get_rgba('red'), 'data' => $arr3['data1']];
+				$result['data']['linechart3']['datasets'][] = ['label' => 'Act (Ontime)', 'borderColor' => get_rgba('blue'), 'data' => $arr3['data2']];
+				$result['data']['linechart3']['datasets'][] = ['label' => 'Act (Early)', 'borderColor' => get_rgba('yellow'), 'data' => $arr3['data3']];
+				$result['data']['linechart3']['datasets'][] = ['label' => 'Act (Late)', 'borderColor' => get_rgba('green'), 'data' => $arr3['data4']];
+				$result['data']['linechart3']['datasets'][] = ['label' => 'Not Yet', 'borderColor' => get_rgba('purple'), 'data' => $arr3['data5']];
 				/* datasets for line chart4 */
 				$result['data']['linechart4']['labels'] = $arr4['labels'];
-				$result['data']['linechart4']['datasets'][] = ['label' => 'Invoice Outflow', 'borderColor' => get_rgba(), 'data' => $arr4['data1']];
-				$result['data']['linechart4']['datasets'][] = ['label' => 'Release', 'borderColor' => get_rgba(), 'data' => $arr4['data2']];
-				$result['data']['linechart4']['datasets'][] = ['label' => 'Release Early', 'borderColor' => get_rgba(), 'data' => $arr4['data3']];
-				$result['data']['linechart4']['datasets'][] = ['label' => 'Release Late', 'borderColor' => get_rgba(), 'data' => $arr4['data4']];
-				$result['data']['linechart4']['datasets'][] = ['label' => 'Unrelease', 'borderColor' => get_rgba(), 'data' => $arr4['data5']];
+				$result['data']['linechart4']['datasets'][] = ['label' => 'Invoice Outflow Plan', 'borderColor' => get_rgba('red'), 'data' => $arr4['data1']];
+				$result['data']['linechart4']['datasets'][] = ['label' => 'Act (Ontime)', 'borderColor' => get_rgba('blue'), 'data' => $arr4['data2']];
+				$result['data']['linechart4']['datasets'][] = ['label' => 'Act (Early)', 'borderColor' => get_rgba('yellow'), 'data' => $arr4['data3']];
+				$result['data']['linechart4']['datasets'][] = ['label' => 'Act (Late)', 'borderColor' => get_rgba('green'), 'data' => $arr4['data4']];
+				$result['data']['linechart4']['datasets'][] = ['label' => 'Not Yet', 'borderColor' => get_rgba('purple'), 'data' => $arr4['data5']];
 			}	
 			/* total & release by document */
 			$str = "with tmp as (
