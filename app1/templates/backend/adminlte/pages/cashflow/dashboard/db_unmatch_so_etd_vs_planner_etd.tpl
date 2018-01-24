@@ -45,8 +45,8 @@
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"estimation_penalty_amount", title:"Estimation Penalty Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"200px", orderable:true, data:"reason_name", title:"Late Reason", createdCell: function (td, cellData, rowData, row, col) { $(td).css({ 'text-overflow':'unset', 'overflow-x':'auto' }); } },
 			{ width:"100px", orderable:true, data:"category_name", title:"Category" },
-			{ width:"250px", orderable:true, data:"description", title:"Description" },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"sub_total", title:"SO Taxable (Amount)", render: function(data, type, row){ return format_money(data); } },
+			{ width:"250px", orderable:true, data:"description", title:"Description" },
 		],
 	};
 	

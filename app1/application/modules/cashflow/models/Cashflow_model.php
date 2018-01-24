@@ -205,6 +205,8 @@ class Cashflow_Model extends CI_Model
 		(select name from a_org where id = t1.org_id) as org_name, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
 		t1.*, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence,
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name,
 		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
 		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
 		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
@@ -368,7 +370,8 @@ class Cashflow_Model extends CI_Model
 		(select name from a_org where id = t1.org_id) as org_name, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
 		t1.*, 
-		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name,
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
 		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
 		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
 		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
@@ -378,6 +381,7 @@ class Cashflow_Model extends CI_Model
 		array_to_string(scm_dt_reasons, ',') as scm_dt_reasons,
 		(select string_agg(name, E',') from rf_scm_dt_reason where id = ANY(t1.scm_dt_reasons)) as reason_name,
 		coalesce(etd - expected_dt_cust, 0) as estimation_late,
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name,
 		case 
 		when ((etd - expected_dt_cust) * penalty_percent * grand_total) > (max_penalty_percent * grand_total) 
 		then (max_penalty_percent * grand_total) 
@@ -752,7 +756,7 @@ class Cashflow_Model extends CI_Model
 		}
 		return TRUE;
 	}
-	
+
 	function db_unmatch_crp_so_vs_invoice($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
@@ -767,7 +771,7 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date, 
 		(select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, 
 		(select to_char(received_plan_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as rcv_plan_date, 
-		coalesce(current_date-received_plan_date, 0) as late,
+		coalesce(received_plan_date-(select received_plan_date from cf_order_plan where id = t1.order_plan_id), 0) as late,
 		(select doc_no from cf_order where id = t1.order_id) as so_no, 
 		(select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, 
 		(select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, 		
@@ -810,7 +814,7 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date, 
 		(select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, 
 		(select to_char(payment_plan_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as pay_plan_date, 
-		coalesce(current_date-payment_plan_date, 0) as late,
+		coalesce(payment_plan_date-(select payment_plan_date from cf_order_plan where id = t1.order_plan_id), 0) as late,
 		(select doc_no from cf_order where id = t1.order_id) as po_no, 
 		(select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as po_date, 
 		(select to_char(eta, '".$this->session->date_format."') from cf_order where id = t1.order_id) as eta, 
@@ -852,7 +856,7 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date, 
 		(select doc_no from cf_ar_ap where id = t1.ar_ap_id) as ar_no, 
 		(select to_char(received_plan_date, '".$this->session->date_format."') from cf_ar_ap_plan where id = t1.ar_ap_plan_id) as rcv_plan_date,
-		coalesce(current_date-received_plan_date, 0) as late,
+		coalesce(received_plan_date-(select received_plan_date from cf_ar_ap_plan where id = t1.ar_ap_plan_id), 0) as late,
 		(select to_char(doc_date, '".$this->session->date_format."') from cf_ar_ap where id = t1.ar_ap_id) as ar_date, 
 		(select to_char(doc_date, '".$this->session->date_format."') from cf_ar_ap_plan where id = t1.ar_ap_plan_id) as invoice_plan_date";
 
@@ -893,7 +897,7 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date, 
 		(select doc_no from cf_ar_ap where id = t1.ar_ap_id) as ap_no, 
 		(select to_char(payment_plan_date, '".$this->session->date_format."') from cf_ar_ap_plan where id = t1.ar_ap_plan_id) as pay_plan_date,
-		coalesce(current_date-payment_plan_date, 0) as late,
+		coalesce(payment_plan_date-(select payment_plan_date from cf_ar_ap_plan where id = t1.ar_ap_plan_id), 0) as late,	
 		(select to_char(doc_date, '".$this->session->date_format."') from cf_ar_ap where id = t1.ar_ap_id) as ap_date, 
 		(select to_char(doc_date, '".$this->session->date_format."') from cf_ar_ap_plan where id = t1.ar_ap_plan_id) as invoice_plan_date";
 		$params['table'] 	= "(
@@ -978,7 +982,7 @@ class Cashflow_Model extends CI_Model
 			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and (select orgtrx_id from cf_order f1 where id = t1.order_id) = ".$this->session->orgtrx_id." and 
 			is_active = '1' and is_deleted = '0' and exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id) 
 			group by 1
-			) t2 inner join cf_order t1 on t2.order_id = t1.id where received_date > eta and extract(month from eta) = extract(month from current_date) 
+			) t2 inner join cf_order t1 on t2.order_id = t1.id where received_date > eta and extract(month from eta) = extract(month from current_date) and extract(year from eta) = extract(year from current_date)
 		) t1";
 		return $this->base_model->mget_rec($params);
 	}
@@ -1069,7 +1073,7 @@ class Cashflow_Model extends CI_Model
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
-	
+		
 	function db_late_invoice_vs_bank_received($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
@@ -1079,6 +1083,7 @@ class Cashflow_Model extends CI_Model
 		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
 		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
 		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		(received_date - received_plan_date) as late,
 		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
 		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
 		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
@@ -1094,7 +1099,7 @@ class Cashflow_Model extends CI_Model
 					client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 					is_active = '1' and is_deleted = '0' and is_receipt = '1' 
 				) t1
-				where extract(month from received_plan_date) = extract(month from current_date) and (received_date > received_plan_date or received_date is null)
+				where (doc_date is not null and received_date is not null and (received_date > received_plan_date or received_plan_date > current_date) and (extract(month from received_plan_date) = extract(month from current_date) and extract(year from received_plan_date) = extract(year from current_date)))
 			) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
@@ -1109,6 +1114,7 @@ class Cashflow_Model extends CI_Model
 		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
 		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
 		(select po_top from c_bpartner where id = t1.bpartner_id) as po_top, 
+		(payment_date - payment_plan_date) as late,
 		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
 		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
 		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
@@ -1123,7 +1129,7 @@ class Cashflow_Model extends CI_Model
 					client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 					is_active = '1' and is_deleted = '0' and is_receipt = '0' 
 				) t1
-				where (payment_date > payment_plan_date or payment_plan_date > current_date and extract(month from payment_plan_date) = extract(month from current_date)) 
+				where (doc_date is not null and payment_date is not null and (payment_date > payment_plan_date or payment_plan_date > current_date) and (extract(month from payment_plan_date) = extract(month from current_date) and extract(year from payment_plan_date) = extract(year from current_date)))
 			) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
@@ -1485,6 +1491,12 @@ class Cashflow_Model extends CI_Model
 		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
 		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
 		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top,
+		(current_date-received_plan_date) as estimation_late,
+		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date,
+		case 
+		when (current_date-received_plan_date > 0) then 'Over Due' 
+		else 'On Due'
+		end as aging_ar_status,
 		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
 		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
 		$params['table'] 	= "(
@@ -1506,8 +1518,14 @@ class Cashflow_Model extends CI_Model
 		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
 		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
 		(select po_top from c_bpartner where id = t1.bpartner_id) as po_top,
-		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
-		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name,case 
+		(current_date-payment_plan_date) as estimation_late,
+		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date,
+		case 
+		when (current_date-payment_plan_date > 0) then 'Over Due' 
+		else 'On Due'
+		end as aging_ar_status,
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date,
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name,case 
 		when (t1.doc_type = '2') then 'vendor' 
 		when (t1.doc_type = '3') then 'Clearence'
 		when (t1.doc_type = '4') then 'Custom Duty'
@@ -1533,7 +1551,13 @@ class Cashflow_Model extends CI_Model
 		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
 		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
 		(select po_top from c_bpartner where id = t1.bpartner_id) as po_top,
-		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date,
+		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date,
+		(current_date-payment_plan_date) as estimation_late,
+		case 
+		when (current_date-payment_plan_date > 0) then 'Over Due' 
+		else 'On Due'
+		end as aging_ar_status, 
 		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
 		$params['table'] 	= "(
 			select *, (select id as cashbank_line_id from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
@@ -1556,7 +1580,13 @@ class Cashflow_Model extends CI_Model
 		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
 		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
 		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top,
+		(current_date-received_plan_date) as estimation_late,
+		case 
+		when (current_date-received_plan_date > 0) then 'Over Due' 
+		else 'On Due'
+		end as aging_ar_status,
 		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date,
 		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
 		$params['table'] 	= "(
 			select *, (select id as cashbank_line_id from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id ) from cf_invoice f1 where 
@@ -1574,7 +1604,10 @@ class Cashflow_Model extends CI_Model
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		coalesce(current_date - doc_date, 0) as late,
 		t1.*, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence,
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name,
 		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.eta, '".$this->session->date_format."') as eta, (select name from cf_request_type where id = t1.request_type_id) as request_type_name,(select doc_no from cf_order where id = t1.order_id) as doc_no_order,(select doc_date from cf_order where id = t1.order_id) as doc_date_order,  coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 		$params['table'] 	= "(
 			select * from cf_request f1 where 
@@ -1595,6 +1628,9 @@ class Cashflow_Model extends CI_Model
 		(select name from a_org where id = t1.org_id) as org_name, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
 		t1.*, 
+		coalesce(current_date - eta, 0) as late,
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name,
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence,
 		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
 		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
 		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
@@ -1643,11 +1679,13 @@ class Cashflow_Model extends CI_Model
 	function db_outstanding_outbound($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
-		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.org_id) as org_name,
+		coalesce(current_date - (select eta from cf_request where id = t1.request_id), 0) as late, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
 		(select name from a_org where id = t1.org_to_id) as org_to_name, 
 		(select name from a_org where id = t1.orgtrx_to_id) as orgtrx_to_name, 
 		t1.*, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_movement_line s1 where movement_id = t1.id) as category_name,
 		(select doc_no from cf_request where id = t1.request_id) as doc_no_request,
 		(select to_char(doc_date, '".$this->session->date_format."') from cf_request where id = t1.request_id) as doc_date_request,
 		(select to_char(eta, '".$this->session->date_format."') from cf_request where id = t1.request_id) as eta_request,

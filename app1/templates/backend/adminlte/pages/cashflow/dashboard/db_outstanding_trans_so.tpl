@@ -38,7 +38,7 @@
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"doc_date", title:"SO Date" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"etd", title:"SCM ETD" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"expected_dt_cust", title:"DT Customer" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimation_late", title:"Estimation Late (Days)", 
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimation_late", title:"Shipment Days Left", 
 				render: function(data, type, row){ return parseInt(data) > 0 ? data : 0; },
 				createdCell: function (td, cellData, rowData, row, col) { if ( parseInt(cellData) > 0 ) { $(td).css({ 'background-color':'red', 'font-weight':'bold' }); } },
 			},{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"late", title:"Actual Late (Days)", 
