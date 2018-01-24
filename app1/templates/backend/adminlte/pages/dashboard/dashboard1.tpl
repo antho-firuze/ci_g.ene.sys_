@@ -66,7 +66,7 @@
 				{* console.log(val.type); *}
 				if (val.type == 'BOX-3'){
 					var link = val.link ? $BASE_URL+val.link : '';
-					c.push(BSHelper.WidgetBox3({ title:val.name, color:val.color, value:val.value, icon:val.icon, link:link, tooltip:val.description, seq:val.seq }));
+					c.push(BSHelper.WidgetBox3({ title:val.name, color:val.color, value:val.value, icon:val.icon, link:link, tooltip:val.description, seq:val.id }));
 				}
 				if (val.type == 'BOX-7' && val.name == 'Quick Email'){
 					r.push(qemail());
