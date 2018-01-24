@@ -33,6 +33,24 @@
 	a = [];
 	a.push(BSHelper.Button({ type:"button", label:'<i class="fa fa-calendar"></i>&nbsp;<span>Date range picker</span> &nbsp;&nbsp;<i class="fa fa-caret-down"></i>', cls:"btn-danger", idname: "btn_cal", }));
 	col.push(BSHelper.Label({ horz: false, label:"Period", idname:"fperiod", required: false, elcustom: a }));
+	col.push(BSHelper.Combobox({ label:"Module", idname:"module_id", required: true, 
+		list:[
+			{ id:"1", name:"Sales Order" },
+			{ id:"2", name:"Shipment" },
+			{ id:"3", name:"Request/Planning" },
+			{ id:"4", name:"Purchase Request" },
+			{ id:"5", name:"Purchase Order" },
+			{ id:"6", name:"Material Receipt" },
+			{ id:"7", name:"Inflow" },
+			{ id:"8", name:"Outflow" },
+			{ id:"9", name:"Invoice Customer" },
+			{ id:"10", name:"Invoice Vendor" },
+			{ id:"11", name:"Invoice Inflow" },
+			{ id:"12", name:"Invoice Outflow" },
+			{ id:"13", name:"Bank Received" },
+			{ id:"14", name:"Bank Payment" },
+		] 
+	}));
 	row.push(subCol(6, col)); col = [];
 	row.push(subCol(6, col)); col = [];
 	form1.append(subRow(row));
