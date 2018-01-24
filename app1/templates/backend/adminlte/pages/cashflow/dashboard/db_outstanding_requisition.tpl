@@ -24,19 +24,18 @@
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '125%',
-		showColumnMenu: false,
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
 			{ pageid: 108, subKey: 'request_id', title: 'Request Line', },
 		],
 		columns: [
-			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
-			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
-			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"eta", title:"ETA" },
-			{ width:"100px", orderable:false, data:"bpartner_name", title:"Vendor" },
-			{ width:"250px", orderable:false, data:"description", title:"Description" },
+			{ width:"100px", orderable:true, data:"org_name", title:"Org Name" },
+			{ width:"100px", orderable:true, data:"orgtrx_name", title:"Org Trx Name" },
+			{ width:"100px", orderable:true, data:"doc_no", title:"Doc No" },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"eta", title:"ETA" },
+			{ width:"100px", orderable:true, data:"bpartner_name", title:"Vendor" },
+			{ width:"250px", orderable:true, data:"description", title:"Description" },
 		],
 		order: ['id desc'],
 	};
