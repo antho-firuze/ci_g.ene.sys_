@@ -224,7 +224,7 @@
 		datas2 = [];
 		datas3 = [];
 		datas4 = [];
-		var grp = ["","Invoice Customer (qty)","Invoice Inflow (qty)","Invoice Vendor (qty)","Invoice Outflow (qty)"];
+		var grp = ["","Received Plan Customer (qty)","Received Plan Other (qty)","Payment Plan Vendor (qty)","Payment Plan Outflow (qty)"];
 		var title = ["Plan","Act (Ontime)","Act (Early)","Act (Late)","Not Yet"];
 		var field = ["","total_release","total_release_early","total_release_late","total_unrelease"];
 		var field_percent = ["","total_release_percent","total_release_early_percent","total_release_late_percent","total_unrelease_percent"];
@@ -261,7 +261,7 @@
 		datas2 = [];
 		datas3 = [];
 		datas4 = [];
-		var grp = ["","Invoice Customer (amt)","Invoice Inflow (amt)","Invoice Vendor (amt)","Invoice Outflow (amt)"];
+		var grp = ["","Received Plan Customer (amt)","Received Plan Other (amt)","Payment Plan Vendor (amt)","Payment Plan Other (amt)"];
 		var title = ["Plan","Act (Ontime)","Act (Early)","Act (Late)","Not Yet"];
 		var field = ["","total_release","total_release_early","total_release_late","total_unrelease"];
 		var field_percent = ["","total_release_percent","total_release_early_percent","total_release_late_percent","total_unrelease_percent"];
