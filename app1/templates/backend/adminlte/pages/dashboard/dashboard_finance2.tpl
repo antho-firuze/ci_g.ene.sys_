@@ -113,8 +113,8 @@
 	{* var format_money = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") }; *}
 	var format_money = function(money){ return accounting.formatMoney(money, '', 0, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
 	var format_percent = function(value){ return accounting.formatMoney(value, { symbol: "%", precision: 1, format: "%v%s" }) };
-	var start = moment().startOf('year');
-	var end = moment().endOf('year');
+	var start = moment().startOf('month');
+	var end = moment().endOf('month');
 	{* //Date range as a button *}
 	$('#btn_cal').daterangepicker(
 			{
@@ -125,10 +125,12 @@
 					{* 'Last 30 Days': [moment().subtract(29, 'days'), moment()], *}
 					'This Month': [moment().startOf('month'), moment().endOf('month')],
 					'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+					'Next Month': [moment().add(1, 'month').startOf('month'), moment().add(1, 'month').endOf('month')],
 					'This Year': [moment().startOf('year'), moment().endOf('year')],
+					'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
 				},
-				startDate: moment().startOf('year'),
-				endDate: moment().endOf('year')
+				startDate: moment().startOf('month'),
+				endDate: moment().endOf('month')
 			},
 			function (start, end) {
 				{* console.log(start.format('YYYY-MM-DD') + ' - ' + end.format('MMMM D, YYYY')); *}
@@ -224,7 +226,7 @@
 		datas2 = [];
 		datas3 = [];
 		datas4 = [];
-		var grp = ["","Received Plan Customer (qty)","Received Plan Other (qty)","Payment Plan Vendor (qty)","Payment Plan Outflow (qty)"];
+		var grp = ["","Bank Received Customer (qty)","Bank Received Other (qty)","Bank Payment Vendor (qty)","Bank Payment Outflow (qty)"];
 		var title = ["Plan","Act (Ontime)","Act (Early)","Act (Late)","Not Yet"];
 		var field = ["","total_release","total_release_early","total_release_late","total_unrelease"];
 		var field_percent = ["","total_release_percent","total_release_early_percent","total_release_late_percent","total_unrelease_percent"];
@@ -261,7 +263,7 @@
 		datas2 = [];
 		datas3 = [];
 		datas4 = [];
-		var grp = ["","Received Plan Customer (amt)","Received Plan Other (amt)","Payment Plan Vendor (amt)","Payment Plan Other (amt)"];
+		var grp = ["","Bank Received Customer (amt)","Bank Received Other (amt)","Bank Payment Vendor (amt)","Bank Payment Other (amt)"];
 		var title = ["Plan","Act (Ontime)","Act (Early)","Act (Late)","Not Yet"];
 		var field = ["","total_release","total_release_early","total_release_late","total_unrelease"];
 		var field_percent = ["","total_release_percent","total_release_early_percent","total_release_late_percent","total_unrelease_percent"];
