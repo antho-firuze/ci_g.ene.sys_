@@ -36,12 +36,16 @@
 			{ width:"100px", orderable:true, data:"orgtrx_to_name", title:"To OrgTrx Name" },
 			{ width:"100px", orderable:true, data:"doc_no", title:"Doc No" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"delivery_date", title:"Delivery Date" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"received_date", title:"Received Date" },
 			{ width:"100px", orderable:true, data:"doc_no_request", title:"Req Doc No" },
 			{ width:"60px", orderable:true, className:"dt-head-center dt-body-center", data:"doc_date_request", title:"Req Doc Date" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"eta_request", title:"Req ETA" },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"late", title:"Open Inbound (Days)", 
+				render: function(data, type, row){ return parseInt(data) > 0 ? data : 0; },
+				createdCell: function (td, cellData, rowData, row, col) { if ( parseInt(cellData) > 0 ) { $(td).css({ 'background-color':'red', 'font-weight':'bold' }); } },
+			},
+			{ width:"100px", orderable:false, data:"category_name", title:"Category" },
 			{ width:"250px", orderable:true, data:"description", title:"Description" },
+
 		],
 	};
 	

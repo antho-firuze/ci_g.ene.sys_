@@ -41,8 +41,8 @@
 			{ width:"100px", orderable:true, data:"category_name", title:"Category" },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"grand_total", title:"SO Taxable (Amount)", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"plan_total", title:"Plan Total (Amount)", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"plan_cl_total", title:"Plan Cl Total (Amount)", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"plan_im_total", title:"Plan Im Total (Amount)", render: function(data, type, row){ return format_money(data); } },
+						{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"plan_cl_total", title:"Plan Cl Total (Amount)", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"plan_im_total", title:"Plan Im Total (Amount)", render: function(data, type, row){ return format_money(data); } },	
 		],
 		order: ['id desc'],
 	};

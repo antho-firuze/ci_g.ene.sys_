@@ -38,7 +38,7 @@
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"doc_date", title:"PO Date" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"eta", title:"Requisition ETA" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"eta", title:"Vendor ETA" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimation_late", title:"Estimation Late (Days)", 
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimation_late", title:"Receive Days Left", 
 				render: function(data, type, row){ return parseInt(data) > 0 ? data : 0; },
 				createdCell: function (td, cellData, rowData, row, col) { if ( parseInt(cellData) > 0 ) { $(td).css({ 'background-color':'red', 'font-weight':'bold' }); } },
 			},{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"late", title:"Actual Late (Days)", 
@@ -47,10 +47,6 @@
 			},
 			{ width:"100px", orderable:true, data:"category_name", title:"Category" },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"sub_total", title:"PO Taxable (Amount)", render: function(data, type, row){ return format_money(data); } },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"late", title:"Actual Late (Days)", 
-				render: function(data, type, row){ return parseInt(data) > 0 ? data : 0; },
-				createdCell: function (td, cellData, rowData, row, col) { if ( parseInt(cellData) > 0 ) { $(td).css({ 'background-color':'red', 'font-weight':'bold' }); } },
-			},
 		],
 	};
 	
