@@ -4816,7 +4816,7 @@ class Cashflow extends Getmeb
 				1	=>	['name' => 'Estimate Ontime Shipment', 'count' => $result['data']['total_so'] - $result['data']['total_so_late'], 'percent' => 100-$result['data']['total_so_late_percent']],
 			];
 			$result['data']['shipment_all_chart']['labels'] = ['Estimate Late Shipment', 'Estimate Ontime Shipment'];
-			$result['data']['shipment_all_chart']['datasets'][] = ['label' => 'Description', 'backgroundColor' => [get_rgba(), get_rgba()], 'data' => [$result['data']['total_so_late'], $result['data']['total_so'] - $result['data']['total_so_late']]];
+			$result['data']['shipment_all_chart']['datasets'][] = ['label' => 'Description', 'backgroundColor' => [get_rgba('red'), get_rgba('blue')], 'data' => [$result['data']['total_so_late'], $result['data']['total_so'] - $result['data']['total_so_late']]];
 			
 			/* Estimate Late Shipment */
 			$str = "with el as (
@@ -5111,6 +5111,213 @@ class Cashflow extends Getmeb
 			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease2,
 			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is not null and invoice_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease3,
 			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and order_id is null and invoice_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease4
+			) select *, 
+			(100 * t1.total_release1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_release_percent1, 
+			(100 * t1.total_release2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_release_percent2, 
+			(100 * t1.total_release3 / coalesce(nullif(t1.total_projection3, 0), 1)::float) as total_release_percent3, 
+			(100 * t1.total_release4 / coalesce(nullif(t1.total_projection4, 0), 1)::float) as total_release_percent4, 
+			(100 * t1.total_release_early1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_release_early_percent1, 
+			(100 * t1.total_release_early2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_release_early_percent2, 
+			(100 * t1.total_release_early3 / coalesce(nullif(t1.total_projection3, 0), 1)::float) as total_release_early_percent3, 
+			(100 * t1.total_release_early4 / coalesce(nullif(t1.total_projection4, 0), 1)::float) as total_release_early_percent4, 
+			(100 * t1.total_release_late1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_release_late_percent1, 
+			(100 * t1.total_release_late2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_release_late_percent2, 
+			(100 * t1.total_release_late3 / coalesce(nullif(t1.total_projection3, 0), 1)::float) as total_release_late_percent3, 
+			(100 * t1.total_release_late4 / coalesce(nullif(t1.total_projection4, 0), 1)::float) as total_release_late_percent4, 
+			(100 * t1.total_unrelease1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_unrelease_percent1,
+			(100 * t1.total_unrelease2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_unrelease_percent2,
+			(100 * t1.total_unrelease3 / coalesce(nullif(t1.total_projection3, 0), 1)::float) as total_unrelease_percent3,
+			(100 * t1.total_unrelease4 / coalesce(nullif(t1.total_projection4, 0), 1)::float) as total_unrelease_percent4
+			from tmp as t1;";
+			$str = translate_variable($str);
+			$row = $this->db->query($str)->row();
+			$result['data']['total_by_amount'] = $row;
+			
+			$this->xresponse(TRUE, $result);
+		}
+	}
+	
+	function dashboard_finance2()
+	{
+		if ($this->r_method == 'GET') {
+			$fdate = $this->params['fdate'];
+			$tdate = $this->params['tdate'];
+
+			/* line chart */
+			if (date_differ($fdate, $tdate, 'day') < 32) {
+				$str = "select i.date, to_char(i.date, 'Mon DD') as name,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date = i.date) as total_projection1,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date = i.date) as total_projection2,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date = i.date) as total_projection3,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date = i.date) as total_projection4,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date = i.date and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select received_date from cf_cashbank where id = s1.cashbank_id) = f1.received_plan_date)) as total_release1,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date = i.date and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select received_date from cf_cashbank where id = s1.cashbank_id) = f1.received_plan_date)) as total_release2,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date = i.date and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select payment_date from cf_cashbank where id = s1.cashbank_id) = f1.payment_plan_date)) as total_release3,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date = i.date and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select payment_date from cf_cashbank where id = s1.cashbank_id) = f1.payment_plan_date)) as total_release4,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date = i.date and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select received_date from cf_cashbank where id = s1.cashbank_id) < f1.received_plan_date)) as total_release_early1,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date = i.date and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select received_date from cf_cashbank where id = s1.cashbank_id) < f1.received_plan_date)) as total_release_early2,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date = i.date and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select payment_date from cf_cashbank where id = s1.cashbank_id) < f1.payment_plan_date)) as total_release_early3,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date = i.date and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select payment_date from cf_cashbank where id = s1.cashbank_id) < f1.payment_plan_date)) as total_release_early4,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date = i.date and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select received_date from cf_cashbank where id = s1.cashbank_id) > f1.received_plan_date)) as total_release_late1,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date = i.date and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select received_date from cf_cashbank where id = s1.cashbank_id) > f1.received_plan_date)) as total_release_late2,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date = i.date and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select payment_date from cf_cashbank where id = s1.cashbank_id) > f1.payment_plan_date)) as total_release_late3,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date = i.date and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select payment_date from cf_cashbank where id = s1.cashbank_id) > f1.payment_plan_date)) as total_release_late4,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date = i.date and not exists(select 1 as has_cb from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id)) as total_unrelease1,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date = i.date and not exists(select 1 as has_cb from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id)) as total_unrelease2,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date = i.date and not exists(select 1 as has_cb from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id)) as total_unrelease3,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date = i.date and not exists(select 1 as has_cb from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id)) as total_unrelease4
+				from generate_series('$fdate', '$tdate', '1 day'::interval) i;";
+			} else {
+				$str = "select i.date, (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE as end_of_month, to_char(i.date, 'Mon') as name,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE) as total_projection1,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE) as total_projection2,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE) as total_projection3,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE) as total_projection4,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select received_date from cf_cashbank where id = s1.cashbank_id) = f1.received_plan_date)) as total_release1,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select received_date from cf_cashbank where id = s1.cashbank_id) = f1.received_plan_date)) as total_release2,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select payment_date from cf_cashbank where id = s1.cashbank_id) = f1.payment_plan_date)) as total_release3,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select payment_date from cf_cashbank where id = s1.cashbank_id) = f1.payment_plan_date)) as total_release4,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select received_date from cf_cashbank where id = s1.cashbank_id) < f1.received_plan_date)) as total_release_early1,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select received_date from cf_cashbank where id = s1.cashbank_id) < f1.received_plan_date)) as total_release_early2,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select payment_date from cf_cashbank where id = s1.cashbank_id) < f1.payment_plan_date)) as total_release_early3,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select payment_date from cf_cashbank where id = s1.cashbank_id) < f1.payment_plan_date)) as total_release_early4,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select received_date from cf_cashbank where id = s1.cashbank_id) > f1.received_plan_date)) as total_release_late1,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select received_date from cf_cashbank where id = s1.cashbank_id) > f1.received_plan_date)) as total_release_late2,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select payment_date from cf_cashbank where id = s1.cashbank_id) > f1.payment_plan_date)) as total_release_late3,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and exists(select 1 as has_cb from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = f1.id and (select payment_date from cf_cashbank where id = s1.cashbank_id) > f1.payment_plan_date)) as total_release_late4,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and not exists(select 1 as has_cb from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id)) as total_unrelease1,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and not exists(select 1 as has_cb from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id)) as total_unrelease2,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and not exists(select 1 as has_cb from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id)) as total_unrelease3,
+				(select count(*) from cf_invoice f1 where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date between i.date and (date_trunc('MONTH', i.date) + INTERVAL '1 MONTH - 1 day')::DATE and not exists(select 1 as has_cb from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id)) as total_unrelease4
+				from generate_series('$fdate', '$tdate', '1 month'::interval) i;";
+			}
+			$str = translate_variable($str);
+			// debug($str);
+			$qry = $this->db->query($str);
+			if ($qry->num_rows() > 0) {
+				$arr['labels'] = [];
+				foreach($qry->result() as $row){
+					$arr['labels'][] = $row->name;
+					$arr['data1'][] = $row->total_projection1;
+					$arr['data2'][] = $row->total_release1;
+					$arr['data3'][] = $row->total_release_early1;
+					$arr['data4'][] = $row->total_release_late1;
+					$arr['data5'][] = $row->total_unrelease1;
+					$arr2['labels'][] = $row->name;
+					$arr2['data1'][] = $row->total_projection2;
+					$arr2['data2'][] = $row->total_release2;
+					$arr2['data3'][] = $row->total_release_early2;
+					$arr2['data4'][] = $row->total_release_late2;
+					$arr2['data5'][] = $row->total_unrelease2;
+					$arr3['labels'][] = $row->name;
+					$arr3['data1'][] = $row->total_projection3;
+					$arr3['data2'][] = $row->total_release3;
+					$arr3['data3'][] = $row->total_release_early3;
+					$arr3['data4'][] = $row->total_release_late3;
+					$arr3['data5'][] = $row->total_unrelease3;
+					$arr4['labels'][] = $row->name;
+					$arr4['data1'][] = $row->total_projection4;
+					$arr4['data2'][] = $row->total_release4;
+					$arr4['data3'][] = $row->total_release_early4;
+					$arr4['data4'][] = $row->total_release_late4;
+					$arr4['data5'][] = $row->total_unrelease4;
+				}
+				/* datasets for line chart */
+				$result['data']['linechart']['labels'] = $arr['labels'];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Plan', 'borderColor' => get_rgba('red'), 'data' => $arr['data1']];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Act (Ontime)', 'borderColor' => get_rgba('blue'), 'data' => $arr['data2']];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Act (Early)', 'borderColor' => get_rgba('yellow'), 'data' => $arr['data3']];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Act (Late)', 'borderColor' => get_rgba('green'), 'data' => $arr['data4']];
+				$result['data']['linechart']['datasets'][] = ['label' => 'Not Yet', 'borderColor' => get_rgba('purple'), 'data' => $arr['data5']];
+				/* datasets for line chart2 */
+				$result['data']['linechart2']['labels'] = $arr2['labels'];
+				$result['data']['linechart2']['datasets'][] = ['label' => 'Plan', 'borderColor' => get_rgba('red'), 'data' => $arr2['data1']];
+				$result['data']['linechart2']['datasets'][] = ['label' => 'Act (Ontime)', 'borderColor' => get_rgba('blue'), 'data' => $arr2['data2']];
+				$result['data']['linechart2']['datasets'][] = ['label' => 'Act (Early)', 'borderColor' => get_rgba('yellow'), 'data' => $arr2['data3']];
+				$result['data']['linechart2']['datasets'][] = ['label' => 'Act (Late)', 'borderColor' => get_rgba('green'), 'data' => $arr2['data4']];
+				$result['data']['linechart2']['datasets'][] = ['label' => 'Not Yet', 'borderColor' => get_rgba('purple'), 'data' => $arr2['data5']];
+				/* datasets for line chart3 */
+				$result['data']['linechart3']['labels'] = $arr3['labels'];
+				$result['data']['linechart3']['datasets'][] = ['label' => 'Plan', 'borderColor' => get_rgba('red'), 'data' => $arr3['data1']];
+				$result['data']['linechart3']['datasets'][] = ['label' => 'Act (Ontime)', 'borderColor' => get_rgba('blue'), 'data' => $arr3['data2']];
+				$result['data']['linechart3']['datasets'][] = ['label' => 'Act (Early)', 'borderColor' => get_rgba('yellow'), 'data' => $arr3['data3']];
+				$result['data']['linechart3']['datasets'][] = ['label' => 'Act (Late)', 'borderColor' => get_rgba('green'), 'data' => $arr3['data4']];
+				$result['data']['linechart3']['datasets'][] = ['label' => 'Not Yet', 'borderColor' => get_rgba('purple'), 'data' => $arr3['data5']];
+				/* datasets for line chart4 */
+				$result['data']['linechart4']['labels'] = $arr4['labels'];
+				$result['data']['linechart4']['datasets'][] = ['label' => 'Plan', 'borderColor' => get_rgba('red'), 'data' => $arr4['data1']];
+				$result['data']['linechart4']['datasets'][] = ['label' => 'Act (Ontime)', 'borderColor' => get_rgba('blue'), 'data' => $arr4['data2']];
+				$result['data']['linechart4']['datasets'][] = ['label' => 'Act (Early)', 'borderColor' => get_rgba('yellow'), 'data' => $arr4['data3']];
+				$result['data']['linechart4']['datasets'][] = ['label' => 'Act (Late)', 'borderColor' => get_rgba('green'), 'data' => $arr4['data4']];
+				$result['data']['linechart4']['datasets'][] = ['label' => 'Not Yet', 'borderColor' => get_rgba('purple'), 'data' => $arr4['data5']];
+			}	
+			/* total & release by document */
+			$str = "with tmp as (
+			select 
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date between '$fdate' and '$tdate') as total_projection1,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date between '$fdate' and '$tdate') as total_projection2,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date between '$fdate' and '$tdate') as total_projection3,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date between '$fdate' and '$tdate') as total_projection4,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date between '$fdate' and '$tdate' and doc_date = invoice_plan_date) as total_release1,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date between '$fdate' and '$tdate' and doc_date = invoice_plan_date) as total_release2,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date between '$fdate' and '$tdate' and doc_date = invoice_plan_date) as total_release3,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date between '$fdate' and '$tdate' and doc_date = invoice_plan_date) as total_release4,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date between '$fdate' and '$tdate' and doc_date < invoice_plan_date) as total_release_early1,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date between '$fdate' and '$tdate' and doc_date < invoice_plan_date) as total_release_early2,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date between '$fdate' and '$tdate' and doc_date < invoice_plan_date) as total_release_early3,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date between '$fdate' and '$tdate' and doc_date < invoice_plan_date) as total_release_early4,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date between '$fdate' and '$tdate' and doc_date > invoice_plan_date) as total_release_late1,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date between '$fdate' and '$tdate' and doc_date > invoice_plan_date) as total_release_late2,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date between '$fdate' and '$tdate' and doc_date > invoice_plan_date) as total_release_late3,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date between '$fdate' and '$tdate' and doc_date > invoice_plan_date) as total_release_late4,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease1,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease2,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease3,
+			(select count(*) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease4
+			) select *, 
+			(100 * t1.total_release1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_release_percent1, 
+			(100 * t1.total_release2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_release_percent2, 
+			(100 * t1.total_release3 / coalesce(nullif(t1.total_projection3, 0), 1)::float) as total_release_percent3, 
+			(100 * t1.total_release4 / coalesce(nullif(t1.total_projection4, 0), 1)::float) as total_release_percent4, 
+			(100 * t1.total_release_early1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_release_early_percent1, 
+			(100 * t1.total_release_early2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_release_early_percent2, 
+			(100 * t1.total_release_early3 / coalesce(nullif(t1.total_projection3, 0), 1)::float) as total_release_early_percent3, 
+			(100 * t1.total_release_early4 / coalesce(nullif(t1.total_projection4, 0), 1)::float) as total_release_early_percent4, 
+			(100 * t1.total_release_late1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_release_late_percent1, 
+			(100 * t1.total_release_late2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_release_late_percent2, 
+			(100 * t1.total_release_late3 / coalesce(nullif(t1.total_projection3, 0), 1)::float) as total_release_late_percent3, 
+			(100 * t1.total_release_late4 / coalesce(nullif(t1.total_projection4, 0), 1)::float) as total_release_late_percent4, 
+			(100 * t1.total_unrelease1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_unrelease_percent1,
+			(100 * t1.total_unrelease2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_unrelease_percent2,
+			(100 * t1.total_unrelease3 / coalesce(nullif(t1.total_projection3, 0), 1)::float) as total_unrelease_percent3,
+			(100 * t1.total_unrelease4 / coalesce(nullif(t1.total_projection4, 0), 1)::float) as total_unrelease_percent4
+			from tmp as t1;";
+			$str = translate_variable($str);
+			$row = $this->db->query($str)->row();
+			$result['data']['total_by_document'] = $row;
+			/* total & release by amount */
+			$str = "with tmp as (
+			select 
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date between '$fdate' and '$tdate') as total_projection1,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date between '$fdate' and '$tdate') as total_projection2,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date between '$fdate' and '$tdate') as total_projection3,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date between '$fdate' and '$tdate') as total_projection4,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date between '$fdate' and '$tdate' and doc_date = invoice_plan_date) as total_release1,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date between '$fdate' and '$tdate' and doc_date = invoice_plan_date) as total_release2,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date between '$fdate' and '$tdate' and doc_date = invoice_plan_date) as total_release3,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date between '$fdate' and '$tdate' and doc_date = invoice_plan_date) as total_release4,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date between '$fdate' and '$tdate' and doc_date < invoice_plan_date) as total_release_early1,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date between '$fdate' and '$tdate' and doc_date < invoice_plan_date) as total_release_early2,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date between '$fdate' and '$tdate' and doc_date < invoice_plan_date) as total_release_early3,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date between '$fdate' and '$tdate' and doc_date < invoice_plan_date) as total_release_early4,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date between '$fdate' and '$tdate' and doc_date > invoice_plan_date) as total_release_late1,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date between '$fdate' and '$tdate' and doc_date > invoice_plan_date) as total_release_late2,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date between '$fdate' and '$tdate' and doc_date > invoice_plan_date) as total_release_late3,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date between '$fdate' and '$tdate' and doc_date > invoice_plan_date) as total_release_late4,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('1') and received_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease1,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('5') and received_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease2,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and payment_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease3,
+			(select coalesce(sum(net_amount), 0) from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type in ('6') and payment_plan_date between '$fdate' and '$tdate' and doc_date is null) as total_unrelease4
 			) select *, 
 			(100 * t1.total_release1 / coalesce(nullif(t1.total_projection1, 0), 1)::float) as total_release_percent1, 
 			(100 * t1.total_release2 / coalesce(nullif(t1.total_projection2, 0), 1)::float) as total_release_percent2, 
