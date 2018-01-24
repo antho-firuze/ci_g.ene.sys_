@@ -24,7 +24,6 @@
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '125%',
-		showColumnMenu: false,
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
 			{ pageid: 108, subKey: 'request_id', title: 'Request Line', },
@@ -32,13 +31,14 @@
 		columns: [
 			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
 			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
-			{ width:"100px", orderable:false, data:"doc_no", title:"Doc No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"eta", title:"ETA" },
-			{ width:"100px", orderable:false, data:"request_type_name", title:"Request Type" },
+			{ width:"100px", orderable:false, data:"bpartner_name", title:"Business Partner" },
+			{ width:"100px", orderable:false, data:"residence", title:"Residence" },
+			{ width:"100px", orderable:false, data:"doc_no", title:"Request No" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Request Date" },
 			{ width:"100px", orderable:false, data:"doc_no_order", title:"SO No" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_order", title:"SO Date" },
-			{ width:"100px", orderable:false, data:"bpartner_name", title:"Customer" },
+			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"eta", title:"Request ETA" },
+			{ width:"100px", orderable:false, data:"request_type_name", title:"Request Type" },
 			{ width:"250px", orderable:false, data:"description", title:"Description" },
 		],
 		order: ['id desc'],

@@ -26,20 +26,17 @@
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '130%',
-		showColumnMenu: false,
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [
 			{* { pageid: 122, subKey: 'ar_ap_id', title: 'Outflow Line', }, *}
 			{ pageid: 123, subKey: 'ar_ap_id', title: 'Outflow Plan', },
 		],
 		columns: [
-			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
-			{ width:"100px", orderable:false, data:"orgtrx_name", title:"Org Trx Name" },
-			{ width:"100px", orderable:false, data:"doc_no", title:"Invoice No" },
-			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"adj_amount", title:"Adj Amount", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"net_amount", title:"Net Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:true, data:"org_name", title:"Org Name" },
+			{ width:"100px", orderable:true, data:"orgtrx_name", title:"Org Trx Name" },
+			{ width:"100px", orderable:true, data:"doc_no", title:"Doc No" },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"amount", title:"Inflow Taxable (Amount)", render: function(data, type, row){ return format_money(data); } },
 		],
 		order: ['id desc'],
 	};
