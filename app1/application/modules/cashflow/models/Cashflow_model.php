@@ -1066,6 +1066,7 @@ class Cashflow_Model extends CI_Model
 			(select count(*) as ap_unmatch from cf_cashbank where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD'))
 			from generate_series( date_trunc('month', now()), now(), '1 day'::interval) i
 			) t1";
+		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -1707,7 +1708,7 @@ class Cashflow_Model extends CI_Model
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
-	
+
 	function rf_scm_dt_reason($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
