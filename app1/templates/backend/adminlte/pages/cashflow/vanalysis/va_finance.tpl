@@ -231,17 +231,21 @@
 		var field = ["","total_release","total_release_early","total_release_late","total_unrelease"];
 		var field_percent = ["","total_release_percent","total_release_early_percent","total_release_late_percent","total_unrelease_percent"];
 
-		datas1.push({ title: title[0], link: "#", value: result.data.total_by_document['total_projection1'] });
-		datas2.push({ title: title[0], link: "#", value: result.data.total_by_document['total_projection2'] });
-		datas3.push({ title: title[0], link: "#", value: result.data.total_by_document['total_projection3'] });
-		datas4.push({ title: title[0], link: "#", value: result.data.total_by_document['total_projection4'] });
+		{* Documentation: *}
+		{* doc 	= 1-4 (invoice customer, invoice inflow, invoice vendor, invoice outflow) *}
+		{* lvl 	= 1-5 (plan, ontime, early, late, notyet) *}
+		{* by 	= 1-2 (quantity, amount) *}
+		datas1.push({ title: title[0], link: $BASE_URL+'systems/x_page?pageid=238&filter=fdate='+$("#fdate").val()+',tdate='+$("#tdate").val()+',doc=1,lvl=1,by=1', value: result.data.total_by_document['total_projection1'] });
+		datas2.push({ title: title[0], link: $BASE_URL+'systems/x_page?pageid=238&filter=fdate='+$("#fdate").val()+',tdate='+$("#tdate").val()+',doc=2,lvl=1,by=1', value: result.data.total_by_document['total_projection2'] });
+		datas3.push({ title: title[0], link: $BASE_URL+'systems/x_page?pageid=238&filter=fdate='+$("#fdate").val()+',tdate='+$("#tdate").val()+',doc=3,lvl=1,by=1', value: result.data.total_by_document['total_projection3'] });
+		datas4.push({ title: title[0], link: $BASE_URL+'systems/x_page?pageid=238&filter=fdate='+$("#fdate").val()+',tdate='+$("#tdate").val()+',doc=4,lvl=1,by=1', value: result.data.total_by_document['total_projection4'] });
 		for (var i = 1; i < title.length; i++){
 			for (var j = 1; j < field.length; j++){
 				var v = result.data.total_by_document[field[j]+i];
 				var vp = result.data.total_by_document[field_percent[j]+i];
 				var fmt = v + ' ('+ format_percent(vp) +')';
 				{* var fmt = '<div><div><span>'+v+'</span></div><div style=""><span>'+format_percent(vp)+'</span></div></div>'; *}
-				window['datas'+i].push({ title: title[j], link: "#", value: fmt });
+				window['datas'+i].push({ title: title[j], link: $BASE_URL+'systems/x_page?pageid=238&filter=fdate='+$("#fdate").val()+',tdate='+$("#tdate").val()+',doc='+i+',lvl='+(j+1)+',by=1', value: fmt });
 			}
 		}
 		
@@ -268,16 +272,16 @@
 		var field = ["","total_release","total_release_early","total_release_late","total_unrelease"];
 		var field_percent = ["","total_release_percent","total_release_early_percent","total_release_late_percent","total_unrelease_percent"];
 
-		datas1.push({ title: title[0], link: "#", value: format_money(result.data.total_by_amount['total_projection1']) });
-		datas2.push({ title: title[0], link: "#", value: format_money(result.data.total_by_amount['total_projection2']) });
-		datas3.push({ title: title[0], link: "#", value: format_money(result.data.total_by_amount['total_projection3']) });
-		datas4.push({ title: title[0], link: "#", value: format_money(result.data.total_by_amount['total_projection4']) });
+		datas1.push({ title: title[0], link: $BASE_URL+'systems/x_page?pageid=238&filter=fdate='+$("#fdate").val()+',tdate='+$("#tdate").val()+',doc=1,lvl=1,by=2', value: format_money(result.data.total_by_amount['total_projection1']) });
+		datas2.push({ title: title[0], link: $BASE_URL+'systems/x_page?pageid=238&filter=fdate='+$("#fdate").val()+',tdate='+$("#tdate").val()+',doc=2,lvl=1,by=2', value: format_money(result.data.total_by_amount['total_projection2']) });
+		datas3.push({ title: title[0], link: $BASE_URL+'systems/x_page?pageid=238&filter=fdate='+$("#fdate").val()+',tdate='+$("#tdate").val()+',doc=3,lvl=1,by=2', value: format_money(result.data.total_by_amount['total_projection3']) });
+		datas4.push({ title: title[0], link: $BASE_URL+'systems/x_page?pageid=238&filter=fdate='+$("#fdate").val()+',tdate='+$("#tdate").val()+',doc=4,lvl=1,by=2', value: format_money(result.data.total_by_amount['total_projection4']) });
 		for (var i = 1; i < title.length; i++){
 			for (var j = 1; j < field.length; j++){
 				var v = result.data.total_by_amount[field[j]+i];
 				var vp = result.data.total_by_amount[field_percent[j]+i];
 				var fmt = format_money(v) + ' ('+ format_percent(vp) +')';
-				window['datas'+i].push({ title: title[j], link: "#", value: fmt });
+				window['datas'+i].push({ title: title[j], link: $BASE_URL+'systems/x_page?pageid=238&filter=fdate='+$("#fdate").val()+',tdate='+$("#tdate").val()+',doc='+i+',lvl='+(j+1)+',by=2', value: fmt });
 			}
 		}
 		

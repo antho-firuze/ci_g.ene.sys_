@@ -296,9 +296,10 @@
 		$.each(o.dataList, function(i) {
 			var title = o.dataList[i]['title'];
 			var value = ' <span class="pull-right text-green">'+o.dataList[i]['value']+'</span>';
+			var link = (o.dataList[i]['link'] == undefined || o.dataList[i]['link'] == '' || o.dataList[i]['link'] == '#') ? 'javascript:void(0);' : o.dataList[i]['link'];
 			var active = o.dataList[i]['active'] ? ' class="active"' : '';
 			var idname = o.dataList[i]['idname'] ? ' id="'+o.dataList[i]['idname']+'"' : '';
-			container.find('ul').append( $('<li'+idname+active+'><a href="javascript:void(0);">'+title+value+'</a></li>') );
+			container.find('ul').append( $('<li'+idname+active+'><a target="_blank" href='+link+'>'+title+value+'</a></li>') );
 		});
 		
 		return container;

@@ -164,8 +164,8 @@ function initDataTable()
 		tableColumns = left_column.concat(DataTable_Init.columns);
 
 	var fixedColumn;
-	if (! isempty_obj(DataTable_Init.fixedColumn))
-		fixedColumn = DataTable_Init.fixedColumns;
+	if (! isempty_obj(DataTable_Init.fixedColumn) || DataTable_Init.fixedColumn !== 'undefined')
+		fixedColumn = DataTable_Init.fixedColumn;
 	else 
 		fixedColumn = {};
 
@@ -229,7 +229,7 @@ function initDataTable()
 		"createdRow": DataTable_Init.createdRow,
 		"order": [],
 		"scrollCollapse": true,
-		"fixedColumns": { leftColumns: 1 },
+		"fixedColumns": fixedColumn,
 		"fnDrawCallback": function( oSettings ) {
 			/* For adding sorting status on header table */
 			update_header_by_sort_field();
