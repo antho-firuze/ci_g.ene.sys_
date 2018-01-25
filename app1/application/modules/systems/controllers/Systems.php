@@ -78,7 +78,7 @@ class Systems extends Getmeb
 		}
 	}
 	
-	function db_server_info()
+	function va_server()
 	{
 		if ($this->r_method == 'GET') {
 			$fdate = $this->params['fdate'] . ' 00:00:00';

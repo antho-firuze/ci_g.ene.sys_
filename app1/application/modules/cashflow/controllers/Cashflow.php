@@ -4817,7 +4817,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function dashboard_sales()
+	function va_sales()
 	{
 		if ($this->r_method == 'GET') {
 			$fdate = $this->params['fdate'];
@@ -5011,7 +5011,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function dashboard_finance()
+	function va_finance()
 	{
 		if ($this->r_method == 'GET') {
 			$fdate = $this->params['fdate'];
@@ -5218,7 +5218,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function dashboard_finance2()
+	function va_finance2()
 	{
 		if ($this->r_method == 'GET') {
 			$fdate = $this->params['fdate'];

@@ -64,8 +64,22 @@
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"expected_dt_cust", title:"Expected DT Customer" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"etd", title:"SCM ETD" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimation_late", title:"Estimation Late", 
-				render: function(data, type, row){ return parseInt(data) > 0 ? data : 0; },
-				createdCell: function (td, cellData, rowData, row, col) { if ( parseInt(cellData) > 0 ) { $(td).css({ 'background-color':'red', 'font-weight':'bold' }); } },
+				render: function(data, type, row){ 
+					if ( parseInt(data) > 0 && parseInt(data) <= 7 ) 
+						return $("<span>").addClass('label label-warning').text(data).prop('outerHTML');
+					else if ( parseInt(data) > 7 ) 
+						return $("<span>").addClass('label label-danger').text(data).prop('outerHTML'); 
+					else 
+						return $("<span>").addClass('label label-success').text(data).prop('outerHTML'); 
+				},
+				{* createdCell: function (td, cellData, rowData, row, col) { 
+					if ( parseInt(cellData) > 0 && parseInt(cellData) <= 7 ) 
+						{ $(td).append($("<span>").addClass('label label-warning').text(rowData.estimation_late)); } 
+					else if ( parseInt(cellData) > 7 ) 
+						{ $(td).append($("<span>").addClass('label label-danger').text(rowData.estimation_late)); } 
+					else 
+						{ $(td).append($("<span>").addClass('label label-success').text(rowData.estimation_late)); } 
+				}, *}
 			},
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"penalty_percent", title:"Penalty Percent", render: function(data, type, row){ return format_percent(data * 100); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"max_penalty_percent", title:"Max Penalty Percent", render: function(data, type, row){ return format_percent(data * 100); } },

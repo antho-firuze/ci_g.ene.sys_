@@ -1363,7 +1363,7 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 
-	function db_outstanding_invoice_supplier($params)
+ 	function db_outstanding_invoice_supplier($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
