@@ -42,13 +42,15 @@
 			{* { width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"received_plan_date", title:"Received Plan Date", createdCell: function (td, cellData, rowData, row, col) { $(td).css('color', 'red') }}, *}
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"received_plan_date", title:"Received Plan Date" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"payment_plan_date", title:"Payment Plan Date" },
-			{ width:"100px", orderable:false, data:"note", title:"Note" },
-			{ width:"200px", orderable:false, data:"description", title:"Description" },
+			{ width:"100px", orderable:false, data:"voucher_no", title:"Voucher No" },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"voucher_date", title:"Voucher Date" },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"adj_amount", title:"Adj Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"net_amount", title:"Net Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:true, data:"created_by_name", title:"Created By" },
 			{ width:"100px", orderable:true, data:"updated_by_name", title:"Updated By" },
+			{ width:"100px", orderable:false, data:"note", title:"Note" },
+			{ width:"200px", orderable:false, data:"description", title:"Description" },
 		],
 		order: ['id desc'],
 	};

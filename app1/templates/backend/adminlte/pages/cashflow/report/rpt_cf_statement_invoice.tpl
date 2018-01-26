@@ -28,9 +28,9 @@
 		enable: true,
 		rows: 100,
 		showFilter: false,
-		showPaginate: false,
+		showPaginate: true,
 		showColumnMenu: false,
-		tableWidth: '200%',
+		{* tableWidth: '100%', *}
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [],
 		fixedColumns: {
@@ -38,18 +38,9 @@
 		},
 		columns: [
 			{ width:"200px", orderable:false, data:"description", title:"Description", render: function(data, type, row){ return (row.type == 'T' || row.type == 'L') ? '<b>'+data+'</b>' : data; } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"prev_90_after", title:"< 90 <br>Outstanding", render: function(data, type, row){ return (row.type == 'T' || row.type == 'C') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&filter='+row.prev_90_after_param+'&title='+row.prev_90_after_title+'">'+format_money(data)+'</a>' : format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"prev_90", title:"60-90 <br>Outstanding", render: function(data, type, row){ return (row.type == 'T' || row.type == 'C') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&filter='+row.prev_90_param+'&title='+row.prev_90_title+'">'+format_money(data)+'</a>' : format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"prev_60", title:"30-60 <br>Outstanding", render: function(data, type, row){ return (row.type == 'T' || row.type == 'C') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&filter='+row.prev_60_param+'&title='+row.prev_60_title+'">'+format_money(data)+'</a>' : format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"prev_30", title:"1-30 <br>Outstanding", render: function(data, type, row){ return (row.type == 'T' || row.type == 'C') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&filter='+row.prev_30_param+'&title='+row.prev_30_title+'">'+format_money(data)+'</a>' : format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"total_outstanding", title:"Total <br>Outstanding", render: function(data, type, row){ return (row.type == 'T' || row.type == 'C') ? '' : '<span title="'+row.description+'">'+format_money(data)+'</span>'; } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"total_projection", title:"Total <br>Projection", render: function(data, type, row){ return (row.type == 'T' || row.type == 'C') ? '' : '<span title="'+row.description+'">'+format_money(data)+'</span>'; } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return (row.type == 'T' || row.type == 'C') ? '' : '<span title="'+row.description+'">'+format_money(data)+'</span>'; } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"current", title:"Current Date <br>Projection", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&filter='+row.today_param+'&title='+row.today_title+'">'+format_money(data)+'</a>' : format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"next_30", title:"1-30 <br>Projection", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&filter='+row.next_30_param+'&title='+row.next_30_title+'">'+format_money(data)+'</a>' : format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"next_60", title:"30-60 <br>Projection", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&filter='+row.next_60_param+'&title='+row.next_60_title+'">'+format_money(data)+'</a>' : format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"next_90", title:"60-90 <br>Projection", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&filter='+row.next_90_param+'&title='+row.next_90_title+'">'+format_money(data)+'</a>' : format_money(data); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"next_90_after", title:"> 90 <br>Projection", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&filter='+row.next_90_after_param+'&title='+row.next_90_after_title+'">'+format_money(data)+'</a>' : format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"current", title:"Current <br>Projection", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&filter='+row.today_param+'&title='+row.today_title+'">'+format_money(data)+'</a>' : format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"current_actual", title:"Current <br>Actual", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&filter='+row.today_a_param+'&title='+row.today_a_title+'">'+format_money(data)+'</a>' : format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"current", title:"Difference", render: function(data, type, row){ return format_money(Math.abs(row.current-row.current_actual)); } },
 		],
 		order: ['seq asc'],
 	};

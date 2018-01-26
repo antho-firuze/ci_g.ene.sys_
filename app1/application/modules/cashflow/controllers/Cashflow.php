@@ -4779,15 +4779,14 @@ class Cashflow extends Getmeb
 			
 			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
 				foreach (explode(",", $this->params['filter']) as $value) {
-					$this->params['where_custom'][] = $value;
+					list($k, $v) = explode('=', trim($value));
+					$this->params[$k] = $v;
 				}
 				
 				unset($this->params['filter']);
 			}
 			
-			$this->params['where']['t1.is_active'] = '1';
 			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			$this->params['where_custom'][] = "not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = t1.id)";
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
