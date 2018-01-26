@@ -1752,6 +1752,80 @@ class Cashflow_Model extends CI_Model
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		t1.account_id, (select is_receipt from cf_account where id = t1.account_id), type, seq, description, 
 		(
+			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as current 
+			from cf_invoice s1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+			is_active = '1' and is_deleted = '0' and account_id = ANY(ARRAY[t1.accounts])
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
+			and (received_plan_date = '".$params['date']."' or payment_plan_date = '".$params['date']."')
+		),
+		'account_id='||t1.account_id||',(received_plan_date<'''||('".$params['date']."'::date - interval '90 day')::date||''' or payment_plan_date<'''||('".$params['date']."'::date - interval '90 day')::date||''')' as prev_90_after_param,
+		'account_id='||t1.account_id||',(received_plan_date between '''||('".$params['date']."'::date - interval '90 day')::date||''' and '''||('".$params['date']."'::date - interval '61 day')::date||''' or payment_plan_date between '''||('".$params['date']."'::date - interval '90 day')::date||'''  and '''||('".$params['date']."'::date - interval '61 day')::date||''')' as prev_90_param,
+		'account_id='||t1.account_id||',(received_plan_date between '''||('".$params['date']."'::date - interval '60 day')::date||''' and '''||('".$params['date']."'::date - interval '31 day')::date||''' or payment_plan_date between '''||('".$params['date']."'::date - interval '60 day')::date||'''  and '''||('".$params['date']."'::date - interval '31 day')::date||''')' as prev_60_param,
+		'account_id='||t1.account_id||',(received_plan_date between '''||('".$params['date']."'::date - interval '30 day')::date||''' and '''||('".$params['date']."'::date - interval '1 day')::date||''' or payment_plan_date between '''||('".$params['date']."'::date - interval '30 day')::date||'''  and '''||('".$params['date']."'::date - interval '1 day')::date||''')' as prev_30_param,
+		'account_id='||t1.account_id||',(received_plan_date='''||'".$params['date']."'::date||''' or payment_plan_date='''||'".$params['date']."'::date||''')' as today_param,
+		'account_id='||t1.account_id||',(received_plan_date between '''||('".$params['date']."'::date + interval '1 day')::date||''' and '''||('".$params['date']."'::date + interval '30 day')::date||''' or payment_plan_date between '''||('".$params['date']."'::date + interval '1 day')::date||'''  and '''||('".$params['date']."'::date + interval '30 day')::date||''')' as next_30_param,
+		'account_id='||t1.account_id||',(received_plan_date between '''||('".$params['date']."'::date + interval '31 day')::date||''' and '''||('".$params['date']."'::date + interval '60 day')::date||''' or payment_plan_date between '''||('".$params['date']."'::date + interval '31 day')::date||'''  and '''||('".$params['date']."'::date + interval '60 day')::date||''')' as next_60_param,
+		'account_id='||t1.account_id||',(received_plan_date between '''||('".$params['date']."'::date + interval '61 day')::date||''' and '''||('".$params['date']."'::date + interval '90 day')::date||''' or payment_plan_date between '''||('".$params['date']."'::date + interval '61 day')::date||'''  and '''||('".$params['date']."'::date + interval '90 day')::date||''')' as next_90_param,
+		'account_id='||t1.account_id||',(received_plan_date>'''||('".$params['date']."'::date + interval '90 day')::date||''' or payment_plan_date>'''||('".$params['date']."'::date + interval '90 day')::date||''')' as next_90_after_param,
+		'Outstanding > 90 Days' as prev_90_after_title,
+		'Outstanding 60-90 Days' as prev_90_title,
+		'Outstanding 30-60 Days' as prev_60_title,
+		'Outstanding 1-30 Days' as prev_30_title,
+		'Projection Today' as today_title,
+		'Projection 1-30 Days' as next_30_title,
+		'Projection 30-60 Days' as next_60_title,
+		'Projection 60-90 Days' as next_90_title,
+		'Projection > 90 Days' as next_90_after_title"
+		;
+		$params['table'] = "cf_rpt_cashflow_projection as t1";
+		$params['select'] = translate_variable($params['select']);
+		$params['xdel'] = false;
+		$result = $this->base_model->mget_rec($params);
+		
+		// Processed to calculate CASH & CASH EQUIVALENT
+		$qry = "select coalesce(sum(amount), 0) as amount from cf_cashbank_balance 
+		where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+		is_active = '1' and is_deleted = '0' and doc_date = '".$params['date']."'";
+		$qry = translate_variable($qry);
+		$cb_amount = $this->db->query($qry)->row()->amount;
+		
+		foreach ($result['rows'] as $k => $v){
+			if ($v->seq == 41) {
+				$amount[0] = $v->current;
+				$amount[1] = $v->next_30;
+				$amount[2] = $v->next_60;
+				$amount[3] = $v->next_90;
+				$amount[4] = $v->next_90_after;
+			}
+			if ($v->seq == 45) {
+				$amount[0] += $v->current;
+				$amount[1] += $v->next_30;
+				$amount[2] += $v->next_60;
+				$amount[3] += $v->next_90;
+				$amount[4] += $v->next_90_after;
+			}
+			if ($v->seq == 47) {
+				$result['rows'][46]->current = $cb_amount;
+				$result['rows'][47]->current = $cb_amount + $amount[0];
+				$result['rows'][46]->next_30 = $result['rows'][47]->current;
+				$result['rows'][47]->next_30 = $result['rows'][47]->current + $amount[1];
+				$result['rows'][46]->next_60 = $result['rows'][47]->next_30;
+				$result['rows'][47]->next_60 = $result['rows'][47]->next_30 + $amount[2];
+				$result['rows'][46]->next_90 = $result['rows'][47]->next_60;
+				$result['rows'][47]->next_90 = $result['rows'][47]->next_60 + $amount[3];
+				$result['rows'][46]->next_90_after = $result['rows'][47]->next_90;
+				$result['rows'][47]->next_90_after = $result['rows'][47]->next_90 + $amount[4];
+			}
+		}
+		return $result;
+	}
+	
+	function rpt_cf_statement_invoice_old($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		t1.account_id, (select is_receipt from cf_account where id = t1.account_id), type, seq, description, 
+		(
 			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as prev_90_after 
 			from cf_invoice s1
 			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
@@ -2450,7 +2524,9 @@ class Cashflow_Model extends CI_Model
 		case when t1.doc_date is null then 'Projection' else 'Actual' end as invoice_status,
 		t1.note, t1.description,
 		(select name as account_name from cf_account where id = t1.account_id),
-		(select name as created_by_name from a_user where id = t1.created_by)";
+		(select name as created_by_name from a_user where id = t1.created_by),
+		(select doc_no as voucher_no from cf_cashbank where id = (select cashbank_id from cf_cashbank_line where invoice_id = t1.id)),
+		(select to_char(doc_date, '".$this->session->date_format."') as voucher_date from cf_cashbank where id = (select cashbank_id from cf_cashbank_line where invoice_id = t1.id))";
 		$params['table'] 	= "cf_invoice as t1";
 		$params['where_custom'][] = "doc_date is not null and $var2 between '$fdate' and '$tdate' and $doc".($lvl ? " and ".$lvl : "");
 		

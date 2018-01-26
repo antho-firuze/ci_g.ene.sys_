@@ -45,6 +45,8 @@
 			{ width:"70px", orderable:true, className:"dt-head-center dt-body-center", data:"received_plan_date", title:"Received Plan Date" },
 			{ width:"70px", orderable:true, className:"dt-head-center dt-body-center", data:"payment_plan_date", title:"Payment Plan Date" },
 			{ width:"100px", orderable:true, data:"category_name", title:"Category" },
+			{ width:"100px", orderable:true, data:"voucher_no", title:"Voucher No" },
+			{ width:"100px", orderable:true, data:"voucher_date", title:"Voucher Date" },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"adj_amount", title:"Adj Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"net_amount", title:"Net Amount", render: function(data, type, row){ return format_money(data); } },
