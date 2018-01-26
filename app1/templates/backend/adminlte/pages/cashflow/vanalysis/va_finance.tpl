@@ -176,6 +176,13 @@
  	{* }; *}
 	{* var pieChart = new Chart("pieChart", { type: "pie",	data: {}, options: optPieChart1 }); *}
 	
+	{* $("#lineChart").on("click", function(e){ *}
+		{* console.log("aaaaa"); *}
+		{* var activePoints = lineChart.getElementsAtEvent(e); *}
+		{* var url = "http://example.com/?label=" + activePoints[0].label + "&value=" + activePoints[0].value; *}
+		{* alert(url); *}
+	{* }); *}
+	
 	$("ul.nav-stacked li.item").on("click", function(){
 		$(this).parent().find("li").removeClass("active");
 		$(this).addClass("active");

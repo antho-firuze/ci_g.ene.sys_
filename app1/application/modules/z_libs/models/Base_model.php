@@ -124,7 +124,7 @@ class Base_Model extends CI_Model
 		if ( key_exists('where_custom', $params)) {
 			if (is_array($params['where_custom'])){
 				foreach($params['where_custom'] as $where_custom){
-					$this->db->where($where_custom);
+					$this->db->where($where_custom, NULL, FALSE);
 				}
 			} else {
 				$this->db->where($params['where_custom']);

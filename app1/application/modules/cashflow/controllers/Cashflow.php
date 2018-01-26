@@ -4858,6 +4858,33 @@ class Cashflow extends Getmeb
 		}
 	}
 	
+	function va_finance2_dd()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE);
+			
+			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
+				foreach (explode(",", $this->params['filter']) as $value) {
+					list($k, $v) = explode('=', $value);
+					$this->params[$k] = $v;
+				}
+				
+				unset($this->params['filter']);
+			}
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$this->xresponse(TRUE, $result);
+			}
+		}
+	}
+	
 	function va_sales()
 	{
 		if ($this->r_method == 'GET') {
