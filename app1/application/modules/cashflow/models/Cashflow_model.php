@@ -242,7 +242,9 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date, 
 		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
 		case when t1.doc_date is null then 'Projection' else 'Actual' end as invoice_status,
-		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name,
+		array_to_string(reasons, ',') as reasons,
+		(select string_agg(name, E',') from rf_invoice_adj_reason where id = ANY(t1.reasons)) as reason_name";
 		$params['table'] 	= "cf_invoice as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
 			$params['select'] .= ", t2.doc_no as doc_no_ar_ap, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_ar_ap, t3.note";
@@ -264,7 +266,9 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date, 
 		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
 		case when t1.doc_date is null then 'Projection' else 'Actual' end as invoice_status,
-		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name,
+		array_to_string(reasons, ',') as reasons,
+		(select string_agg(name, E',') from rf_invoice_adj_reason where id = ANY(t1.reasons)) as reason_name";
 		$params['table'] 	= "cf_invoice as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
 			$params['select'] .= ", t2.doc_no as doc_no_ar_ap, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_ar_ap, t3.note";

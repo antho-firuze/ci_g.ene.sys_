@@ -39,7 +39,6 @@
 			{ width:"100px", orderable:false, data:"invoice_no", title:"Invoice No" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"invoice_plan_date", title:"Invoice Plan Date" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"invoice_date", title:"Invoice Date" },
-			{* { width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"received_plan_date", title:"Received Plan Date", createdCell: function (td, cellData, rowData, row, col) { $(td).css('color', 'red') }}, *}
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"received_plan_date", title:"Received Plan Date" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"payment_plan_date", title:"Payment Plan Date" },
 			{ width:"100px", orderable:false, data:"voucher_no", title:"Voucher No" },

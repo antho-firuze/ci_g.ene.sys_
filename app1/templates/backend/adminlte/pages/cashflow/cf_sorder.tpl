@@ -181,7 +181,8 @@
 	function update_so_etd(data) {
 		var col = [], row = [], a = [];
 		var form1 = BSHelper.Form({ autocomplete:"off" });
-		col.push("<h3>Sales Order : <br>"+data.doc_no+"</h3>");
+		{* col.push("<h3>Sales Order : <br>"+data.doc_no+"</h3>"); *}
+		a.push(BSHelper.LineDesc({ label:"Sales Order", value: data.doc_no }));
 		a.push(BSHelper.LineDesc({ label:"Doc Date", value: data.doc_date }));
 		a.push(BSHelper.LineDesc({ label:"Customer", value: data.bpartner_name }));
 		a.push(BSHelper.LineDesc({ label:"Reference No", value: data.doc_ref_no }));

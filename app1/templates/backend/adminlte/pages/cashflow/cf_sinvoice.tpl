@@ -45,6 +45,7 @@
 		columns: [
 			{ width:"100px", orderable:true, data:"org_name", title:"Org Name" },
 			{ width:"100px", orderable:true, data:"orgtrx_name", title:"Org Trx Name" },
+			{ width:"100px", orderable:true, data:"invoice_status", title:"Status" },
 			{ width:"150px", orderable:true, data:"bpartner_name", title:"Business Partner" },
 			{ width:"100px", orderable:false, data:"residence", title:"Residence" },
 			{ width:"100px", orderable:true, data:"doc_no", title:"Invoice No" },
@@ -70,9 +71,9 @@
 		var col = [], row = [], a = [];
 		var form1 = BSHelper.Form({ autocomplete:"off" });
 		var format_money2 = "'alias': 'currency', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'autoGroup': true, 'autoUnmask': true";
-		col.push("<h3>Sales Order : <br>"+data.doc_no_order+"</h3>");
-		col.push("<h3>Business Partner : <br>"+data.bpartner_name+"</h3>");
-		col.push("<h3>Invoice Plan Date : <br>"+data.invoice_plan_date+"</h3>");
+		a.push(BSHelper.LineDesc({ label:"Sales Order", value: data.doc_no_order }));
+		a.push(BSHelper.LineDesc({ label:"Business Partner", value: data.bpartner_name }));
+		a.push(BSHelper.LineDesc({ label:"Invoice Plan Date", value: data.invoice_plan_date }));
 		col.push( $('<dl class="dl-horizontal">').append(a) ); a = [];
 		col.push(BSHelper.Input({ horz:false, type:"text", label:"Actual Invoice No", idname:"doc_no", format: "'casing': 'upper'", value: data.doc_no, required: true }));
 		col.push(BSHelper.Input({ horz:false, type:"date", label:"Invoice date", idname:"doc_date", cls:"auto_ymd", format:"{$.session.date_format}", value: data.doc_date, required: true }));
@@ -146,16 +147,14 @@
 		var col = [], row = [], a = [];
 		var form1 = BSHelper.Form({ autocomplete:"off" });
 		var format_money2 = "'alias': 'currency', 'prefix': '', 'groupSeparator': '{$.session.group_symbol}', 'radixPoint': '{$.session.decimal_symbol}', 'digits': {$.session.number_digit_decimal}, 'negationSymbol': { 'front':'-', 'back':'' }, 'autoGroup': true, 'autoUnmask': true";
-		col.push("<h4>Invoice No : <br>"+data.doc_no+"</h4>");
-		row.push(subCol(6, col)); col = [];
-		col.push("<h4>Sales Order : <br>"+data.doc_no_order+"</h4>");
-		row.push(subCol(6, col)); col = [];
-		col.push("<h4>Business Partner : <br>"+data.bpartner_name+"</h4>");
-		{* col.push( $('<dl class="dl-horizontal">').append(a) ); a = []; *}
+		a.push(BSHelper.LineDesc({ label:"Invoice No", value: data.doc_no }));
+		a.push(BSHelper.LineDesc({ label:"Sales Order", value: data.doc_no_order }));
+		a.push(BSHelper.LineDesc({ label:"Business Partner", value: data.bpartner_name }));
+		col.push( $('<dl class="dl-horizontal">').append(a) ); a = [];
 		col.push(BSHelper.Input({ horz:false, type:"text", label:"Original Amount", idname:"amount", style: "text-align: right;", step: ".01", format: format_money2, rrequired: false, value: data.amount, placeholder: "0.00", readonly: true, }));
 		col.push(BSHelper.Input({ horz:false, type:"text", label:"Final Amount", idname:"net_amount", style: "text-align: right;", format: format_money2, required: false, value: data.net_amount, placeholder: "0.00", readonly: true, }));
 		col.push(BSHelper.Input({ horz:false, type:"number", label:"Adjustment Amount", idname:"adj_amount", style: "text-align: right;", step: ".01", required: false, value: data.adj_amount, placeholder: "0.00", }));
-		col.push(BSHelper.Multiselect({ horz:false, label:"Adj Reason", idname:"reasons", url:"{$.php.base_url('cashflow/rf_invoice_adj_reason')}", value: data.reasons, required: false, remote: true }));
+		col.push(BSHelper.Multiselect({ horz:false, label:"Adj Reason", idname:"reasons", url:"{$.php.base_url('cashflow/rf_invoice_adj_reason')}", value: data.reasons, required: true, remote: true }));
 		col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 		row.push(subCol(12, col)); col = [];
 		form1.append(subRow(row));
