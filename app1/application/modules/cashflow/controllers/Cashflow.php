@@ -684,7 +684,7 @@ class Cashflow extends Getmeb
 	function cf_cashbank_p_line()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE);
+			$this->_get_filtered(TRUE, TRUE, ['(select doc_no from cf_invoice where id = t1.invoice_id)'], TRUE);
 			
 			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
 				$result = $this->base_model->getValueArray('coalesce(grand_total,0) as grand_total', 'cf_cashbank', 'id', $this->params['cashbank_id']);
