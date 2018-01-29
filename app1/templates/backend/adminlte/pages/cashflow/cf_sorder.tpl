@@ -189,7 +189,7 @@
 		a.push(BSHelper.LineDesc({ label:"Expected DT Customer", value: data.expected_dt_cust }));
 		col.push( $('<dl class="dl-horizontal">').append(a) ); a = [];
 		col.push(BSHelper.Input({ horz:false, type:"date", label:"ETD", idname:"etd", cls:"auto_ymd", format:"{$.session.date_format}", value: data.etd, required: true }));
-		col.push(BSHelper.Multiselect({ horz:false, label:"Late Reason", idname:"scm_dt_reasons", url:"{$.php.base_url('cashflow/rf_scm_dt_reason')}", value: data.scm_dt_reason, required: false, remote: true }));
+		col.push(BSHelper.Multiselect({ horz:false, label:"Late Reason", idname:"scm_dt_reasons", url:"{$.php.base_url('cashflow/rf_scm_dt_reason')}", value: data.scm_dt_reasons, required: false, remote: true }));
 		col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 		row.push(subCol(12, col)); col = [];
 		form1.append(subRow(row));

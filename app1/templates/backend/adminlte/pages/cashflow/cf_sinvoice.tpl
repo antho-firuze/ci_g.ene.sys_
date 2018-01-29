@@ -9,12 +9,14 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+{$.php.link_tag($.const.TEMPLATE_URL~'plugins/bootstrap-multiselect/css/bootstrap-multiselect.css')}
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/inputmask.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/inputmask.date.extensions.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/inputmask.numeric.extensions.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/inputmask/jquery.inputmask.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-multiselect/js/bootstrap-multiselect.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Toolbar Init *}
@@ -59,6 +61,7 @@
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"adj_amount", title:"Adj Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"net_amount", title:"Net Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"200px", orderable:true, data:"reason_name", title:"Reason", createdCell: function (td, cellData, rowData, row, col) { $(td).css({ 'text-overflow':'unset', 'overflow-x':'auto' }); } },
 			{ width:"200px", orderable:true, data:"description", title:"Description" },
 		],
 	};
@@ -152,6 +155,7 @@
 		col.push(BSHelper.Input({ horz:false, type:"text", label:"Original Amount", idname:"amount", style: "text-align: right;", step: ".01", format: format_money2, rrequired: false, value: data.amount, placeholder: "0.00", readonly: true, }));
 		col.push(BSHelper.Input({ horz:false, type:"text", label:"Final Amount", idname:"net_amount", style: "text-align: right;", format: format_money2, required: false, value: data.net_amount, placeholder: "0.00", readonly: true, }));
 		col.push(BSHelper.Input({ horz:false, type:"number", label:"Adjustment Amount", idname:"adj_amount", style: "text-align: right;", step: ".01", required: false, value: data.adj_amount, placeholder: "0.00", }));
+		col.push(BSHelper.Multiselect({ horz:false, label:"Adj Reason", idname:"reasons", url:"{$.php.base_url('cashflow/rf_invoice_adj_reason')}", value: data.reasons, required: false, remote: true }));
 		col.push(BSHelper.Input({ horz:false, type:"textarea", label:"Description", idname:"description", }));
 		row.push(subCol(12, col)); col = [];
 		form1.append(subRow(row));
@@ -176,7 +180,8 @@
 						
 						{* console.log(form1.serializeJSON()); return false; *}
 
-						$.ajax({ url: $url_module+'_adjustment', method: "OPTIONS", async: true, dataType: 'json',	data: form1.serializeJSON(),
+						$.ajax({ url: $url_module+'_adjustment', method: "OPTIONS", async: true, dataType: 'json',	
+							data: form1.serializeJSON(),
 							success: function(data) {
 								BootstrapDialog.show({ closable: false, message:data.message, 
 									buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],

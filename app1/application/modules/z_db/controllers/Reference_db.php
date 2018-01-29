@@ -41,6 +41,15 @@ class Reference_db extends CI_Controller {
 		return $fields;
 	}
 	
+	function table_rf_invoice_adj_reason()
+	{
+		$fields = $this->field_00_Main();
+		$fields['code'] = ['type' => 'VARCHAR', 'constraint' => '40', 'null' => TRUE];
+		$fields['name'] = ['type' => 'VARCHAR', 'constraint' => '120', 'null' => FALSE, 'unique' => TRUE];
+		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		return $fields;
+	}
+	
 	function field_00_Main()
 	{
 		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];

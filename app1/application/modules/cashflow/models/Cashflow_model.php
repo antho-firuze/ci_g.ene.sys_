@@ -213,7 +213,9 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
 		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date, 
 		case when t1.doc_date is null then 'Projection' else 'Actual' end as invoice_status,
-		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name,
+		array_to_string(reasons, ',') as reasons,
+		(select string_agg(name, E',') from rf_invoice_adj_reason where id = ANY(t1.reasons)) as reason_name";
 		$params['table'] 	= "cf_invoice as t1";
 		if (isset($params['level']) && $params['level'] == 1) {
 			$params['select'] .= ", 
@@ -290,8 +292,9 @@ class Cashflow_Model extends CI_Model
 		(select to_char(eta, '".$this->session->date_format."') from cf_order where id = t1.order_id) as eta_order, 
 		case doc_type when '2' then (select to_char(payment_plan_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) 
 		when '3' then (select to_char(payment_plan_date, '".$this->session->date_format."') from cf_order_plan_clearance where id = t1.order_plan_clearance_id) 
-		else (select to_char(payment_plan_date, '".$this->session->date_format."') from cf_order_plan_import where id = t1.order_plan_import_id) end as payment_plan_date_order
-		";
+		else (select to_char(payment_plan_date, '".$this->session->date_format."') from cf_order_plan_import where id = t1.order_plan_import_id) end as payment_plan_date_order,
+		array_to_string(reasons, ',') as reasons,
+		(select string_agg(name, E',') from rf_invoice_adj_reason where id = ANY(t1.reasons)) as reason_name";
 		$params['table'] 	= "cf_invoice as t1";
 		// if (isset($params['level']) && $params['level'] == 1) {
 			// $params['select'] .= ", t2.doc_no as doc_no_inout, to_char(t2.doc_date, '".$this->session->date_format."') as doc_date_inout";
@@ -2051,6 +2054,13 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 
+	function rf_invoice_adj_reason($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params['table'] 	= "rf_invoice_adj_reason as t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
 	function rf_scm_dt_reason($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";

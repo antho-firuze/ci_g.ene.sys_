@@ -248,11 +248,11 @@ class Cashflow extends Getmeb
 			// debug($this->c_table);
 			
 			/* Insert the record */
-			$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log));
-			$this->insert_id = $result;
-			/* Throwing the result to Ajax */
-			if (! $result)
+			if (!$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log)))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			/* _crudlog here */
+			// $this->_crudlog();
 			
 			xresponse(TRUE, ['id' => $result, 'message' => lang('success_plan_posting')]);
 		}
@@ -277,11 +277,13 @@ class Cashflow extends Getmeb
 				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
 			
 			/* Delete the record */
-			$result = $this->_recordDelete('cf_invoice', $invoice->id);
-			if (!$result)
+			if (!$result = $this->_recordDelete('cf_invoice', $invoice->id))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
+			
+			/* _crudlog here */
+			// $this->_crudlog();
+			
+			xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
 		}
 	}
 	
@@ -477,11 +479,11 @@ class Cashflow extends Getmeb
 			// debug($this->c_table);
 			
 			/* Insert the record */
-			$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log));
-			$this->insert_id = $result;
-			/* Throwing the result to Ajax */
-			if (! $result)
+			if (!$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log)))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			/* _crudlog here */
+			// $this->_crudlog();
 			
 			xresponse(TRUE, ['id' => $result, 'message' => lang('success_plan_posting')]);
 		}
@@ -506,11 +508,13 @@ class Cashflow extends Getmeb
 				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
 			
 			/* Delete the record */
-			$result = $this->_recordDelete('cf_invoice', $invoice->id);
-			if (!$result)
+			if (!$result = $this->_recordDelete('cf_invoice', $invoice->id))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
+			
+			/* _crudlog here */
+			// $this->_crudlog();
+			
+			xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
 		}
 	}
 	
@@ -1003,14 +1007,12 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'OPTIONS') {
 			$id = $this->params->id;
 			unset($this->params->id);
-			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
-			// debug($this->mixed_data);
-			$result = $this->_recordUpdate($this->c_table, $this->mixed_data, ['id'=>$id]);
-			
-			/* Throwing the result to Ajax */
-			if (! $result)
+			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
 
+			/* _crudlog here */
+			// $this->_crudlog();
+			
 			xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
@@ -1018,16 +1020,22 @@ class Cashflow extends Getmeb
 	function cf_oinvoice_i_adjustment()
 	{
 		if ($this->r_method == 'OPTIONS') {
-			$id = $this->params->id;
+			/* for array field treatment */
+			$this->params->reasons = $this->params->reasons ? '{'.$this->params->reasons.'}' : NULL;
+			/* for inject additional description from existing */
+			if ($this->params->description) {
+				$this->db->set('description', "case when coalesce(description, '') = '' then '".$this->params->description." [by: ".$this->session->user_name."]' else coalesce(description, '') || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]' end", FALSE);
+			}
+			unset($this->params->description);
+			
+			$id = $this->params->id; 
 			unset($this->params->id);
-			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
-			
-			$result = $this->_recordUpdate($this->c_table, $this->mixed_data, ['id'=>$id]);
-			
-			/* Throwing the result to Ajax */
-			if (! $result)
+			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
 
+			/* _crudlog here */
+			// $this->_crudlog();
+			
 			xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
@@ -1122,14 +1130,12 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'OPTIONS') {
 			$id = $this->params->id;
 			unset($this->params->id);
-			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
-			
-			$result = $this->_recordUpdate($this->c_table, $this->mixed_data, ['id'=>$id]);
-			
-			/* Throwing the result to Ajax */
-			if (! $result)
+			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
 
+			/* _crudlog here */
+			// $this->_crudlog();
+			
 			xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
@@ -1137,16 +1143,22 @@ class Cashflow extends Getmeb
 	function cf_oinvoice_o_adjustment()
 	{
 		if ($this->r_method == 'OPTIONS') {
-			$id = $this->params->id;
+			/* for array field treatment */
+			$this->params->reasons = $this->params->reasons ? '{'.$this->params->reasons.'}' : NULL;
+			/* for inject additional description from existing */
+			if ($this->params->description) {
+				$this->db->set('description', "case when coalesce(description, '') = '' then '".$this->params->description." [by: ".$this->session->user_name."]' else coalesce(description, '') || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]' end", FALSE);
+			}
+			unset($this->params->description);
+			
+			$id = $this->params->id; 
 			unset($this->params->id);
-			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
-			
-			$result = $this->_recordUpdate($this->c_table, $this->mixed_data, ['id'=>$id]);
-			
-			/* Throwing the result to Ajax */
-			if (! $result)
+			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
 
+			/* _crudlog here */
+			// $this->_crudlog();
+			
 			xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
@@ -1237,14 +1249,12 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'OPTIONS') {
 			$id = $this->params->id;
 			unset($this->params->id);
-			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
-			// debug($this->mixed_data);
-			$result = $this->_recordUpdate($this->c_table, $this->mixed_data, ['id'=>$id]);
-			
-			/* Throwing the result to Ajax */
-			if (! $result)
+			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
 
+			/* _crudlog here */
+			// $this->_crudlog();
+			
 			xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
@@ -1252,21 +1262,22 @@ class Cashflow extends Getmeb
 	function cf_sinvoice_adjustment()
 	{
 		if ($this->r_method == 'OPTIONS') {
-			$id = $this->params->id;
-			unset($this->params->id);
-			
+			/* for array field treatment */
+			$this->params->reasons = $this->params->reasons ? '{'.$this->params->reasons.'}' : NULL;
+			/* for inject additional description from existing */
 			if ($this->params->description) {
 				$this->db->set('description', "case when coalesce(description, '') = '' then '".$this->params->description." [by: ".$this->session->user_name."]' else coalesce(description, '') || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]' end", FALSE);
-				unset($this->params->description);
 			}
-			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
+			unset($this->params->description);
 			
-			$result = $this->_recordUpdate($this->c_table, $this->mixed_data, ['id'=>$id]);
-			
-			/* Throwing the result to Ajax */
-			if (! $result)
+			$id = $this->params->id; 
+			unset($this->params->id);
+			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
 
+			/* _crudlog here */
+			// $this->_crudlog();
+			
 			xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
@@ -1362,14 +1373,12 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'OPTIONS') {
 			$id = $this->params->id;
 			unset($this->params->id);
-			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
-			
-			$result = $this->_recordUpdate($this->c_table, $this->mixed_data, ['id'=>$id]);
-			
-			/* Throwing the result to Ajax */
-			if (! $result)
+			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
 
+			/* _crudlog here */
+			// $this->_crudlog();
+			
 			xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
@@ -1377,21 +1386,22 @@ class Cashflow extends Getmeb
 	function cf_pinvoice_adjustment()
 	{
 		if ($this->r_method == 'OPTIONS') {
-			$id = $this->params->id;
-			unset($this->params->id);
-			
+			/* for array field treatment */
+			$this->params->reasons = $this->params->reasons ? '{'.$this->params->reasons.'}' : NULL;
+			/* for inject additional description from existing */
 			if ($this->params->description) {
 				$this->db->set('description', "case when coalesce(description, '') = '' then '".$this->params->description." [by: ".$this->session->user_name."]' else coalesce(description, '') || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]' end", FALSE);
-				unset($this->params->description);
 			}
-			$this->mixed_data = array_merge((array)$this->params, $this->update_log);
+			unset($this->params->description);
 			
-			$result = $this->_recordUpdate($this->c_table, $this->mixed_data, ['id'=>$id]);
-			
-			/* Throwing the result to Ajax */
-			if (! $result)
+			$id = $this->params->id; 
+			unset($this->params->id);
+			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
 
+			/* _crudlog here */
+			// $this->_crudlog();
+			
 			xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
@@ -1895,11 +1905,11 @@ class Cashflow extends Getmeb
 			// debug($this->c_table);
 			
 			/* Insert the record */
-			$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log));
-			$this->insert_id = $result;
-			/* Throwing the result to Ajax */
-			if (! $result)
+			if (!$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log)))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			/* _crudlog here */
+			// $this->_crudlog();
 			
 			xresponse(TRUE, ['id' => $result, 'message' => lang('success_plan_posting')]);
 		}
@@ -1924,43 +1934,36 @@ class Cashflow extends Getmeb
 				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
 			
 			/* Delete the record */
-			$result = $this->_recordDelete('cf_invoice', $invoice->id);
-			if (!$result)
+			if (!$result = $this->_recordDelete('cf_invoice', $invoice->id))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
+			
+			/* _crudlog here */
+			// $this->_crudlog();
+			
+			xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
 		}
 	}
 	
 	function cf_sorder_etd()
 	{
 		if ($this->r_method == 'OPTIONS') {
-			// debug($this->params);
-			$data = array_merge(['etd' => $this->params->etd, 'scm_dt_reasons' => ($this->params->scm_dt_reasons ? '{'.$this->params->scm_dt_reasons.'}' : NULL)], $this->update_log);
-
-			if ($this->params->description)
+			/* for array field treatment */
+			$this->params->scm_dt_reasons = $this->params->scm_dt_reasons ? '{'.$this->params->scm_dt_reasons.'}' : NULL;
+			/* for inject additional description from existing */
+			if ($this->params->description) {
 				$this->db->set('description', "case when coalesce(description, '') = '' then '".$this->params->description." [by: ".$this->session->user_name."]' else coalesce(description, '') || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]' end", FALSE);
+			}
+			unset($this->params->description);
 			
-			// debug("description || E'\r\n' || '".$this->params->description." [by: ".$this->session->user_name."]'");
-			
-			if (!$result = $this->db->update($this->c_table, $data, ['id' => $this->params->id])) {
+			$id = $this->params->id; 
+			unset($this->params->id);
+			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
 				xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
-			} 
 				
+			/* _crudlog here */
+			// $this->_crudlog();
+			
 			xresponse(TRUE, ['message' => lang('success_update', null, 'systems')]);
-			
-			
-			// $id = $this->params->id;
-			// unset($this->params->id);
-			// $this->mixed_data = array_merge((array)$this->params, $this->update_log);
-			
-			// $result = $this->_recordUpdate($this->c_table, $this->mixed_data, ['id'=>$id]);
-			
-			// /* Throwing the result to Ajax */
-			// if (! $result)
-				// xresponse(FALSE, ['message' => $this->messages()], 401);
-
-			// xresponse(TRUE, ['message' => $this->messages()]);
 		}
 	}
 	
@@ -2351,11 +2354,11 @@ class Cashflow extends Getmeb
 			// debug($this->c_table);
 			
 			/* Insert the record */
-			$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log));
-			$this->insert_id = $result;
-			/* Throwing the result to Ajax */
-			if (! $result)
+			if (!$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log)))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			/* _crudlog here */
+			// $this->_crudlog();
 			
 			xresponse(TRUE, ['id' => $result, 'message' => lang('success_plan_posting')]);
 		}
@@ -2380,11 +2383,13 @@ class Cashflow extends Getmeb
 				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
 			
 			/* Delete the record */
-			$result = $this->_recordDelete('cf_invoice', $invoice->id);
-			if (!$result)
+			if (!$result = $this->_recordDelete('cf_invoice', $invoice->id))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
+			
+			/* _crudlog here */
+			// $this->_crudlog();
+			
+			xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
 		}
 	}
 	
@@ -2496,11 +2501,11 @@ class Cashflow extends Getmeb
 			// debug($this->c_table);
 			
 			/* Insert the record */
-			$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log));
-			$this->insert_id = $result;
-			/* Throwing the result to Ajax */
-			if (! $result)
+			if (!$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log)))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			/* _crudlog here */
+			// $this->_crudlog();
 			
 			xresponse(TRUE, ['id' => $result, 'message' => lang('success_plan_posting')]);
 		}
@@ -2525,11 +2530,13 @@ class Cashflow extends Getmeb
 				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
 			
 			/* Delete the record */
-			$result = $this->_recordDelete('cf_invoice', $invoice->id);
-			if (!$result)
+			if (!$result = $this->_recordDelete('cf_invoice', $invoice->id))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
+			
+			/* _crudlog here */
+			// $this->_crudlog();
+			
+			xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
 		}
 	}
 	
@@ -2641,11 +2648,11 @@ class Cashflow extends Getmeb
 			// debug($this->c_table);
 			
 			/* Insert the record */
-			$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log));
-			$this->insert_id = $result;
-			/* Throwing the result to Ajax */
-			if (! $result)
+			if (!$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log)))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
+			
+			/* _crudlog here */
+			// $this->_crudlog();
 			
 			xresponse(TRUE, ['id' => $result, 'message' => lang('success_plan_posting')]);
 		}
@@ -2670,11 +2677,13 @@ class Cashflow extends Getmeb
 				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
 			
 			/* Delete the record */
-			$result = $this->_recordDelete('cf_invoice', $invoice->id);
-			if (!$result)
+			if (!$result = $this->_recordDelete('cf_invoice', $invoice->id))
 				xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
+			
+			/* _crudlog here */
+			// $this->_crudlog();
+			
+			xresponse(TRUE, ['message' => lang('success_plan_unposting')]);
 		}
 	}
 	
@@ -4787,6 +4796,23 @@ class Cashflow extends Getmeb
 			}
 			
 			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				xresponse(TRUE, $result);
+			}
+		}
+	}
+	
+	function rf_invoice_adj_reason()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, FALSE);
+			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}
