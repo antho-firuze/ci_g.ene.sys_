@@ -1657,6 +1657,10 @@ class Cashflow_Model extends CI_Model
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence,
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_requisition_line s1 where requisition_id = t1.id) as category_name,
+		coalesce(eta - current_date , 0) as estimation_late,
+		coalesce(current_date - eta, 0) as late,
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
 		t1.*, 
 		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, to_char(t1.eta, '".$this->session->date_format."') as eta, coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
