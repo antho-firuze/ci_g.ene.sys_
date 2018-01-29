@@ -47,7 +47,7 @@ class Iproduct extends Getmef
 		if (key_exists('id', $this->params) && !empty($this->params['id'])) 
 			$result['data'] = $this->iproduct_model->getCertificates($this->params['id']);
 
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 }

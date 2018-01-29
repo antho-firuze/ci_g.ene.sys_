@@ -42,7 +42,7 @@ class Systems extends Getme
 		$result = json_decode($request->body);
 		
 		if (! $result->status)
-			$this->xresponse(FALSE, ['message' => $result->message], $request->status_code);
+			xresponse(FALSE, ['message' => $result->message], $request->status_code);
 
 
 		$data = (array)json_decode(urlsafeB64Decode($result->data));
@@ -65,7 +65,7 @@ class Systems extends Getme
 			]);
 		} */
 
-		$this->xresponse(TRUE, ["token" => $data['token']], $request->status_code);
+		xresponse(TRUE, ["token" => $data['token']], $request->status_code);
 	}
 	
 	function unlockscreen()
@@ -81,13 +81,13 @@ class Systems extends Getme
 		$result = json_decode($request->body);
 		
 		if (! $result->status)
-			$this->xresponse(FALSE, ['message' => $result->message], $request->status_code);
+			xresponse(FALSE, ['message' => $result->message], $request->status_code);
 
 		// UPDATE TOKEN
 		if (! empty($result->token))
 			$this->session->set_userdata('token', $result->token);
 		
-		$this->xresponse(TRUE, [], $request->status_code);
+		xresponse(TRUE, [], $request->status_code);
 	}
 	
 	function change_passwd()
@@ -103,13 +103,13 @@ class Systems extends Getme
 		$result = json_decode($request->body);
 		
 		if (! $result->status)
-			$this->xresponse(FALSE, ['message' => $result->message], $request->status_code);
+			xresponse(FALSE, ['message' => $result->message], $request->status_code);
 
 		// UPDATE TOKEN
 		if (! empty($result->token))
 			$this->session->set_userdata('token', $result->token);
 		
-		$this->xresponse(TRUE, ['message' => $result->message], $request->status_code);
+		xresponse(TRUE, ['message' => $result->message], $request->status_code);
 	}
 	
 	function login()

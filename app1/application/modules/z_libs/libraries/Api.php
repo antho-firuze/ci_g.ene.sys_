@@ -95,7 +95,7 @@ class Getmeb extends CI_Controller
 		
 		// OUTPUT
 		if (! $keep)
-			$this->xresponse($result->status, $output, $response->status_code);
+			xresponse($result->status, $output, $response->status_code);
 		else
 			return $result;
 	}
@@ -120,7 +120,7 @@ class Getmeb extends CI_Controller
 		
 		// OUTPUT
 		if (! $keep)
-			$this->xresponse($result->status, $output, $response->status_code);
+			xresponse($result->status, $output, $response->status_code);
 		else
 			return $result;
 	}
@@ -148,7 +148,7 @@ class Getmeb extends CI_Controller
 		
 		// OUTPUT
 		if (! $keep)
-			$this->xresponse($result->status, $output, $response->status_code);
+			xresponse($result->status, $output, $response->status_code);
 		else
 			return $result;
 	}
@@ -176,7 +176,7 @@ class Getmeb extends CI_Controller
 		
 		// OUTPUT
 		if (! $keep)
-			$this->xresponse($result->status, $output, $response->status_code);
+			xresponse($result->status, $output, $response->status_code);
 		else
 			return $result;
 	}

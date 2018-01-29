@@ -176,57 +176,7 @@ class Getmeb extends CI_Controller
 				$this->_import_data();
 			}
 			
-			/* Mixing the Data */
-			$this->_pre_update_records();
-			
-			/* Trigger events before POST & PUT */
-			$this->params->event = 'pre_post_put';
-			$this->{$this->c_method}();
-			
-			/* Trigger events before POST */
-			if ($this->r_method == 'POST') {
-				$this->params->event = 'pre_post';
-				$this->{$this->c_method}();
-			}
-			
-			/* Trigger events before PUT */
-			if ($this->r_method == 'PUT') {
-				$this->params->event = 'pre_put';
-				$this->{$this->c_method}();
-			}
-			
-			/* Go INSERT or UPDATE */
-			if ($this->r_method == 'POST') {
-				$result = $this->insertRecord($this->c_table, $this->mixed_data);
-				$this->insert_id = $result;
-			} else {
-				$result = $this->updateRecord($this->c_table, $this->mixed_data, ['id'=>$this->params->id]);
-			}
-			
-			/* Trigger events after POST & PUT */
-			$this->params->event = 'post_post_put';
-			$this->{$this->c_method}();
-			
-			/* Trigger events before POST */
-			if ($this->r_method == 'POST') {
-				$this->params->event = 'post_post';
-				$this->{$this->c_method}();
-			}
-			
-			/* Trigger events before PUT */
-			if ($this->r_method == 'PUT') {
-				$this->params->event = 'post_put';
-				$this->{$this->c_method}();
-			}
-			
-			/* Throwing the result to Ajax */
-			if (! $result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-
-			if ($this->r_method == 'POST')
-				$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->_record_permutation_save();
 		}
 		
 		/* This Request for DELETE Data */
@@ -237,23 +187,7 @@ class Getmeb extends CI_Controller
 			/* Become Array */
 			$this->params = $this->input->get();
 			
-			/* For reverse value "is_deleted", if param "xdel" exists & user_id = 11 */
-			$this->delete_log['is_deleted'] = isset($this->params['xdel']) && ($this->params['xdel'] == 1) && ($this->session->user_id == 11) ? 0 : 1;
-			
-			/* Trigger events before delete */
-			$this->params['event'] = 'pre_delete';
-			$this->{$this->c_method}();
-			
-			$result = $this->deleteRecords($this->c_table, $this->params['id']);
-			
-			/* Trigger events after delete */
-			$this->params['event'] = 'post_delete';
-			$this->{$this->c_method}();
-			
-			if (!$result)
-				$this->xresponse(FALSE, ['message' => $this->messages()], 401);
-			else
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+			$this->_record_permutation_delete();
 		}
 		
 		/* This Request for EXPORT/IMPORT, PROCESS/REPORT & FORM  */
@@ -267,7 +201,7 @@ class Getmeb extends CI_Controller
 			
 			/* Check is in params have a variable "is_allow" */
 			// if (isset($this->params->is_allow) && !empty($this->params->is_allow)) {
-				// $this->xresponse(TRUE, ['is_allow' => 1]);
+				// xresponse(TRUE, ['is_allow' => 1]);
 			// }
 			
 			/* Request for Export Data */
@@ -402,7 +336,7 @@ class Getmeb extends CI_Controller
 					return $menu;
 			} else {
 				if (strtolower($output) == 'json')
-					$this->xresponse(FALSE, ['message' => 'Menu permission not found !'], 401);
+					xresponse(FALSE, ['message' => 'Menu permission not found !'], 401);
 				else
 					$this->backend_view('pages/404', ['message' => 'Menu permission not found !']);
 			}
@@ -426,7 +360,7 @@ class Getmeb extends CI_Controller
 		$allow = $this->base_model->getValue('permit_form, permit_process, permit_window', 'a_role_menu', ['role_id', 'menu_id', 'is_active', 'is_deleted'], [$this->session->role_id, $menu['id'], '1', '0']);
 		if (!$allow) {
 			if (strtolower($output) == 'json')
-				$this->xresponse(FALSE, ['message' => sprintf('Permission [%s] <b>not found</b> or <b>not active</b> in [a_role_menu] !', $menu['name'])], 401);
+				xresponse(FALSE, ['message' => sprintf('Permission [%s] <b>not found</b> or <b>not active</b> in [a_role_menu] !', $menu['name'])], 401);
 			else
 				$this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] <b>not found</b> or <b>not active</b> in [a_role_menu] !', $menu['name'])]);
 		}
@@ -441,14 +375,14 @@ class Getmeb extends CI_Controller
 				/* Execute */
 				if (!in_array($this->r_method, ['OPTIONS'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
+						xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
 						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
 				break;
 			default:
 				if (strtolower($output) == 'json')
-					$this->xresponse(FALSE, ['message' => lang('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
+					xresponse(FALSE, ['message' => lang('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
 				else
 					$this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu->name)]);
 				break;
@@ -460,14 +394,14 @@ class Getmeb extends CI_Controller
 				/* Export */
 				if (!in_array($this->r_method, ['OPTIONS'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
+						xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
 						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
 				break;
 			default:
 				if (strtolower($output) == 'json')
-					$this->xresponse(FALSE, ['message' => lang('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
+					xresponse(FALSE, ['message' => lang('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
 				else
 					$this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu['name'])]);
 				break;
@@ -479,7 +413,7 @@ class Getmeb extends CI_Controller
 				/* Only Create */
 				if (!in_array($this->r_method, ['POST'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
+						xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
 						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
@@ -488,7 +422,7 @@ class Getmeb extends CI_Controller
 				/* Only Edit */
 				if (!in_array($this->r_method, ['PUT'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
+						xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
 						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
@@ -497,7 +431,7 @@ class Getmeb extends CI_Controller
 				/* Only Delete */
 				if (!in_array($this->r_method, ['DELETE'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
+						xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
 						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
@@ -506,7 +440,7 @@ class Getmeb extends CI_Controller
 				/* Can Create & Edit */
 				if (!in_array($this->r_method, ['POST','PUT'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
+						xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
 						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
@@ -515,7 +449,7 @@ class Getmeb extends CI_Controller
 				/* Can Create & Delete */
 				if (!in_array($this->r_method, ['POST','DELETE'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
+						xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
 						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
@@ -524,7 +458,7 @@ class Getmeb extends CI_Controller
 				/* Can Edit & Delete */
 				if (!in_array($this->r_method, ['PUT','DELETE'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
+						xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
 						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
@@ -533,14 +467,14 @@ class Getmeb extends CI_Controller
 				/* Can All */
 				if (!in_array($this->r_method, ['POST','PUT','DELETE'])) {
 					if (strtolower($output) == 'json')
-						$this->xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
+						xresponse(FALSE, ['message' => lang('error_permit_crud')], 401);
 					else
 						$this->backend_view('pages/unauthorized', ['message' => lang('error_permit_crud')]);
 				}
 				break;
 			default:
 				if (strtolower($output) == 'json')
-					$this->xresponse(FALSE, ['message' => lang('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
+					xresponse(FALSE, ['message' => lang('error_permit_crud'), 'note' => sprintf('Permission [%s] is not set !', $menu['name'])], 401);
 				else
 					$this->backend_view('pages/unauthorized', ['message' => sprintf('Permission [%s] is not set !', $menu['name'])]);
 				break;
@@ -556,22 +490,22 @@ class Getmeb extends CI_Controller
 			case 'canviewlog':
 				if (!$role->is_canviewlog)
 					$this->backend_view('pages/unauthorized', ['message'=>'You are not authorized !']);
-					// $this->xresponse(FALSE, ['message' => lang('error_permit_crud')]);
+					// xresponse(FALSE, ['message' => lang('error_permit_crud')]);
 				break;
 			case 'canexport':
 				if (!$role->is_canexport)
 					$this->backend_view('pages/unauthorized', ['message'=>'You are not authorized !']);
-					// $this->xresponse(FALSE, ['message' => lang('error_permit_crud')]);
+					// xresponse(FALSE, ['message' => lang('error_permit_crud')]);
 				break;
 			case 'canapproveowndoc':
 				if (!$role->is_canapproveowndoc)
 					$this->backend_view('pages/unauthorized', ['message'=>'You are not authorized !']);
-					// $this->xresponse(FALSE, ['message' => lang('error_permit_crud')]);
+					// xresponse(FALSE, ['message' => lang('error_permit_crud')]);
 				break;
 			case 'canreport':
 				if (!$role->is_canreport)
 					$this->backend_view('pages/unauthorized', ['message'=>'You are not authorized !']);
-					// $this->xresponse(FALSE, ['message' => lang('error_permit_crud')]);
+					// xresponse(FALSE, ['message' => lang('error_permit_crud')]);
 				break;
 		}
 	}
@@ -581,9 +515,9 @@ class Getmeb extends CI_Controller
 		usleep(100000);
 		// if ($process = $this->base_model->getValue('*', 'a_tmp_process', 'id', $this->params['id'])){
 		if ($process = $this->base_model->getValue('*', 'a_tmp_process', 'id', $this->session->id_process)){
-			$this->xresponse(TRUE, ['data' => $process]);
+			xresponse(TRUE, ['data' => $process]);
 		}
-		$this->xresponse(FALSE, ['message' => sprintf('Error: Retrieving process [id=%s] failed !', $this->session->id_process)], 401);
+		xresponse(FALSE, ['message' => sprintf('Error: Retrieving process [id=%s] failed !', $this->session->id_process)], 401);
 	}
 	
 	function _get_viewlog()
@@ -614,36 +548,10 @@ class Getmeb extends CI_Controller
 				}
 			}
 		}
-		$this->xresponse(TRUE, ['data' => $result]);
+		xresponse(TRUE, ['data' => $result]);
 	}
 	
-	function _get_filtered($client = TRUE, $org = TRUE, $qField = [], $qReplaceField = FALSE)
-	{
-		if (isset($this->params['id']) && !empty($this->params['id'])) 
-			$this->params['where']['t1.id'] = $this->params['id'];
-		
-		if (isset($this->params['q']) && !empty($this->params['q'])) {
-			$defaultField = $qReplaceField ? [] : ['t1.code', 't1.name', 't1.description'];
-			$qField = implode(',', array_merge($defaultField, $qField));
-			if ($qField)
-				$this->params['like'] = DBX::like_or($qField, $this->params['q']);
-		}
-		
-		if ($client)
-			$this->params['where']['t1.client_id'] = $this->session->client_id;
-
-		if ($org)
-			$this->params['where']['t1.org_id'] = $this->session->org_id;
-	}
-	
-	function remove_empty($array) {
-		return array_filter($array, function($value){
-			return !empty($value) || $value === 0;
-		});
-	}
-
-	// function _pre_update_records($return = FALSE, $fixed_data = TRUE, $log = TRUE)
-	function _pre_update_records($table = NULL, $fixed_data = TRUE, $log = TRUE)
+	function _record_mixing_data($table = NULL, $fixed_data = TRUE, $log = TRUE)
 	{
 		$datas = [];
 		$fields = $this->db->list_fields( $table ? $table : $this->c_table );
@@ -673,44 +581,131 @@ class Getmeb extends CI_Controller
 		}
 		
 		$this->mixed_data = $datas;
-		// if ($return) 
-			// return $datas;
-			
-		// $this->_go_update_records($datas);
 	}
 	
-	/* function _go_update_records($datas)
+	function _record_permutation_save()
 	{
-		if ($this->r_method == 'POST')
-			$result = $this->insertRecord($this->c_table, $datas, TRUE, TRUE);
-		else
-			$result = $this->updateRecord($this->c_table, $datas, ['id'=>$this->params->id], TRUE);				
+		/* Mixing the Data */
+		$this->_record_mixing_data();
 		
+		/* Trigger events before POST & PUT */
+		$this->params->event = 'pre_post_put';
+		$this->{$this->c_method}();
+		
+		/* Trigger events before POST */
+		if ($this->r_method == 'POST') {
+			$this->params->event = 'pre_post';
+			$this->{$this->c_method}();
+		}
+		
+		/* Trigger events before PUT */
+		if ($this->r_method == 'PUT') {
+			$this->params->event = 'pre_put';
+			$this->{$this->c_method}();
+		}
+		
+		/* Go INSERT or UPDATE */
+		if ($this->r_method == 'POST') {
+			$result = $this->_recordInsert($this->c_table, $this->mixed_data);
+			$this->insert_id = $result;
+		} else {
+			$result = $this->_recordUpdate($this->c_table, $this->mixed_data, ['id'=>$this->params->id]);
+		}
+		
+		/* Trigger events after POST & PUT */
+		$this->params->event = 'post_post_put';
+		$this->{$this->c_method}();
+		
+		/* Trigger events before POST */
+		if ($this->r_method == 'POST') {
+			$this->params->event = 'post_post';
+			$this->{$this->c_method}();
+		}
+		
+		/* Trigger events before PUT */
+		if ($this->r_method == 'PUT') {
+			$this->params->event = 'post_put';
+			$this->{$this->c_method}();
+		}
+		
+		/* Throwing the result to Ajax */
 		if (! $result)
-			$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+			xresponse(FALSE, ['message' => $this->messages()], 401);
 
 		if ($this->r_method == 'POST')
-			$this->xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
+			xresponse(TRUE, ['id' => $result, 'message' => $this->messages()]);
 		else
-			$this->xresponse(TRUE, ['message' => $this->messages()]);
-	} */
-	
-	function _get_table_id()
-	{
-		
+			xresponse(TRUE, ['message' => $this->messages()]);
 	}
 	
-	function _create_history_log($table_id = NULL, $key_id = NULL, $type = 0, $description)
+	function _record_permutation_delete()
+	{
+		/* For reverse value "is_deleted", if param "xdel" exists & user_id = 11 */
+		$this->delete_log['is_deleted'] = isset($this->params['xdel']) && ($this->params['xdel'] == 1) && ($this->session->user_id == 11) ? 0 : 1;
+		
+		/* Trigger events before delete */
+		$this->params['event'] = 'pre_delete';
+		$this->{$this->c_method}();
+		
+		$result = $this->_recordDelete($this->c_table, $this->params['id']);
+		
+		/* Trigger events after delete */
+		$this->params['event'] = 'post_delete';
+		$this->{$this->c_method}();
+		
+		if (!$result)
+			xresponse(FALSE, ['message' => $this->messages()], 401);
+		else
+			xresponse(TRUE, ['message' => $this->messages()]);
+	}
+	
+	function _get_filtered($client = TRUE, $org = TRUE, $qField = [], $qReplaceField = FALSE)
+	{
+		if (isset($this->params['id']) && !empty($this->params['id'])) 
+			$this->params['where']['t1.id'] = $this->params['id'];
+		
+		if (isset($this->params['q']) && !empty($this->params['q'])) {
+			$defaultField = $qReplaceField ? [] : ['t1.code', 't1.name', 't1.description'];
+			$qField = implode(',', array_merge($defaultField, $qField));
+			if ($qField)
+				$this->params['like'] = DBX::like_or($qField, $this->params['q']);
+		}
+		
+		if ($client)
+			$this->params['where']['t1.client_id'] = $this->session->client_id;
+
+		if ($org)
+			$this->params['where']['t1.org_id'] = $this->session->org_id;
+	}
+	
+	function _remove_empty($array) {
+		return array_filter($array, function($value){
+			return !empty($value) || $value === 0;
+		});
+	}
+
+	function _get_table_id()
+	{
+		$table_id = $this->base_model->getValue('id', 'a_table', 'name', $this->c_table)->id;
+		return $table_id ? $table_id : 0;
+	}
+	
+	/* 
+	* 	$key_id		integer; 
+	* 	$type			integer; 		Ex.: 1=created, 2=updated, 3=deleted, 4=comment
+	* 	$description		text; 
+	*/
+	function _crudlog($key_id = NULL, $type = 0, $description)
 	{
 		$data['client_id'] = DEFAULT_CLIENT_ID;
 		$data['org_id'] =  $this->session->org_id;
-		$data['table_id'] = $table_id;
+		$data['table_id'] = $this->_get_table_id();
 		$data['key_id'] = $key_id;
 		$data['user_id'] = $this->session->user_id;
 		$data['created_at'] = date('Y-m-d H:i:s');
 		$data['type'] = $type;
-		$data['title'] = $table_id;
-		$data['description'] = $table_id;
+		// $data['title'] = $table_id;
+		$data['description'] = $description;
 		$this->db->insert('a_history_log', $data);
 	}
 	
@@ -739,7 +734,7 @@ class Getmeb extends CI_Controller
 			if (!$result = $ph->handleUpload()) {
 				// $this->set_message($ph->getErrorMessage());
 				// return FALSE;
-				$this->xresponse(FALSE, ['message' => $ph->getErrorMessage()], 401);
+				xresponse(FALSE, ['message' => $ph->getErrorMessage()], 401);
 			}
 			/* Result Output in array : array('name', 'path', 'chunk', 'size') */
 			// return $result;
@@ -749,7 +744,7 @@ class Getmeb extends CI_Controller
 				if (!$this->params->chunks || $this->params->chunk == $this->params->chunks - 1)
 					return $result;
 				else
-					$this->xresponse(TRUE, $result);
+					xresponse(TRUE, $result);
 			} else {
 				return $result;
 			}
@@ -769,7 +764,7 @@ class Getmeb extends CI_Controller
 		if (! $result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 			$result['data'] = [];
 			$result['message'] = $this->base_model->errors();
-			$this->xresponse(FALSE, $result);
+			xresponse(FALSE, $result);
 		}
 
 		if ($return)
@@ -779,14 +774,14 @@ class Getmeb extends CI_Controller
 		$excl_cols = isset($this->params['excl_cols']) ? $this->params['excl_cols'] : $this->protected_fields;
 		/* Export the data */
 		if (! $result = $this->_export_data($result, $excl_cols, $filename, $filetype, TRUE))
-			$this->xresponse(FALSE, ['message' => 'export_data_failed']);
+			xresponse(FALSE, ['message' => 'export_data_failed']);
 		
 		/* Compress the file */
 		if ($is_compress) 
 			if(! $result = $this->_compress_file($result['filepath']))
-				$this->xresponse(FALSE, ['message' => 'compress_file_failed']);
+				xresponse(FALSE, ['message' => 'compress_file_failed']);
 			
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function _export_data($qry, $excl_cols=[], $filename, $filetype, $return = FALSE)
@@ -1014,37 +1009,6 @@ class Getmeb extends CI_Controller
 		return ['filename' => $filezip, 'filepath' => $this->rel_tmp_dir.$filezip, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filezip];
 	}
 	
-	/* function _get_menu_child($parent_id, $menu = array(), $active_only = TRUE)
-	{
-		$active_only = $active_only ? "and is_active = '1'" : "";
-		$str = "select * from a_menu where is_submodule = '0' $active_only and is_deleted = '0' and parent_id = $parent_id order by is_parent desc, line_no";
-		$qry = $this->db->query($str);
-		foreach($qry->result() as $k => $v){
-			$menu[] = $v;
-			$menu = $this->_get_menu_child($v->id, $menu);
-		}
-		return $menu;
-	} */
-	
-	function _get_menu($active_only = TRUE, $parent_id = 0)
-	{
-		$menu = [];
-		/* get menu level 0 : not include dashboard (id <> 1)*/
-		$active = $active_only ? "and is_active = '1'" : "";
-		if (empty($parent_id)) {
-			$str = "select * from a_menu where is_submodule = '0' $active and is_deleted = '0' and (parent_id = 0 or parent_id is null) order by parent_id, line_no";
-		} else {
-			$str = "select * from a_menu where is_submodule = '0' $active and is_deleted = '0' and parent_id = $parent_id order by is_parent desc, line_no";
-		}
-		$qry = $this->db->query($str);
-		foreach($qry->result() as $k => $v){
-			$menu[] = $v;
-			// $menu = $this->_get_menu_child($v->id, $menu);
-			$menu = $this->_get_menu($active_only, $v->id, $menu);
-		}
-		return $menu;
-	}
-	
 	function _reorder_menu($parent_id = NULL)
 	{
 		if (empty($parent_id)) {
@@ -1115,18 +1079,19 @@ class Getmeb extends CI_Controller
 				$this->db->set('duration_time', "stop_time - start_time", FALSE);
 			}
 			if (!$return = $this->db->update('a_tmp_process', $data, ['id'=>$id])) {
-				// $this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
+				// xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
 				return FALSE;
 			} 
 		} else {
 			if (!$return = $this->db->insert('a_tmp_process', array_merge($data, $this->create_log))) {
-				// $this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
+				// xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
 				return FALSE;
 			} 
 		}
+
 		return ($id) ? $id : $this->db->insert_id();
 		// $id_process = $this->db->insert_id();
-		// $this->xresponse(TRUE, ['id_process' => $id_process], 200, FALSE);
+		// xresponse(TRUE, ['id_process' => $id_process], 200, FALSE);
 	}
 	
 	function _import_data()
@@ -1172,7 +1137,7 @@ class Getmeb extends CI_Controller
 					if (! $result = $this->dbforge->create_table($tmp_table)){
 						// $this->set_message('no_header_fields');
 						// return FALSE;
-						$this->xresponse(FALSE, ['message' => lang('error_import_no_header')], 401);
+						xresponse(FALSE, ['message' => lang('error_import_no_header')], 401);
 					}
 					// debug($fields);
 				} else {
@@ -1191,7 +1156,7 @@ class Getmeb extends CI_Controller
 			$tmp_fields = $this->db->list_fields($tmp_table);
 			$tmp_fields = array_diff($tmp_fields, ['tmp_id', 'status']);
 			// return ['tmp_fields' => array_values($tmp_fields), 'table_fields' => $this->imported_fields];
-			$this->xresponse(TRUE, ['message' => 'Uploading the file is succeeded !', 'tmp_fields' => array_values($tmp_fields), 'table_fields' => $this->imported_fields]);
+			xresponse(TRUE, ['message' => 'Uploading the file is succeeded !', 'tmp_fields' => array_values($tmp_fields), 'table_fields' => $this->imported_fields]);
 		}
 		
 		if (isset($this->params->step) && $this->params->step == '2') {
@@ -1206,7 +1171,7 @@ class Getmeb extends CI_Controller
 			];
 			$id_process = $this->_update_process($data);
 			$this->session->set_userdata('id_process', $id_process);
-			// $this->xresponse(TRUE, ['id_process' => $id_process], 200, FALSE);
+			// xresponse(TRUE, ['id_process' => $id_process], 200, FALSE);
 			 
 			/* fields syncronization with target table */
 			$tmp_fields = $this->db->list_fields($this->session->tmp_table);
@@ -1338,7 +1303,7 @@ class Getmeb extends CI_Controller
 						}
 						
 						/* Start the Insert Process */
-						if (!$result = $this->insertRecord($this->c_table, $values, TRUE, TRUE)) {
+						if (!$result = $this->_recordInsert($this->c_table, $values, TRUE, TRUE)) {
 							$this->db->update($this->session->tmp_table, ['status' => $this->messages(FALSE)], $tmp_id);
 						}
 						
@@ -1363,7 +1328,7 @@ class Getmeb extends CI_Controller
 						}
 						
 						/* Start the Update Process */
-						if (!$result = $this->updateRecord($this->c_table, $values, array_merge($filter, $identity), TRUE)) {
+						if (!$result = $this->_recordUpdate($this->c_table, $values, array_merge($filter, $identity), TRUE)) {
 							$this->db->update($this->session->tmp_table, ['status' => $this->messages(FALSE)], $tmp_id);
 						}
 						
@@ -1383,7 +1348,7 @@ class Getmeb extends CI_Controller
 				$qry = $this->db->get($this->session->tmp_table);
 				if (! $result = $this->_export_data($qry, [], $filename, $this->params->filetype, TRUE)) {
 					$this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-					$this->xresponse(FALSE, ['message' => lang('error_import_download_result')], 401);
+					xresponse(FALSE, ['message' => lang('error_import_download_result')], 401);
 				}
 				
 				/* Update status on process table */
@@ -1392,7 +1357,7 @@ class Getmeb extends CI_Controller
 				$this->session->unset_userdata('id_process');
 				
 				$result['message'] = lang('success_import_data');
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -1438,7 +1403,7 @@ class Getmeb extends CI_Controller
 		return $_output;
 	}
 
-	function insertRecord($table, $data, $fixed_data = FALSE, $log = FALSE)
+	function _recordInsert($table, $data, $fixed_data = FALSE, $log = FALSE)
 	{
 		$data = is_object($data) ? (array) $data : $data;
 		$data = $fixed_data ? array_merge($data, $this->fixed_data) : $data;
@@ -1470,20 +1435,20 @@ class Getmeb extends CI_Controller
 		}
 
 		if (!$return = $this->db->insert($table, $data)) {
-// debug($return);
-// debug($this->db->error()['message']);
+			// debug($return);
+			// debug($this->db->error()['message']);
 			$this->set_message($this->db->error()['message']);
 			return false;
 		} else {
 			$id = $this->db->insert_id();
-// debug($this->db->last_query());
-// debug($return);
+			// debug($this->db->last_query());
+			// debug($return);
 			$this->set_message('success_saving');
 			return $id;
 		}
 	}
 	
-	function updateRecord($table, $data, $cond, $log = FALSE)
+	function _recordUpdate($table, $data, $cond, $log = FALSE)
 	{
 		$data = is_object($data) ? (array) $data : $data;
 		$data = $log ? array_merge($data, $this->update_log) : $data;
@@ -1512,7 +1477,7 @@ class Getmeb extends CI_Controller
 		return true; */
 	}
 	
-	function deleteRecords($table, $ids, $real = FALSE)
+	function _recordDelete($table, $ids, $real = FALSE)
 	{
 		$ids = array_filter(array_map('trim',explode(',',$ids)));
 		$return = 0;
@@ -1538,98 +1503,6 @@ class Getmeb extends CI_Controller
 		return $return;
 	}
 	
-	function xresponse($status=TRUE, $response=array(), $statusHeader=200, $exit=TRUE)
-	{
-		$BM =& load_class('Benchmark', 'core');
-		
-		$statusCode = $status ? 200 : 401;
-		$statusCode = $statusHeader != 200 ? $statusHeader : $statusCode;
-		if (! is_numeric($statusCode))
-			show_error('Status codes must be numeric', 500);
-		
-		$elapsed = $BM->elapsed_time('total_execution_time_start', 'total_execution_time_end');
-
-		$output['status'] = $status;
-		$output['execution_time'] = $elapsed;
-		$output['environment'] = ENVIRONMENT;
-		
-		header("HTTP/1.0 $statusCode");
-		header('Content-Type: application/json');
-		echo json_encode(array_merge($output, $response));
-		if ($exit) 
-			exit();
-	}
-	
-	function _getMenuByRoleId($role_id)
-	{
-		if ($role_id) {
-			/* $query = "select 
-						am1.id as menu_id1, am1.name as name1, am1.is_parent as is_parent1, am1.icon as icon1, am1.type as type1,
-						am2.id as menu_id2, am2.name as name2, am2.is_parent as is_parent2, am2.icon as icon2, am2.type as type2,
-						am3.id as menu_id3, am3.name as name3, am3.is_parent as is_parent3, am3.icon as icon3, am3.type as type3
-			from (
-				select * from a_menu am where am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and (am.parent_id = '0' or am.parent_id is null) and 
-				exists (
-					select * from (
-						select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
-						from a_menu am
-						left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
-						where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
-					) basemenu where role_id is not null and parent_id = am.id
-				)
-			) am1
-			left join (
-				select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
-				from a_menu am
-				left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
-				where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
-			) am2 on am1.id = am2.parent_id and am2.role_id is not null
-			left join (
-				select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
-				from a_menu am
-				left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
-				where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
-			) am3 on am2.id = am3.parent_id and am3.role_id is not null
-			order by am1.line_no, am2.line_no, am3.line_no"; */
-			$query = "select 
-						am1.id as menu_id1, am1.name as name1, am1.is_parent as is_parent1, am1.icon as icon1, am1.type as type1,
-						am2.id as menu_id2, am2.name as name2, am2.is_parent as is_parent2, am2.icon as icon2, am2.type as type2,
-						am3.id as menu_id3, am3.name as name3, am3.is_parent as is_parent3, am3.icon as icon3, am3.type as type3
-			from (
-				select * from a_menu am where am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and is_parent = '1' and (am.parent_id = '0' or am.parent_id is null) and 
-				exists (
-					select * from (
-						select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
-						from a_menu am
-						left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
-						where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
-					) basemenu where role_id is not null and parent_id = am.id
-				)
-			) am1
-			left join (
-				select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
-				from a_menu am
-				left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
-				where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
-				union 
-				select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, $role_id as role_id
-				from a_menu am
-				where am.is_parent = '1' and am.parent_id <> '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0'
-			) am2 on am1.id = am2.parent_id and am2.role_id is not null
-			left join (
-				select am.id, am.name, am.is_parent, am.line_no, am.icon, am.type, am.parent_id, arm.role_id
-				from a_menu am
-				left join a_role_menu arm on am.id = arm.menu_id and arm.is_active = '1' and arm.is_deleted = '0' and arm.role_id = $role_id
-				where am.is_parent = '0' and am.is_submodule = '0' and am.is_active = '1' and am.is_deleted = '0' and arm.role_id is not null
-			) am3 on am2.id = am3.parent_id and am3.role_id is not null
-			order by am1.line_no, am2.line_no, am3.line_no";
-			
-			$row = $this->db->query($query);
-			return ($row->num_rows() > 0) ? $row->result() : FALSE;
-		}
-		return FALSE;
-	}
-	
 	/**
 	 * li
 	 *
@@ -1643,7 +1516,7 @@ class Getmeb extends CI_Controller
 	 * @param	string	$submenu   Submenu (TRUE or FALSE)
 	 * @return  string
 	 */
-	private function li($cur_page, $page_chk, $url, $menu_name, $icon)
+	private function _getmenu_li($cur_page, $page_chk, $url, $menu_name, $icon)
 	{
 		$active = ($cur_page == $page_chk) ? ' class="active"' : '';
 		$glyp_icon = ($icon) ? '<i class="'.$icon.'"></i> ' : '<i class="fa fa-circle"></i>';
@@ -1652,82 +1525,32 @@ class Getmeb extends CI_Controller
 		return $html;
 	}
 	
-	private function li_parent($cur_page, $page_chk, $url, $menu_name, $icon)
+	function _getmenu_recursively($categories, $parent = null, $menu_active = array())
 	{
-		$active = ($cur_page == $page_chk) ? ' class="treeview active"' : ' class="treeview"';
-		$glyp_icon = ($icon) ? '<i class="'.$icon.'"></i> ' : '<i class="glyphicon glyphicon-menu-hamburger"></i>';
-		
-		$html= '<li'.$active.'><a href="'.base_url().''.$url.'">'.$glyp_icon.'<span>'.$menu_name.'</span><i class="fa fa-angle-left pull-right"></i></a>';
-		$html.= '<ul class="treeview-menu">';
-		return $html;
-	}
-	
-	function getParentMenu($menu_id)
-	{
-		$query = "select lvl0.id as lvl0_id, lvl1.id as lvl1_id, lvl2.id as lvl2_id
-		from a_menu lvl0
-		left join (
-		 select * from a_menu 
-		) lvl1 on lvl1.id = lvl0.parent_id
-		left join (
-		 select * from a_menu 
-		) lvl2 on lvl2.id = lvl1.parent_id
-		where lvl0.id = $menu_id";
-		// debug($query);
-		$row = $this->db->query($query);
-		return ($row->num_rows() > 0) ? $row->result() : FALSE;
-	}
-	
-	function getMenuStructure_old($cur_page)
-	{
-		$html = ''; $li1_closed = false; $li2_closed = false; $menu_id1 = 0; $menu_id2 = 0; $menu_id3 = 0; $parent_id = 0;
-		$html.= $this->li($cur_page, 1, 'systems/x_page?pageid=1', 'Dashboard', 'fa fa-dashboard');
-		$rowParentMenu = ($result = $this->getParentMenu($cur_page)) ? $result[0] : (object)['lvl1_id'=>0, 'lvl2_id'=>0];
-		$rowMenus = $this->_getMenuByRoleId($this->session->role_id);
-		if ($rowMenus) {
-			foreach ($rowMenus as $menu){
-				if (($menu_id1 != $menu->menu_id1) && $li1_closed){
-					$html.= '</ul></li>';
-					$li1_closed = false;
-				}
-				if (($menu_id2 != $menu->menu_id2) && $li2_closed){
-					$html.= '</ul></li>';
-					$li2_closed = false;
-				}
-				if (!empty($menu->menu_id2) || !empty($menu->menu_id3)){
-					if ($menu_id1 != $menu->menu_id1){
-						$parent_id = $rowParentMenu->lvl2_id ? $rowParentMenu->lvl2_id : $rowParentMenu->lvl1_id;
-						$html.= $this->li_parent($parent_id, $menu->menu_id1, 'systems/x_page?pageid='.$menu->menu_id1, $menu->name1, $menu->icon1);
-						$li1_closed = true;
-						$menu_id1 = $menu->menu_id1;
-					}
-					if (($menu_id2 != $menu->menu_id2) && !empty($menu->menu_id3)){
-						$parent_id = $rowParentMenu->lvl1_id;
-						$html.= $this->li_parent($parent_id, $menu->menu_id2, 'systems/x_page?pageid='.$menu->menu_id2, $menu->name2, $menu->icon2);
-						$li2_closed = true;
-						$menu_id2 = $menu->menu_id2;
-						
-					} elseif (($menu_id2 != $menu->menu_id2) && empty($menu->menu_id3)){
-						$html.= $this->li($cur_page, $menu->menu_id2, 'systems/x_page?pageid='.$menu->menu_id2, $menu->name2, $menu->icon2);
-						$menu_id2 = $menu->menu_id2;
-					}
-					if (!empty($menu->menu_id3)){
-						$html.= $this->li($cur_page, $menu->menu_id3, 'systems/x_page?pageid='.$menu->menu_id3, $menu->name3, $menu->icon3);
-					}
-				} elseif (!empty($menu->menu_id1)){
-					$html.= $this->li($cur_page, $menu->menu_id1, 'systems/x_page?pageid='.$menu->menu_id1, $menu->name1, $menu->icon1);
+    $ret = '';
+    foreach($categories as $index => $category)
+    {
+			if($category['parent_id'] == $parent)
+			{
+				$url = base_url().'systems/x_page?pageid='.$category['id'];
+				$active = in_array($category['id'], $menu_active) ? 'active' : '';
+				if ($category['is_parent'] == '1'){
+					$glyp_icon = ($category['icon']) ? '<i class="'.$category['icon'].'"></i> ' : '<i class="glyphicon glyphicon-menu-hamburger"></i>';
+					$ret .= '<li class="treeview '.$active.'"><a href="'.$url.'">'.$glyp_icon.'<span>'.$category['name'].'</span><i class="fa fa-angle-left pull-right"></i></a>';
+					$ret .= '<ul class="treeview-menu">'.$this->_getmenu_recursively($categories, $category['id'], $menu_active).'</ul>';
+					$ret .= '</li>';
+				} else {
+					$glyp_icon = ($category['icon']) ? '<i class="'.$category['icon'].'"></i> ' : '<i class="fa fa-circle"></i>';
+					$ret .= '<li class="treeview '.$active.'"><a href="'.$url.'">'.$glyp_icon.'<span>'.$category['name'].'</span></a>';
+					$ret .= $this->_getmenu_recursively($categories, $category['id'], $menu_active);
+					$ret .= '</li>';
 				}
 			}
-			if ($li1_closed)
-				$html.= '</ul></li>';
-		}
-		
-		$html.= '<br><li><a href="#" id="go-lock-screen" onclick="lock_the_screen();"><i class="fa fa-circle-o text-yellow"></i> <span>' . lang('nav_lckscr') . '</span></a></li>';
-		$html.= '<li><a href="'.LOGOUT_LNK.'" id="go-sign-out"><i class="fa fa-sign-out text-red"></i> <span>' . lang('nav_logout') . '</span></a></li>';
-		return $html;
+    }
+    return $ret;
 	}
 	
-	function getMenuStructure($cur_page)
+	function _getmenu_structure($cur_page)
 	{
 		$cur_page = $cur_page ? 'and id = '.$cur_page : '';
 		$str = "WITH RECURSIVE menu_tree (id, parent_id, level, menu_active) 
@@ -1777,37 +1600,12 @@ class Getmeb extends CI_Controller
 			ORDER BY parent_id, line_no;";
 		$qry = $this->db->query($str);
 		$html = '';
-		$html.= $this->li($cur_page, 1, 'systems/x_page?pageid=1', 'Dashboard', 'fa fa-dashboard');
+		$html.= $this->_getmenu_li($cur_page, 1, 'systems/x_page?pageid=1', 'Dashboard', 'fa fa-dashboard');
 		// debug($qry->result_array());
 		$html.= $this->_getmenu_recursively($qry->result_array(), null, $menu_active);
 		$html.= '<br><li><a href="#" id="go-lock-screen" onclick="lock_the_screen();"><i class="fa fa-circle-o text-yellow"></i> <span>' . lang('nav_lckscr') . '</span></a></li>';
 		$html.= '<li><a href="'.LOGOUT_LNK.'" id="go-sign-out"><i class="fa fa-sign-out text-red"></i> <span>' . lang('nav_logout') . '</span></a></li>';
 		return $html;
-	}
-	
-	function _getmenu_recursively($categories, $parent = null, $menu_active = array())
-	{
-    $ret = '';
-    foreach($categories as $index => $category)
-    {
-			if($category['parent_id'] == $parent)
-			{
-				$url = base_url().'systems/x_page?pageid='.$category['id'];
-				$active = in_array($category['id'], $menu_active) ? 'active' : '';
-				if ($category['is_parent'] == '1'){
-					$glyp_icon = ($category['icon']) ? '<i class="'.$category['icon'].'"></i> ' : '<i class="glyphicon glyphicon-menu-hamburger"></i>';
-					$ret .= '<li class="treeview '.$active.'"><a href="'.$url.'">'.$glyp_icon.'<span>'.$category['name'].'</span><i class="fa fa-angle-left pull-right"></i></a>';
-					$ret .= '<ul class="treeview-menu">'.$this->_getmenu_recursively($categories, $category['id'], $menu_active).'</ul>';
-					$ret .= '</li>';
-				} else {
-					$glyp_icon = ($category['icon']) ? '<i class="'.$category['icon'].'"></i> ' : '<i class="fa fa-circle"></i>';
-					$ret .= '<li class="treeview '.$active.'"><a href="'.$url.'">'.$glyp_icon.'<span>'.$category['name'].'</span></a>';
-					$ret .= $this->_getmenu_recursively($categories, $category['id'], $menu_active);
-					$ret .= '</li>';
-				}
-			}
-    }
-    return $ret;
 	}
 	
 	/* For getting org/company list base on user_org access */
@@ -1881,18 +1679,6 @@ class Getmeb extends CI_Controller
 		return $arr;
 	}
 	
-	function translate_variable($str)
-	{
-		$vars = array(
-			'{client_id}'	=> $this->session->client_id,
-			'{org_id}'		=> $this->session->org_id,
-			'{orgtrx_id}'		=> $this->session->orgtrx_id,
-			'{orgtrx}'		=> '('.implode(',', $this->_get_orgtrx()).')',
-		);
-		
-		return str_replace(array_keys($vars), $vars, $str);
-	}
-	
 	function single_view($content, $data=[])
 	{
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
@@ -1911,7 +1697,7 @@ class Getmeb extends CI_Controller
 		$elapsed = $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end');
 		
 		$default['content'] 	= TEMPLATE_PATH.$content.'.tpl';
-		$default['menus'] 		= $this->getMenuStructure($this->pageid ? $this->pageid : 0);
+		$default['menus'] 		= $this->_getmenu_structure($this->pageid ? $this->pageid : 0);
 		
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);

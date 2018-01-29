@@ -75,7 +75,7 @@ class System extends REST_Controller {
 		// $this->load->library('encryption');
 		// $data['authentication'] = $this->encryption->encrypt(json_encode($GLOBALS['identifier']));
 		$result['data'] = urlsafeB64Encode(json_encode($data));
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function unlockscreen_get()
@@ -104,7 +104,7 @@ class System extends REST_Controller {
 			$this->response(['status' => FALSE, 'message' => $this->auth->errors()], 401);
 		}
 		
-		$this->xresponse(TRUE, []);
+		xresponse(TRUE, []);
 	}
 	
 	function change_passwd_post()
@@ -136,7 +136,7 @@ class System extends REST_Controller {
 			$this->response(['status' => FALSE, 'message' => $this->auth->errors()], 401);
 		}
 		
-		$this->xresponse(TRUE, ['message' => $this->auth->messages()]);
+		xresponse(TRUE, ['message' => $this->auth->messages()]);
 	}
 	
 	function reset_passwd_post()
@@ -168,14 +168,14 @@ class System extends REST_Controller {
 			$this->response(['status' => FALSE, 'message' => $this->auth->errors()], 401);
 		}
 		
-		$this->xresponse(TRUE, ['message' => $this->auth->messages()]);
+		xresponse(TRUE, ['message' => $this->auth->messages()]);
 	}
 	
 	function cektoken_get()
 	{
 		$sess['session'] = $this->_check_token();
 		
-		$this->xresponse(TRUE, $sess);
+		xresponse(TRUE, $sess);
 	}
 	
 	function user_get()
@@ -214,7 +214,7 @@ class System extends REST_Controller {
 		// log_message('error', $params['length'].$params['start']);
 		// log_message('error', $arg->length);
 		$result['data'] = $this->system_model->getUser($params);
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function user_post()
@@ -234,10 +234,10 @@ class System extends REST_Controller {
 		$this->load->library('z_auth/auth');
 		if (! $id = $this->auth->register($data->username, $data->password, $data->email, $additional_data))
 		{
-			$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+			xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 		}
 
-		$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
+		xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 	}
 	
 	function user_put()
@@ -247,7 +247,7 @@ class System extends REST_Controller {
 		$arg = (object) $this->input->get();
 		if (empty($arg->id))
 		{
-			$this->xresponse(FALSE, NULL, 400);
+			xresponse(FALSE, NULL, 400);
 		}
 		
 		$data = (object) $this->put();
@@ -266,7 +266,7 @@ class System extends REST_Controller {
 		$datas['updated_by'] = $sess->user_id;
 		$datas['updated_at'] = date('Y-m-d H:i:s');
 		if (! $this->system_model->updateUser($datas, ['id'=>$arg->id]))
-			$this->xresponse(FALSE, ['message' => $this->db->error()->message], 401);
+			xresponse(FALSE, ['message' => $this->db->error()->message], 401);
 		
 		// log_message('error', $data->name .':'. $data->password);
 		if (! empty($data->password)){
@@ -275,7 +275,7 @@ class System extends REST_Controller {
 				$this->response(['status' => FALSE, 'message' => $this->auth->errors()], 401);
 		}
 		
-		$this->xresponse(TRUE, ['message' => $this->lang->line('success_update')]);
+		xresponse(TRUE, ['message' => $this->lang->line('success_update')]);
 	}
 	
 	function user_delete()
@@ -285,15 +285,15 @@ class System extends REST_Controller {
 		$arg = (object) $this->input->get();
 		if (empty($arg->id))
 		{
-			$this->xresponse(FALSE, NULL, 400);
+			xresponse(FALSE, NULL, 400);
 		}
 		
 		if (! $this->system_model->deleteUser($arg->id, $sess->user_id))
 		{
-			$this->xresponse(FALSE, ['message' => $this->system_model->errors()], 401);
+			xresponse(FALSE, ['message' => $this->system_model->errors()], 401);
 		}
 		
-		$this->xresponse(TRUE, ['message' => $this->lang->line('success_delete')]);
+		xresponse(TRUE, ['message' => $this->lang->line('success_delete')]);
 	}
 
 	function userlist_get()
@@ -312,7 +312,7 @@ class System extends REST_Controller {
 			$params['where']['au.id'] 	 = $id;
 		}
 		$result['data'] = $this->system_model->getUser($params);
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function userRecent_post()
@@ -329,7 +329,7 @@ class System extends REST_Controller {
 		
 		$this->system_model->createUserRecent($data);
 
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function userUploadAvatar_post()
@@ -355,7 +355,7 @@ class System extends REST_Controller {
 		}
 		
 		$result['data'] = $this->system_model->getMenu($params);
-		$this->xresponse(true, $result);
+		xresponse(true, $result);
 	}
 	
 	function role_get()
@@ -383,7 +383,7 @@ class System extends REST_Controller {
 		$params['ob'] = empty($arg->ob) ? '' : $arg->ob;
 		
 		$result['data'] = $this->system_model->getUser($params);
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function role_post()
@@ -412,7 +412,7 @@ class System extends REST_Controller {
 		{
 			$result['data'] = $this->system_model->getRoleMenu($arg->id);
 		}
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function roledashboard_get()
@@ -427,7 +427,7 @@ class System extends REST_Controller {
 			$params['where']['ard.role_id'] = $arg->id;
 			$result['data'] = $this->system_model->getRoleDashboard($params);
 		}
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function userConfig_post()
@@ -456,7 +456,7 @@ class System extends REST_Controller {
 				}
 			}
 		}
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function info_get()
@@ -483,7 +483,7 @@ class System extends REST_Controller {
 			$params['where']['ai.valid_from <='] = $arg->validf;
 		}
 		$result['data'] = $this->system_model->getInfo($params);
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function infolist_get()
@@ -494,7 +494,7 @@ class System extends REST_Controller {
 		$params['where']['ai.org_id'] 	 = $sess->org_id;
 		$params['where']['ai.valid_from <='] = datetime_db_format();
 		$result['data'] = $this->system_model->getInfo($params);
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function countrylist_get()
@@ -511,7 +511,7 @@ class System extends REST_Controller {
 			$params['where']['id'] = $params['id'];
 		
 		$result['data'] = $this->system_model->getCountry($params);
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function provincelist_get()
@@ -530,7 +530,7 @@ class System extends REST_Controller {
 			$params['where']['country_id'] = $params['country_id'];
 		
 		$result['data'] = $this->system_model->getProvince($params);
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function citylist_get()
@@ -549,7 +549,7 @@ class System extends REST_Controller {
 			$params['where']['province_id'] = $params['province_id'];
 		
 		$result['data'] = $this->system_model->getCity($params);
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function districtlist_get()
@@ -568,7 +568,7 @@ class System extends REST_Controller {
 			$params['where']['city_id'] = $params['city_id'];
 		
 		$result['data'] = $this->system_model->getDistrict($params);
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function villagelist_get()
@@ -587,7 +587,7 @@ class System extends REST_Controller {
 			$params['where']['district_id'] = $params['district_id'];
 		
 		$result['data'] = $this->system_model->getVillage($params);
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function rolemenutest_get()

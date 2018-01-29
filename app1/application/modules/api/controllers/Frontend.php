@@ -32,7 +32,7 @@ class Frontend extends REST_Controller {
 		{
 			$result['data'] = $this->frontend_model->getMenu($org_id);
 		}
-		$this->xresponse(true, $result);
+		xresponse(true, $result);
 	}
 	
 	function dashboard_get()
@@ -45,7 +45,7 @@ class Frontend extends REST_Controller {
 		{
 			$result['data'] = $this->frontend_model->getDashboard($id);
 		}
-		$this->xresponse(true, $result);
+		xresponse(true, $result);
 	}
 	
 	function infolist_get()
@@ -60,7 +60,7 @@ class Frontend extends REST_Controller {
 		$params['where']['ai.valid_from <='] = datetime_db_format();
 
 		$result['data'] = $this->frontend_model->getInfo($params);
-		$this->xresponse(true, $result);
+		xresponse(true, $result);
 	}
 	
 }

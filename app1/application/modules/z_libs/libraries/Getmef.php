@@ -94,7 +94,7 @@ class Getmef extends CI_Controller
 		return $html;
 	}
 	
-	function getMenuStructure($cur_page)
+	function _getmenu_structure($cur_page)
 	{
 		/* Start Treeview Menu */
 		$html = ''; $li1_closed = false; $li2_closed = false; $menu_id1 = 0; $menu_id2 = 0; $menu_id3 = 0; $parent_id = 0;
@@ -148,7 +148,7 @@ class Getmef extends CI_Controller
 		$select = 'head_title,page_title,logo_text_mn,logo_text_lg,date_format,time_format,datetime_format,skin_color';
 		$config = ($result = $this->base_model->getValueArray($select, 'w_config', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID])) ? $result : [];
 		$pageid = (key_exists('pageid', $this->params) && !empty($this->params['pageid'])) ? $this->params['pageid'] : 0;
-		$default['menus'] 			= $this->getMenuStructure($pageid);
+		$default['menus'] 			= $this->_getmenu_structure($pageid);
 		$default['content'] 		= TEMPLATE_PATH.$content.'.tpl';
 		$default['elapsed_time']= $elapsed;
 		$default['start_time'] 	= microtime(true);

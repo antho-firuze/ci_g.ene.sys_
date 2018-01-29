@@ -120,7 +120,7 @@ class Frontend extends Getmef
 		$params['where']['t1.valid_from <='] = datetime_db_format();
 
 		$result['data'] = $this->getmef_model->getInfo($params);
-		$this->xresponse(true, $result);
+		xresponse(true, $result);
 	}
 	
 }

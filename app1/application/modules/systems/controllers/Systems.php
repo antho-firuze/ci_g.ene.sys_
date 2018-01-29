@@ -16,25 +16,20 @@ class Systems extends Getmeb
 		redirect(base_url().'systems/x_page?pageid=1');
 	}
 	
-	function get_menu()
-	{
-		$this->getMenuStructure2(0);
-	}
-	
 	function dashboard1()
 	{
 		if ($this->r_method == 'GET') {
 			// debug($this->_get_orgtrx());
 			$this->params['list'] = 1;
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				// $this->xresponse(TRUE, ['data' => $result]);
+				// xresponse(TRUE, ['data' => $result]);
 				foreach($result as $key => $val){
 					$result[$key]->value = 0;
 					if ($val->query) {
 						
-						$val->query = $this->translate_variable($val->query);
+						$val->query = translate_variable($val->query);
 						
 						if (!$qry = $this->db->query($val->query)) {
 							$result[$key]->value = -1;
@@ -61,7 +56,7 @@ class Systems extends Getmeb
 					}
 					unset($result[$key]->query);
 				}
-				$this->xresponse(TRUE, ['data' => $result]);
+				xresponse(TRUE, ['data' => $result]);
 			}
 		}
 		// $this->backend_view('dashboard1', 'pages/dashboard/dashboard1');
@@ -69,11 +64,11 @@ class Systems extends Getmeb
 			if (isset($this->params->send_mail) && $this->params->send_mail) {
 				// debug($this->params);
 				if(! send_mail_systems($this->params->email_from, $this->params->email_to, $this->params->subject, $this->params->message)) {
-					$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')], 401);
+					xresponse(FALSE, ['message' => $this->session->flashdata('message')], 401);
 				}
 				
 				/* success */
-				$this->xresponse(TRUE, ['message' => 'Your email has been sent.']);
+				xresponse(TRUE, ['message' => 'Your email has been sent.']);
 			}
 		}
 	}
@@ -281,9 +276,9 @@ class Systems extends Getmeb
 			}
 			$result['data']['m_isp_chart']['labels'] = $arr['labels'];
 			$result['data']['m_isp_chart']['datasets'][] = ['label' => 'Reason', 'backgroundColor' => $arr['color'], 'data' => $arr['data1']];
-			// $this->xresponse(FALSE, ['message' => 'Failure !']);
+			// xresponse(FALSE, ['message' => 'Failure !']);
 			
-			$this->xresponse(TRUE, $result);
+			xresponse(TRUE, $result);
 			// debug($result);
 			// debug($this->params);
 		}
@@ -322,7 +317,7 @@ class Systems extends Getmeb
 				/* Trapping user_agent, ip address & status */
 				$this->{$this->mdl}->_save_useragent($this->params['email'], 'Email Not Registered/Intruder Detected');
 				
-				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+				xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
 			
 			/* Trying to sending email */
@@ -335,14 +330,14 @@ class Systems extends Getmeb
 			$message = $body;
 			if($result = send_mail_systems(NULL, $user->email, 'Your Reset Password Link', $message) !== TRUE) {
 				$this->{$this->mdl}->_save_useragent($this->params['email'], 'Forgot Password: Reset Link failed delivered !', $this->session->flashdata('message'));
-				$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')], 401);
+				xresponse(FALSE, ['message' => $this->session->flashdata('message')], 401);
 			}
 			
 			/* Trapping user_agent, ip address & status */
 			$this->{$this->mdl}->_save_useragent($this->params['email'], 'Forgot Password: Reset Link succeeded delivered !');
 		
 			/* success */
-			$this->xresponse(TRUE, ['message' => 'The link for reset your password has been sent to your email.']);
+			xresponse(TRUE, ['message' => 'The link for reset your password has been sent to your email.']);
 		}
 		
 		/* This line for processing reset password */
@@ -350,7 +345,7 @@ class Systems extends Getmeb
 			
 			/* Check code for expiration */
 			if (($user = $this->auth->forgotten_password_complete($this->params['code'])) === FALSE ) {
-				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+				xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
 			
 			$http_auth = $this->input->server('HTTP_X_AUTH');
@@ -367,7 +362,7 @@ class Systems extends Getmeb
 				/* Trapping user_agent, ip address & status */
 				$this->{$this->mdl}->_save_useragent($username, 'Reset Password Failed');
 				
-				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+				xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
 			
 			/* Remove forgotten_password_code & forgotten_password_time */
@@ -380,7 +375,7 @@ class Systems extends Getmeb
 			$this->{$this->mdl}->_store_config($user_id);
 			
 			$url = APPS_LNK;
-			$this->xresponse(TRUE, ['message' => $this->auth->messages(), 'url' => $url]);
+			xresponse(TRUE, ['message' => $this->auth->messages(), 'url' => $url]);
 		}
 		
 		/* This line for authentication login page */
@@ -407,7 +402,7 @@ class Systems extends Getmeb
 				/* Trapping user_agent, ip address & status */
 				$this->{$this->mdl}->_save_useragent($username, 'Login Failed/Intruder Detected');
 				
-				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+				xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
 
 			/* Trapping user_agent, ip address & status */
@@ -418,7 +413,7 @@ class Systems extends Getmeb
 			
 			$url = $this->session->referred_index == $this->params['current_url'] ? APPS_LNK : $this->session->referred_index;
 			$url = $url ? $url : APPS_LNK;
-			$this->xresponse(TRUE, ['message' => 'Login Success !', 'url' => $url]);
+			xresponse(TRUE, ['message' => 'Login Success !', 'url' => $url]);
 		}
 
 		/* This line for unlock the screen */
@@ -440,10 +435,10 @@ class Systems extends Getmeb
 				/* Trapping user_agent, ip address & status */
 				$this->{$this->mdl}->_save_useragent($username, 'Unlock Failed/Intruder Detected');
 				
-				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+				xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
 			
-			$this->xresponse(TRUE);
+			xresponse(TRUE);
 		}
 	}
 	
@@ -453,7 +448,7 @@ class Systems extends Getmeb
 		if ($this->session->user_id) {
 			$this->{$this->mdl}->_store_config($this->session->user_id);
 		
-			$this->xresponse(TRUE);
+			xresponse(TRUE);
 		}
 		redirect(LOGIN_LNK);
 	}
@@ -464,9 +459,9 @@ class Systems extends Getmeb
 			$this->params['where']['t1.id'] = $this->session->user_id;
 			
 			if (($result['data'] = $this->{$this->mdl}->a_user($this->params)) === FALSE){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if ($this->r_method == 'PUT') {
@@ -482,10 +477,10 @@ class Systems extends Getmeb
 			}
 			if (! $this->auth->change_password($username, $password, $this->params->password_new))
 			{
-				$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+				xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 			}
 
-			$this->xresponse(TRUE, ['message' => $this->auth->messages()]);
+			xresponse(TRUE, ['message' => $this->auth->messages()]);
 		}
 	}
 	
@@ -518,7 +513,7 @@ class Systems extends Getmeb
 		$this->params['order'] = "t2.name";
 		$this->params['list']	= 1;
 		$result['data'] = $this->{$this->mdl}->a_role_menu($this->params);
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function x_profile($mode=NULL)
@@ -529,9 +524,9 @@ class Systems extends Getmeb
 				if (($result['data'] = $this->{$this->mdl}->a_user($this->params)) === FALSE){
 					$result['data'] = [];
 					$result['message'] = $this->base_model->errors();
-					$this->xresponse(FALSE, $result);
+					xresponse(FALSE, $result);
 				} else {
-					$this->xresponse(TRUE, $result);
+					xresponse(TRUE, $result);
 				}
 			}
 		}
@@ -539,21 +534,21 @@ class Systems extends Getmeb
 		if ($this->r_method == 'PUT') {
 			/* This line is for update default user role & user org */
 			if (isset($this->params->change_user_role) && !empty($this->params->change_user_role)) {
-				$this->_pre_update_records('a_user', FALSE, FALSE);
+				$this->_record_mixing_data('a_user', FALSE, FALSE);
 				// debug($this->mixed_data);
-				if (! $this->updateRecord('a_user', $this->mixed_data, ['id' => $this->session->user_id], FALSE))
-					$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
+				if (! $this->_recordUpdate('a_user', $this->mixed_data, ['id' => $this->session->user_id], FALSE))
+					xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
 
-				$this->xresponse(TRUE, ['message' => lang('success_saving')]);
+				xresponse(TRUE, ['message' => lang('success_saving')]);
 			}
 			
 			/* This line is for update user info */
 			if (isset($this->params->update_user_profile) && !empty($this->params->update_user_profile)) {
-				$this->_pre_update_records('a_user', FALSE, TRUE);
-				if (! $this->updateRecord('a_user', $this->mixed_data, ['id' => $this->session->user_id], FALSE))
-					$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
+				$this->_record_mixing_data('a_user', FALSE, TRUE);
+				if (! $this->_recordUpdate('a_user', $this->mixed_data, ['id' => $this->session->user_id], FALSE))
+					xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
 
-				$this->xresponse(TRUE, ['message' => lang('success_saving')]);
+				xresponse(TRUE, ['message' => lang('success_saving')]);
 			}
 			
 			/* This line is for update user config */
@@ -569,17 +564,17 @@ class Systems extends Getmeb
 					/* update config to database */
 					$qry = $this->db->get_where('a_user_config', $cond, 1);
 					if ($qry->num_rows() > 0) {
-						if (!$this->updateRecord('a_user_config', $data, $cond, TRUE))
+						if (!$this->_recordUpdate('a_user_config', $data, $cond, TRUE))
 							$result[$k] = $this->messages();	// Trapping error
 					} else {
-						if (!$this->insertRecord('a_user_config', array_merge($data, $cond), FALSE, TRUE))
+						if (!$this->_recordInsert('a_user_config', array_merge($data, $cond), FALSE, TRUE))
 							$result[$k] = $this->messages();	// Trapping error
 					}
 				}
 				if (count($result) > 0) {
-					$this->xresponse(FALSE, ['message' => $result]);
+					xresponse(FALSE, ['message' => $result]);
 				} else {
-					$this->xresponse(TRUE, ['message' => lang('success_saving')]);
+					xresponse(TRUE, ['message' => lang('success_saving')]);
 				}
 			}
 		}
@@ -590,7 +585,7 @@ class Systems extends Getmeb
 				if (isset($this->params->id) && $this->params->id) {
 					
 					if (!$result = $this->_upload_file()){
-						$this->xresponse(FALSE, ['message' => $this->messages()]);
+						xresponse(FALSE, ['message' => $this->messages()]);
 					}
 						
 					/* If Success */
@@ -615,8 +610,8 @@ class Systems extends Getmeb
 						// @unlink($this->session->user_photo_path.$this->params->photo_file);
 					// }
 					/* update to table */
-					$this->updateRecord('a_user', ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params->id]);
-					$this->xresponse(TRUE, ['message' => lang('success_saving'), 'file_url' => base_url().$this->session->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
+					$this->_recordUpdate('a_user', ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params->id]);
+					xresponse(TRUE, ['message' => lang('success_saving'), 'file_url' => base_url().$this->session->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
 				}
 			}
 		}
@@ -643,9 +638,9 @@ class Systems extends Getmeb
 			
 			$this->params['sort'] = 'seq';
 			if (! $result['data'] = $this->{$this->mdl}->a_info($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -742,12 +737,12 @@ class Systems extends Getmeb
 				unset($this->params->identify);
 				// debug($this->params);
 				
-				$result = $this->updateRecord('a_user', $this->params, ['id'=>$this->session->user_id], FALSE);
+				$result = $this->_recordUpdate('a_user', $this->params, ['id'=>$this->session->user_id], FALSE);
 				
 				if (! $result)
-					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+					xresponse(FALSE, ['message' => $this->messages()], 401);
 
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+				xresponse(TRUE, ['message' => $this->messages()]);
 			}
 		}
 	}
@@ -758,12 +753,12 @@ class Systems extends Getmeb
 			
 			if (isset($this->params->id) && !empty($this->params->id)) {
 				/* clear loggin attempt */
-				if (! $this->deleteRecords('a_loginattempt', $this->params->id, TRUE))
-					$this->xresponse(FALSE, ['message' => $this->messages()]);
+				if (! $this->_recordDelete('a_loginattempt', $this->params->id, TRUE))
+					xresponse(FALSE, ['message' => $this->messages()]);
 				else
-					$this->xresponse(TRUE, ['message' => lang('success_rla')]);
+					xresponse(TRUE, ['message' => lang('success_rla')]);
 			}
-			$this->xresponse(FALSE, ['message' => '']);
+			xresponse(FALSE, ['message' => '']);
 		}
 	}
 	
@@ -774,11 +769,11 @@ class Systems extends Getmeb
 			if (isset($this->params->id) && !empty($this->params->id)) {
 				/* create api key */
 				if (! $this->db->update($this->c_table, ['api_token' => create_api_key()], ['id' => $this->params->id]))
-					$this->xresponse(FALSE, ['message' => $this->db->error()['message']]);
+					xresponse(FALSE, ['message' => $this->db->error()['message']]);
 				else 
-					$this->xresponse(TRUE, ['message' => lang('success_create_api_key')]);
+					xresponse(TRUE, ['message' => lang('success_create_api_key')]);
 			}
-			$this->xresponse(FALSE, ['message' => '']);
+			xresponse(FALSE, ['message' => '']);
 		}
 	}
 	
@@ -794,9 +789,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if ($this->r_method == 'POST') {
@@ -806,7 +801,7 @@ class Systems extends Getmeb
 				if (isset($this->params->userphoto) && !empty($this->params->userphoto)) {
 					if (isset($this->params->id) && $this->params->id) {
 						if (!$result = $this->_upload_file()){
-							$this->xresponse(FALSE, ['message' => $this->messages()]);
+							xresponse(FALSE, ['message' => $this->messages()]);
 						}
 							
 						/* If picture success upload to tmp folder */
@@ -830,23 +825,23 @@ class Systems extends Getmeb
 							// @unlink($this->session->user_photo_path.$this->params->photo_file);
 						// }
 						/* update to table */
-						$this->updateRecord($this->c_method, ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params->id]);
-						$this->xresponse(TRUE, ['message' => lang('success_saving'), 'file_url' => base_url().$this->session->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
+						$this->_recordUpdate($this->c_method, ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params->id]);
+						xresponse(TRUE, ['message' => lang('success_saving'), 'file_url' => base_url().$this->session->user_photo_path.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
 					}
 				}
 				
 				$this->load->library('z_auth/auth');
 				if (! $id = $this->auth->register($this->params->name, $this->params->password, $this->params->email, array_merge($this->fixed_data, $this->create_log)))
-					$this->xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+					xresponse(FALSE, ['message' => $this->auth->errors()], 401);
 
 				/* create avatar image */
 				$data = ['word'=>$this->params->name[0], 'img_path'=>$this->session->user_photo_path, 'img_url'=> base_url().$this->session->user_photo_path];
 				$data = create_avatar_img($data);
 				if ($data) {
-					$this->updateRecord($this->c_method, ['photo_file'=>$data['filename']], ['id' => $id]);
+					$this->_recordUpdate($this->c_method, ['photo_file'=>$data['filename']], ['id' => $id]);
 				}
 				
-				$this->xresponse(TRUE, ['id' => $id, 'message' => lang('success_saving')]);
+				xresponse(TRUE, ['id' => $id, 'message' => lang('success_saving')]);
 			}			
 		}
 		if ($this->r_method == 'PUT') {
@@ -870,21 +865,21 @@ class Systems extends Getmeb
 
 			$this->params['where']['orgtype_id'] = 2;
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
 				// debug($this->params);
-				$result = $this->updateRecord('a_user', ['user_org_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
+				$result = $this->_recordUpdate('a_user', ['user_org_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
 				
 				/* Throwing the result to Ajax */
 				if (! $result)
-					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+					xresponse(FALSE, ['message' => $this->messages()], 401);
 
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+				xresponse(TRUE, ['message' => $this->messages()]);
 			}
 			
 			if ($this->params->event == 'pre_post_put'){
@@ -935,7 +930,7 @@ class Systems extends Getmeb
 			/* For getting org_id in a_user_orgtrx.tpl */
 			if (isset($this->params['get_org_id']) && !empty($this->params['get_org_id'])) {
 				$row = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $this->params['parent_id']);
-				$this->xresponse(TRUE, ['data'=>$row]);
+				xresponse(TRUE, ['data'=>$row]);
 			}
 			
 			if (isset($this->params['parent_org_id']) && !empty($this->params['parent_org_id'])) {
@@ -944,20 +939,20 @@ class Systems extends Getmeb
 			
 			$this->params['where']['orgtype_id'] = 3;
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
-				$result = $this->updateRecord('a_user', ['user_orgtrx_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
+				$result = $this->_recordUpdate('a_user', ['user_orgtrx_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
 				
 				/* Throwing the result to Ajax */
 				if (! $result)
-					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+					xresponse(FALSE, ['message' => $this->messages()], 401);
 
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+				xresponse(TRUE, ['message' => $this->messages()]);
 			}
 			
 			if ($this->params->event == 'pre_post_put'){
@@ -1009,25 +1004,25 @@ class Systems extends Getmeb
 			/* For getting org_id in a_user_orgdept.tpl */
 			if (isset($this->params['get_org_id']) && !empty($this->params['get_org_id'])) {
 				$row = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $this->params['parent_id']);
-				$this->xresponse(TRUE, ['data'=>$row]);
+				xresponse(TRUE, ['data'=>$row]);
 			}
 			
 			$this->params['where']['orgtype_id'] = 4;
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
-				$result = $this->updateRecord('a_user', ['user_orgdept_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
+				$result = $this->_recordUpdate('a_user', ['user_orgdept_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
 				
 				/* Throwing the result to Ajax */
 				if (! $result)
-					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+					xresponse(FALSE, ['message' => $this->messages()], 401);
 
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+				xresponse(TRUE, ['message' => $this->messages()]);
 			}
 			
 			if ($this->params->event == 'pre_post_put'){
@@ -1079,25 +1074,25 @@ class Systems extends Getmeb
 			/* For getting org_id in a_user_orgdiv.tpl */
 			if (isset($this->params['get_org_id']) && !empty($this->params['get_org_id'])) {
 				$row = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $this->params['parent_id']);
-				$this->xresponse(TRUE, ['data'=>$row]);
+				xresponse(TRUE, ['data'=>$row]);
 			}
 			
 			$this->params['where']['orgtype_id'] = 5;
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
-				$result = $this->updateRecord('a_user', ['user_orgdiv_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
+				$result = $this->_recordUpdate('a_user', ['user_orgdiv_id' => $this->params->org_id], ['id'=>$this->params->user_id]);
 				
 				/* Throwing the result to Ajax */
 				if (! $result)
-					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+					xresponse(FALSE, ['message' => $this->messages()], 401);
 
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+				xresponse(TRUE, ['message' => $this->messages()]);
 			}
 			
 			if ($this->params->event == 'pre_post_put'){
@@ -1142,21 +1137,21 @@ class Systems extends Getmeb
 				$result['data'] = [];
 				$result['message'] = $this->base_model->errors();
 				$result['str_query'] = $this->session->flashdata('str_query');
-				$this->xresponse(FALSE, $result);
+				xresponse(FALSE, $result);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if ($this->r_method == 'PUT') {
 			
 			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
-				$result = $this->updateRecord('a_user', ['user_role_id' => $this->params->role_id], ['id'=>$this->params->user_id]);
+				$result = $this->_recordUpdate('a_user', ['user_role_id' => $this->params->role_id], ['id'=>$this->params->user_id]);
 				
 				/* Throwing the result to Ajax */
 				if (! $result)
-					$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+					xresponse(FALSE, ['message' => $this->messages()], 401);
 
-				$this->xresponse(TRUE, ['message' => $this->messages()]);
+				xresponse(TRUE, ['message' => $this->messages()]);
 			}
 		}
 		if ($this->r_method == 'DELETE') {
@@ -1185,9 +1180,9 @@ class Systems extends Getmeb
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -1209,7 +1204,7 @@ class Systems extends Getmeb
 			}
 			$userconfig = ($user_config===FALSE) ? [] : $userconfig;
 			$result['data'] = $userconfig;
-			$this->xresponse(TRUE, $result);
+			xresponse(TRUE, $result);
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if (isset($this->params->profile) && $this->params->profile) {
@@ -1222,13 +1217,13 @@ class Systems extends Getmeb
 				
 				$qry = $this->db->get_where($this->c_method, $cond, 1);
 				if ($qry->num_rows() > 0) {
-					if (!$this->updateRecord($this->c_method, $data, $cond, TRUE))
-						$this->xresponse(FALSE, ['message' => $this->messages()]);
+					if (!$this->_recordUpdate($this->c_method, $data, $cond, TRUE))
+						xresponse(FALSE, ['message' => $this->messages()]);
 				} else {
-					if (!$this->insertRecord($this->c_method, array_merge($data, $cond), FALSE, TRUE))
-						$this->xresponse(FALSE, ['message' => $this->messages()]);
+					if (! $this->_recordInsert($this->c_method, array_merge($data, $cond), FALSE, TRUE))
+						xresponse(FALSE, ['message' => $this->messages()]);
 				}
-				$this->xresponse(TRUE, ['message' => lang('success_saving')]);
+				xresponse(TRUE, ['message' => lang('success_saving')]);
 			}
 			
 			$result = [];
@@ -1239,17 +1234,17 @@ class Systems extends Getmeb
 				
 				$qry = $this->db->get_where($this->c_method, $cond, 1);
 				if ($qry->num_rows() > 0) {
-					if (!$this->updateRecord($this->c_method, $data, $cond, TRUE))
+					if (!$this->_recordUpdate($this->c_method, $data, $cond, TRUE))
 						$result[$k] = $this->messages();
 				} else {
-					if (!$this->insertRecord($this->c_method, array_merge($data, $cond), FALSE, TRUE))
+					if (!$this->_recordInsert($this->c_method, array_merge($data, $cond), FALSE, TRUE))
 						$result[$k] = $this->messages();
 				}
 			}
 			if (count($result) > 0) {
-				$this->xresponse(FALSE, ['message' => $result]);
+				xresponse(FALSE, ['message' => $result]);
 			} else {
-				$this->xresponse(TRUE);
+				xresponse(TRUE);
 			}
 		}
 	}
@@ -1265,9 +1260,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -1292,9 +1287,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -1309,9 +1304,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->a_role($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -1339,21 +1334,21 @@ class Systems extends Getmeb
 				$this->params['where']['t1.is_deleted']	= '0';
 				$this->params['where']['t2.is_deleted']	= '0';
 				if (! $result = $this->base_model->mget_rec($this->params))
-					$this->xresponse(FALSE, ['message' => $this->base_model->errors()]);
+					xresponse(FALSE, ['message' => $this->base_model->errors()]);
 				
 				$result = $this->_export_data($result, [], TRUE);
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_post_put'){
-				$this->remove_empty($this->mixed_data);
+				$this->_remove_empty($this->mixed_data);
 			}
 			if ($this->params->event == 'pre_post'){
 				unset($this->mixed_data['client_id']);
@@ -1380,12 +1375,12 @@ class Systems extends Getmeb
 					}
 				}
 				if (count($error_out) > 1)
-					$this->xresponse(TRUE, ['message' => $error_out]);
+					xresponse(TRUE, ['message' => $error_out]);
 				else
-					$this->xresponse(TRUE, ['message' => lang('success_saving')]);
+					xresponse(TRUE, ['message' => lang('success_saving')]);
 			}
 			
-			$this->xresponse(TRUE, ['message' => lang('success_saving')]);
+			xresponse(TRUE, ['message' => lang('success_saving')]);
 		}
 	}
 	
@@ -1412,16 +1407,16 @@ class Systems extends Getmeb
 				$this->params['where']['t1.is_deleted']	= '0';
 				$this->params['where']['t2.is_deleted']	= '0';
 				if (! $result = $this->base_model->mget_rec($this->params))
-					$this->xresponse(FALSE, ['message' => $this->base_model->errors()]);
+					xresponse(FALSE, ['message' => $this->base_model->errors()]);
 				
 				$result = $this->_export_data($result, [], TRUE);
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -1431,11 +1426,11 @@ class Systems extends Getmeb
 			if ($this->params->event == 'pre_put'){
 				// debug($this->params->role_id);
 				if (isset($this->params->newline) && $this->params->newline != ''){
-					if (!$result = $this->updateRecord($this->c_method, ['seq' => $this->params->newline], ['id' => $this->params->id], FALSE))
-						$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+					if (!$result = $this->_recordUpdate($this->c_method, ['seq' => $this->params->newline], ['id' => $this->params->id], FALSE))
+						xresponse(FALSE, ['message' => $this->messages()], 401);
 					else {
 						$this->_reorder_dashboard($this->params->role_id);
-						$this->xresponse(TRUE, ['message' => $this->messages()]);
+						xresponse(TRUE, ['message' => $this->messages()]);
 					}
 				}
 			}
@@ -1473,12 +1468,12 @@ class Systems extends Getmeb
 					}
 				}
 				if (count($error_out) > 1)
-					$this->xresponse(TRUE, ['message' => $error_out]);
+					xresponse(TRUE, ['message' => $error_out]);
 				else
-					$this->xresponse(TRUE, ['message' => lang('success_saving')]);
+					xresponse(TRUE, ['message' => lang('success_saving')]);
 			}
 			
-			$this->xresponse(TRUE, ['message' => lang('success_saving')]);
+			xresponse(TRUE, ['message' => lang('success_saving')]);
 		}
 	}
 	
@@ -1491,9 +1486,9 @@ class Systems extends Getmeb
 			$this->params['where']['t1.org_id']			= DEFAULT_ORG_ID;
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST')) {
@@ -1507,10 +1502,10 @@ class Systems extends Getmeb
 					$body .= "Your's Systems.";
 					$message = $body;
 					if($result = send_mail_systems(NULL, $this->session->user_email, 'Email Testing From '.$this->session->head_title, $message) !== TRUE) {
-						$this->xresponse(FALSE, ['message' => $this->session->flashdata('message')], 401);
+						xresponse(FALSE, ['message' => $this->session->flashdata('message')], 401);
 					}
 					/* success */
-					$this->xresponse(TRUE, ['message' => 'Testing Mail has been sent to your email address.']);
+					xresponse(TRUE, ['message' => 'Testing Mail has been sent to your email address.']);
 				}
 			}
 		}
@@ -1526,9 +1521,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -1538,12 +1533,12 @@ class Systems extends Getmeb
 		if ($this->r_method == 'PATCH') {
 			if (isset($this->params->testing_query) && !empty($this->params->testing_query)) {
 				if ($this->params->query) {
-					$query = $this->translate_variable($this->params->query);
+					$query = translate_variable($this->params->query);
 					
-					// $this->xresponse(FALSE, ['message' => $query], 401);
+					// xresponse(FALSE, ['message' => $query], 401);
 					
 					if (!$qry = $this->db->query($query)) {
-						$this->xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
+						xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
 					} else {
 						// debugf(count($qry->list_fields()));
 						$result['data']['qry_str'] = $query;
@@ -1558,7 +1553,7 @@ class Systems extends Getmeb
 						$result['message'] = 'OK';
 						$qry->free_result();
 					}
-					$this->xresponse(TRUE, $result);
+					xresponse(TRUE, $result);
 				}
 			}
 		}
@@ -1571,18 +1566,18 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_put'){
 				if (isset($this->params->newline) && $this->params->newline != ''){
-					if (!$result = $this->updateRecord($this->c_method, ['line_no' => $this->params->newline], ['id' => $this->params->id], FALSE))
-						$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+					if (!$result = $this->_recordUpdate($this->c_method, ['line_no' => $this->params->newline], ['id' => $this->params->id], FALSE))
+						xresponse(FALSE, ['message' => $this->messages()], 401);
 					else {
-						$this->xresponse(TRUE, ['message' => $this->messages()]);
+						xresponse(TRUE, ['message' => $this->messages()]);
 					}
 				}
 			}
@@ -1599,9 +1594,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -1616,9 +1611,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -1641,9 +1636,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -1658,11 +1653,11 @@ class Systems extends Getmeb
 			if ($this->params->event == 'pre_put'){
 				if (isset($this->params->newline) && $this->params->newline != ''){
 					$needsort = $this->params->line_no - $this->params->newline;
-					if (!$result = $this->updateRecord($this->c_method, ['line_no' => $this->params->newline, 'is_needsort' => $needsort], ['id' => $this->params->id], FALSE))
-						$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+					if (!$result = $this->_recordUpdate($this->c_method, ['line_no' => $this->params->newline, 'is_needsort' => $needsort], ['id' => $this->params->id], FALSE))
+						xresponse(FALSE, ['message' => $this->messages()], 401);
 					else {
 						$this->_reorder_menu($this->params->parent_id);
-						$this->xresponse(TRUE, ['message' => $this->messages()]);
+						xresponse(TRUE, ['message' => $this->messages()]);
 					}
 				}
 			}
@@ -1683,9 +1678,9 @@ class Systems extends Getmeb
 				$this->params['like'] = DBX::like_or('name', $this->params['q']);
 		
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -1711,9 +1706,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -1756,9 +1751,9 @@ class Systems extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -1796,9 +1791,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -1836,9 +1831,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -1860,9 +1855,9 @@ class Systems extends Getmeb
 			
 			$this->params['where']['orgtype_id'] = 2;
 			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -1881,9 +1876,9 @@ class Systems extends Getmeb
 			
 			$this->params['where']['orgtype_id'] = 3;
 			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -1902,9 +1897,9 @@ class Systems extends Getmeb
 			
 			$this->params['where']['orgtype_id'] = 4;
 			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -1923,9 +1918,9 @@ class Systems extends Getmeb
 			
 			$this->params['where']['orgtype_id'] = 5;
 			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -1959,9 +1954,9 @@ class Systems extends Getmeb
 				$this->params['like'] = DBX::like_or('name', $this->params['q']);
 		
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -1976,9 +1971,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -1989,9 +1984,9 @@ class Systems extends Getmeb
 			$this->_get_filtered(TRUE, FALSE);
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -2009,18 +2004,18 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_put'){
 				if (isset($this->params->newline) && $this->params->newline != ''){
-					if (!$result = $this->updateRecord($this->c_method, ['seq' => $this->params->newline], ['id' => $this->params->id], FALSE))
-						$this->xresponse(FALSE, ['message' => $this->messages()], 401);
+					if (!$result = $this->_recordUpdate($this->c_method, ['seq' => $this->params->newline], ['id' => $this->params->id], FALSE))
+						xresponse(FALSE, ['message' => $this->messages()], 401);
 					else {
-						$this->xresponse(TRUE, ['message' => $this->messages()]);
+						xresponse(TRUE, ['message' => $this->messages()]);
 					}
 				}
 			}
@@ -2046,9 +2041,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -2067,9 +2062,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -2093,9 +2088,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -2120,9 +2115,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -2146,9 +2141,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -2172,9 +2167,9 @@ class Systems extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}

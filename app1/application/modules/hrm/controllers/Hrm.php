@@ -21,9 +21,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -38,9 +38,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -55,9 +55,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -72,9 +72,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -89,9 +89,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -106,9 +106,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -123,9 +123,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -140,9 +140,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -157,9 +157,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -174,9 +174,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -191,9 +191,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -208,9 +208,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -225,9 +225,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -242,9 +242,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -259,9 +259,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -276,9 +276,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -293,9 +293,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -310,9 +310,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -327,9 +327,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -344,9 +344,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -361,9 +361,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -378,9 +378,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -390,7 +390,7 @@ class Hrm extends Getmeb
 					if (isset($this->params->id) && $this->params->id) {
 						
 						if (!$result = $this->_upload_file()){
-							$this->xresponse(FALSE, ['message' => $this->messages()]);
+							xresponse(FALSE, ['message' => $this->messages()]);
 						}
 						/* If picture success upload to tmp folder */
 						
@@ -398,7 +398,7 @@ class Hrm extends Getmeb
 						// $data_img = bin2hex(file_get_contents($result["path"])); 
 						/* insert to table */
 						// $this->db->where('personnel_id', $this->params->id)->delete('hr_personnel_photo');
-						// $this->insertRecord('hr_personnel_photo', ['personnel_id' => $this->params->id, 'photo_file' => $result["name"], 'photo_bin' => $data_img], TRUE, TRUE);
+						// $this->_recordInsert('hr_personnel_photo', ['personnel_id' => $this->params->id, 'photo_file' => $result["name"], 'photo_bin' => $data_img], TRUE, TRUE);
 						
 						/* Method #2: if picture saved to folder */
 						
@@ -420,9 +420,9 @@ class Hrm extends Getmeb
 						}
 						
 						/* update to table */
-						$this->updateRecord($this->c_method, ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params->id]);
-						// $this->xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => base_url().'upload/images/personnel/'.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
-						$this->xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
+						$this->_recordUpdate($this->c_method, ['photo_file'=>$rndName.'.'.$ext], ['id' => $this->params->id]);
+						// xresponse(TRUE, ['message' => $this->lang->line('success_saving'), 'file_url' => base_url().'upload/images/personnel/'.$rndName.'.'.$ext, 'photo_file' => $rndName.'.'.$ext]);
+						xresponse(TRUE, ['message' => $this->lang->line('success_saving')]);
 					}
 				}
 				
@@ -430,7 +430,7 @@ class Hrm extends Getmeb
 				/* for counting percentage of field population */
 				$fields = $this->db->list_fields($this->c_method);
 				// debug($datas);
-				$datas_cnt = $this->remove_empty($this->mixed_data);
+				$datas_cnt = $this->_remove_empty($this->mixed_data);
 				// debug($datas);
 				// $data = $this->base_model->getValueArray('*', $this->c_method, 'id', $id);
 				$this->mixed_data['profile_status'] = (count($datas_cnt) / (count($fields)-11-8)) * 100;
@@ -447,7 +447,7 @@ class Hrm extends Getmeb
 			$this->_get_filtered();
 	
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				foreach($result['data']['rows'] as $k => $v){
 					ob_start(); // Let's start output buffering.
@@ -460,7 +460,7 @@ class Hrm extends Getmeb
 					// echo "<img src='$dataUri' />";
 					unset($result['data']['rows'][$k]->photo_bin);
 				}
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -475,9 +475,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -492,9 +492,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -509,9 +509,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -526,9 +526,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -543,9 +543,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -560,9 +560,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -577,9 +577,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -594,9 +594,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -611,9 +611,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -628,9 +628,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -645,9 +645,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -662,9 +662,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -679,9 +679,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -696,9 +696,9 @@ class Hrm extends Getmeb
 			}
 
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}

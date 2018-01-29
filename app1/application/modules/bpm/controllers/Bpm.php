@@ -21,9 +21,9 @@ class Bpm extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -38,9 +38,9 @@ class Bpm extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -55,9 +55,9 @@ class Bpm extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -72,9 +72,9 @@ class Bpm extends Getmeb
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}

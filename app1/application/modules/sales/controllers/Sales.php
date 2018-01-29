@@ -28,9 +28,9 @@ class Sales extends Getmeb
 			
 			$this->load->model('systems/system_model');
 			if (($result['data'] = $this->system_model->{$this->c_method}($this->params)) === FALSE){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -45,9 +45,9 @@ class Sales extends Getmeb
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -62,9 +62,9 @@ class Sales extends Getmeb
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -79,9 +79,9 @@ class Sales extends Getmeb
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 
 			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -100,9 +100,9 @@ class Sales extends Getmeb
 			}
 
 			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -123,9 +123,9 @@ class Sales extends Getmeb
 			}
 
 			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -148,9 +148,9 @@ class Sales extends Getmeb
 			}
 
 			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -160,17 +160,17 @@ class Sales extends Getmeb
 					if (isset($this->params->step) && $this->params->step == '1') {
 						/* Check permission in the role */
 						if (! $result = $this->_import_data())
-							$this->xresponse(FALSE, ['message' => $this->messages()]);
+							xresponse(FALSE, ['message' => $this->messages()]);
 						else
-							$this->xresponse(TRUE, $result);
+							xresponse(TRUE, $result);
 					}
 					/* Step #2:  */
 					if (isset($this->params->step) && $this->params->step == '2') {
 						/* Check permission in the role */
 						if (! $result = $this->_import_data())
-							$this->xresponse(FALSE, ['message' => $this->messages()]);
+							xresponse(FALSE, ['message' => $this->messages()]);
 						else
-							$this->xresponse(TRUE, array_merge($result, ['message' => $this->lang->line('success_import_data')]));
+							xresponse(TRUE, array_merge($result, ['message' => $this->lang->line('success_import_data')]));
 					}
 				}
 			}
@@ -187,9 +187,9 @@ class Sales extends Getmeb
 			}
 
 			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -204,9 +204,9 @@ class Sales extends Getmeb
 				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
 	
 			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -221,9 +221,9 @@ class Sales extends Getmeb
 				$this->params['like'] = DBX::like_or('t1.attribute, t1.description', $this->params['q']);
 	
 			if (($result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)) === FALSE){
-				$this->xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				$this->xresponse(TRUE, $result);
+				xresponse(TRUE, $result);
 			}
 		}
 	}
@@ -232,7 +232,7 @@ class Sales extends Getmeb
 	{
 		
 		$result['data'] = $this->params;
-		$this->xresponse(TRUE, $result);
+		xresponse(TRUE, $result);
 	}
 	
 	function swg_ir_or_calc()
