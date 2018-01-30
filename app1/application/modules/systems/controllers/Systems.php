@@ -21,6 +21,7 @@ class Systems extends Getmeb
 		if ($this->r_method == 'GET') {
 			// debug($this->_get_orgtrx());
 			$this->params['list'] = 1;
+			$this->params['where_custom'][] = 'tags is null';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {

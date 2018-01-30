@@ -608,8 +608,14 @@ class Getmeb extends CI_Controller
 		if ($this->r_method == 'POST') {
 			$result = $this->_recordInsert($this->c_table, $this->mixed_data);
 			$this->insert_id = $result;
+			
+			/* _crudlog here */
+			$this->_crudlog($result, 1);
 		} else {
 			$result = $this->_recordUpdate($this->c_table, $this->mixed_data, ['id'=>$this->params->id]);
+			
+			/* _crudlog here */
+			$this->_crudlog($this->params->id, 2);
 		}
 		
 		/* Trigger events after POST & PUT */
@@ -659,6 +665,106 @@ class Getmeb extends CI_Controller
 			xresponse(TRUE, ['message' => $this->messages()]);
 	}
 	
+	function _recordInsert($table, $data, $fixed_data = FALSE, $log = FALSE)
+	{
+		$data = is_object($data) ? (array) $data : $data;
+		$data = $fixed_data ? array_merge($data, $this->fixed_data) : $data;
+		$data = $log ? array_merge($data, $this->create_log) : $data;
+
+		if (key_exists('id', $data)) 
+			unset($data['id']);
+
+		if ($this->identity_keys){
+			$val = [];
+			foreach($this->identity_keys as $k => $v){
+				if (isset($data[$v])){
+					$val[$v] = $data[$v];
+				}
+			}
+			
+			if (count($val) > 0) {
+				if (! $fk = $this->db->get_where($table, array_merge($val, ['is_deleted' => '0']), 1)) {
+					$this->set_message($this->db->error()['message']);
+					return FALSE;
+				}
+				// debug($this->db->last_query());
+				if ($fk->num_rows() > 0){
+					// $this->set_message('error_identity_keys', __FUNCTION__, $val);
+					$this->set_message('error_identity_keys');
+					return false;
+				}
+			}
+		}
+
+		if (!$return = $this->db->insert($table, $data)) {
+			// debug($return);
+			// debug($this->db->error()['message']);
+			$this->set_message($this->db->error()['message']);
+			return false;
+		} else {
+			$id = $this->db->insert_id();
+			// debug($this->db->last_query());
+			// debug($return);
+			$this->set_message('success_saving');
+			return $id;
+		}
+	}
+	
+	function _recordUpdate($table, $data, $cond, $log = FALSE)
+	{
+		$data = is_object($data) ? (array) $data : $data;
+		$data = $log ? array_merge($data, $this->update_log) : $data;
+		
+		$cond = is_object($cond) ? (array) $cond : $cond;
+
+		if (isset($data['id'])) 
+			unset($data['id']);
+		
+		if (!$return = $this->db->update($table, $data, $cond)) {
+			$this->set_message($this->db->error()['message']);
+			return false;
+		} else {
+			$this->set_message('success_update');
+			return true;
+		}
+		
+		/* $this->db->update($table, $data, $cond);
+		$return = $this->db->affected_rows() == 1;
+		if ($return)
+			// $this->set_message('update_data_successful');
+			$this->set_message('success_update');
+		else
+			$this->set_message('update_data_unsuccessful');
+		
+		return true; */
+	}
+	
+	function _recordDelete($table, $ids, $real = FALSE)
+	{
+		$ids = array_filter(array_map('trim',explode(',',$ids)));
+		$return = 0;
+		foreach($ids as $v)
+		{
+			if ($real) {
+				if ($this->db->delete($table, ['user_id'=>$v]))
+				{
+					$return += 1;
+				}
+			} else {
+				if ($this->db->update($table, $this->delete_log, ['id'=>$v]))
+				{
+					$return += 1;
+				}
+			}
+		}
+		if ($return)
+			$this->set_message('success_delete');
+		else
+			$this->set_message($this->db->error()['message']); 
+			
+		return $return;
+	}
+	
 	function _get_filtered($client = TRUE, $org = TRUE, $qField = [], $qReplaceField = FALSE)
 	{
 		if (isset($this->params['id']) && !empty($this->params['id'])) 
@@ -692,21 +798,70 @@ class Getmeb extends CI_Controller
 	
 	/* 
 	* 	$key_id		integer; 
-	* 	$type			integer; 		Ex.: 1=created, 2=updated, 3=deleted, 4=comment
+	* 	$type			integer; 		Ex.: 1=created, 2=updated, 3=comment, 4=deleted
 	* 	$description		text; 
 	*/
-	function _crudlog($key_id = NULL, $type = 0, $description)
+	function _crudlog($key_id, $type = 0, $description = NULL)
 	{
 		$data['client_id'] = DEFAULT_CLIENT_ID;
 		$data['org_id'] =  $this->session->org_id;
 		$data['table_id'] = $this->_get_table_id();
-		$data['key_id'] = $key_id;
 		$data['user_id'] = $this->session->user_id;
+		
+		$data['key_id'] = $key_id;
 		$data['created_at'] = date('Y-m-d H:i:s');
 		$data['type'] = $type;
 		// $data['title'] = $table_id;
 		$data['description'] = $description;
-		$this->db->insert('a_history_log', $data);
+		
+		// if ($description) {
+			// if (is_array($description) || is_object($description)) {
+				// $this->_record_mixing_data(NULL, FALSE, FALSE);
+				// $description = $this->mixed_data;
+				
+				// $old = $this->base_model->getValue(implode(',', array_keys($description)), $this->c_table, 'id', $key_id);
+				
+				
+				// $d = ''; $i = 1;
+				// foreach($description as $k => $v) {
+					// $d .= $k .': '. $v . ($i < count((array) $description) ? chr(13) : '');
+					// $i++;
+				// }
+				// $data['description'] = $d;
+			// } else {
+				// $data['description'] = $description;
+			// }
+		// }
+		$log_id = 0;
+		if (in_array($type, [1, 3])){
+			$this->db->insert('a_history_log', $data);
+			$log_id = $this->db->insert_id();
+		} else {
+			$this->_record_mixing_data(NULL, FALSE, FALSE);
+			$this->mixed_data = array_diff($this->mixed_data, ['id', 'description']);
+			$old = $this->base_model->getValueArray(implode(',', array_keys($this->mixed_data)), $this->c_table, 'id', $key_id);
+			
+			foreach($this->mixed_data as $k => $v) {
+				if ($old[$k] != $v){
+					if ($log_id){
+						$line['history_log_id'] = $log_id;
+						$line['changed_field'] = $k;
+						$line['old_value'] = $old[$k];
+						$line['new_value'] = $v;
+						$this->db->insert('a_history_log_line', $line);
+					} else {
+						$this->db->insert('a_history_log', $data);
+						$log_id = $this->db->insert_id();
+						
+						$line['history_log_id'] = $log_id;
+						$line['changed_field'] = $k;
+						$line['old_value'] = $old[$k];
+						$line['new_value'] = $v;
+						$this->db->insert('a_history_log_line', $line);
+					}
+				}
+			}
+		}
 	}
 	
 	function _upload_file()
@@ -1403,106 +1558,6 @@ class Getmeb extends CI_Controller
 		return $_output;
 	}
 
-	function _recordInsert($table, $data, $fixed_data = FALSE, $log = FALSE)
-	{
-		$data = is_object($data) ? (array) $data : $data;
-		$data = $fixed_data ? array_merge($data, $this->fixed_data) : $data;
-		$data = $log ? array_merge($data, $this->create_log) : $data;
-
-		if (key_exists('id', $data)) 
-			unset($data['id']);
-
-		if ($this->identity_keys){
-			$val = [];
-			foreach($this->identity_keys as $k => $v){
-				if (isset($data[$v])){
-					$val[$v] = $data[$v];
-				}
-			}
-			
-			if (count($val) > 0) {
-				if (! $fk = $this->db->get_where($table, array_merge($val, ['is_deleted' => '0']), 1)) {
-					$this->set_message($this->db->error()['message']);
-					return FALSE;
-				}
-				// debug($this->db->last_query());
-				if ($fk->num_rows() > 0){
-					// $this->set_message('error_identity_keys', __FUNCTION__, $val);
-					$this->set_message('error_identity_keys');
-					return false;
-				}
-			}
-		}
-
-		if (!$return = $this->db->insert($table, $data)) {
-			// debug($return);
-			// debug($this->db->error()['message']);
-			$this->set_message($this->db->error()['message']);
-			return false;
-		} else {
-			$id = $this->db->insert_id();
-			// debug($this->db->last_query());
-			// debug($return);
-			$this->set_message('success_saving');
-			return $id;
-		}
-	}
-	
-	function _recordUpdate($table, $data, $cond, $log = FALSE)
-	{
-		$data = is_object($data) ? (array) $data : $data;
-		$data = $log ? array_merge($data, $this->update_log) : $data;
-		
-		$cond = is_object($cond) ? (array) $cond : $cond;
-
-		if (isset($data['id'])) 
-			unset($data['id']);
-		
-		if (!$return = $this->db->update($table, $data, $cond)) {
-			$this->set_message($this->db->error()['message']);
-			return false;
-		} else {
-			$this->set_message('success_update');
-			return true;
-		}
-		
-		/* $this->db->update($table, $data, $cond);
-		$return = $this->db->affected_rows() == 1;
-		if ($return)
-			// $this->set_message('update_data_successful');
-			$this->set_message('success_update');
-		else
-			$this->set_message('update_data_unsuccessful');
-		
-		return true; */
-	}
-	
-	function _recordDelete($table, $ids, $real = FALSE)
-	{
-		$ids = array_filter(array_map('trim',explode(',',$ids)));
-		$return = 0;
-		foreach($ids as $v)
-		{
-			if ($real) {
-				if ($this->db->delete($table, ['user_id'=>$v]))
-				{
-					$return += 1;
-				}
-			} else {
-				if ($this->db->update($table, $this->delete_log, ['id'=>$v]))
-				{
-					$return += 1;
-				}
-			}
-		}
-		if ($return)
-			$this->set_message('success_delete');
-		else
-			$this->set_message($this->db->error()['message']); 
-			
-		return $return;
-	}
-	
 	/**
 	 * li
 	 *

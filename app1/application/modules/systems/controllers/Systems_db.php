@@ -442,9 +442,19 @@ class Systems_db extends CI_Controller {
 		$fields['key_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['user_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
 		$fields['created_at'] = ['type' => 'TIMESTAMP', 'null' => TRUE];
-		$fields['type'] 	= ['type' => 'CHAR', 'constraint' => '1', 'null' => TRUE];		// 1: created | 2: updated | 3: deleted | 4: comment
+		$fields['type'] 	= ['type' => 'CHAR', 'constraint' => '1', 'null' => TRUE];		// 1: created | 2: updated | 3: comment | 4: deleted
 		$fields['title'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
 		$fields['description'] = ['type' => 'TEXT', 'null' => TRUE];
+		return $fields;
+	}
+	
+	function table_a_history_log_line()
+	{
+		$fields['id'] = ['type' => 'INT', 'constraint' => 9, 'auto_increment' => TRUE];
+		$fields['history_log_id'] 	= ['type' => 'INT', 'constraint' => '32', 'null' => TRUE];
+		$fields['changed_field'] 	= ['type' => 'VARCHAR', 'constraint' => '60', 'null' => TRUE];		
+		$fields['old_value'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
+		$fields['new_value'] = ['type' => 'VARCHAR', 'constraint' => '255', 'null' => TRUE];
 		return $fields;
 	}
 	

@@ -4917,4 +4917,49 @@ class Cashflow extends Getmeb
 		}
 	}
 	
+	function dashboard_sales()
+	{
+		if ($this->r_method == 'GET') {
+			$this->params['list'] = 1;
+			$this->params['where']['tags'] = 'sales';
+			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				// xresponse(TRUE, ['data' => $result]);
+				foreach($result as $key => $val){
+					$result[$key]->value = 0;
+					if ($val->query) {
+						
+						$val->query = translate_variable($val->query);
+						
+						if (!$qry = $this->db->query($val->query)) {
+							$result[$key]->value = -1;
+							// debugf($this->db->error()['message']);
+						} else {
+							if (count($qry->list_fields()) == 1) {
+								if ($qry->num_rows() == 1)
+									$result[$key]->value = array_values($qry->row_array());
+								else
+									$result[$key]->value = -1;
+								/* foreach($qry->list_fields() as $field){
+									// debugf($qry->row(0)->{$field});
+									$result[$key]->value = $qry->row(0)->{$field};
+								} */
+							} else {
+								foreach($qry->result() as $k => $v){
+									$res[$v->key] = $v->val;
+								}
+								$result[$key]->value = $res;
+							}
+							$qry->free_result();
+							// debugf(count($qry->list_fields()));
+						}
+					}
+					unset($result[$key]->query);
+				}
+				xresponse(TRUE, ['data' => $result]);
+			}
+		}
+	}
+	
 }

@@ -22,6 +22,7 @@
 	col.push(BSHelper.Combobox({ label:"Type", idname:"type", 
 		list:[
 			{ id:"BOX-3", name:"BOX-3" },
+			{ id:"BOX-3.1", name:"BOX-3.1" },
 			{ id:"BOX-5", name:"BOX-5" },
 			{ id:"BOX-7", name:"BOX-7" },
 		] 

@@ -41,7 +41,7 @@
 		var default_opts = {
 			color: '',
 			title: '',
-			value: 0,
+			// value: 0,
 			icon: '',
 			link: '',
 			seq: 0,
@@ -49,12 +49,16 @@
 		var o = $.extend( {}, default_opts, options );
 		var link = o.link ? '<a href="'+o.link+'" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>' : '<div class="small-box-footer">&nbsp;</div>';
 		var num = o.seq ? '<div class="pull-right"><span data-toggle="tooltip" class="badge bg-yellow" data-original-title="Number #'+o.seq+'">'+o.seq+'</span></div>' : '';
+		// console.log(o.type);
+		if (o.type == 'BOX-3') 
+			var val = '<div class="val"><h3><span>'+o.value+'</span></h3></div><div class="title"><p style="white-space: nowrap;"><span>'+o.title+'</span></p></div>';
+		else if (o.type == 'BOX-3.1') 
+			var val = '<div class="title"><p style="white-space: normal; height: 71px;"><span style="font-size: 25px;">'+o.title+'</span></p></div>';
 		return $('<div class="col-lg-3 col-xs-6">'+
 								'<div class="small-box '+o.color+'" data-toggle="tooltip" data-placement="bottom" id="'+(o.idname ? o.idname : '')+'" title="'+(o.tooltip ? o.tooltip : '')+'">'+
 									num+
 									'<div class="inner">'+
-										'<div class="val"><h3><span>'+o.value+'</span></h3></div>'+
-										'<div class="title"><p style="white-space: nowrap;"><span>'+o.title+'</span></p></div>'+
+										val+
 									'</div>'+ 
 									'<div class="icon"><i class="'+o.icon+'"></i></div>'+
 									link +
