@@ -81,8 +81,8 @@
 			
 		}
 		{* console.log($('div.small-box h3').html()); *}
-		{* $('div.small-box div.val').textfill({	maxFontPixels: 38 }); *}
-		{* $('div.small-box div.title').textfill({	maxFontPixels: 15 }); *}
+		$('div.small-box div.val').textfill({	maxFontPixels: 38 });
+		$('div.small-box div.title').textfill({	maxFontPixels: 15 });
 	});
 	
 	function qemail(){
@@ -209,34 +209,34 @@
 	
 	function visitor_maps(){
 		var col = [], row = [];
-			if ($('#world-map').length > 0){
-				$('#world-map').vectorMap({
-					map: 'world_mill_en',
-					backgroundColor: "transparent",
-					regionStyle: {
-						initial: {
-							fill: '#e4e4e4',
-							"fill-opacity": 1,
-							stroke: 'none',
-							"stroke-width": 0,
-							"stroke-opacity": 1
-						}
-					},
-					series: {
-						regions: [{
-							values: visitorsData,
-							scale: ['#b6d6ff', '#005ace'],
-							normalizeFunction: 'polynomial'
-						}]
-					},
-					onRegionLabelShow: function (e, el, code) {
-						if (typeof visitorsData[code] != "undefined")
-							el.html(el.html() + ': ' + visitorsData[code] + ' new visitors');
-					}
-				});
-			}
 		var box1 = BSHelper.Box({ type:"info", cls:"bg-light-blue-gradient", header:true, title:"Visitor Maps", icon:"fa fa-map-marker", toolbtn:['min','rem'] });
 		box1.find('.box-body').append($('<div id="world-map" style="height: 250px; width: 100%;"> </div>'));
+		if ($('#world-map').length > 0){
+			$('#world-map').vectorMap({
+				map: 'world_mill_en',
+				backgroundColor: "transparent",
+				regionStyle: {
+					initial: {
+						fill: '#e4e4e4',
+						"fill-opacity": 1,
+						stroke: 'none',
+						"stroke-width": 0,
+						"stroke-opacity": 1
+					}
+				},
+				series: {
+					regions: [{
+						values: visitorsData,
+						scale: ['#b6d6ff', '#005ace'],
+						normalizeFunction: 'polynomial'
+					}]
+				},
+				onRegionLabelShow: function (e, el, code) {
+					if (typeof visitorsData[code] != "undefined")
+						el.html(el.html() + ': ' + visitorsData[code] + ' new visitors');
+				}
+			});
+		}
 		return box1;
 	}
 	

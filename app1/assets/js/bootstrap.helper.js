@@ -53,7 +53,7 @@
 		if (o.type == 'BOX-3') 
 			var val = '<div class="val"><h3><span>'+o.value+'</span></h3></div><div class="title"><p style="white-space: nowrap;"><span>'+o.title+'</span></p></div>';
 		else if (o.type == 'BOX-3.1') 
-			var val = '<div class="title"><p style="white-space: normal; height: 71px;"><span style="font-size: 25px;">'+o.title+'</span></p></div>';
+			var val = '<div class="title"><p style="white-space: normal; height: 71px;"><span>'+o.title+'</span></p></div>';
 		return $('<div class="col-lg-3 col-xs-6">'+
 								'<div class="small-box '+o.color+'" data-toggle="tooltip" data-placement="bottom" id="'+(o.idname ? o.idname : '')+'" title="'+(o.tooltip ? o.tooltip : '')+'">'+
 									num+
