@@ -4961,5 +4961,320 @@ class Cashflow extends Getmeb
 			}
 		}
 	}
+
+	function dashboard_purchase()
+	{
+		if ($this->r_method == 'GET') {
+			$this->params['list'] = 1;
+			$this->params['where']['tags'] = 'purchase';
+			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				// xresponse(TRUE, ['data' => $result]);
+				foreach($result as $key => $val){
+					$result[$key]->value = 0;
+					if ($val->query) {
+						
+						$val->query = translate_variable($val->query);
+						
+						if (!$qry = $this->db->query($val->query)) {
+							$result[$key]->value = -1;
+							// debugf($this->db->error()['message']);
+						} else {
+							if (count($qry->list_fields()) == 1) {
+								if ($qry->num_rows() == 1)
+									$result[$key]->value = array_values($qry->row_array());
+								else
+									$result[$key]->value = -1;
+								/* foreach($qry->list_fields() as $field){
+									// debugf($qry->row(0)->{$field});
+									$result[$key]->value = $qry->row(0)->{$field};
+								} */
+							} else {
+								foreach($qry->result() as $k => $v){
+									$res[$v->key] = $v->val;
+								}
+								$result[$key]->value = $res;
+							}
+							$qry->free_result();
+							// debugf(count($qry->list_fields()));
+						}
+					}
+					unset($result[$key]->query);
+				}
+				xresponse(TRUE, ['data' => $result]);
+			}
+		}
+	}
+
+	function dashboard_warehouse()
+	{
+		if ($this->r_method == 'GET') {
+			$this->params['list'] = 1;
+			$this->params['where']['tags'] = 'warehouse';
+			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				// xresponse(TRUE, ['data' => $result]);
+				foreach($result as $key => $val){
+					$result[$key]->value = 0;
+					if ($val->query) {
+						
+						$val->query = translate_variable($val->query);
+						
+						if (!$qry = $this->db->query($val->query)) {
+							$result[$key]->value = -1;
+							// debugf($this->db->error()['message']);
+						} else {
+							if (count($qry->list_fields()) == 1) {
+								if ($qry->num_rows() == 1)
+									$result[$key]->value = array_values($qry->row_array());
+								else
+									$result[$key]->value = -1;
+								/* foreach($qry->list_fields() as $field){
+									// debugf($qry->row(0)->{$field});
+									$result[$key]->value = $qry->row(0)->{$field};
+								} */
+							} else {
+								foreach($qry->result() as $k => $v){
+									$res[$v->key] = $v->val;
+								}
+								$result[$key]->value = $res;
+							}
+							$qry->free_result();
+							// debugf(count($qry->list_fields()));
+						}
+					}
+					unset($result[$key]->query);
+				}
+				xresponse(TRUE, ['data' => $result]);
+			}
+		}
+	}
+
+	function dashboard_invoice_vendor()
+	{
+		if ($this->r_method == 'GET') {
+			$this->params['list'] = 1;
+			$this->params['where']['tags'] = 'invoice_vendor';
+			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				// xresponse(TRUE, ['data' => $result]);
+				foreach($result as $key => $val){
+					$result[$key]->value = 0;
+					if ($val->query) {
+						
+						$val->query = translate_variable($val->query);
+						
+						if (!$qry = $this->db->query($val->query)) {
+							$result[$key]->value = -1;
+							// debugf($this->db->error()['message']);
+						} else {
+							if (count($qry->list_fields()) == 1) {
+								if ($qry->num_rows() == 1)
+									$result[$key]->value = array_values($qry->row_array());
+								else
+									$result[$key]->value = -1;
+								/* foreach($qry->list_fields() as $field){
+									// debugf($qry->row(0)->{$field});
+									$result[$key]->value = $qry->row(0)->{$field};
+								} */
+							} else {
+								foreach($qry->result() as $k => $v){
+									$res[$v->key] = $v->val;
+								}
+								$result[$key]->value = $res;
+							}
+							$qry->free_result();
+							// debugf(count($qry->list_fields()));
+						}
+					}
+					unset($result[$key]->query);
+				}
+				xresponse(TRUE, ['data' => $result]);
+			}
+		}
+	}
+
+	function dashboard_invoice_customer()
+	{
+		if ($this->r_method == 'GET') {
+			$this->params['list'] = 1;
+			$this->params['where']['tags'] = 'invoice_customer';
+			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				// xresponse(TRUE, ['data' => $result]);
+				foreach($result as $key => $val){
+					$result[$key]->value = 0;
+					if ($val->query) {
+						
+						$val->query = translate_variable($val->query);
+						
+						if (!$qry = $this->db->query($val->query)) {
+							$result[$key]->value = -1;
+							// debugf($this->db->error()['message']);
+						} else {
+							if (count($qry->list_fields()) == 1) {
+								if ($qry->num_rows() == 1)
+									$result[$key]->value = array_values($qry->row_array());
+								else
+									$result[$key]->value = -1;
+								/* foreach($qry->list_fields() as $field){
+									// debugf($qry->row(0)->{$field});
+									$result[$key]->value = $qry->row(0)->{$field};
+								} */
+							} else {
+								foreach($qry->result() as $k => $v){
+									$res[$v->key] = $v->val;
+								}
+								$result[$key]->value = $res;
+							}
+							$qry->free_result();
+							// debugf(count($qry->list_fields()));
+						}
+					}
+					unset($result[$key]->query);
+				}
+				xresponse(TRUE, ['data' => $result]);
+			}
+		}
+	}
+
+	function dashboard_other_inflow()
+	{
+		if ($this->r_method == 'GET') {
+			$this->params['list'] = 1;
+			$this->params['where']['tags'] = 'other_inflow';
+			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				// xresponse(TRUE, ['data' => $result]);
+				foreach($result as $key => $val){
+					$result[$key]->value = 0;
+					if ($val->query) {
+						
+						$val->query = translate_variable($val->query);
+						
+						if (!$qry = $this->db->query($val->query)) {
+							$result[$key]->value = -1;
+							// debugf($this->db->error()['message']);
+						} else {
+							if (count($qry->list_fields()) == 1) {
+								if ($qry->num_rows() == 1)
+									$result[$key]->value = array_values($qry->row_array());
+								else
+									$result[$key]->value = -1;
+								/* foreach($qry->list_fields() as $field){
+									// debugf($qry->row(0)->{$field});
+									$result[$key]->value = $qry->row(0)->{$field};
+								} */
+							} else {
+								foreach($qry->result() as $k => $v){
+									$res[$v->key] = $v->val;
+								}
+								$result[$key]->value = $res;
+							}
+							$qry->free_result();
+							// debugf(count($qry->list_fields()));
+						}
+					}
+					unset($result[$key]->query);
+				}
+				xresponse(TRUE, ['data' => $result]);
+			}
+		}
+	}
+
+	function dashboard_other_outflow()
+	{
+		if ($this->r_method == 'GET') {
+			$this->params['list'] = 1;
+			$this->params['where']['tags'] = 'other_outflow';
+			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				// xresponse(TRUE, ['data' => $result]);
+				foreach($result as $key => $val){
+					$result[$key]->value = 0;
+					if ($val->query) {
+						
+						$val->query = translate_variable($val->query);
+						
+						if (!$qry = $this->db->query($val->query)) {
+							$result[$key]->value = -1;
+							// debugf($this->db->error()['message']);
+						} else {
+							if (count($qry->list_fields()) == 1) {
+								if ($qry->num_rows() == 1)
+									$result[$key]->value = array_values($qry->row_array());
+								else
+									$result[$key]->value = -1;
+								/* foreach($qry->list_fields() as $field){
+									// debugf($qry->row(0)->{$field});
+									$result[$key]->value = $qry->row(0)->{$field};
+								} */
+							} else {
+								foreach($qry->result() as $k => $v){
+									$res[$v->key] = $v->val;
+								}
+								$result[$key]->value = $res;
+							}
+							$qry->free_result();
+							// debugf(count($qry->list_fields()));
+						}
+					}
+					unset($result[$key]->query);
+				}
+				xresponse(TRUE, ['data' => $result]);
+			}
+		}
+	}
+
+	function dashboard_unmatch_daily_entry()
+	{
+		if ($this->r_method == 'GET') {
+			$this->params['list'] = 1;
+			$this->params['where']['tags'] = 'unmatch_daily_entry';
+			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				// xresponse(TRUE, ['data' => $result]);
+				foreach($result as $key => $val){
+					$result[$key]->value = 0;
+					if ($val->query) {
+						
+						$val->query = translate_variable($val->query);
+						
+						if (!$qry = $this->db->query($val->query)) {
+							$result[$key]->value = -1;
+							// debugf($this->db->error()['message']);
+						} else {
+							if (count($qry->list_fields()) == 1) {
+								if ($qry->num_rows() == 1)
+									$result[$key]->value = array_values($qry->row_array());
+								else
+									$result[$key]->value = -1;
+								/* foreach($qry->list_fields() as $field){
+									// debugf($qry->row(0)->{$field});
+									$result[$key]->value = $qry->row(0)->{$field};
+								} */
+							} else {
+								foreach($qry->result() as $k => $v){
+									$res[$v->key] = $v->val;
+								}
+								$result[$key]->value = $res;
+							}
+							$qry->free_result();
+							// debugf(count($qry->list_fields()));
+						}
+					}
+					unset($result[$key]->query);
+				}
+				xresponse(TRUE, ['data' => $result]);
+			}
+		}
+	}
 	
 }
