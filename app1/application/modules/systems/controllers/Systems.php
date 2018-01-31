@@ -1535,6 +1535,8 @@ class Systems extends Getmeb
 	
 	function a_dashboard()
 	{
+		$this->identity_keys = ['name', 'tags'];
+		
 		if ($this->r_method == 'PATCH') {
 			if (isset($this->params->testing_query) && !empty($this->params->testing_query)) {
 				if ($this->params->query) {
@@ -1563,7 +1565,7 @@ class Systems extends Getmeb
 			}
 		}
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, FALSE, ['t1.type']);
+			$this->_get_filtered(TRUE, FALSE, ['t1.type', 't1.tags']);
 			
 			// $this->params['ob'] = "type, line_no";
 			if (isset($this->params['export']) && !empty($this->params['export'])) {

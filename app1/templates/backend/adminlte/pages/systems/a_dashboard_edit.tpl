@@ -27,6 +27,7 @@
 			{ id:"BOX-7", name:"BOX-7" },
 		] 
 	}));
+	col.push(BSHelper.Input({ horz:false, type:"text", label:"Tags", idname:"tags", required: false, }));
 	row.push(subCol(6, col)); col = [];
 	col.push(BSHelper.Input({ horz:false, type:"text", label:"Link", idname:"link", }));
 	col.push(BSHelper.Combobox({ label:"Icon", idname:"icon", 

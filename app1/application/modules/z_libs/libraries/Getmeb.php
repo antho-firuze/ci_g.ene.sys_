@@ -610,7 +610,7 @@ class Getmeb extends CI_Controller
 			$this->insert_id = $result;
 			
 			/* _crudlog here */
-			$this->_crudlog($result, 1);
+			// $this->_crudlog($result, 1);
 		} else {
 			/* _crudlog here */
 			$this->_crudlog($this->params->id, 2);

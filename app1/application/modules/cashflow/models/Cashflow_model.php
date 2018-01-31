@@ -965,7 +965,71 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
+	function db_unmatch_trans_date_so_vs_shp_qty($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		to_char(doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, 
+		to_char(etd, '".$this->session->date_format."') as etd, 
+		to_char(delivery_date, '".$this->session->date_format."') as delivery_date, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name,
+		(select string_agg(name, E',') from rf_scm_dt_reason where id = ANY(t1.scm_dt_reasons)) as reason_name,
+		coalesce((case when delivery_date is null then current_date else delivery_date end) - expected_dt_cust, 0) as late,
+		coalesce(expected_dt_cust-current_date, 0) as estimation_late,
+		case 
+		when (((case when delivery_date is null then current_date else delivery_date end) - expected_dt_cust) * penalty_percent * grand_total) > (max_penalty_percent * grand_total) 
+		then (max_penalty_percent * grand_total) 
+		else (case when ((case when delivery_date is null then current_date else delivery_date end) - expected_dt_cust) > 0 then (((case when delivery_date is null then current_date else delivery_date end) - expected_dt_cust) * penalty_percent * grand_total) else 0 end) 
+		end as penalty_amount";
+		$params['table'] 	= "(
+			select * from (
+				select *,	(select max(delivery_date) from cf_inout where is_active = '1' and is_deleted = '0' and order_id = a1.id limit 1) as delivery_date, current_date
+				from cf_order a1 
+				where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+				is_active = '1' and is_deleted = '0' and is_sotrx = '1'
+			) r1
+			where extract(month from etd) = extract(month from current_date) and (delivery_date > etd or delivery_date is null)
+		) t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+	
 	function db_unmatch_trans_date_po_vs_mr($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select po_top from c_bpartner where id = t1.bpartner_id) as po_top, 
+		to_char(doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(eta, '".$this->session->date_format."') as eta, 
+		to_char(received_date, '".$this->session->date_format."') as received_date, 
+		coalesce(eta-current_date, 0) as estimation_late,
+		coalesce(received_date-eta, 0) as late,
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params['table'] 	= "(
+			select t1.*, order_id, received_date from (
+			select order_id, 
+			max((select (select max(received_date) from cf_inout where id = f1.inout_id) as received_date from cf_inout_line f1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id limit 1)) as received_date
+			from cf_order_line t1
+			where 
+			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and (select orgtrx_id from cf_order f1 where id = t1.order_id) = ".$this->session->orgtrx_id." and 
+			is_active = '1' and is_deleted = '0' and exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id) 
+			group by 1
+			) t2 inner join cf_order t1 on t2.order_id = t1.id where received_date > eta and extract(month from eta) = extract(month from current_date) and extract(year from eta) = extract(year from current_date)
+		) t1";
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function db_unmatch_trans_date_po_vs_mr_qty($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -1032,7 +1096,69 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
+	function db_outstanding_trans_so_qty($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name, 
+		coalesce(expected_dt_cust-current_date, 0) as estimation_late,
+		coalesce(current_date-expected_dt_cust, 0) as late,
+		(select penalty_percent from cf_order where id = t1.id) as penalty_percent, 
+		(select max_penalty_percent from cf_order where id = t1.id) as max_penalty_percent, 
+		to_char(doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, 
+		to_char(etd, '".$this->session->date_format."') as etd";
+		$params['table'] 	= "(
+			select * from cf_order o1
+			where 
+			client_id = {client_id} and org_id = {org_id} and (select orgtrx_id from cf_order f1 where id = o1.id) in {orgtrx} and 
+			is_active = '1' and is_deleted = '0' and is_sotrx = '1'
+			and current_date > o1.etd 
+			and exists(
+			select 
+			distinct(id) 
+			from cf_order_line a1
+			where is_active = '1' and is_deleted = '0' 
+			and a1.order_id = o1.id
+			and not exists(
+			select * from cf_inout_line 
+			where is_active = '1' and is_deleted = '0'
+			and is_completed = '1' and order_line_id =a1.id 
+			))) t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+	
 	function db_outstanding_trans_po($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select po_top from c_bpartner where id = t1.bpartner_id) as po_top,  
+		coalesce(eta-current_date, 0) as estimation_late,
+		coalesce(current_date-eta, 0) as late,
+		to_char(doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(eta, '".$this->session->date_format."') as eta";
+		$params['table'] 	= "(
+			select * from cf_order f1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+			is_active = '1' and is_deleted = '0' and is_sotrx = '0' 
+			AND NOT EXISTS(SELECT 1 FROM cf_inout WHERE is_active = '1' AND is_deleted = '0'	AND order_id = f1.ID) 
+		) t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function db_outstanding_trans_po_qty($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -1090,7 +1216,7 @@ class Cashflow_Model extends CI_Model
 		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
 		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
 		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
-		(received_date - received_plan_date) as late,
+		(coalesce(received_date, current_date) - received_plan_date) as late,
 		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
 		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
 		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
@@ -1104,9 +1230,42 @@ class Cashflow_Model extends CI_Model
 					from cf_invoice a1 
 					where 
 					client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-					is_active = '1' and is_deleted = '0' and is_receipt = '1' 
+					is_active = '1' and is_deleted = '0' and is_receipt = '1' and doc_type in ('1')
 				) t1
-				where (doc_date is not null and received_date is not null and (received_date > received_plan_date or received_plan_date > current_date) and (extract(month from received_plan_date) = extract(month from current_date) and extract(year from received_plan_date) = extract(year from current_date)))
+				where extract(month from received_plan_date) = extract(month from current_date) and (received_date > received_plan_date or received_date is null)
+				--where (doc_date is not null and received_date is not null and (received_date > received_plan_date or received_plan_date > current_date) and (extract(month from received_plan_date) = extract(month from current_date) and extract(year from received_plan_date) = extract(year from current_date)))
+			) t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function db_late_invoice_vs_bank_received_inflow($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		(coalesce(received_date, current_date) - received_plan_date) as late,
+		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
+		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date,
+		to_char(t1.received_date, '".$this->session->date_format."') as received_date";
+		$params['table'] 	= "(
+				select * from (
+					select *, 
+					(select received_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = a1.id), 
+					(select f2.doc_no as voucher_no from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = a1.id) 
+					from cf_invoice a1 
+					where 
+					client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+					is_active = '1' and is_deleted = '0' and is_receipt = '1' and doc_type in ('5')
+				) t1
+				where extract(month from received_plan_date) = extract(month from current_date) and (received_date > received_plan_date or received_date is null)
+				--where (doc_date is not null and received_date is not null and (received_date > received_plan_date or received_plan_date > current_date) and (extract(month from received_plan_date) = extract(month from current_date) and extract(year from received_plan_date) = extract(year from current_date)))
 			) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
@@ -1121,7 +1280,7 @@ class Cashflow_Model extends CI_Model
 		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
 		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
 		(select po_top from c_bpartner where id = t1.bpartner_id) as po_top, 
-		(payment_date - payment_plan_date) as late,
+		(coalesce(payment_date, current_date) - payment_plan_date) as late,
 		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
 		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
 		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
@@ -1134,9 +1293,41 @@ class Cashflow_Model extends CI_Model
 					from cf_invoice a1 
 					where 
 					client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-					is_active = '1' and is_deleted = '0' and is_receipt = '0' 
+					is_active = '1' and is_deleted = '0' and is_receipt = '0' and doc_type in ('2','3','4')
 				) t1
-				where (doc_date is not null and payment_date is not null and (payment_date > payment_plan_date or payment_plan_date > current_date) and (extract(month from payment_plan_date) = extract(month from current_date) and extract(year from payment_plan_date) = extract(year from current_date)))
+				where extract(month from payment_plan_date) = extract(month from current_date) and (payment_date > payment_plan_date or payment_date is null)
+				--where (doc_date is not null and payment_date is not null and (payment_date > payment_plan_date or payment_plan_date > current_date) and (extract(month from payment_plan_date) = extract(month from current_date) and extract(year from payment_plan_date) = extract(year from current_date)))
+			) t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+
+	function db_late_invoice_vs_bank_payment_outflow($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select po_top from c_bpartner where id = t1.bpartner_id) as po_top, 
+		(coalesce(payment_date, current_date) - payment_plan_date) as late,
+		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
+		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date,
+		to_char(t1.payment_date, '".$this->session->date_format."') as payment_date";
+		$params['table'] 	= "(
+				select * from (
+					select *, (select payment_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = a1.id) 
+					, (select f2.doc_no as voucher_no from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = a1.id) 
+					from cf_invoice a1 
+					where 
+					client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+					is_active = '1' and is_deleted = '0' and is_receipt = '0' and doc_type in ('6')
+				) t1
+				where extract(month from payment_plan_date) = extract(month from current_date) and (payment_date > payment_plan_date or payment_date is null)
+				--where (doc_date is not null and payment_date is not null and (payment_date > payment_plan_date or payment_plan_date > current_date) and (extract(month from payment_plan_date) = extract(month from current_date) and extract(year from payment_plan_date) = extract(year from current_date)))
 			) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);

@@ -29,10 +29,12 @@
 		sub_menu: [],
 		order: ['id desc'],
 		columns: [
-			{ width:"130px", orderable:false, data:"code_name", title:"Name" },
-			{ width:"250px", orderable:false, data:"description", title:"Description" },
-			{ width:"55px", orderable:false, className:"dt-head-center dt-body-center", data:"type", title:"Type" },
-			{ width:"40px", orderable:false, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"130px", orderable:true, data:"code_name", title:"Name" },
+			{ width:"130px", orderable:true, data:"tags", title:"Tags" },
+			{ width:"130px", orderable:true, data:"link", title:"Link" },
+			{ width:"55px", orderable:true, className:"dt-head-center dt-body-center", data:"type", title:"Type" },
+			{ width:"40px", orderable:true, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
+			{ width:"250px", orderable:true, data:"description", title:"Description" },
 		],
 	};
 	
