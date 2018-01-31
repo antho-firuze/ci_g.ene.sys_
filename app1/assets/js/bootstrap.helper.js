@@ -41,7 +41,7 @@
 		var default_opts = {
 			color: '',
 			title: '',
-			// value: 0,
+			value: 0,
 			icon: '',
 			link: '',
 			seq: 0,
@@ -49,7 +49,6 @@
 		var o = $.extend( {}, default_opts, options );
 		var link = o.link ? '<a href="'+o.link+'" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>' : '<div class="small-box-footer">&nbsp;</div>';
 		var num = o.seq ? '<div class="pull-right"><span data-toggle="tooltip" class="badge bg-yellow" data-original-title="Number #'+o.seq+'">'+o.seq+'</span></div>' : '';
-		// console.log(o.type);
 		if (o.type == 'BOX-3') 
 			var val = '<div class="val"><h3><span>'+o.value+'</span></h3></div><div class="title"><p style="white-space: nowrap;"><span>'+o.title+'</span></p></div>';
 		else if (o.type == 'BOX-3.1') 
@@ -65,16 +64,6 @@
 								'</div>'+
 							'</div>');
 	}
-									/* 
-									'<div class="inner">'+
-										'<h3><span>'+o.value+'</span></h3>'+
-										'<p style="white-space: nowrap;">'+o.title+'</p>'+
-									'</div>'+
-									'<div class="inner">'+
-										'<div class="val"><h3><span>'+o.value+'</span></h3></div>'+
-										'<div class="title"><p style="white-space: nowrap;"><span>'+o.title+'</span></p></div>'+
-									'</div>'+ 
-									*/
 	
 	BSHelper.Alert = function(options){
 		var default_opts = {
@@ -528,7 +517,7 @@
 		// var lblname = o.required ? '&nbsp;<span style="color:red;">'+o.label+' *</span>' : o.label;
 		var lblname = o.required ? '&nbsp;<span style="color:red;">'+lbllink+' *</span>' : lbllink;
 		// var lblname = o.label ? '&nbsp;<span style="color:'+(o.required ? 'red' : 'black')+';vertical-align:-webkit-baseline-middle;white-space:nowrap;">'+o.label+(o.required ? ' *' : '')+'</span>' : o.label;
-		var container = $('<div class="form-group"><label class="control-label" style="white-space: nowrap;" for="'+o.idname+'">'+lblname+'</label><div class="control-input"></div></div>');
+		var container = $('<div class="form-group"><label class="control-label" style="white-space: nowrap;" for="'+o.idname+'_'+BSHelper.newGuid()+'">'+lblname+'</label><div class="control-input"></div></div>');
 		var el = (o.type == 'textarea') ? 'textarea' : ((o.type == 'select') ? 'select' : 'input');
 		var input = $('<'+el+' />', {class:"form-control", id:o.idname, name:o.idname, value:o.value}); 
 		var help = $('<small />', {class:"form-text text-muted help-block with-errors"}).html(o.help ? o.help : '');
@@ -570,7 +559,8 @@
 				input.attr('type',o.type);
 				break;
 			case 'date':
-				var input2 = $('<'+el+' />', {id:o.idname, name:o.idname, value:o.value}); 
+				var input2 = $('<'+el+' />', {id:o.idname+'_'+BSHelper.newGuid(), name:o.idname, value:o.value}); 
+				
 				input2.attr('type','hidden');
 				
 				input.attr('type','text');

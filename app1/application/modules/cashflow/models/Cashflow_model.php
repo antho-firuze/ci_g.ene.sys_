@@ -2786,4 +2786,100 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
+	function dashboard_purchase($params)
+	{
+		$params['select']	= "t2.*, t1.seq";
+		$params['table'] 	= "a_role_dashboard t1";
+		$params['join'][] 	= ['a_dashboard t2', 't2.id = t1.dashboard_id', 'left'];
+		$params['where']['t1.role_id'] = $this->session->role_id;
+		$params['where']['t1.is_active'] = '1';
+		$params['where']['t1.is_deleted'] = '0';
+		$params['where']['t2.is_active'] = '1';
+		$params['where']['t2.is_deleted'] = '0';
+		// $params['order']	= "t2.type, t2.lineno";
+		$params['sort']	= "t1.seq asc";
+		// debug($this->base_model->mget_rec($params));
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function dashboard_warehouse($params)
+	{
+		$params['select']	= "t2.*, t1.seq";
+		$params['table'] 	= "a_role_dashboard t1";
+		$params['join'][] 	= ['a_dashboard t2', 't2.id = t1.dashboard_id', 'left'];
+		$params['where']['t1.role_id'] = $this->session->role_id;
+		$params['where']['t1.is_active'] = '1';
+		$params['where']['t1.is_deleted'] = '0';
+		$params['where']['t2.is_active'] = '1';
+		$params['where']['t2.is_deleted'] = '0';
+		// $params['order']	= "t2.type, t2.lineno";
+		$params['sort']	= "t1.seq asc";
+		// debug($this->base_model->mget_rec($params));
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function dashboard_finance_customer($params)
+	{
+		$params['select']	= "t2.*, t1.seq";
+		$params['table'] 	= "a_role_dashboard t1";
+		$params['join'][] 	= ['a_dashboard t2', 't2.id = t1.dashboard_id', 'left'];
+		$params['where']['t1.role_id'] = $this->session->role_id;
+		$params['where']['t1.is_active'] = '1';
+		$params['where']['t1.is_deleted'] = '0';
+		$params['where']['t2.is_active'] = '1';
+		$params['where']['t2.is_deleted'] = '0';
+		// $params['order']	= "t2.type, t2.lineno";
+		$params['sort']	= "t1.seq asc";
+		// debug($this->base_model->mget_rec($params));
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function dashboard_finance_vendor($params)
+	{
+		$params['select']	= "t2.*, t1.seq";
+		$params['table'] 	= "a_role_dashboard t1";
+		$params['join'][] 	= ['a_dashboard t2', 't2.id = t1.dashboard_id', 'left'];
+		$params['where']['t1.role_id'] = $this->session->role_id;
+		$params['where']['t1.is_active'] = '1';
+		$params['where']['t1.is_deleted'] = '0';
+		$params['where']['t2.is_active'] = '1';
+		$params['where']['t2.is_deleted'] = '0';
+		// $params['order']	= "t2.type, t2.lineno";
+		$params['sort']	= "t1.seq asc";
+		// debug($this->base_model->mget_rec($params));
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function dashboard_finance_inflow($params)
+	{
+		$params['select']	= "t2.*, t1.seq";
+		$params['table'] 	= "a_role_dashboard t1";
+		$params['join'][] 	= ['a_dashboard t2', 't2.id = t1.dashboard_id', 'left'];
+		$params['where']['t1.role_id'] = $this->session->role_id;
+		$params['where']['t1.is_active'] = '1';
+		$params['where']['t1.is_deleted'] = '0';
+		$params['where']['t2.is_active'] = '1';
+		$params['where']['t2.is_deleted'] = '0';
+		// $params['order']	= "t2.type, t2.lineno";
+		$params['sort']	= "t1.seq asc";
+		// debug($this->base_model->mget_rec($params));
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function dashboard_finance_outflow($params)
+	{
+		$params['select']	= "t2.*, t1.seq";
+		$params['table'] 	= "a_role_dashboard t1";
+		$params['join'][] 	= ['a_dashboard t2', 't2.id = t1.dashboard_id', 'left'];
+		$params['where']['t1.role_id'] = $this->session->role_id;
+		$params['where']['t1.is_active'] = '1';
+		$params['where']['t1.is_deleted'] = '0';
+		$params['where']['t2.is_active'] = '1';
+		$params['where']['t2.is_deleted'] = '0';
+		// $params['order']	= "t2.type, t2.lineno";
+		$params['sort']	= "t1.seq asc";
+		// debug($this->base_model->mget_rec($params));
+		return $this->base_model->mget_rec($params);
+	}
+	
 }

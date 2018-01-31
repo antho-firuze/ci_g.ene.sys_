@@ -57,35 +57,46 @@
 	
   var visitorsData = {};
 	$.getJSON($url_module, {}, function(result){ 
+		{* console.log(result); *}
 		if (result.status){
 			$.each(result.data, function(i, val){
 				if (val.type == 'BOX-3.1'){
-					var link = val.link ? $BASE_URL+val.link : '';
-					$(".box-3").append(BSHelper.WidgetBox3({ title:val.name, color:val.color, value:val.value, icon:val.icon, link:link, tooltip:val.description, seq:val.id, type:val.type }));
+					{* box_3(val, $(".box-3")); *}
+					window.setTimeout(box_3(val, $(".box-3")), 0);
 				}
 				if (val.type == 'BOX-3'){
-					var link = val.link ? $BASE_URL+val.link : '';
-					$(".box-3").append(BSHelper.WidgetBox3({ title:val.name, color:val.color, value:val.value, icon:val.icon, link:link, tooltip:val.description, seq:val.id, type:val.type }));
+					{* box_3(val, $(".box-3")); *}
+					window.setTimeout(box_3(val, $(".box-3")), 0);
 				}
 				if (val.type == 'BOX-7' && val.name == 'Quick Email'){
-					$(".col-lg-7").append(qemail());
+					qemail($(".col-lg-7"));
 				}
 				if (val.type == 'BOX-5' && val.name == 'Calendar'){
-					$(".col-lg-5").append(wcal());
+					wcal($(".col-lg-5"));
 				}
 				if (val.type == 'BOX-7' && val.name == 'Visitor Maps'){
-					visitorsData = val.value;
-					$(".col-lg-7").append(visitor_maps());
+					visitor_maps(val.value, $(".col-lg-7"));
 				}
 			});
-			
 		}
 		{* console.log($('div.small-box h3').html()); *}
 		$('div.small-box div.val').textfill({	maxFontPixels: 38 });
 		$('div.small-box div.title').textfill({	maxFontPixels: 20 });
 	});
 	
-	function qemail(){
+	function box_3(val, el){
+		var link = val.link ? $BASE_URL+val.link : '';
+		var idname = "widgetbox3_"+val.id;
+		el.append(BSHelper.WidgetBox3({ idname:idname, title:val.name, color:val.color, value:val.value, icon:val.icon, link:link, tooltip:val.description, seq:val.id, type:val.type }));
+		$.getJSON($url_module, { "run": true, "id": val.id }, function(result){
+			{* console.log(result.data.value); *}
+			if (result.status){
+				el.find("#"+idname+" div.val span").html(result.data.value);
+			}
+		});
+	}
+	
+	function qemail(el){
 		var col = [], row = [];
 		var form1 = BSHelper.Form({ autocomplete:"off" });
 		var box1 = BSHelper.Box({ type:"info", header:true, title:"Quick Email", icon:"fa fa-envelope", toolbtn:['min','rem'], footer:true });
@@ -139,12 +150,15 @@
 			
 			paceOptions = {	ajax: false };
 		});
-		return box1;
+		{* return box1; *}
+		el.append(box1);
 	}
 
-	function wcal(fdate, tdate){
-		var fdate = typeof(fdate) == 'undefined' ? new Date() : fdate;
-		var tdate = typeof(tdate) == 'undefined' ? new Date() : tdate;
+	function wcal(el){
+		{* var fdate = typeof(fdate) == 'undefined' ? new Date() : fdate; *}
+		{* var tdate = typeof(tdate) == 'undefined' ? new Date() : tdate; *}
+		var fdate = new Date();
+		var tdate = new Date();
 		var calendar_value;
 
 		fdate = isDate(fdate) ? fdate : dateParsing(fdate, "yyyy-mm-dd");
@@ -207,37 +221,35 @@
 		}
 	}
 	
-	function visitor_maps(){
+	function visitor_maps(val, el){
 		var col = [], row = [];
 		var box1 = BSHelper.Box({ type:"info", cls:"bg-light-blue-gradient", header:true, title:"Visitor Maps", icon:"fa fa-map-marker", toolbtn:['min','rem'] });
 		box1.find('.box-body').append($('<div id="world-map" style="height: 250px; width: 100%;"> </div>'));
-		if ($('#world-map').length > 0){
-			$('#world-map').vectorMap({
-				map: 'world_mill_en',
-				backgroundColor: "transparent",
-				regionStyle: {
-					initial: {
-						fill: '#e4e4e4',
-						"fill-opacity": 1,
-						stroke: 'none',
-						"stroke-width": 0,
-						"stroke-opacity": 1
-					}
-				},
-				series: {
-					regions: [{
-						values: visitorsData,
-						scale: ['#b6d6ff', '#005ace'],
-						normalizeFunction: 'polynomial'
-					}]
-				},
-				onRegionLabelShow: function (e, el, code) {
-					if (typeof visitorsData[code] != "undefined")
-						el.html(el.html() + ': ' + visitorsData[code] + ' new visitors');
+		el.append(box1);
+		$('#world-map').vectorMap({
+			map: 'world_mill_en',
+			backgroundColor: "transparent",
+			regionStyle: {
+				initial: {
+					fill: '#e4e4e4',
+					"fill-opacity": 1,
+					stroke: 'none',
+					"stroke-width": 0,
+					"stroke-opacity": 1
 				}
-			});
-		}
-		return box1;
+			},
+			series: {
+				regions: [{
+					values: val,
+					scale: ['#b6d6ff', '#005ace'],
+					normalizeFunction: 'polynomial'
+				}]
+			},
+			onRegionLabelShow: function (e, el, code) {
+				if (typeof val[code] != "undefined")
+					el.html(el.html() + ': ' + val[code] + ' new visitors');
+			}
+		});
 	}
 	
 	var $pageid = getURLParameter("pageid");

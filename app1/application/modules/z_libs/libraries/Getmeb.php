@@ -612,10 +612,10 @@ class Getmeb extends CI_Controller
 			/* _crudlog here */
 			$this->_crudlog($result, 1);
 		} else {
-			$result = $this->_recordUpdate($this->c_table, $this->mixed_data, ['id'=>$this->params->id]);
-			
 			/* _crudlog here */
 			$this->_crudlog($this->params->id, 2);
+			
+			$result = $this->_recordUpdate($this->c_table, $this->mixed_data, ['id'=>$this->params->id]);
 		}
 		
 		/* Trigger events after POST & PUT */
@@ -813,35 +813,17 @@ class Getmeb extends CI_Controller
 		$data['type'] = $type;
 		// $data['title'] = $table_id;
 		$data['description'] = $description;
-		
-		// if ($description) {
-			// if (is_array($description) || is_object($description)) {
-				// $this->_record_mixing_data(NULL, FALSE, FALSE);
-				// $description = $this->mixed_data;
-				
-				// $old = $this->base_model->getValue(implode(',', array_keys($description)), $this->c_table, 'id', $key_id);
-				
-				
-				// $d = ''; $i = 1;
-				// foreach($description as $k => $v) {
-					// $d .= $k .': '. $v . ($i < count((array) $description) ? chr(13) : '');
-					// $i++;
-				// }
-				// $data['description'] = $d;
-			// } else {
-				// $data['description'] = $description;
-			// }
-		// }
+
 		$log_id = 0;
 		if (in_array($type, [1, 3])){
 			$this->db->insert('a_history_log', $data);
 			$log_id = $this->db->insert_id();
 		} else {
-			$this->_record_mixing_data(NULL, FALSE, FALSE);
-			$this->mixed_data = array_diff($this->mixed_data, ['id', 'description']);
-			$old = $this->base_model->getValueArray(implode(',', array_keys($this->mixed_data)), $this->c_table, 'id', $key_id);
+			$new = $this->mixed_data;
+			unset($new['id'], $new['description'], $new['updated_at'], $new['updated_by']);
+			$old = $this->base_model->getValueArray(implode(',', array_keys($new)), $this->c_table, 'id', $key_id);
 			
-			foreach($this->mixed_data as $k => $v) {
+			foreach($new as $k => $v) {
 				if ($old[$k] != $v){
 					if ($log_id){
 						$line['history_log_id'] = $log_id;

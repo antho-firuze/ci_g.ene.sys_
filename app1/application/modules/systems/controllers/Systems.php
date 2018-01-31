@@ -19,42 +19,46 @@ class Systems extends Getmeb
 	function dashboard1()
 	{
 		if ($this->r_method == 'GET') {
-			// debug($this->_get_orgtrx());
+			if (isset($this->params['run']) && $this->params['run']) {
+				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
+				if ($str) {
+					
+					$str = translate_variable($str);
+					
+					if (!$qry = $this->db->query($str)) {
+						$result['value'] = -1;
+						// debugf($this->db->error()['message']);
+					} else {
+						if (count($qry->list_fields()) == 1) {
+							if ($qry->num_rows() == 1)
+								$result['value'] = array_values($qry->row_array());
+							else
+								$result['value'] = -1;
+							/* foreach($qry->list_fields() as $field){
+								// debugf($qry->row(0)->{$field});
+								$result[$key]->value = $qry->row(0)->{$field};
+							} */
+						} else {
+							foreach($qry->result() as $k => $v){
+								$res[$v->key] = $v->val;
+							}
+							$result['value'] = $res;
+						}
+						// $qry->free_result();
+						// debugf(count($qry->list_fields()));
+					}
+					xresponse(TRUE, ['data' => $result]);
+				}
+				xresponse(FALSE, []);
+			}
 			$this->params['list'] = 1;
 			$this->params['where_custom'][] = 'tags is null';
+			// $this->params['where_custom'][] = 'tags is not null';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
-				// xresponse(TRUE, ['data' => $result]);
 				foreach($result as $key => $val){
 					$result[$key]->value = 0;
-					if ($val->query) {
-						
-						$val->query = translate_variable($val->query);
-						
-						if (!$qry = $this->db->query($val->query)) {
-							$result[$key]->value = -1;
-							// debugf($this->db->error()['message']);
-						} else {
-							if (count($qry->list_fields()) == 1) {
-								if ($qry->num_rows() == 1)
-									$result[$key]->value = array_values($qry->row_array());
-								else
-									$result[$key]->value = -1;
-								/* foreach($qry->list_fields() as $field){
-									// debugf($qry->row(0)->{$field});
-									$result[$key]->value = $qry->row(0)->{$field};
-								} */
-							} else {
-								foreach($qry->result() as $k => $v){
-									$res[$v->key] = $v->val;
-								}
-								$result[$key]->value = $res;
-							}
-							$qry->free_result();
-							// debugf(count($qry->list_fields()));
-						}
-					}
 					unset($result[$key]->query);
 				}
 				xresponse(TRUE, ['data' => $result]);
