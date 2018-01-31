@@ -39,7 +39,17 @@
 			{ width:"100px", orderable:true, data:"doc_no_request", title:"Req Doc No" },
 			{ width:"60px", orderable:true, className:"dt-head-center dt-body-center", data:"doc_date_request", title:"Req Doc Date" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"eta_request", title:"Req ETA" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"late", title:"Awaiting Inbound (Days)", 
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimate_late", title:"Awaiting Inbound (Days)", 
+				render: function(data, type, row){ 
+					if ( parseInt(data) > 0 && parseInt(data) <= 7 ) 
+						return $("<span>").addClass('label label-warning').text(data).prop('outerHTML');
+					else if ( parseInt(data) > 7 ) 
+						return $("<span>").addClass('label label-danger').text(data).prop('outerHTML'); 
+					else 
+						return $("<span>").addClass('label label-success').text(data).prop('outerHTML'); 
+				},
+			},
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"late", title:"Exceed Request ETA (Days)", 
 				render: function(data, type, row){ 
 					if ( parseInt(data) > 0 && parseInt(data) <= 7 ) 
 						return $("<span>").addClass('label label-warning').text(data).prop('outerHTML');

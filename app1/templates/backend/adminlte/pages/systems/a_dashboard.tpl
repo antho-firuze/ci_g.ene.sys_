@@ -33,6 +33,7 @@
 			{ width:"130px", orderable:true, data:"tags", title:"Tags" },
 			{ width:"130px", orderable:true, data:"link", title:"Link" },
 			{ width:"55px", orderable:true, className:"dt-head-center dt-body-center", data:"type", title:"Type" },
+			{ width:"130px", orderable:true, data:"color", title:"Color" },
 			{ width:"40px", orderable:true, className:"dt-head-center dt-body-center", data:"is_active", title:"Active", render:function(data, type, row){ return (data=='1') ? 'Y' : 'N'; } },
 			{ width:"250px", orderable:true, data:"description", title:"Description" },
 		],

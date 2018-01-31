@@ -37,6 +37,16 @@
 			{ width:"100px", orderable:true, data:"doc_no", title:"Invoice No" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"invoice_date", title:"Invoice Date (Actual)" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"invoice_plan_date", title:"Invoice Date (Plan)" },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"late", title:"Late Issued (Days)", 
+				render: function(data, type, row){ 
+					if ( parseInt(data) > 0 && parseInt(data) <= 7 ) 
+						return $("<span>").addClass('label label-warning').text(data).prop('outerHTML');
+					else if ( parseInt(data) > 7 ) 
+						return $("<span>").addClass('label label-danger').text(data).prop('outerHTML'); 
+					else 
+						return $("<span>").addClass('label label-success').text(data).prop('outerHTML'); 
+				},
+			},
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"payment_plan_date", title:"Payment Date (Plan)" },
 			{ width:"100px", orderable:true, data:"category_name", title:"Category" },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"amount", title:"Outflow Taxable (Amount)", render: function(data, type, row){ return format_money(data); } },

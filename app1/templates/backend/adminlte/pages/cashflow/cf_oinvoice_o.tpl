@@ -49,6 +49,16 @@
 			{ width:"100px", orderable:false, data:"doc_no", title:"Invoice No" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"invoice_plan_date", title:"Invoice Plan Date" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date", title:"Invoice Date" },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"late", title:"Late Issued (Days)", 
+				render: function(data, type, row){ 
+					if ( parseInt(data) > 0 && parseInt(data) <= 7 ) 
+						return $("<span>").addClass('label label-warning').text(data).prop('outerHTML');
+					else if ( parseInt(data) > 7 ) 
+						return $("<span>").addClass('label label-danger').text(data).prop('outerHTML'); 
+					else 
+						return $("<span>").addClass('label label-success').text(data).prop('outerHTML'); 
+				},
+			},
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"payment_plan_date", title:"Payment Plan Date" },
 			{ width:"100px", orderable:false, data:"doc_no_ar_ap", title:"AP Doc No" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_ar_ap", title:"AP Doc Date" },

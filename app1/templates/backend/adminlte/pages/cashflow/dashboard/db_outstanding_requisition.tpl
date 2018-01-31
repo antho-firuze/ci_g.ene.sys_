@@ -36,7 +36,7 @@
 			{ width:"100px", orderable:true, data:"doc_no", title:"Doc No" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"eta", title:"ETA" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimation_late", title:"Awaiting P/O (Days)", 
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimate_late", title:"Awaiting PO (Days)", 
 				render: function(data, type, row){ 
 					if ( parseInt(data) > 0 && parseInt(data) <= 7 ) 
 						return $("<span>").addClass('label label-warning').text(data).prop('outerHTML');
@@ -46,7 +46,7 @@
 						return $("<span>").addClass('label label-success').text(data).prop('outerHTML'); 
 				},
 			},
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"late", title:"Late (Days)", 
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"late", title:"Exceed ETA (Days)", 
 				render: function(data, type, row){ 
 					if ( parseInt(data) > 0 && parseInt(data) <= 7 ) 
 						return $("<span>").addClass('label label-warning').text(data).prop('outerHTML');

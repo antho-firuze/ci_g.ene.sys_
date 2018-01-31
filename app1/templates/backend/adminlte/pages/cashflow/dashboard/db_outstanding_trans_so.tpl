@@ -38,14 +38,14 @@
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"doc_date", title:"SO Date" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"etd", title:"SCM ETD" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"expected_dt_cust", title:"DT Customer" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimation_late", title:"Shipment Days Left", 
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimate_late", title:"Shipment Days Left", 
 				render: function(data, type, row){ 
 					if ( parseInt(data) > 0 && parseInt(data) <= 7 ) 
 						return $("<span>").addClass('label label-warning').text(data).prop('outerHTML');
 					else if ( parseInt(data) > 7 ) 
-						return $("<span>").addClass('label label-danger').text(data).prop('outerHTML'); 
-					else 
 						return $("<span>").addClass('label label-success').text(data).prop('outerHTML'); 
+					else 
+						return $("<span>").addClass('label label-danger').text(data).prop('outerHTML'); 
 				},
 			},
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"late", title:"Actual Late (Days)", 

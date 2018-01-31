@@ -63,7 +63,7 @@
 			{ width:"60px", orderable:true, className:"dt-head-center dt-body-center", data:"doc_date", title:"Doc Date" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"expected_dt_cust", title:"Expected DT Customer" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"etd", title:"SCM ETD" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimation_late", title:"Estimation Late", 
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimate_late", title:"Estimate Late (Days)", 
 				render: function(data, type, row){ 
 					if ( parseInt(data) > 0 && parseInt(data) <= 7 ) 
 						return $("<span>").addClass('label label-warning').text(data).prop('outerHTML');
