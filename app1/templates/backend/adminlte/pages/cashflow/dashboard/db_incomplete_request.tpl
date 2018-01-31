@@ -39,8 +39,14 @@
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_order", title:"SO Date" },
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"eta", title:"Request ETA" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"late", title:"Awating Requisition (Days)", 
-				render: function(data, type, row){ return parseInt(data) > 0 ? data : 0; },
-				createdCell: function (td, cellData, rowData, row, col) { if ( parseInt(cellData) > 0 ) { $(td).css({ 'background-color':'red', 'font-weight':'bold' }); } },
+				render: function(data, type, row){ 
+					if ( parseInt(data) > 0 && parseInt(data) <= 7 ) 
+						return $("<span>").addClass('label label-warning').text(data).prop('outerHTML');
+					else if ( parseInt(data) > 7 ) 
+						return $("<span>").addClass('label label-danger').text(data).prop('outerHTML'); 
+					else 
+						return $("<span>").addClass('label label-success').text(data).prop('outerHTML'); 
+				},
 			},
 			{ width:"100px", orderable:false, data:"request_type_name", title:"Request Purposes" },
 			{ width:"100px", orderable:false, data:"category_name", title:"Category" },

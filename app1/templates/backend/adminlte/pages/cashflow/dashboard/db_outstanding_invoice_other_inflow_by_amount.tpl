@@ -39,9 +39,15 @@
 			{ width:"100px", orderable:true, data:"doc_no", title:"Invoice No" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"doc_date", title:"Invoice Date (Actual)" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"received_plan_date", title:"Received Date (Plan)" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimation_late", title:"Aging Other AR (Days)", 
-				render: function(data, type, row){ return parseInt(data) > 0 ? data : 0; },
-				createdCell: function (td, cellData, rowData, row, col) { if ( parseInt(cellData) > 0 ) { $(td).css({ 'background-color':'red', 'font-weight':'bold' }); } },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimation_late", title:"Aging AR (Days)", 
+				render: function(data, type, row){ 
+					if ( parseInt(data) > 0 && parseInt(data) <= 7 ) 
+						return $("<span>").addClass('label label-warning').text(data).prop('outerHTML');
+					else if ( parseInt(data) > 7 ) 
+						return $("<span>").addClass('label label-danger').text(data).prop('outerHTML'); 
+					else 
+						return $("<span>").addClass('label label-success').text(data).prop('outerHTML'); 
+				},
 			},
 			{ width:"100px", orderable:true, data:"aging_ar_status", title:"Aging Other AR Status" },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"amount", title:"Amount", render: function(data, type, row){ return format_money(data); } },

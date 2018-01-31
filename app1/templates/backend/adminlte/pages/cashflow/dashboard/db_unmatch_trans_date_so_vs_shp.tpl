@@ -41,12 +41,24 @@
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"etd", title:"SCM ETD" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"delivery_date", title:"Delivery Date (Actual)" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimation_late", title:"Estimate Late (Days)", 
-				render: function(data, type, row){ return parseInt(data) > 0 ? data : 0; },
-				createdCell: function (td, cellData, rowData, row, col) { if ( parseInt(cellData) > 0 ) { $(td).css({ 'background-color':'red', 'font-weight':'bold' }); } },
+				render: function(data, type, row){ 
+					if ( parseInt(data) > 0 && parseInt(data) <= 7 ) 
+						return $("<span>").addClass('label label-warning').text(data).prop('outerHTML');
+					else if ( parseInt(data) > 7 ) 
+						return $("<span>").addClass('label label-danger').text(data).prop('outerHTML'); 
+					else 
+						return $("<span>").addClass('label label-success').text(data).prop('outerHTML'); 
+				},
 			},
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"late", title:"Actual Late (Days)", 
-				render: function(data, type, row){ return parseInt(data) > 0 ? data : 0; },
-				createdCell: function (td, cellData, rowData, row, col) { if ( parseInt(cellData) > 0 ) { $(td).css({ 'background-color':'red', 'font-weight':'bold' }); } },
+				render: function(data, type, row){ 
+					if ( parseInt(data) > 0 && parseInt(data) <= 7 ) 
+						return $("<span>").addClass('label label-warning').text(data).prop('outerHTML');
+					else if ( parseInt(data) > 7 ) 
+						return $("<span>").addClass('label label-danger').text(data).prop('outerHTML'); 
+					else 
+						return $("<span>").addClass('label label-success').text(data).prop('outerHTML'); 
+				},
 			},
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"penalty_amount", title:"Actual penalty (Amount)", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"penalty_percent", title:"Actual Penalty (Percent)", render: function(data, type, row){ return format_percent(data * 100); } },

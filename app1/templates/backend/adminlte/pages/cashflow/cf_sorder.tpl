@@ -81,8 +81,8 @@
 						{ $(td).append($("<span>").addClass('label label-success').text(rowData.estimation_late)); } 
 				}, *}
 			},
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"penalty_percent", title:"Penalty Percent", render: function(data, type, row){ return format_percent(data * 100); } },
-			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"max_penalty_percent", title:"Max Penalty Percent", render: function(data, type, row){ return format_percent(data * 100); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"penalty_percent", title:"Penalty Percent", render: function(data, type, row){ return format_percent(data * 100); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"max_penalty_percent", title:"Max Penalty Percent", render: function(data, type, row){ return format_percent(data * 100); } },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"estimation_penalty_amount", title:"Estimation Penalty Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"200px", orderable:true, data:"reason_name", title:"Late Reason", createdCell: function (td, cellData, rowData, row, col) { $(td).css({ 'text-overflow':'unset', 'overflow-x':'auto' }); } },
 			{ width:"100px", orderable:true, data:"category_name", title:"Category" },

@@ -39,7 +39,12 @@
 			{ width:"50px", orderable:false, className:"dt-head-center dt-body-center", data:"estimation_late", title:"Diff. Request Days", 
 				render: function(data, type, row){ return parseInt(data) > 0 ? data : 0; },
 			},
-			{ width:"70px", orderable:false, className:"dt-head-center dt-body-center", data:"eta_status", title:"Status ETA <br>(<= 6 Days)", createdCell: function (td, cellData, rowData, row, col) { if ( cellData == 'Warning' ) { $(td).css({ 'background-color':'red', 'font-weight':'bold' }); } }, },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"eta_status", title:"Status ETA <br>(<= 6 Days)", 
+				render: function(data, type, row){ 
+					return $("<span>").addClass('label label-warning').text(data).prop('outerHTML');
+				},
+			},
+			{* { width:"70px", orderable:false, className:"dt-head-center dt-body-center", data:"eta_status", title:"Status ETA <br>(<= 6 Days)", createdCell: function (td, cellData, rowData, row, col) { if ( cellData == 'Warning' ) { $(td).css({ 'background-color':'red', 'font-weight':'bold' }); } }, }, *}
 			{ width:"100px", orderable:false, data:"doc_no_request", title:"Request Doc No" },
 			{ width:"60px", orderable:false, className:"dt-head-center dt-body-center", data:"doc_date_request", title:"Request Doc Date" },
 			{ width:"100px", orderable:false, data:"bpartner_name", title:"Customer" },
