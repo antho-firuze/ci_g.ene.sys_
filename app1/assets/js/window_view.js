@@ -15,33 +15,62 @@ var $q = getURLParameter("q"),
 	$title = getURLParameter("title"),
 	$method = $url_module.split('/')[4];
 
-var url;
-var origin_url = window.location.origin+window.location.pathname;
+var $url;
+var $origin_url = window.location.origin+window.location.pathname;
 var dataTable1;
 
 /* pushing url to browser address */
-origin_url = $pageid ? URI(origin_url).addSearch('pageid', $pageid) : origin_url;
-origin_url = $filter ? URI(origin_url).addSearch('filter', $filter) : origin_url;
-origin_url = $q ? URI(origin_url).addSearch('q', $q) : origin_url;
-origin_url = $id ? URI(origin_url).addSearch('id', $id) : origin_url;
-origin_url = $title ? URI(origin_url).addSearch('title', $title) : origin_url;
-history.replaceState ("", document.title, origin_url);
+$origin_url = $pageid ? URI($origin_url).addSearch('pageid', $pageid) : $origin_url;
+$origin_url = $filter ? URI($origin_url).addSearch('filter', $filter) : $origin_url;
+$origin_url = $q ? URI($origin_url).addSearch('q', $q) : $origin_url;
+$origin_url = $id ? URI($origin_url).addSearch('id', $id) : $origin_url;
+$origin_url = $title ? URI($origin_url).addSearch('title', $title) : $origin_url;
+history.replaceState ("", document.title, $origin_url);
 
-var is_shiftkeypressed = false;
+var $is_shiftkeypressed = false;
 window.onkeydown = function(e){
 	if(e.shiftKey)
-		is_shiftkeypressed = true;
+		$is_shiftkeypressed = true;
 }
 
 window.onkeyup = function(e){
-	is_shiftkeypressed = false;
+	$is_shiftkeypressed = false;
+	if (e.keyCode == 45) {
+		$("#btn-new").trigger('click');
+	}
 }
+
+/* Tricky for removing hash-tags(#), while any link added '#' to the URL. Ex: Calling BootstrapDialog, etc. */
+window.onhashchange = function(e){
+	// var hash = location.hash.replace(/^#/, '');
+	// var hash = location.href.indexOf('#');
+	// console.log(hash);
+	console.log('url-hash-change');
+	// console.log(document.title);
+	// console.log(e.originalEvent.oldURL);
+	history.replaceState ("", document.title, e.originalEvent.oldURL);
+	// if (hash >= -1)
+		// window.history.back();
+}
+
+/* Tricky for removing hash-tags(#), while any link added '#' to the URL. Ex: Calling BootstrapDialog, etc. */
+// $(window).on('hashchange', function(e){
+	// var hash = location.hash.replace(/^#/, '');
+	// var hash = location.href.indexOf('#');
+	// console.log(hash);
+	// console.log('url-hash-change');
+	// console.log(document.title);
+	// console.log(e.originalEvent.oldURL);
+	// history.replaceState ("", document.title, e.originalEvent.oldURL);
+	// if (hash >= -1)
+		// window.history.back();
+// });
 
 function initFlashMessage() 
 {
-	url = URI($X_INFO_LNK).addSearch('valid', 1).addSearch('pageid', $pageid);
+	$url = URI($X_INFO_LNK).addSearch('valid', 1).addSearch('pageid', $pageid);
 	
-	$.ajax({ url: url, method: "GET", async: true, dataType: 'json',
+	$.ajax({ url: $url, method: "GET", async: true, dataType: 'json',
 		success: function(result) {
 			if (! isempty_arr(result.data.rows)) {
 				var info_list = $('<ul id="info_marquee" class="info-marquee marquee" />');
@@ -139,7 +168,7 @@ function initToolbarButton()
 
 function initDataTable()
 {
-	url = $url_module;
+	$url = $url_module;
 	/* Get variable DataTable_Init */
 	if (!DataTable_Init.enable)
 		return false;
@@ -173,12 +202,12 @@ function initDataTable()
 	/* param order by */
 	var $ob = get('ob_'+$method);
 	if ($ob && $ob !== 'null' && $ob !== 'ASC') {
-		url = URI(url).addSearch('ob', $ob);
+		$url = URI($url).addSearch('ob', $ob);
 		store('ob_'+$method, $ob);
 		$("#btn-sort").addClass("active");
 	} else if (DataTable_Init.order && DataTable_Init.order.length > 0 && $ob !== 'null') {
 		$ob = DataTable_Init.order.join();
-		url = URI(url).addSearch('ob', $ob);
+		$url = URI($url).addSearch('ob', $ob);
 		remove('ob_'+$method);
 	} else {
 		remove('ob_'+$method);
@@ -195,23 +224,23 @@ function initDataTable()
 	}
 	/* param filter */
 	if ($filter) {
-		url = URI(url).addSearch('filter', $filter);
+		$url = URI($url).addSearch('filter', $filter);
 	}
 	/* param filter */
 	var $sfilter = get('sfilter_'+$method);
 	if ($sfilter && $sfilter !== null) {
-		url = URI(url).addSearch('sfilter', $sfilter);
+		$url = URI($url).addSearch('sfilter', $sfilter);
 		store('sfilter_'+$method, $sfilter);
 		$("#btn-filter").addClass("active");
 	} else {
-		url = URI(url).removeSearch('sfilter');
+		$url = URI($url).removeSearch('sfilter');
 		remove('sfilter_'+$method);
 		$("#btn-filter").removeClass("active");
 	}
 	
 	dataTable1 = tableData1.DataTable({ "pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, "scrollX": true, "iDisplayLength": DataTable_Init.length ? DataTable_Init.length : 10,
 		"ajax": {
-			"url": url,
+			"url": $url,
 			"data": function(d){ return $.extend({}, d, { "q": $q });	},
 			"dataFilter": function(data){
 				if (data) {
@@ -284,15 +313,15 @@ function initDataTable()
 		}
 		
 		if ($ob && $ob !== 'null') {
-			url = URI(url).setSearch('ob', $ob);
+			$url = URI($url).setSearch('ob', $ob);
 			store('ob_'+$method, $ob);
-			dataTable1.ajax.url( url ).load();
+			dataTable1.ajax.url( $url ).load();
 			$("#btn-sort").addClass("active");
 			// dataTable1.order([$(this).index(), 'ASC']).draw();
 		}	else {
-			url = URI(url).setSearch('ob', $ob);
+			$url = URI($url).setSearch('ob', $ob);
 			remove('ob_'+$method);
-			dataTable1.ajax.url( url ).load();
+			dataTable1.ajax.url( $url ).load();
 			$("#btn-sort").removeClass("active");
 		}
 	});
@@ -327,7 +356,7 @@ function initDataTable()
 			return [field, direction].join(' ');
 		
 		if (sql.indexOf(field) >= 0) {
-			if (is_shiftkeypressed) {
+			if ($is_shiftkeypressed) {
 				$.each(sql.split(', '), function(i, v){
 					sort_field_exists = v.split(' ');
 					$.each(sort_field_exists, function(j, v){
@@ -358,7 +387,7 @@ function initDataTable()
 				}
 			}
 		} else {
-			if (is_shiftkeypressed)
+			if ($is_shiftkeypressed)
 				return sql + ', ' + ([field, direction].join(' '));
 			else
 				return [field, direction].join(' ');
@@ -372,9 +401,9 @@ function initDataTable()
 		// $url = insertParam('q', $q);
 		dataTable1.ajax.reload( null, false );
 		
-		origin_url = $q ? URI(origin_url).setSearch('q', $q) : URI(origin_url).removeSearch('q');
-		history.pushState({}, '', origin_url);
-		// history.pushState({}, '', origin_url +'?'+ $url);
+		$origin_url = $q ? URI($origin_url).setSearch('q', $q) : URI($origin_url).removeSearch('q');
+		history.pushState({}, '', $origin_url);
+		// history.pushState({}, '', $origin_url +'?'+ $url);
 	});		
 	
 	$('.dataTables_length select').bind().change(function() {
@@ -547,12 +576,12 @@ function initActionMenu(tableData1, dataTable1)
 					});
 				}
 				$filter = '&filter='+$.map(subs, function(i, v){return v+'='+i;}).join(',');
-				var url = $BASE_URL+"systems/x_page"+$pageid+$filter;
+				$url = $BASE_URL+"systems/x_page"+$pageid+$filter;
 				/* BUG::Show the history double */
-				// window.location.href = url;
+				// window.location.href = $url;
 				
 				/* Fix the history double issue */
-				window.location.replace(url);
+				window.location.replace($url);
 				break;
 		}
 	}
@@ -569,7 +598,8 @@ function initActionMenu(tableData1, dataTable1)
 }
 
 /* {* Don't change this code: Init for datatables checklist *} */
-function initCheckList(tableData1, dataTable1){
+function initCheckList(tableData1, dataTable1)
+{
 	var datatables_scroll = $('.dataTables_wrapper').has('.dataTables_scroll');
 	tableDataHead = datatables_scroll.length ? $('.dataTables_scrollHead') : tableData1;
 	var head_cb = tableDataHead.find('thead input[type="checkbox"].head-check');
@@ -641,33 +671,280 @@ function initCheckList(tableData1, dataTable1){
 	});
 };
 
-/* ========================================= */
-/* Default init for Header									 */
-/* ========================================= */
-// $( document ).ready(function() {
-	/* Start :: Init for Title, Breadcrumb */
-	// console.log($bread);
-	// console.log($bread.length);
-	$(document).prop('title', $HEAD_TITLE+' > '+$bread[$bread.length-1].title);
-	$bread.unshift({ icon:"fa fa-dashboard", title:"Dashboard", link: "window.location.replace('"+$APPS_LNK+"')" });
-	$(".content").before(BSHelper.PageHeader({ 
-		bc_list: $bread
-	}));
+function btnToolbar_viewlog()
+{
+	var data = dataTable1.rows('.selected').data();
+	if (data.count() < 1 || data.count() > 1){
+		BootstrapDialog.alert(lang_notif_choose_record);
+		return false;
+	}
+	$.getJSON($url_module, { viewlog:1, pageid:$pageid, id:data[0].id }, function(result){ 
+		// console.log(data[0]);
+		if (!result.status){
+			BootstrapDialog.alert(result.message);
+		} else {
+			var c = [], r = [], a = [];
+			a.push(BSHelper.Input({ type:'text', label:'Table', value:result.data.table, readonly:true }));
+			c.push(subCol(6, a)); a = [];
+			a.push(BSHelper.Input({ type:'text', label:'Record ID', value:result.data.id, readonly:true }));
+			c.push(subCol(6, a)); a = [];
+			r.push(subRow(c)); c = [];
+			if (result.data.created_by_name){
+				a.push(BSHelper.Input({ type:'text', label:'Created By', value:result.data.created_by_name, readonly:true }));
+				c.push(subCol(6, a)); a = [];
+				a.push(BSHelper.Input({ type:'text', label:'Created At', value:result.data.created_at, readonly:true }));
+				c.push(subCol(6, a)); a = [];
+				r.push(subRow(c)); c = [];
+			}
+			if (result.data.updated_by_name){
+				a.push(BSHelper.Input({ type:'text', label:'Updated By', value:result.data.updated_by_name, readonly:true }));
+				c.push(subCol(6, a)); a = [];
+				a.push(BSHelper.Input({ type:'text', label:'Updated At', value:result.data.updated_at, readonly:true }));
+				c.push(subCol(6, a)); a = [];
+				r.push(subRow(c)); c = [];
+			}
+			var tblConfirm = BSHelper.Table({
+					title: r,
+					data: data,	rowno: true, showheader: true, maxrows: 3, isConfirm: true,
+					columns:[
+						{ data:"name"					,title:"Name" },
+						{ data:"description"	,title:"Description" },
+					],
+				});
+			BootstrapDialog.alert(tblConfirm);
+		}
+	});
+}
 
-	/* Init for Flash Message */
-	initFlashMessage();
-	/* Init for Toolbar */
-	initToolbarButton();
-	/* Init for DataTable */
-	initDataTable();
-// });
+function btnToolbar_delete()
+{
+	var data = dataTable1.rows('.selected').data();
+	if (data.count() < 1){
+		BootstrapDialog.alert(lang_notif_choose_record);
+		return false;
+	}
+	var tblConfirm = BSHelper.Table({
+			data: data,	rowno: true, showheader: true, maxrows: 3, isConfirm: true, title: lang_confirm_delete,
+			columns:[
+				{ data:"name"					,title:"Name" },
+				{ data:"description"	,title:"Description" },
+			],
+		});
+	var ids = [];
+	$.each(data, function(i){	ids[i] = data[i]['id'];	});
+	BootstrapDialog.show({ title: 'Delete Record/s', type: BootstrapDialog.TYPE_DANGER, message: tblConfirm,
+		buttons: [{
+			icon: 'glyphicon glyphicon-send',
+			cssClass: 'btn-danger',
+			label: '&nbsp;&nbsp;Delete',
+			action: function(dialog) {
+				var button = this;
+				button.spin();
+				
+				var $xdel = getURLParameter("xdel") ? "&xdel=1" : "";
+				$.ajax({ url: $url_module+"?id="+ids.join()+$xdel, method: "DELETE", async: true, dataType: 'json',
+					success: function(data) {
+						dialog.close();
+						dataTable1.ajax.reload( null, false );
+						BootstrapDialog.alert(data.message);
+					},
+					error: function(data) {
+						if (data.status >= 500){
+							var message = data.statusText;
+						} else {
+							var error = JSON.parse(data.responseText);
+							var message = error.message;
+						}
+						button.stopSpin();
+						dialog.enableButtons(true);
+						dialog.setClosable(true);
+						BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
+					}
+				});
+			}
+		}, {
+				label: 'Cancel',
+				action: function(dialog) { dialog.close(); }
+		}],
+		onshown: function(dialog) {
+		}
+	});
+}
 
-/* ==================================== */
-/* Default action for Form CRUD Toolbar */
-/* ==================================== */
-// $(document.body).click('button', function(e){
-$('.toolbar_container').click('button', function(e){
-	// console.log($(e.target).is('a'));
+function btnToolbar_filter()
+{
+	// if (! $.isFunction(window['func_filter'])) {
+		// BootstrapDialog.alert("Database Filter is not defined !");
+		// return false;
+	// }	
+	// window['func_filter'](data);
+	if (typeof(Filter_Fields) === 'undefined') {
+		BootstrapDialog.alert("Database Filter is not defined !");
+		return false;
+	}
+	
+	var col = [], row = [];
+	var form1 = BSHelper.Form({ autocomplete:"off" });
+	col.push($('<div id="builder" />'));
+	row.push(subCol(12, col));
+	form1.append(subRow(row));
+	form1.on('submit', function(e){ e.preventDefault(); });
+	
+	var options = {
+		allow_empty: true,
+		sort_filters: true,
+		plugins: {
+			'bt-tooltip-errors': { delay: 100 },
+			'sortable': null,
+			'filter-description': { mode: 'bootbox' },
+			// {* 'bt-selectpicker': null, *}
+			'unique-filter': null,
+			// {* 'bt-checkbox': { color: 'primary' }, *}
+			// {* 'invert': null, *}
+			// {* 'not-group': null *}
+		},
+		operators: [
+			{ type: 'equal', optgroup: 'basic' },
+			{ type: 'not_equal', optgroup: 'basic' },
+			{ type: 'in', optgroup: 'basic' },
+			{ type: 'not_in', optgroup: 'basic' },
+			{ type: 'less', optgroup: 'numbers' },
+			{ type: 'less_or_equal', optgroup: 'numbers' },
+			{ type: 'greater', optgroup: 'numbers' },
+			{ type: 'greater_or_equal', optgroup: 'numbers' },
+			{ type: 'between', optgroup: 'numbers' },
+			{ type: 'not_between', optgroup: 'numbers' },
+			{ type: 'begins_with', optgroup: 'strings' },
+			{ type: 'not_begins_with', optgroup: 'strings' },
+			{ type: 'contains', optgroup: 'strings' },
+			{ type: 'not_contains', optgroup: 'strings' },
+			{ type: 'ends_with', optgroup: 'strings' },
+			{ type: 'not_ends_with', optgroup: 'strings' },
+			{ type: 'is_empty' },
+			{ type: 'is_not_empty' },
+			{ type: 'is_null' },
+			{ type: 'is_not_null' },
+			{ type: 'contain_any', optgroup: 'custom', nb_inputs: 1, multiple: false, apply_to: ['integer'] },
+		],
+		filters: Filter_Fields,
+	};
+
+	form1.find('#builder').queryBuilder(options);
+	var $method = $url_module.split('/')[4];
+	var $sfilter = get('sfilter_'+$method);
+	if ($sfilter && typeof($sfilter) !== null)
+		form1.find('#builder').queryBuilder('setRulesFromSQL', $sfilter);
+
+	BootstrapDialog.show({ title: 'Filter Records', type: BootstrapDialog.TYPE_SUCCESS, size: BootstrapDialog.SIZE_WIDE, message: form1,
+		buttons: [{
+			icon: 'glyphicon glyphicon-send',
+			cssClass: 'btn-success',
+			label: '&nbsp;&nbsp;Submit',
+			action: function(dialog) {
+				var button = this;
+				button.spin();
+				
+				var res = form1.find('#builder').queryBuilder('getSQL', false, false);
+				if (res.sql) {
+					store('sfilter_'+$method, res.sql);
+					$url = URI(dataTable1.ajax.url()).removeSearch('sfilter').addSearch('sfilter', res.sql);
+					$("#btn-filter").addClass("active");
+				}	else {
+					remove('sfilter_'+$method);
+					$url = URI(dataTable1.ajax.url()).removeSearch('sfilter');
+					$("#btn-filter").removeClass("active");
+				}
+				dataTable1.ajax.url( $url ).load();
+				dialog.close();
+			}
+		}, {
+				label: 'Cancel',
+				action: function(dialog) { dialog.close(); }
+		}],
+		onshown: function(dialog) {
+		}
+	}); 
+}
+
+function btnToolbar_sort()
+{
+	var Sorting_Fields = [];
+	$.each(DataTable_Init.columns, function(i, v){
+		if (v.orderable)
+			Sorting_Fields.push({ id: v.data, label: v.title, unique: true })
+	});
+	
+	if (isempty_arr(Sorting_Fields)) {
+		BootstrapDialog.alert("Field Sorting is not defined !");
+		return false;
+	}
+	
+	var col = [], row = [];
+	var form1 = BSHelper.Form({ autocomplete:"off" });
+	col.push($('<div id="builder" />'));
+	row.push(subCol(12, col));
+	form1.append(subRow(row));
+	form1.on('submit', function(e){ e.preventDefault(); });
+	
+	var options = {
+		conditions: ['AND'],
+		allow_empty: true,
+		allow_groups: false,
+		plugins: {
+			'bt-tooltip-errors': { delay: 100 },
+			'unique-filter': null,
+		},
+		operators: [
+			{ type: 'asc' },
+			{ type: 'desc' }
+		],
+		filters: Sorting_Fields,
+	};
+
+	form1.find('#builder').queryBuilder(options);
+	var $method = $url_module.split('/')[4];
+	var $ob = get('ob_'+$method);
+	if ($ob && typeof($ob) !== null) {
+		var rules = [];
+		$.each($ob.split(', '), function(k, v){
+			rules.push({ "id":v.split(' ')[0], "operator":v.split(' ')[1].toLowerCase() }); 
+		});
+		form1.find('#builder').queryBuilder('setRules', { "condition":"AND", "rules":rules });
+	}
+
+	BootstrapDialog.show({ title: 'Sorting Records', type: BootstrapDialog.TYPE_SUCCESS, message: form1,
+		buttons: [{
+			icon: 'glyphicon glyphicon-send',
+			cssClass: 'btn-success',
+			label: '&nbsp;&nbsp;Submit',
+			action: function(dialog) {
+				var button = this;
+				button.spin();
+				
+				var res = form1.find('#builder').queryBuilder('getSQL', false, false);
+				if (res.sql) {
+					store('ob_'+$method, res.sql.split(' AND').join());
+					$url = URI(dataTable1.ajax.url()).removeSearch('ob').addSearch('ob', res.sql.split(' AND').join());
+					$("#btn-sort").addClass("active");
+				}	else {
+					remove('ob_'+$method);
+					$url = URI(dataTable1.ajax.url()).removeSearch('ob');
+					$("#btn-sort").removeClass("active");
+				}
+				dataTable1.ajax.url( $url ).load();
+				dialog.close();
+			}
+		}, {
+				label: 'Cancel',
+				action: function(dialog) { dialog.close(); }
+		}],
+		onshown: function(dialog) {
+		}
+	}); 
+}
+
+function eventToolbar_click(e)
+{
 	if ($(e.target).is('a') && $(e.target).attr('data-tag') == 'btn-process'){
 		// console.log($(e.target));
 		// console.log($(e.target).attr('data-name'));
@@ -684,111 +961,17 @@ $('.toolbar_container').click('button', function(e){
 		case 'btn-new':
 			window.location.href = getURLOrigin()+window.location.search+"&action=new";
 			break;
-			
 		case 'btn-refresh':
 			if (dataTable1.order().length > 0)
 				dataTable1.order([]).draw();
 			else
 				dataTable1.ajax.reload( null, false );
 			break;
-			
 		case 'btn-viewlog':
-			var data = dataTable1.rows('.selected').data();
-			if (data.count() < 1 || data.count() > 1){
-				BootstrapDialog.alert(lang_notif_choose_record);
-				return false;
-			}
-			$.getJSON($url_module, { viewlog:1, pageid:$pageid, id:data[0].id }, function(result){ 
-				// console.log(data[0]);
-				if (!result.status){
-					BootstrapDialog.alert(result.message);
-				} else {
-					var c = [], r = [], a = [];
-					a.push(BSHelper.Input({ type:'text', label:'Table', value:result.data.table, readonly:true }));
-					c.push(subCol(6, a)); a = [];
-					a.push(BSHelper.Input({ type:'text', label:'Record ID', value:result.data.id, readonly:true }));
-					c.push(subCol(6, a)); a = [];
-					r.push(subRow(c)); c = [];
-					if (result.data.created_by_name){
-						a.push(BSHelper.Input({ type:'text', label:'Created By', value:result.data.created_by_name, readonly:true }));
-						c.push(subCol(6, a)); a = [];
-						a.push(BSHelper.Input({ type:'text', label:'Created At', value:result.data.created_at, readonly:true }));
-						c.push(subCol(6, a)); a = [];
-						r.push(subRow(c)); c = [];
-					}
-					if (result.data.updated_by_name){
-						a.push(BSHelper.Input({ type:'text', label:'Updated By', value:result.data.updated_by_name, readonly:true }));
-						c.push(subCol(6, a)); a = [];
-						a.push(BSHelper.Input({ type:'text', label:'Updated At', value:result.data.updated_at, readonly:true }));
-						c.push(subCol(6, a)); a = [];
-						r.push(subRow(c)); c = [];
-					}
-					var tblConfirm = BSHelper.Table({
-							title: r,
-							data: data,	rowno: true, showheader: true, maxrows: 3, isConfirm: true,
-							columns:[
-								{ data:"name"					,title:"Name" },
-								{ data:"description"	,title:"Description" },
-							],
-						});
-					BootstrapDialog.alert(tblConfirm);
-				}
-			});
-
+			btnToolbar_viewlog();
 			break;
-			
 		case 'btn-delete':
-			var data = dataTable1.rows('.selected').data();
-			if (data.count() < 1){
-				BootstrapDialog.alert(lang_notif_choose_record);
-				return false;
-			}
-			var tblConfirm = BSHelper.Table({
-					data: data,	rowno: true, showheader: true, maxrows: 3, isConfirm: true, title: lang_confirm_delete,
-					columns:[
-						{ data:"name"					,title:"Name" },
-						{ data:"description"	,title:"Description" },
-					],
-				});
-			var ids = [];
-			$.each(data, function(i){	ids[i] = data[i]['id'];	});
-			BootstrapDialog.show({ title: 'Delete Record/s', type: BootstrapDialog.TYPE_DANGER, message: tblConfirm,
-				buttons: [{
-					icon: 'glyphicon glyphicon-send',
-					cssClass: 'btn-danger',
-					label: '&nbsp;&nbsp;Delete',
-					action: function(dialog) {
-						var button = this;
-						button.spin();
-						
-						var $xdel = getURLParameter("xdel") ? "&xdel=1" : "";
-						$.ajax({ url: $url_module+"?id="+ids.join()+$xdel, method: "DELETE", async: true, dataType: 'json',
-							success: function(data) {
-								dialog.close();
-								dataTable1.ajax.reload( null, false );
-								BootstrapDialog.alert(data.message);
-							},
-							error: function(data) {
-								if (data.status >= 500){
-									var message = data.statusText;
-								} else {
-									var error = JSON.parse(data.responseText);
-									var message = error.message;
-								}
-								button.stopSpin();
-								dialog.enableButtons(true);
-								dialog.setClosable(true);
-								BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
-							}
-						});
-					}
-				}, {
-						label: 'Cancel',
-						action: function(dialog) { dialog.close(); }
-				}],
-				onshown: function(dialog) {
-				}
-			});
+			btnToolbar_delete();
 			break;
 		case 'btn-export':
 			window.location.href = getURLOrigin()+window.location.search+"&action=exp";
@@ -797,212 +980,34 @@ $('.toolbar_container').click('button', function(e){
 			window.location.href = getURLOrigin()+window.location.search+"&action=imp";
 			break;
 		case 'btn-filter':
-			// if (! $.isFunction(window['func_filter'])) {
-				// BootstrapDialog.alert("Database Filter is not defined !");
-				// return false;
-			// }	
-			// window['func_filter'](data);
-			if (typeof(Filter_Fields) === 'undefined') {
-				BootstrapDialog.alert("Database Filter is not defined !");
-				return false;
-			}
-			
-			var col = [], row = [];
-			var form1 = BSHelper.Form({ autocomplete:"off" });
-			col.push($('<div id="builder" />'));
-			row.push(subCol(12, col));
-			form1.append(subRow(row));
-			form1.on('submit', function(e){ e.preventDefault(); });
-			
-			var options = {
-				allow_empty: true,
-				sort_filters: true,
-				plugins: {
-					'bt-tooltip-errors': { delay: 100 },
-					'sortable': null,
-					'filter-description': { mode: 'bootbox' },
-					// {* 'bt-selectpicker': null, *}
-					'unique-filter': null,
-					// {* 'bt-checkbox': { color: 'primary' }, *}
-					// {* 'invert': null, *}
-					// {* 'not-group': null *}
-				},
-				operators: [
-					{ type: 'equal', optgroup: 'basic' },
-					{ type: 'not_equal', optgroup: 'basic' },
-					{ type: 'in', optgroup: 'basic' },
-					{ type: 'not_in', optgroup: 'basic' },
-					{ type: 'less', optgroup: 'numbers' },
-					{ type: 'less_or_equal', optgroup: 'numbers' },
-					{ type: 'greater', optgroup: 'numbers' },
-					{ type: 'greater_or_equal', optgroup: 'numbers' },
-					{ type: 'between', optgroup: 'numbers' },
-					{ type: 'not_between', optgroup: 'numbers' },
-					{ type: 'begins_with', optgroup: 'strings' },
-					{ type: 'not_begins_with', optgroup: 'strings' },
-					{ type: 'contains', optgroup: 'strings' },
-					{ type: 'not_contains', optgroup: 'strings' },
-					{ type: 'ends_with', optgroup: 'strings' },
-					{ type: 'not_ends_with', optgroup: 'strings' },
-					{ type: 'is_empty' },
-					{ type: 'is_not_empty' },
-					{ type: 'is_null' },
-					{ type: 'is_not_null' },
-					{ type: 'contain_any', optgroup: 'custom', nb_inputs: 1, multiple: false, apply_to: ['integer'] },
-				],
-				filters: Filter_Fields,
-			};
-
-			form1.find('#builder').queryBuilder(options);
-			var $method = $url_module.split('/')[4];
-			var $sfilter = get('sfilter_'+$method);
-			if ($sfilter && typeof($sfilter) !== null)
-				form1.find('#builder').queryBuilder('setRulesFromSQL', $sfilter);
-
-			BootstrapDialog.show({ title: 'Filter Records', type: BootstrapDialog.TYPE_SUCCESS, size: BootstrapDialog.SIZE_WIDE, message: form1,
-				buttons: [{
-					icon: 'glyphicon glyphicon-send',
-					cssClass: 'btn-success',
-					label: '&nbsp;&nbsp;Submit',
-					action: function(dialog) {
-						var button = this;
-						button.spin();
-						
-						var res = form1.find('#builder').queryBuilder('getSQL', false, false);
-						if (res.sql) {
-							store('sfilter_'+$method, res.sql);
-							var url = URI(dataTable1.ajax.url()).removeSearch('sfilter').addSearch('sfilter', res.sql);
-							$("#btn-filter").addClass("active");
-						}	else {
-							remove('sfilter_'+$method);
-							var url = URI(dataTable1.ajax.url()).removeSearch('sfilter');
-							$("#btn-filter").removeClass("active");
-						}
-						dataTable1.ajax.url( url ).load();
-						dialog.close();
-					}
-				}, {
-						label: 'Cancel',
-						action: function(dialog) { dialog.close(); }
-				}],
-				onshown: function(dialog) {
-				}
-			}); 
+			btnToolbar_filter();
 			break;
 		case 'btn-sort':
-			// if (! $.isFunction(window['func_sort'])) {
-				// BootstrapDialog.alert("Database Sorting is not defined !");
-				// return false;
-			// }	
-			// window['func_sort'](data);
-			
-			// if (typeof(Sorting_Fields) === 'undefined') {
-				// BootstrapDialog.alert("Database Sorting is not defined !");
-				// return false;
-			// }
-			
-			// $.each(Sorting_Fields, function(i, v){
-				// Sorting_Fields[i]['unique'] = true;
-			// });
-			
-			var Sorting_Fields = [];
-			$.each(DataTable_Init.columns, function(i, v){
-				if (v.orderable)
-					Sorting_Fields.push({ id: v.data, label: v.title, unique: true })
-			});
-			
-			if (isempty_arr(Sorting_Fields)) {
-				BootstrapDialog.alert("Field Sorting is not defined !");
-				return false;
-			}
-			
-			var col = [], row = [];
-			var form1 = BSHelper.Form({ autocomplete:"off" });
-			col.push($('<div id="builder" />'));
-			row.push(subCol(12, col));
-			form1.append(subRow(row));
-			form1.on('submit', function(e){ e.preventDefault(); });
-			
-			var options = {
-				conditions: ['AND'],
-				allow_empty: true,
-				allow_groups: false,
-				plugins: {
-					'bt-tooltip-errors': { delay: 100 },
-					'unique-filter': null,
-				},
-				operators: [
-					{ type: 'asc' },
-					{ type: 'desc' }
-				],
-				filters: Sorting_Fields,
-			};
-
-			form1.find('#builder').queryBuilder(options);
-			var $method = $url_module.split('/')[4];
-			var $ob = get('ob_'+$method);
-			if ($ob && typeof($ob) !== null) {
-				var rules = [];
-				$.each($ob.split(', '), function(k, v){
-					rules.push({ "id":v.split(' ')[0], "operator":v.split(' ')[1].toLowerCase() }); 
-				});
-				form1.find('#builder').queryBuilder('setRules', { "condition":"AND", "rules":rules });
-			}
-
-			BootstrapDialog.show({ title: 'Sorting Records', type: BootstrapDialog.TYPE_SUCCESS, message: form1,
-				buttons: [{
-					icon: 'glyphicon glyphicon-send',
-					cssClass: 'btn-success',
-					label: '&nbsp;&nbsp;Submit',
-					action: function(dialog) {
-						var button = this;
-						button.spin();
-						
-						var res = form1.find('#builder').queryBuilder('getSQL', false, false);
-						if (res.sql) {
-							store('ob_'+$method, res.sql.split(' AND').join());
-							var url = URI(dataTable1.ajax.url()).removeSearch('ob').addSearch('ob', res.sql.split(' AND').join());
-							$("#btn-sort").addClass("active");
-						}	else {
-							remove('ob_'+$method);
-							var url = URI(dataTable1.ajax.url()).removeSearch('ob');
-							$("#btn-sort").removeClass("active");
-						}
-						dataTable1.ajax.url( url ).load();
-						dialog.close();
-					}
-				}, {
-						label: 'Cancel',
-						action: function(dialog) { dialog.close(); }
-				}],
-				onshown: function(dialog) {
-				}
-			}); 
+			btnToolbar_sort();
 			break;
 	}
-});
+}
 
-/* Tricky for removing hash-tags(#), while any link added '#' to the URL. Ex: Calling BootstrapDialog, etc. */
-$(window).on('hashchange', function(e){
-	// var hash = location.hash.replace(/^#/, '');
-	// var hash = location.href.indexOf('#');
-	// console.log(hash);
-	// console.log('url-hash-change');
-	// console.log(document.title);
-	// console.log(e.originalEvent.oldURL);
-	history.replaceState ("", document.title, e.originalEvent.oldURL);
-	// if (hash >= -1)
-		// window.history.back();
-});
+/* ========================================= */
+/* Document Initialization									 */
+/* ========================================= */
+$(document).prop('title', $HEAD_TITLE+' > '+$bread[$bread.length-1].title);
+$bread.unshift({ icon:"fa fa-dashboard", title:"Dashboard", link: "window.location.replace('"+$APPS_LNK+"')" });
+$(".content").before(BSHelper.PageHeader({ 
+	bc_list: $bread
+}));
+
+/* Init for Flash Message */
+initFlashMessage();
+/* Init for Toolbar */
+initToolbarButton();
+/* Init for DataTable */
+initDataTable();
+
+/* Toolbar event click */
+$('.toolbar_container').click('button', function(e){ eventToolbar_click(e); });
 
 /* This class is for auto conversion from dmy to ymd */
 $(".auto_ymd").on('change', function(){
 	$('input[name="'+$(this).attr('id')+'"]').val( datetime_db_format($(this).val(), $(this).attr('data-format')) );
-});
-
-$(window).on('keyup', function(e){
-	/* Insert */
-	if (e.keyCode == 45) {
-		$("#btn-new").trigger('click');
-	}
 });
