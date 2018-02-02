@@ -302,7 +302,13 @@ function initDataTable()
 	$('.table thead th.sorting').click(function(){
 		var columns = dataTable1.settings().init().columns;
 		var field = columns[$(this).index()].data;
-		var $ob = get('ob_'+$method);		
+		var $ob = get('ob_'+$method);	
+		
+		$filter = getURLParameter("filter");
+		if ($filter) {
+			$url = URI($url).addSearch('filter', $filter);
+		}
+		// console.log($afilter);
 	
 		if ($(this).hasClass('sorting_asc')) {
 			$ob = enumerate_sort($ob, field, 'DESC');

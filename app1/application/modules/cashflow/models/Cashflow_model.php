@@ -957,12 +957,12 @@ class Cashflow_Model extends CI_Model
 		end as penalty_amount";
 		$params['table'] 	= "(
 			select * from (
-				select *,	(select max(delivery_date) from cf_inout where is_active = '1' and is_deleted = '0' and order_id = a1.id limit 1) as delivery_date, current_date
+				select *,	(select max(delivery_date) from cf_inout where is_active = '1' and is_deleted = '0' and order_id = a1.id limit 1) as delivery_date
 				from cf_order a1 
 				where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 				is_active = '1' and is_deleted = '0' and is_sotrx = '1'
 			) r1
-			where (delivery_date > etd or delivery_date is not null) and extract(month from etd) = extract(month from current_date)
+			where (delivery_date > etd or delivery_date is not null) and to_char(etd, 'YYYY-MM') = to_char(current_date, 'YYYY-MM')
 		) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
@@ -996,7 +996,7 @@ class Cashflow_Model extends CI_Model
 				where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 				is_active = '1' and is_deleted = '0' and is_sotrx = '1'
 			) r1
-			where extract(month from etd) = extract(month from current_date) and (delivery_date > etd or delivery_date is not null)
+			where (delivery_date > etd or delivery_date is not null) and to_char(etd, 'YYYY-MM') = to_char(current_date, 'YYYY-MM')
 		) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
@@ -1025,7 +1025,7 @@ class Cashflow_Model extends CI_Model
 			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and (select orgtrx_id from cf_order f1 where id = t1.order_id) = ".$this->session->orgtrx_id." and 
 			is_active = '1' and is_deleted = '0' and exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id) 
 			group by 1
-			) t2 inner join cf_order t1 on t2.order_id = t1.id where received_date > eta and extract(month from eta) = extract(month from current_date) and extract(year from eta) = extract(year from current_date)
+			) t2 inner join cf_order t1 on t2.order_id = t1.id where received_date > eta and to_char(eta, 'YYYY-MM') = to_char(current_date, 'YYYY-MM')
 		) t1";
 		return $this->base_model->mget_rec($params);
 	}
@@ -1053,7 +1053,7 @@ class Cashflow_Model extends CI_Model
 			client_id = ".$this->session->client_id." and org_id = ".$this->session->org_id." and (select orgtrx_id from cf_order f1 where id = t1.order_id) = ".$this->session->orgtrx_id." and 
 			is_active = '1' and is_deleted = '0' and exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id) 
 			group by 1
-			) t2 inner join cf_order t1 on t2.order_id = t1.id where received_date > eta and extract(month from eta) = extract(month from current_date) and extract(year from eta) = extract(year from current_date)
+			) t2 inner join cf_order t1 on t2.order_id = t1.id where received_date > eta and to_char(eta, 'YYYY-MM') = to_char(current_date, 'YYYY-MM')
 		) t1";
 		return $this->base_model->mget_rec($params);
 	}
@@ -1184,26 +1184,34 @@ class Cashflow_Model extends CI_Model
 	
 	function db_unmatch_daily_entry($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= "(
-			select to_char(i.date, 'YYYY-MM-DD') as date, '1'::character(1) as is_active, '0'::character(1) as is_deleted,
-			(select count(*) as so_unmatch from cf_order where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-			(select count(*) as ship_unmatch from cf_inout where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-			(select count(*) as po_unmatch from cf_order where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-			(select count(*) as mr_unmatch from cf_inout where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-			(select count(*) as req_unmatch from cf_request where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-			(select count(*) as pr_unmatch from cf_requisition where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-			(select count(*) as inv_c_unmatch from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-			(select count(*) as inv_v_unmatch from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type = '2' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-			(select count(*) as inv_if_unmatch from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type = '5' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-			(select count(*) as inv_of_unmatch from cf_invoice where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_type = '6' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-			(select count(*) as outflow_unmatch from cf_ar_ap where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-			(select count(*) as inflow_unmatch from cf_ar_ap where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-			(select count(*) as ar_unmatch from cf_cashbank where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-			(select count(*) as ap_unmatch from cf_cashbank where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD'))
-			from generate_series( date_trunc('month', now()), now(), '1 day'::interval) i
-			) t1";
-		$params['table'] = translate_variable($params['table']);
+		// $str = "select '".$params['module']."' as module,
+			// (select name as client_name from a_client where id = t1.client_id),
+			// (select name as org_name from a_org where id = t1.org_id),
+			// (select name as orgtrx_name from a_org where id = t1.orgtrx_id),
+			// sum(case when created_at::date = doc_date then 1 else 0 end) as match,
+			// sum(case when created_at::date = doc_date then 0 else 1 end) as unmatch,
+			// count(*) as total
+			// from ".$params['table']." t1
+			// where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' 
+			// and doc_date between '".$params['fdate']."' and '".$params['tdate']."' ".$params['where']."
+			// group by 1, 2, 3, 4";
+		// $str = translate_variable($str);
+		
+		// $qry = $this->db->query($str);
+		// return $qry->result();
+		
+		$params['select']	= isset($params['select']) ? $params['select'] : "'".$params['module']."' as module,
+			(select name as client_name from a_client where id = t1.client_id),
+			(select name as org_name from a_org where id = t1.org_id),
+			(select name as orgtrx_name from a_org where id = t1.orgtrx_id),
+			sum(case when created_at::date = doc_date then 1 else 0 end) as match,
+			sum(case when created_at::date = doc_date then 0 else 1 end) as unmatch,
+			count(*) as total";
+		$params['table'] 	= $params['table']." t1";
+		$params['where_custom'][] = "client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' 
+			and doc_date between '".$params['fdate']."' and '".$params['tdate']."'";
+		$params['group'] = [1, 2, 3, 4];
+		$params['where_custom'] = translate_variable($params['where_custom']);
 		return $this->base_model->mget_rec($params);
 	}
 		
@@ -1667,8 +1675,8 @@ class Cashflow_Model extends CI_Model
 		end as estimation_penalty_amount";
 		$params['table'] 	= "(
 		select * from cf_order where 
-		client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and to_char(expected_dt_cust, 'YYYY-MM') = to_char(current_date, 'YYYY-MM') and 
-		is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust
+		client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
+		is_active = '1' and is_deleted = '0' and is_sotrx = '1' and etd > expected_dt_cust and to_char(expected_dt_cust, 'YYYY-MM') = to_char(current_date, 'YYYY-MM') 
 		) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
@@ -1971,6 +1979,20 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 
+	function rpt_cf_daily_entry_summary($params)
+	{
+		$str = "select '".$params['module']."' as module, doc_no, doc_date, created_at::date, (select name as create_by from a_user where id = t1.created_by), case when created_at::date = doc_date then 'Match' else 'Not Match' end as status,
+		(select name as client_name from a_client where id = t1.client_id), 
+		(select name as org_name from a_org where id = t1.org_id),
+		(select name as orgtrx_name from a_org where id = t1.orgtrx_id)
+		from ".$params['table']." t1
+		where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_date between '".$params['fdate']."' and '".$params['tdate']."' ".$params['where'];
+		$str = translate_variable($str);
+
+		$qry = $this->db->query($str);
+		return $qry;
+	}
+	
 	function rpt_cf_statement_invoice($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "

@@ -47,7 +47,7 @@
 			seq: 0,
 		}
 		var o = $.extend( {}, default_opts, options );
-		var link = o.link ? '<a href="'+o.link+'" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>' : '<div class="small-box-footer">&nbsp;</div>';
+		var link = o.link ? '<a target="_blank" href="'+o.link+'" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>' : '<div class="small-box-footer">&nbsp;</div>';
 		var num = o.seq ? '<div class="pull-right"><span data-toggle="tooltip" class="badge bg-yellow" data-original-title="Number #'+o.seq+'">'+o.seq+'</span></div>' : '';
 		if (o.type == 'BOX-3') 
 			var val = '<div class="val"><h3><span>'+o.value+'</span></h3></div><div class="title"><p style="white-space: nowrap;"><span>'+o.title+'</span></p></div>';
@@ -197,6 +197,7 @@
 			footer: false,
 			type: 'default', // default, primary, info, warning, success, danger
 			toolbtn: [],
+			collapse: false,
 		}
 		var o = $.extend( {}, default_opts, options );
 		var box = $('<div class="box">'+
@@ -209,10 +210,11 @@
 		
 		if (o.header) box_header.insertBefore(box_body);
 		if (o.title) box_header.append( [$('<i class="'+(o.icon ? o.icon : '')+'" />'), $('<h3 class="box-title" />').html(o.title)] );
+		if (o.collapse) box.addClass('collapsed-box');
 		var toolb = [];
 		$.each(o.toolbtn, function(i, val){
 			if (val == 'min')
-				toolb.push($('<button type="button" class="btn btn-info btn-sm" data-widget="collapse"><i class="fa fa-minus"></i></button>'));
+				toolb.push($('<button type="button" class="btn btn-info btn-sm" data-widget="collapse"><i class="fa fa-'+(o.collapse ? 'plus' : 'minus')+'"></i></button>'));
 			if (val == 'rem'){
 				toolb.push("&nbsp;");
 				toolb.push($('<button type="button" class="btn btn-info btn-sm" data-widget="remove"><i class="fa fa-times"></i></button>'));

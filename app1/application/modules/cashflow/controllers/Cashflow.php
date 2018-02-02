@@ -3735,7 +3735,6 @@ class Cashflow extends Getmeb
 	{
 		if ($this->r_method == 'OPTIONS') {
 			/* Validation */
-			// debug($this->params->module_id);
 			if (empty($this->params->fdate) && empty($this->params->tdate))
 				xresponse(FALSE, ['message' => lang('error_filling_params')],401);
 			
@@ -3743,173 +3742,102 @@ class Cashflow extends Getmeb
 				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
 					xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
-				$fdate = $this->params->fdate;
-				$tdate = $this->params->tdate;
 			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
 				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
 					xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
-				$fdate = $this->params->fdate;
-				$tdate = date('Y-m-d');
+				$this->params->tdate = date('Y-m-d');
 			}
 			
 			switch($this->params->module_id){
 			case 1:
-				$module_name = 'Sales Order';
-				$table = 'cf_order';
-				$where = "and is_sotrx = '1'";
+				$this->params->module = 'Sales Order';
+				$this->params->table = 'cf_order';
+				$this->params->where = "and is_sotrx = '1'";
 				break;
 			case 2:
-				$module_name = 'Shipment';
-				$table = 'cf_inout';
-				$where = "and is_sotrx = '1'";
+				$this->params->module = 'Shipment';
+				$this->params->table = 'cf_inout';
+				$this->params->where = "and is_sotrx = '1'";
 				break;
 			case 3:
-				$module_name = 'Request/Planning';
-				$table = 'cf_request';
-				$where = "";
+				$this->params->module = 'Request/Planning';
+				$this->params->table = 'cf_request';
+				$this->params->where = "";
 				break;
 			case 4:
-				$module_name = 'Purchase Request';
-				$table = 'cf_requisition';
-				$where = "";
+				$this->params->module = 'Purchase Request';
+				$this->params->table = 'cf_requisition';
+				$this->params->where = "";
 				break;
 			case 5:
-				$module_name = 'Purchase Order';
-				$table = 'cf_order';
-				$where = "and is_sotrx = '0'";
+				$this->params->module = 'Purchase Order';
+				$this->params->table = 'cf_order';
+				$this->params->where = "and is_sotrx = '0'";
 				break;
 			case 6:
-				$module_name = 'Material Receipt';
-				$table = 'cf_inout';
-				$where = "and is_sotrx = '0'";
+				$this->params->module = 'Material Receipt';
+				$this->params->table = 'cf_inout';
+				$this->params->where = "and is_sotrx = '0'";
 				break;
 			case 7:
-				$module_name = 'Inflow';
-				$table = 'cf_ar_ap';
-				$where = "and is_receipt = '1'";
+				$this->params->module = 'Inflow';
+				$this->params->table = 'cf_ar_ap';
+				$this->params->where = "and is_receipt = '1'";
 				break;
 			case 8:
-				$module_name = 'Outflow';
-				$table = 'cf_ar_ap';
-				$where = "and is_receipt = '0'";
+				$this->params->module = 'Outflow';
+				$this->params->table = 'cf_ar_ap';
+				$this->params->where = "and is_receipt = '0'";
 				break;
 			case 9:
-				$module_name = 'Invoice Customer';
-				$table = 'cf_invoice';
-				$where = "and doc_type = '1'";
+				$this->params->module = 'Invoice Customer';
+				$this->params->table = 'cf_invoice';
+				$this->params->where = "and doc_type = '1'";
 				break;
 			case 10:
-				$module_name = 'Invoice Vendor';
-				$table = 'cf_invoice';
-				$where = "and doc_type = '2'";
+				$this->params->module = 'Invoice Vendor';
+				$this->params->table = 'cf_invoice';
+				$this->params->where = "and doc_type = '2'";
 				break;
 			case 11:
-				$module_name = 'Invoice Inflow';
-				$table = 'cf_invoice';
-				$where = "and doc_type = '5'";
+				$this->params->module = 'Invoice Inflow';
+				$this->params->table = 'cf_invoice';
+				$this->params->where = "and doc_type = '5'";
 				break;
 			case 12:
-				$module_name = 'Invoice Outflow';
-				$table = 'cf_invoice';
-				$where = "and doc_type = '6'";
+				$this->params->module = 'Invoice Outflow';
+				$this->params->table = 'cf_invoice';
+				$this->params->where = "and doc_type = '6'";
 				break;
 			case 13:
-				$module_name = 'Bank Received';
-				$table = 'cf_cashbank';
-				$where = "and is_receipt = '1'";
+				$this->params->module = 'Bank Received';
+				$this->params->table = 'cf_cashbank';
+				$this->params->where = "and is_receipt = '1'";
 				break;
 			case 14:
-				$module_name = 'Bank Payment';
-				$table = 'cf_cashbank';
-				$where = "and is_receipt = '0'";
+				$this->params->module = 'Bank Payment';
+				$this->params->table = 'cf_cashbank';
+				$this->params->where = "and is_receipt = '0'";
 				break;
 			}
 				
-			/* Re-quering Data */
-			// $str = "select to_char(i.date, 'YYYY-MM-DD') as date,
-				// (select count(*) as so_match from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as ship_match from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as po_match from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as mr_match from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as req_match from cf_request where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as pr_match from cf_requisition where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as inv_c_match from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as inv_v_match from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '2' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as inv_if_match from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '5' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as inv_of_match from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '6' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as outflow_match from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as inflow_match from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as ar_match from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as ap_match from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-
-				// (select count(*) as so_unmatch from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as ship_unmatch from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as po_unmatch from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as mr_unmatch from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as req_unmatch from cf_request where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as pr_unmatch from cf_requisition where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as inv_c_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as inv_v_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '2' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as inv_if_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '5' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as inv_of_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '6' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as outflow_unmatch from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as inflow_unmatch from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as ar_unmatch from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select count(*) as ap_unmatch from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as so_no_match from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as ship_no_match from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as po_no_match from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as mr_no_match from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as req_no_match from cf_request where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as pr_no_match from cf_requisition where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_c_no_match from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_v_no_match from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '2' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_if_no_match from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '5' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_of_no_match from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '6' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as outflow_no_match from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as inflow_no_match from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as ar_no_match from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as ap_no_match from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as so_no_unmatch from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as ship_no_unmatch from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as po_no_unmatch from cf_order where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as mr_no_unmatch from cf_inout where is_active = '1' and is_deleted = '0' and is_sotrx = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as req_no_unmatch from cf_request where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as pr_no_unmatch from cf_requisition where is_active = '1' and is_deleted = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_c_no_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_v_no_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '2' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_if_no_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '5' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as inv_of_no_unmatch from cf_invoice where is_active = '1' and is_deleted = '0' and doc_type = '6' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as outflow_no_unmatch from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as inflow_no_unmatch from cf_ar_ap where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as ar_no_unmatch from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '1' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD')),
-				// (select string_agg(doc_no || '_' || doc_date, E'\r\n') as ap_no_unmatch from cf_cashbank where is_active = '1' and is_deleted = '0' and is_receipt = '0' and to_char(created_at, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') and to_char(doc_date, 'YYYY-MM-DD') <> to_char(i.date, 'YYYY-MM-DD'))
-				// from generate_series('".$fdate."', '".$tdate."', '1 day'::interval) i";
-			$str = "select '".$module_name."' as module, doc_no, doc_date, created_at::date, (select name as create_by from a_user where id = t1.created_by), case when created_at::date = doc_date then 'Match' else 'Not Match' end as status,
-			(select name as client_name from a_client where id = t1.client_id), 
-			(select name as org_name from a_org where id = t1.org_id),
-			(select name as orgtrx_name from a_org where id = t1.orgtrx_id)
-			from ".$table." t1
-			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' and doc_date between '".$fdate."' and '".$tdate."' ".$where;
-			$str = translate_variable($str);
-
-			// debug($str);
-			$qry = $this->db->query($str);
-			// $rows = $qry->result();
-			// debug($this->params);
-			/* Export the result to client */
-			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
-			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
-				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
+			$this->params = (array) $this->params;
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
+				if (! $result = $this->_export_data($result['data'], [], $filename, 'xls', TRUE)) {
+					// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+					xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
+				}
+				/* Update status on process table */
+				// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
+				/* Unset id_process, so can't be called again from client  */
+				// $this->session->unset_userdata('id_process');
+				$result['message'] = lang('success_import_data');
+				xresponse(TRUE, $result);
 			}
-			/* Update status on process table */
-			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-			/* Unset id_process, so can't be called again from client  */
-			// $this->session->unset_userdata('id_process');
-			$result['message'] = lang('success_import_data');
-			xresponse(TRUE, $result);
 		}
 	}
 	
@@ -4366,6 +4294,95 @@ class Cashflow extends Getmeb
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(FALSE, FALSE);
 			
+			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
+				// debug(json_decode($this->params['filter']));
+				$filter = json_decode($this->params['filter']);
+				$this->params = array_merge($this->params, (array) $filter);
+				unset($this->params['filter']);
+			}
+			// debug($this->params);
+			
+			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : '1900-01-01';
+			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : '1900-01-01';
+			
+			/* Validation */
+			switch(isset($this->params['module_id']) ? $this->params['module_id'] : 1){
+			case 1:
+				$this->params['module'] = 'Sales Order';
+				$this->params['table'] = 'cf_order';
+				$this->params['where'] = "is_sotrx = '1'";
+				break;
+			case 2:
+				$this->params['module'] = 'Shipment';
+				$this->params['table'] = 'cf_inout';
+				$this->params['where'] = "is_sotrx = '1'";
+				break;
+			case 3:
+				$this->params['module'] = 'Request/Planning';
+				$this->params['table'] = 'cf_request';
+				// $this->params['where'] = "";
+				break;
+			case 4:
+				$this->params['module'] = 'Purchase Request';
+				$this->params['table'] = 'cf_requisition';
+				// $this->params['where'] = "";
+				break;
+			case 5:
+				$this->params['module'] = 'Purchase Order';
+				$this->params['table'] = 'cf_order';
+				$this->params['where'] = "is_sotrx = '0'";
+				break;
+			case 6:
+				$this->params['module'] = 'Material Receipt';
+				$this->params['table'] = 'cf_inout';
+				$this->params['where'] = "is_sotrx = '0'";
+				break;
+			case 7:
+				$this->params['module'] = 'Inflow';
+				$this->params['table'] = 'cf_ar_ap';
+				$this->params['where'] = "is_receipt = '1'";
+				break;
+			case 8:
+				$this->params['module'] = 'Outflow';
+				$this->params['table'] = 'cf_ar_ap';
+				$this->params['where'] = "is_receipt = '0'";
+				break;
+			case 9:
+				$this->params['module'] = 'Invoice Customer';
+				$this->params['table'] = 'cf_invoice';
+				$this->params['where'] = "doc_type = '1'";
+				break;
+			case 10:
+				$this->params['module'] = 'Invoice Vendor';
+				$this->params['table'] = 'cf_invoice';
+				$this->params['where'] = "doc_type = '2'";
+				break;
+			case 11:
+				$this->params['module'] = 'Invoice Inflow';
+				$this->params['table'] = 'cf_invoice';
+				$this->params['where'] = "doc_type = '5'";
+				break;
+			case 12:
+				$this->params['module'] = 'Invoice Outflow';
+				$this->params['table'] = 'cf_invoice';
+				$this->params['where'] = "doc_type = '6'";
+				break;
+			case 13:
+				$this->params['module'] = 'Bank Received';
+				$this->params['table'] = 'cf_cashbank';
+				$this->params['where'] = "is_receipt = '1'";
+				break;
+			case 14:
+				$this->params['module'] = 'Bank Payment';
+				$this->params['table'] = 'cf_cashbank';
+				$this->params['where'] = "is_receipt = '0'";
+				break;
+			// default:
+				// $this->params['module'] = 'Sales Order';
+				// $this->params['table'] = 'cf_order';
+				// $this->params['where'] = "is_sotrx = '1'";
+			}
+				
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}

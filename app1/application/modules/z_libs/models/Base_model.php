@@ -150,6 +150,9 @@ class Base_Model extends CI_Model
 			// }
 			// debug($sort);
 		}
+		if ( key_exists('group', $params)) {
+			$this->db->group_by($params['group']);
+		}
 		
 		/* sample: &filter=field1=value1,field2=value2... */
 		if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
