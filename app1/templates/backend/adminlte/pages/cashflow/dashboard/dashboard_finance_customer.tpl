@@ -89,8 +89,14 @@
 		var idname = "widgetbox3_"+val.id;
 		el.append(BSHelper.WidgetBox3({ idname:idname, title:val.name, color:val.color, value:val.value, icon:val.icon, link:link, tooltip:val.description, seq:val.id, type:val.type }));
 		$.getJSON($url_module, { "run": true, "id": val.id }, function(result){
-			{* console.log(result.data.value); *}
-			el.find("#"+idname+" div.val span").html(result.data.value);
+			if (result.status){
+				var i = 0;
+				var val = $.map( result.data[0], function( a ) {
+					i++; 
+					return a + (i < count(result.data[0]) ? ' | ' : ''); 
+				});
+				el.find("#"+idname+" div.val span").html(val);
+			}
 		});
 	}
 	

@@ -43,10 +43,10 @@
 <style>
 {* for calendar *}
 .calDayGreen {
-	background-color: green;
+	background-color: #77c663;
 }
 .calDayRed {
-	background-color: red;
+	background-color: #f44242;
 }
 </style>
 <script>
@@ -80,7 +80,7 @@
 			});
 		}
 		{* console.log($('div.small-box h3').html()); *}
-		$('div.small-box div.val').textfill({	maxFontPixels: 38 });
+		$('div.small-box div.val').textfill({	maxFontPixels: 25 });
 		$('div.small-box div.title').textfill({	maxFontPixels: 20 });
 	});
 	
@@ -89,9 +89,13 @@
 		var idname = "widgetbox3_"+val.id;
 		el.append(BSHelper.WidgetBox3({ idname:idname, title:val.name, color:val.color, value:val.value, icon:val.icon, link:link, tooltip:val.description, seq:val.id, type:val.type }));
 		$.getJSON($url_module, { "run": true, "id": val.id }, function(result){
-			{* console.log(result.data.value); *}
 			if (result.status){
-				el.find("#"+idname+" div.val span").html(result.data.value);
+				var i = 0;
+				var val = $.map( result.data[0], function( a ) {
+					i++; 
+					return a + (i < count(result.data[0]) ? ' | ' : ''); 
+				});
+				el.find("#"+idname+" div.val span").html(val);
 			}
 		});
 	}

@@ -5195,28 +5195,22 @@ class Cashflow extends Getmeb
 			if (isset($this->params['run']) && $this->params['run']) {
 				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
 				if ($str) {
-					
 					$str = translate_variable($str);
 					
 					if (!$qry = $this->db->query($str)) {
 						$result['value'] = -1;
 					} else {
-						if (count($qry->list_fields()) == 1) {
-							if ($qry->num_rows() == 1)
-								$result['value'] = array_values($qry->row_array());
-							else
-								$result['value'] = -1;
+						if ($qry->num_rows() > 0){
+							$result = $qry->result();
 						} else {
-							foreach($qry->result() as $k => $v){
-								$res[$v->key] = $v->val;
-							}
-							$result['value'] = $res;
+							$result['value'] = -1;
 						}
 					}
 					xresponse(TRUE, ['data' => $result]);
 				}
 				xresponse(FALSE, []);
 			}
+			
 			$this->params['list'] = 1;
 			$this->params['where']['tags'] = 'sales';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
@@ -5237,28 +5231,22 @@ class Cashflow extends Getmeb
 			if (isset($this->params['run']) && $this->params['run']) {
 				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
 				if ($str) {
-					
 					$str = translate_variable($str);
 					
 					if (!$qry = $this->db->query($str)) {
 						$result['value'] = -1;
 					} else {
-						if (count($qry->list_fields()) == 1) {
-							if ($qry->num_rows() == 1)
-								$result['value'] = array_values($qry->row_array());
-							else
-								$result['value'] = -1;
+						if ($qry->num_rows() > 0){
+							$result = $qry->result();
 						} else {
-							foreach($qry->result() as $k => $v){
-								$res[$v->key] = $v->val;
-							}
-							$result['value'] = $res;
+							$result['value'] = -1;
 						}
 					}
 					xresponse(TRUE, ['data' => $result]);
 				}
 				xresponse(FALSE, []);
 			}
+			
 			$this->params['list'] = 1;
 			$this->params['where']['tags'] = 'purchase';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
@@ -5279,28 +5267,22 @@ class Cashflow extends Getmeb
 			if (isset($this->params['run']) && $this->params['run']) {
 				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
 				if ($str) {
-					
 					$str = translate_variable($str);
 					
 					if (!$qry = $this->db->query($str)) {
 						$result['value'] = -1;
 					} else {
-						if (count($qry->list_fields()) == 1) {
-							if ($qry->num_rows() == 1)
-								$result['value'] = array_values($qry->row_array());
-							else
-								$result['value'] = -1;
+						if ($qry->num_rows() > 0){
+							$result = $qry->result();
 						} else {
-							foreach($qry->result() as $k => $v){
-								$res[$v->key] = $v->val;
-							}
-							$result['value'] = $res;
+							$result['value'] = -1;
 						}
 					}
 					xresponse(TRUE, ['data' => $result]);
 				}
 				xresponse(FALSE, []);
 			}
+			
 			$this->params['list'] = 1;
 			$this->params['where']['tags'] = 'warehouse';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
@@ -5321,28 +5303,22 @@ class Cashflow extends Getmeb
 			if (isset($this->params['run']) && $this->params['run']) {
 				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
 				if ($str) {
-					
 					$str = translate_variable($str);
 					
 					if (!$qry = $this->db->query($str)) {
 						$result['value'] = -1;
 					} else {
-						if (count($qry->list_fields()) == 1) {
-							if ($qry->num_rows() == 1)
-								$result['value'] = array_values($qry->row_array());
-							else
-								$result['value'] = -1;
+						if ($qry->num_rows() > 0){
+							$result = $qry->result();
 						} else {
-							foreach($qry->result() as $k => $v){
-								$res[$v->key] = $v->val;
-							}
-							$result['value'] = $res;
+							$result['value'] = -1;
 						}
 					}
 					xresponse(TRUE, ['data' => $result]);
 				}
 				xresponse(FALSE, []);
 			}
+			
 			$this->params['list'] = 1;
 			$this->params['where']['tags'] = 'finance_customer';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
@@ -5363,28 +5339,22 @@ class Cashflow extends Getmeb
 			if (isset($this->params['run']) && $this->params['run']) {
 				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
 				if ($str) {
-					
 					$str = translate_variable($str);
 					
 					if (!$qry = $this->db->query($str)) {
 						$result['value'] = -1;
 					} else {
-						if (count($qry->list_fields()) == 1) {
-							if ($qry->num_rows() == 1)
-								$result['value'] = array_values($qry->row_array());
-							else
-								$result['value'] = -1;
+						if ($qry->num_rows() > 0){
+							$result = $qry->result();
 						} else {
-							foreach($qry->result() as $k => $v){
-								$res[$v->key] = $v->val;
-							}
-							$result['value'] = $res;
+							$result['value'] = -1;
 						}
 					}
 					xresponse(TRUE, ['data' => $result]);
 				}
 				xresponse(FALSE, []);
 			}
+			
 			$this->params['list'] = 1;
 			$this->params['where']['tags'] = 'finance_vendor';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
@@ -5405,28 +5375,22 @@ class Cashflow extends Getmeb
 			if (isset($this->params['run']) && $this->params['run']) {
 				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
 				if ($str) {
-					
 					$str = translate_variable($str);
 					
 					if (!$qry = $this->db->query($str)) {
 						$result['value'] = -1;
 					} else {
-						if (count($qry->list_fields()) == 1) {
-							if ($qry->num_rows() == 1)
-								$result['value'] = array_values($qry->row_array());
-							else
-								$result['value'] = -1;
+						if ($qry->num_rows() > 0){
+							$result = $qry->result();
 						} else {
-							foreach($qry->result() as $k => $v){
-								$res[$v->key] = $v->val;
-							}
-							$result['value'] = $res;
+							$result['value'] = -1;
 						}
 					}
 					xresponse(TRUE, ['data' => $result]);
 				}
 				xresponse(FALSE, []);
 			}
+			
 			$this->params['list'] = 1;
 			$this->params['where']['tags'] = 'finance_inflow';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
@@ -5447,28 +5411,22 @@ class Cashflow extends Getmeb
 			if (isset($this->params['run']) && $this->params['run']) {
 				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
 				if ($str) {
-					
 					$str = translate_variable($str);
 					
 					if (!$qry = $this->db->query($str)) {
 						$result['value'] = -1;
 					} else {
-						if (count($qry->list_fields()) == 1) {
-							if ($qry->num_rows() == 1)
-								$result['value'] = array_values($qry->row_array());
-							else
-								$result['value'] = -1;
+						if ($qry->num_rows() > 0){
+							$result = $qry->result();
 						} else {
-							foreach($qry->result() as $k => $v){
-								$res[$v->key] = $v->val;
-							}
-							$result['value'] = $res;
+							$result['value'] = -1;
 						}
 					}
 					xresponse(TRUE, ['data' => $result]);
 				}
 				xresponse(FALSE, []);
 			}
+			
 			$this->params['list'] = 1;
 			$this->params['where']['tags'] = 'finance_outflow';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){

@@ -112,6 +112,14 @@ function truncate(n, len) {
 	}
 };
 
+function isObj(o){
+	return !Array.isArray(o);
+}
+
+function isArr(o){
+	return Array.isArray(o);
+}
+
 function isempty_obj(obj){
 	if (obj == undefined) return true;
 	return (Object.keys(obj).length > 0) ? false : true;
@@ -120,6 +128,21 @@ function isempty_obj(obj){
 function isempty_arr(arr){
 	if (arr == undefined) return true;
 	return (arr.length > 0) ? false : true;
+}
+
+function count(o){
+	if (Array.isArray(o))
+		return o.length;
+	else 
+		return Object.keys(o).length;
+}
+
+function objKey_to_array(o){
+	return $.map( o, function( v, k ) { return k; });
+}
+
+function objVal_to_array(o){
+	return $.map( o, function( v, k ) { return v; });
 }
 
 function isDate(date){

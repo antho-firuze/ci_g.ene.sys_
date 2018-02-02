@@ -308,7 +308,6 @@ function initDataTable()
 		if ($filter) {
 			$url = URI($url).addSearch('filter', $filter);
 		}
-		// console.log($afilter);
 	
 		if ($(this).hasClass('sorting_asc')) {
 			$ob = enumerate_sort($ob, field, 'DESC');

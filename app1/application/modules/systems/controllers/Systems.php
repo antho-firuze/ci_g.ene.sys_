@@ -22,35 +22,34 @@ class Systems extends Getmeb
 			if (isset($this->params['run']) && $this->params['run']) {
 				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
 				if ($str) {
-					
 					$str = translate_variable($str);
 					
 					if (!$qry = $this->db->query($str)) {
 						$result['value'] = -1;
-						// debugf($this->db->error()['message']);
 					} else {
-						if (count($qry->list_fields()) == 1) {
-							if ($qry->num_rows() == 1)
-								$result['value'] = array_values($qry->row_array());
-							else
-								$result['value'] = -1;
-							/* foreach($qry->list_fields() as $field){
-								// debugf($qry->row(0)->{$field});
-								$result[$key]->value = $qry->row(0)->{$field};
-							} */
+						if ($qry->num_rows() > 0){
+							$result = $qry->result();
 						} else {
-							foreach($qry->result() as $k => $v){
-								$res[$v->key] = $v->val;
-							}
-							$result['value'] = $res;
+							$result['value'] = -1;
 						}
-						// $qry->free_result();
-						// debugf(count($qry->list_fields()));
+						
+						// if (count($qry->list_fields()) == 1) {
+							// if ($qry->num_rows() == 1)
+								// $result['value'] = array_values($qry->row_array());
+							// else
+								// $result['value'] = -1;
+						// } else {
+							// foreach($qry->result() as $k => $v){
+								// $res[$v->key] = $v->val;
+							// }
+							// $result['value'] = $res;
+						// }
 					}
 					xresponse(TRUE, ['data' => $result]);
 				}
 				xresponse(FALSE, []);
 			}
+			
 			$this->params['list'] = 1;
 			$this->params['where_custom'][] = 'tags is null';
 			// $this->params['where_custom'][] = 'tags is not null';
