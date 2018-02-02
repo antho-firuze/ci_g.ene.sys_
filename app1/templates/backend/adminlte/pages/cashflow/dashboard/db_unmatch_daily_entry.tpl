@@ -24,6 +24,7 @@
 	var box0 = BSHelper.Box({ type:"info", header:true, title:"Advance Filter", toolbtn:['min'], collapse:true });
 	col.push(BSHelper.Input({ type:"hidden", idname:"fdate", }));
 	col.push(BSHelper.Input({ type:"hidden", idname:"tdate", }));
+	col.push(BSHelper.Input({ type:"hidden", idname:"orgtrx_id", }));
 	a.push(BSHelper.Button({ type:"button", label:'<i class="fa fa-calendar"></i>&nbsp;<span>Date range picker</span> &nbsp;&nbsp;<i class="fa fa-caret-down"></i>', cls:"btn-danger", idname: "btn_cal", }));
 	col.push(BSHelper.Label({ horz: false, label:"Period", idname:"fperiod", required: false, elcustom: a }));
 	col.push(BSHelper.Combobox({ label:"Module", idname:"module_id", required: true, 
@@ -82,6 +83,10 @@
 	
 	var $filter = $.parseJSON(getURLParameter("filter"));
 	if ($filter){
+		console.log('filterr');
+		$('#btn_cal span').html(moment($filter.fdate).format('MMMM D, YYYY') + ' - ' + moment($filter.tdate).format('MMMM D, YYYY'));
+		$("#fdate").val($filter.fdate);
+		$("#tdate").val($filter.tdate);
 		$("#module_id").shollu_cb('setValue', $filter.module_id);
 	}
 	
@@ -120,7 +125,7 @@
 		sub_menu: [],
 		columns: [
 			{ width:"100px", orderable:true, data:"org_name", title:"Org Name" },
-			{ width:"100px", orderable:true, data:"orgtrx_name", title:"Org Trx Name" },
+			{ width:"100px", orderable:true, data:"orgtrx_name", title:"Org Trx Name", render: function(data, type, row){ return $('<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=254&filter='+encodeURI(form0.find("#orgtrx_id").val(row.orgtrx_id).parent().serializeJSON())+'" />').text(data).prop('outerHTML'); } },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"match", title:"Match (Qty/Percent)", 
 				render: function(data, type, row){
 					perc = data/row.total*100;

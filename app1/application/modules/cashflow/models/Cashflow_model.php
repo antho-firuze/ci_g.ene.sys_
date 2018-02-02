@@ -1204,13 +1204,31 @@ class Cashflow_Model extends CI_Model
 			(select name as client_name from a_client where id = t1.client_id),
 			(select name as org_name from a_org where id = t1.org_id),
 			(select name as orgtrx_name from a_org where id = t1.orgtrx_id),
+			t1.orgtrx_id,
 			sum(case when created_at::date = doc_date then 1 else 0 end) as match,
 			sum(case when created_at::date = doc_date then 0 else 1 end) as unmatch,
 			count(*) as total";
 		$params['table'] 	= $params['table']." t1";
 		$params['where_custom'][] = "client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' 
 			and doc_date between '".$params['fdate']."' and '".$params['tdate']."'";
-		$params['group'] = [1, 2, 3, 4];
+		$params['group'] = [1, 2, 3, 4, 5];
+		$params['where_custom'] = translate_variable($params['where_custom']);
+		return $this->base_model->mget_rec($params);
+	}
+		
+	function db_unmatch_daily_entry_dd($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "'".$params['module']."' as module, doc_no, 
+			to_char(doc_date, '".$this->session->date_format."') as doc_date, 
+			to_char(created_at::date, '".$this->session->date_format."') as created_at, 
+			(select name as client_name from a_client where id = t1.client_id),
+			(select name as org_name from a_org where id = t1.org_id),
+			(select name as orgtrx_name from a_org where id = t1.orgtrx_id),
+			(select name as created_by from a_user where id = t1.created_by), 
+			case when created_at::date = doc_date then 'Match' else 'Not Match' end as status";
+		$params['table'] 	= $params['table']." t1";
+		$params['where_custom'][] = "client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and is_active = '1' and is_deleted = '0' 
+			and doc_date between '".$params['fdate']."' and '".$params['tdate']."'";
 		$params['where_custom'] = translate_variable($params['where_custom']);
 		return $this->base_model->mget_rec($params);
 	}

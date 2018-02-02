@@ -4320,12 +4320,10 @@ class Cashflow extends Getmeb
 			case 3:
 				$this->params['module'] = 'Request/Planning';
 				$this->params['table'] = 'cf_request';
-				// $this->params['where'] = "";
 				break;
 			case 4:
 				$this->params['module'] = 'Purchase Request';
 				$this->params['table'] = 'cf_requisition';
-				// $this->params['where'] = "";
 				break;
 			case 5:
 				$this->params['module'] = 'Purchase Order';
@@ -4377,12 +4375,109 @@ class Cashflow extends Getmeb
 				$this->params['table'] = 'cf_cashbank';
 				$this->params['where'] = "is_receipt = '0'";
 				break;
-			// default:
-				// $this->params['module'] = 'Sales Order';
-				// $this->params['table'] = 'cf_order';
-				// $this->params['where'] = "is_sotrx = '1'";
 			}
 				
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				xresponse(TRUE, $result);
+			}
+		}
+	}
+
+	function db_unmatch_daily_entry_dd()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(FALSE, FALSE);
+			
+			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
+				$filter = json_decode($this->params['filter']);
+				$this->params = array_merge($this->params, (array) $filter);
+				unset($this->params['filter']);
+			}
+			// debug($this->params);
+			
+			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : '1900-01-01';
+			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : '1900-01-01';
+			$this->params['where']['orgtrx_id'] = $this->params['orgtrx_id'];
+			// $this->params['where'][] = 'orgtrx_id = '.$this->params['orgtrx_id'];
+			
+			/* Validation */
+			switch(isset($this->params['module_id']) ? $this->params['module_id'] : 1){
+			case 1:
+				$this->params['module'] = 'Sales Order';
+				$this->params['table'] = 'cf_order';
+				$this->params['where'][] = "is_sotrx = '1'";
+				break;
+			case 2:
+				$this->params['module'] = 'Shipment';
+				$this->params['table'] = 'cf_inout';
+				$this->params['where'][] = "is_sotrx = '1'";
+				break;
+			case 3:
+				$this->params['module'] = 'Request/Planning';
+				$this->params['table'] = 'cf_request';
+				break;
+			case 4:
+				$this->params['module'] = 'Purchase Request';
+				$this->params['table'] = 'cf_requisition';
+				break;
+			case 5:
+				$this->params['module'] = 'Purchase Order';
+				$this->params['table'] = 'cf_order';
+				$this->params['where'][] = "is_sotrx = '0'";
+				break;
+			case 6:
+				$this->params['module'] = 'Material Receipt';
+				$this->params['table'] = 'cf_inout';
+				$this->params['where'][] = "is_sotrx = '0'";
+				break;
+			case 7:
+				$this->params['module'] = 'Inflow';
+				$this->params['table'] = 'cf_ar_ap';
+				$this->params['where'][] = "is_receipt = '1'";
+				break;
+			case 8:
+				$this->params['module'] = 'Outflow';
+				$this->params['table'] = 'cf_ar_ap';
+				$this->params['where'][] = "is_receipt = '0'";
+				break;
+			case 9:
+				$this->params['module'] = 'Invoice Customer';
+				$this->params['table'] = 'cf_invoice';
+				$this->params['where'][] = "doc_type = '1'";
+				break;
+			case 10:
+				$this->params['module'] = 'Invoice Vendor';
+				$this->params['table'] = 'cf_invoice';
+				$this->params['where'][] = "doc_type = '2'";
+				break;
+			case 11:
+				$this->params['module'] = 'Invoice Inflow';
+				$this->params['table'] = 'cf_invoice';
+				$this->params['where'][] = "doc_type = '5'";
+				break;
+			case 12:
+				$this->params['module'] = 'Invoice Outflow';
+				$this->params['table'] = 'cf_invoice';
+				$this->params['where'][] = "doc_type = '6'";
+				break;
+			case 13:
+				$this->params['module'] = 'Bank Received';
+				$this->params['table'] = 'cf_cashbank';
+				$this->params['where'][] = "is_receipt = '1'";
+				break;
+			case 14:
+				$this->params['module'] = 'Bank Payment';
+				$this->params['table'] = 'cf_cashbank';
+				$this->params['where'][] = "is_receipt = '0'";
+				break;
+			}
+			// debug($this->params['where']);
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
 			}

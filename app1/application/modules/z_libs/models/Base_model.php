@@ -108,7 +108,19 @@ class Base_Model extends CI_Model
 		$this->db->select($params['select']);
 		$this->db->from($params['table']);
 		if ( key_exists('join', $params)) DBX::join($this, $params['join']);
-		if ( key_exists('where', $params)) $this->db->where($params['where']);
+		// if ( key_exists('where', $params)) $this->db->where($params['where']);
+		if ( key_exists('where', $params)) {
+			if (is_array($params['where'])){
+				foreach($params['where'] as $k => $v){
+					if (is_int($k))
+						$this->db->where($v);
+					else
+						$this->db->where($k, $v);
+				}
+			} else {
+				$this->db->where($params['where']);
+			}
+		}
 		
 		/* sample: $this->params['where_in']['t1.doc_type'] = ['5', '6']; */
 		if ( key_exists('where_in', $params)) {
