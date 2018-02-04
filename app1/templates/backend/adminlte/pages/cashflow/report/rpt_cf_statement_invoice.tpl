@@ -3,6 +3,7 @@
 	<!-- Main content -->
 	<section class="content">
 		<!-- /.row -->
+		<div class="filter"></div>
 		<div class="box box-body datagrid table-responsive no-padding"></div>
 		<!-- /.box -->
 	</section>

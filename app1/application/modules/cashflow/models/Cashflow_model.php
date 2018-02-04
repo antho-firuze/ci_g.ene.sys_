@@ -1182,6 +1182,145 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
+	function db_cashflow_projection($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		t1.account_id, (select is_receipt from cf_account where id = t1.account_id), type, seq, description, 
+		(
+			select coalesce(sum(case is_receipt when '1' then net_amount else -net_amount end), 0) as projection 
+			from cf_invoice s1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+			is_active = '1' and is_deleted = '0' and account_id = ANY(ARRAY[t1.accounts])
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
+			and (received_plan_date between '".$params['fdate']."' and '".$params['tdate']."' or payment_plan_date between '".$params['fdate']."' and '".$params['tdate']."')
+		),
+		(
+			select coalesce(sum(case when s1.received_date is not null then amount else -amount end), 0) as actual 
+			from cf_cashbank s1 inner join cf_cashbank_line s2 on s1.id = s2.cashbank_id and s2.is_active = '1' and s2.is_deleted = '0'
+			where s1.client_id = {client_id} and s1.org_id = {org_id} and s1.orgtrx_id in {orgtrx} and
+			s1.is_active = '1' and s1.is_deleted = '0' and account_id = ANY(ARRAY[t1.accounts])
+			and (received_date between '".$params['fdate']."' and '".$params['tdate']."' or payment_date between '".$params['fdate']."' and '".$params['tdate']."')
+		),
+		'account_id='||t1.account_id||',date='''||'".$params['fdate']."'||''',type=1' as projection_param,
+		'account_id='||t1.account_id||',date='''||'".$params['fdate']."'||''',type=2' as actual_param,
+		'Projection' as projection_title,
+		'Actual' as actual_title
+		"
+		;
+		$params['table'] = "cf_rpt_cashflow_projection as t1";
+		$params['select'] = translate_variable($params['select']);
+		$params['where']['is_show_for_daily'] = '1';
+		$params['xdel'] = false;
+		$result = $this->base_model->mget_rec($params);
+		
+		// Processed to calculate CASH & CASH EQUIVALENT
+		$qry = "select coalesce(sum(amount), 0) as amount from cf_cashbank_balance 
+		where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
+		is_active = '1' and is_deleted = '0' and doc_date = '".$params['fdate']."'";
+		$qry = translate_variable($qry);
+		$cb_amount = $this->db->query($qry)->row()->amount;
+		
+		foreach ($result['rows'] as $k => $v){
+			if ($v->seq == 41) {
+				$amount[0] = $v->projection;
+			}
+			if ($v->seq == 45) {
+				$amount[0] += $v->projection;
+			}
+			if ($v->seq == 47) {
+				// $result['rows'][46]->current = $cb_amount;
+				// $result['rows'][47]->current = $cb_amount + $amount[0];
+			}
+		}
+		return $result;
+	}
+	
+	function db_cashflow_projection_dd($params)
+	{
+		if ($params['type'] == 1) {
+			$params['select']	= isset($params['select']) ? $params['select'] : "
+			(select name from a_org where id = t1.org_id) as org_name, 
+			(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+			(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name,
+			(select name from cf_account where id = t1.account_id) as account_name,
+			case doc_type 
+			when '1' then 'Sales Order' 
+			when '2' then 'Purchase Order'
+			when '3' then 'Purchase Order Clearance'
+			when '4' then 'Purchase Order Custom Duty'
+			when '5' then 'Other Inflow'
+			when '6' then 'Other Outflow'
+			end as doc_type_name,
+			case doc_type 
+			when '1' then (select doc_no from cf_order where id = t1.order_id) 
+			when '2' then (select doc_no from cf_order where id = t1.order_id)
+			when '3' then (select doc_no from cf_order where id = t1.order_id)
+			when '4' then (select doc_no from cf_order where id = t1.order_id)
+			when '5' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
+			when '6' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
+			end as doc_type_reference,
+			doc_no as invoice_no, 
+			to_char(invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
+			to_char(doc_date, '".$this->session->date_format."') as invoice_date, 
+			to_char(received_plan_date, '".$this->session->date_format."') as received_plan_date, 
+			to_char(payment_plan_date, '".$this->session->date_format."') as payment_plan_date, 
+			note, description, amount, adj_amount, net_amount,
+			(select (select doc_no from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_no, 
+			(select (select to_char(doc_date, '".$this->session->date_format."') from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_date,
+			(select name from a_user where id = t1.created_by) as created_by_name,
+			(select name from a_user where id = t1.updated_by) as updated_by_name, is_receipt"
+			;
+			$params['table'] = "cf_invoice as t1";
+			$params['where']['is_active'] = '1';
+			$params['where']['account_id'] = $params['account_id'];
+			$params['where_custom'][] = "(received_plan_date between '".$params['fdate']."' and '".$params['tdate']."' or payment_plan_date between '".$params['fdate']."' and '".$params['tdate']."')";
+			$params['where_custom'][] = "not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = t1.id)";
+		}
+		if ($params['type'] == 2) {
+			$params['select']	= isset($params['select']) ? $params['select'] : "
+			(select name from a_org where id = t1.org_id) as org_name, 
+			(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+			(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name,
+			(select name from cf_account where id = t1.account_id) as account_name,
+			case doc_type 
+			when '1' then 'Sales Order' 
+			when '2' then 'Purchase Order'
+			when '3' then 'Purchase Order Clearance'
+			when '4' then 'Purchase Order Custom Duty'
+			when '5' then 'Other Inflow'
+			when '6' then 'Other Outflow'
+			end as doc_type_name,
+			case doc_type 
+			when '1' then (select doc_no from cf_order where id = t1.order_id) 
+			when '2' then (select doc_no from cf_order where id = t1.order_id)
+			when '3' then (select doc_no from cf_order where id = t1.order_id)
+			when '4' then (select doc_no from cf_order where id = t1.order_id)
+			when '5' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
+			when '6' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
+			end as doc_type_reference,
+			doc_no as invoice_no, 
+			to_char(invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
+			to_char(doc_date, '".$this->session->date_format."') as invoice_date, 
+			to_char(received_plan_date, '".$this->session->date_format."') as received_plan_date, 
+			to_char(payment_plan_date, '".$this->session->date_format."') as payment_plan_date, 
+			note, description, amount, adj_amount, net_amount,
+			(select (select doc_no from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_no, 
+			(select (select to_char(doc_date, '".$this->session->date_format."') from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_date,
+			(select name from a_user where id = t1.created_by) as created_by_name,
+			(select name from a_user where id = t1.updated_by) as updated_by_name, is_receipt,
+			(select doc_no as voucher_no from cf_cashbank where id = (select cashbank_id from cf_cashbank_line where invoice_id = t1.id and is_active = '1' and is_deleted = '0')),
+			(select doc_date as voucher_date from cf_cashbank where id = (select cashbank_id from cf_cashbank_line where invoice_id = t1.id and is_active = '1' and is_deleted = '0'))
+			";
+			$params['table'] = "cf_invoice as t1";
+			$params['where']['is_active'] = '1';
+			$params['where']['account_id'] = $params['account_id'];
+			$params['where_custom'][] = "((select received_date from cf_cashbank where id = (select cashbank_id from cf_cashbank_line where invoice_id = t1.id and is_active = '1' and is_deleted = '0')) between '".$params['fdate']."' and '".$params['tdate']."' or (select payment_date from cf_cashbank where id = (select cashbank_id from cf_cashbank_line where invoice_id = t1.id and is_active = '1' and is_deleted = '0')) between '".$params['fdate']."' and '".$params['tdate']."')";
+			$params['where_custom'][] = "exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = t1.id)";
+		}
+		
+		return $this->base_model->mget_rec($params);
+	}
+	
 	function db_unmatch_daily_entry($params)
 	{
 		// $str = "select '".$params['module']."' as module,

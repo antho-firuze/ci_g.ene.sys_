@@ -17,7 +17,7 @@
 		"fenom/fenom": "2.*",
 		"mpdf/mpdf": "dev-development",
 		"moxiecode/plupload": ">=3.1.0",
-		"fightbulc/moment": "^1.14",
+		"fightbulc/moment": "*",
 		"rmccue/requests": ">=1.0",
 		"peppeocchi/php-cron-scheduler": "2.*",
 		"swiftmailer/swiftmailer": "^6.0"

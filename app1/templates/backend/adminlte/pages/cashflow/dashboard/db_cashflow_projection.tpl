@@ -15,7 +15,7 @@
 <script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/moment.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/daterangepicker.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
-<script src="{$.const.TEMPLATE_URL}plugins/shollu-combobox/js/shollu_cb.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/datatables/extensions/FixedColumns/js/dataTables.fixedColumns.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Additional filter *}
@@ -24,27 +24,11 @@
 	var box0 = BSHelper.Box({ type:"info", header:true, title:"Advance Filter", toolbtn:['min'], collapse:true });
 	col.push(BSHelper.Input({ type:"hidden", idname:"fdate", }));
 	col.push(BSHelper.Input({ type:"hidden", idname:"tdate", }));
-	col.push(BSHelper.Input({ type:"hidden", idname:"orgtrx_id", }));
+	col.push(BSHelper.Input({ type:"hidden", idname:"account_id", }));
+	col.push(BSHelper.Input({ type:"hidden", idname:"type", }));
+	col.push(BSHelper.Input({ type:"hidden", idname:"title", }));
 	a.push(BSHelper.Button({ type:"button", label:'<i class="fa fa-calendar"></i>&nbsp;<span>Date range picker</span> &nbsp;&nbsp;<i class="fa fa-caret-down"></i>', cls:"btn-danger", idname: "btn_cal", }));
 	col.push(BSHelper.Label({ horz: false, label:"Period", idname:"fperiod", required: false, elcustom: a }));
-	col.push(BSHelper.Combobox({ label:"Module", idname:"module_id", required: true, 
-		list:[
-			{ id:"1", name:"Sales Order" },
-			{ id:"2", name:"Shipment" },
-			{ id:"3", name:"Request/Planning" },
-			{ id:"4", name:"Purchase Request" },
-			{ id:"5", name:"Purchase Order" },
-			{ id:"6", name:"Material Receipt" },
-			{ id:"7", name:"Inflow" },
-			{ id:"8", name:"Outflow" },
-			{ id:"9", name:"Invoice Customer" },
-			{ id:"10", name:"Invoice Vendor" },
-			{ id:"11", name:"Invoice Inflow" },
-			{ id:"12", name:"Invoice Outflow" },
-			{ id:"13", name:"Bank Received" },
-			{ id:"14", name:"Bank Payment" },
-		] 
-	}));
 	row.push(subCol(6, col)); col = [];
 	form0.append(subRow(row));
 	form0.append(subRow(subCol()));
@@ -53,8 +37,8 @@
 	box0.find('.box-body').append(form0);
 	$(".content .filter").after(box0);
 	{* INITILIZATION *}
-	var start = moment().startOf('month');
-	var end = moment().endOf('month');
+	var start = moment().startOf('week');
+	var end = moment().endOf('week');
 	{* //Date range as a button *}
 	$('#btn_cal').daterangepicker(
 			{
@@ -63,12 +47,15 @@
 					{* 'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')], *}
 					{* 'Last 7 Days': [moment().subtract(6, 'days'), moment()], *}
 					{* 'Last 30 Days': [moment().subtract(29, 'days'), moment()], *}
+					'This Week': [moment().startOf('week'), moment().endOf('week')],
+					'Last Week': [moment().subtract(1, 'week').startOf('week'), moment().subtract(1, 'week').endOf('week')],
+					'Next Week': [moment().add(1, 'week').startOf('week'), moment().add(1, 'week').endOf('week')],
 					'This Month': [moment().startOf('month'), moment().endOf('month')],
 					'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
 					'Next Month': [moment().add(1, 'month').startOf('month'), moment().add(1, 'month').endOf('month')],
 				},
-				startDate: moment().startOf('month'),
-				endDate: moment().endOf('month')
+				startDate: moment().startOf('week'),
+				endDate: moment().endOf('week')
 			},
 			function (start, end) {
 				{* console.log(start.format('YYYY-MM-DD') + ' - ' + end.format('MMMM D, YYYY')); *}
@@ -86,6 +73,9 @@
 		$('#btn_cal span').html(moment($filter.fdate).format('MMMM D, YYYY') + ' - ' + moment($filter.tdate).format('MMMM D, YYYY'));
 		$('#btn_cal').daterangepicker({ 
 			ranges: {
+				'This Week': [moment().startOf('week'), moment().endOf('week')],
+				'Last Week': [moment().subtract(1, 'week').startOf('week'), moment().subtract(1, 'week').endOf('week')],
+				'Next Week': [moment().add(1, 'week').startOf('week'), moment().add(1, 'week').endOf('week')],
 				'This Month': [moment().startOf('month'), moment().endOf('month')],
 				'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
 				'Next Month': [moment().add(1, 'month').startOf('month'), moment().add(1, 'month').endOf('month')],
@@ -93,7 +83,7 @@
 			startDate: moment($filter.fdate), endDate: moment($filter.tdate) });
 		$("#fdate").val($filter.fdate);
 		$("#tdate").val($filter.tdate);
-		$("#module_id").shollu_cb('setValue', $filter.module_id);
+		updateTitle();
 	}
 	
 	form0.validator().on('submit', function(e) {
@@ -102,10 +92,13 @@
 		var $origin_url = getURLFull();
 		var f = form0.serialize();
 		$origin_url = URI($origin_url).setSearch('filter', form0.serializeJSON());
-		$url_module = URI($url_module).setSearch('filter', form0.serializeJSON());
+		$url_module = URI($url_module).setSearch('filter', form0.serializeJSON()).setSearch('ob', "seq asc");
 		$filter = form0.serializeJSON();
 		history.pushState({}, '', $origin_url);
 		dataTable1.ajax.url( $url_module ).load();
+		
+		updateTitle();
+		
 		return false;
 	});
 
@@ -113,50 +106,48 @@
 	var Toolbar_Init = {
 		enable: false,
 		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process'],
-		disableBtn: ['btn-new','btn-copy','btn-delete','btn-print','btn-message','btn-import','btn-process'],
+		disableBtn: ['btn-copy','btn-message','btn-print','btn-process'],
 		hiddenBtn: ['btn-copy','btn-message'],
 		processMenu: [{ id:"btn-process1", title:"Process 1" }, { id:"btn-process2", title:"Process 2" }, ],
 		processMenuDisable: ['btn-process1'],
 	};
 	{* DataTable Init *}
 	var format_money = function(money){ return accounting.formatMoney(money, '', {$.session.number_digit_decimal}, "{$.session.group_symbol}", "{$.session.decimal_symbol}") };
-	var format_percent = function(value){ return accounting.formatMoney(value, { symbol: "%", precision: 1, format: "%v%s" }) };
 	var DataTable_Init = {
 		enable: true,
 		rows: 100,
 		showFilter: false,
+		showPaginate: true,
 		showColumnMenu: false,
-		{* tableWidth: '130%', *}
-		act_menu: { copy: false, edit: false, delete: false },
+		{* tableWidth: '100%', *}
+		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [],
+		fixedColumns: {
+			leftColumns: 1,
+		},
+		order: ['seq asc'],
 		columns: [
-			{ width:"100px", orderable:true, data:"org_name", title:"Org Name" },
-			{ width:"100px", orderable:true, data:"orgtrx_name", title:"Org Trx Name", render: function(data, type, row){ return $('<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=254&filter='+encodeURI(form0.find("#orgtrx_id").val(row.orgtrx_id).parent().serializeJSON())+'" />').text(data).prop('outerHTML'); } },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"match", title:"Match (Qty/Percent)", 
-				render: function(data, type, row){
-					perc = data/row.total*100;
-					if ( parseInt(perc) > 30 && parseInt(perc) <= 70 ) 
-						return $("<span>").addClass('label label-warning').text(data +' / '+ format_percent(perc)).prop('outerHTML');
-					else if ( parseInt(perc) > 70 ) 
-						return $("<span>").addClass('label label-success').text(data +' / '+ format_percent(perc)).prop('outerHTML'); 
-					else 
-						return $("<span>").addClass('label label-danger').text(data +' / '+ format_percent(perc)).prop('outerHTML'); 
-				},
-			},
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"unmatch", title:"Unmatch (Qty/Percent)", 
-				render: function(data, type, row){
-					perc = data/row.total*100;
-					if ( parseInt(perc) > 0 && parseInt(perc) <= 70 ) 
-						return $("<span>").addClass('label label-danger').text(data +' / '+ format_percent(perc)).prop('outerHTML');
-					else if ( parseInt(perc) > 70 ) 
-						return $("<span>").addClass('label label-danger').text(data +' / '+ format_percent(perc)).prop('outerHTML'); 
-					else 
-						return $("<span>").addClass('label label-success').text(data +' / '+ format_percent(perc)).prop('outerHTML'); 
-				},
-			},
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"total", title:"Qty Total" },
+			{ width:"200px", orderable:false, data:"description", title:"Description", render: function(data, type, row){ return (row.type == 'T' || row.type == 'L') ? '<b>'+data+'</b>' : data; } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"projection", title:"Projection", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=256&filter='+encodeURI(form0.find("#account_id").val(row.account_id).parent().find("#type").val(1).parent().find("#title").val(row.projection_title).parent().serializeJSON())+'">'+format_money(data)+'</a>' : format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"actual", title:"Actual", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=256&filter='+encodeURI(form0.find("#account_id").val(row.account_id).parent().find("#type").val(2).parent().find("#title").val(row.actual_title).parent().serializeJSON())+'">'+format_money(data)+'</a>' : format_money(data); } },
+			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"projection", title:"Difference", render: function(data, type, row){ return format_money(Math.abs(row.projection-row.actual)); } },
 		],
 	};
+	
+	{* INITILIZATION *}
+	setTimeout(function(){
+		{* var $filter = dateFormat(dateParsing(getURLParameter("filter").split('=')[1], "yyyy-mm-dd"), "dd/mm/yyyy"); *}
+		updateTitle();
+	}, 500);
+	
+	function updateTitle(){
+		var fdate = moment($("#fdate").val()).format('DD/MM/YYYY');
+		var tdate = moment($("#tdate").val()).format('DD/MM/YYYY');
+		if ($(".content-header").find("h1 span").length > 0)
+			$(".content-header").find("h1 span").text(" as per "+fdate+" - "+tdate);
+		else
+			$(".content-header").find("h1 small").before($("<span />").text(" as per "+fdate+" - "+tdate).prop('outerHTML'));
+	}
 	
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>

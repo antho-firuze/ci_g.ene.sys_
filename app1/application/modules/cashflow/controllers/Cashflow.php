@@ -1553,7 +1553,22 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params['event'] == 'pre_delete'){
-				xresponse(FALSE, ['message' => lang('error_update_inbound_completed')], 401);
+				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+				$return = 0;
+				foreach($ids as $v)
+				{
+					if ($this->db->update($this->c_table, ['received_date' => NULL], ['id'=>$v]))
+					{
+						$return += 1;
+					}
+				}
+				if ($return)
+					xresponse(TRUE, ['message' => lang('success_delete', null, 'systems')]);
+				else
+					xresponse(FALSE, ['message' => $this->db->error()['message']]);
+					
+				// $this->_recordUpdate($this->c_table, ['received_date' => NULL], ['id' => ])
+				// xresponse(FALSE, ['message' => lang('error_update_inbound_completed')], 401);
 			}
 			/* if ($this->params['event'] == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('movement_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
@@ -4289,6 +4304,62 @@ class Cashflow extends Getmeb
 		}
 	}
 
+	function db_cashflow_projection()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(FALSE, FALSE);
+			
+			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
+				// debug(json_decode($this->params['filter']));
+				$filter = json_decode($this->params['filter']);
+				$this->params = array_merge($this->params, (array) $filter);
+				unset($this->params['filter']);
+			}
+			// debug($this->params);
+			$m = new \Moment\Moment();
+			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('week')->format('Y-m-d');
+			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('week')->format('Y-m-d');
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				xresponse(TRUE, $result);
+			}
+		}
+	}
+	
+	function db_cashflow_projection_dd()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(FALSE, FALSE);
+			
+			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
+				// debug(json_decode($this->params['filter']));
+				$filter = json_decode($this->params['filter']);
+				$this->params = array_merge($this->params, (array) $filter);
+				unset($this->params['filter']);
+			}
+			// debug($this->params);
+			$m = new \Moment\Moment();
+			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('week')->format('Y-m-d');
+			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('week')->format('Y-m-d');
+			
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				xresponse(TRUE, $result);
+			}
+		}
+	}
+	
 	function db_unmatch_daily_entry()
 	{
 		if ($this->r_method == 'GET') {

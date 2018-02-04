@@ -60,13 +60,13 @@
 		{* console.log(result); *}
 		if (result.status){
 			$.each(result.data, function(i, val){
-				if (val.type == 'BOX-3.1'){
+				{* if (val.type == 'BOX-3.1'){ *}
 					{* box_3(val, $(".box-3")); *}
-					window.setTimeout(box_3(val, $(".box-3")), 0);
-				}
-				if (val.type == 'BOX-3'){
-					{* box_3(val, $(".box-3")); *}
-					window.setTimeout(box_3(val, $(".box-3")), 0);
+					{* window.setTimeout(box_3(val, $(".box-3")), 0); *}
+				{* } *}
+				if (val.type == 'BOX-3' || val.type == 'BOX-3.1'){
+					box_3(val, $(".box-3"));
+					{* window.setTimeout(box_3(val, $(".box-3")), 0); *}
 				}
 				if (val.type == 'BOX-7' && val.name == 'Quick Email'){
 					qemail($(".col-lg-7"));
@@ -88,16 +88,18 @@
 		var link = val.link ? $BASE_URL+val.link : '';
 		var idname = "widgetbox3_"+val.id;
 		el.append(BSHelper.WidgetBox3({ idname:idname, title:val.name, color:val.color, value:val.value, icon:val.icon, link:link, tooltip:val.description, seq:val.id, type:val.type }));
-		$.getJSON($url_module, { "run": true, "id": val.id }, function(result){
-			if (result.status){
-				var i = 0;
-				var val = $.map( result.data[0], function( a ) {
-					i++; 
-					return a + (i < count(result.data[0]) ? ' | ' : ''); 
-				});
-				el.find("#"+idname+" div.val span").html(val);
-			}
-		});
+		if (val.type == 'BOX-3'){
+			$.getJSON($url_module, { "run": true, "id": val.id }, function(result){
+				if (result.status){
+					var i = 0;
+					var val = $.map( result.data[0], function( a ) {
+						i++; 
+						return a + (i < count(result.data[0]) ? ' | ' : ''); 
+					});
+					el.find("#"+idname+" div.val span").html(val);
+				}
+			});
+		}
 	}
 	
 	function qemail(el){
@@ -159,6 +161,14 @@
 	}
 
 	function wcal(el){
+		var col = [], row = [];
+		var box1 = BSHelper.Box({ type:"info", header:true, title:"Calendar", icon:"fa fa-calendar", toolbtn:['min','rem'] });
+		box1.find('.box-body').append($('<div id="calendar" style="width: 100%"> </div>'));
+		box1.find("#calendar").datepicker({ todayHighlight: true, format:"yyyy-mm-dd", });
+		el.append(box1);
+	}
+
+	function wcal_cashflow(el){
 		{* var fdate = typeof(fdate) == 'undefined' ? new Date() : fdate; *}
 		{* var tdate = typeof(tdate) == 'undefined' ? new Date() : tdate; *}
 		var fdate = new Date();
