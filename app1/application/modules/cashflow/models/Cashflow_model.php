@@ -1191,7 +1191,7 @@ class Cashflow_Model extends CI_Model
 			from cf_invoice s1
 			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
 			is_active = '1' and is_deleted = '0' and account_id = ANY(ARRAY[t1.accounts])
-			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
+			-- and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
 			and (received_plan_date between '".$params['fdate']."' and '".$params['tdate']."' or payment_plan_date between '".$params['fdate']."' and '".$params['tdate']."')
 		),
 		(
