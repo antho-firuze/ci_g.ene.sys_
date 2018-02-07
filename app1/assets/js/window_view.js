@@ -97,40 +97,12 @@ function initFlashMessage()
 	});
 }
 
-function setToolbarBtn(btnList)
+function initAdvanceFilter()
 {
-	var container = $('<div class="row toolbar_container">'+
-											'<div class="col-md-12">'+
-												'<div class="btn-toolbar">'+
-													'<div class="btn-group btnGroup1" />'+
-													'<div class="btn-group btnGroup2" />'+
-													'<div class="btn-group btnGroup3" />'+
-													'<div class="btn-group btnGroup4" />'+
-													'<div class="btn-group btnGroup5" />'+
-													'<div class="btn-group btnGroup6" />'+
-												'</div>'+
-											'</div>'+
-										'</div>');
-	var buttons = {
-		"btn-new": 			{group:1, id:"btn-new", title:"New (Press Insert)", bstyle:"btn-success", icon:"glyphicon glyphicon-plus"},
-		"btn-copy": 		{group:1, id:"btn-copy", title:"Copy", bstyle:"btn-success", icon:"glyphicon glyphicon-duplicate"},
-		"btn-refresh": 	{group:1, id:"btn-refresh", title:"Clear Sorting & Refresh", bstyle:"btn-success", icon:"glyphicon glyphicon-refresh"},
-		"btn-delete": 	{group:1, id:"btn-delete", title:"Batch Delete", bstyle:"btn-danger", icon:"glyphicon glyphicon-trash"},
-		"btn-message": 	{group:2, id:"btn-message", title:"Chat/Message/Attach", bstyle:"btn-info", icon:"glyphicon glyphicon-comment"},
-		"btn-export": 	{group:3, id:"btn-export", title:"Export", bstyle:"btn-warning", icon:"glyphicon glyphicon-save"},
-		"btn-print": 		{group:3, id:"btn-print", title:"Print", bstyle:"bg-purple", icon:"glyphicon glyphicon-print"},
-		"btn-import": 	{group:3, id:"btn-import", title:"Import", bstyle:"btn-warning", icon:"glyphicon glyphicon-open"},
-		"btn-viewlog": 	{group:4, id:"btn-viewlog", title:"Record Info", bstyle:"btn-default", icon:"fa fa-info fa-lg", style:"width:35px; height:35px;"},
-		"btn-filter": 	{group:5, id:"btn-filter", title:"Filter", bstyle:"btn-success", icon:"fa fa-filter fa-lg", style:"width:35px; height:35px;"},
-		"btn-sort": 		{group:5, id:"btn-sort", title:"Sort", bstyle:"btn-success", icon:"fa fa-sort-amount-asc fa-lg", style:"width:35px; height:35px;"},
-		"btn-process": 	{group:6, id:"btn-process", title:"Process", bstyle:"bg-purple", icon:"glyphicon glyphicon-cog dropdown-toggle", data_toggle:"dropdown"},
-	};
-	$.each(btnList, function(k,v){
-		var btn = $('<button/>', { type:"button", id:buttons[v].id, title:buttons[v].title, 'class':'btn '+buttons[v].bstyle+' '+buttons[v].icon, style:buttons[v].style, 'data-toggle':buttons[v].data_toggle });
-		container.find('.btnGroup'+buttons[v].group).append(btn); 
-  });
+	if (!AdvanceFilter_Init.enable)
+		return false;
 	
-	return container;
+	
 }
 
 function initToolbarButton()
@@ -139,6 +111,42 @@ function initToolbarButton()
 	if (!Toolbar_Init.enable)
 		return false;
 	
+	function setToolbarBtn(btnList)
+	{
+		var container = $('<div class="row toolbar_container">'+
+												'<div class="col-md-12">'+
+													'<div class="btn-toolbar">'+
+														'<div class="btn-group btnGroup1" />'+
+														'<div class="btn-group btnGroup2" />'+
+														'<div class="btn-group btnGroup3" />'+
+														'<div class="btn-group btnGroup4" />'+
+														'<div class="btn-group btnGroup5" />'+
+														'<div class="btn-group btnGroup6" />'+
+													'</div>'+
+												'</div>'+
+											'</div>');
+		var buttons = {
+			"btn-new": 			{group:1, id:"btn-new", title:"New (Press Insert)", bstyle:"btn-success", icon:"glyphicon glyphicon-plus"},
+			"btn-copy": 		{group:1, id:"btn-copy", title:"Copy", bstyle:"btn-success", icon:"glyphicon glyphicon-duplicate"},
+			"btn-refresh": 	{group:1, id:"btn-refresh", title:"Clear Sorting & Refresh", bstyle:"btn-success", icon:"glyphicon glyphicon-refresh"},
+			"btn-delete": 	{group:1, id:"btn-delete", title:"Batch Delete", bstyle:"btn-danger", icon:"glyphicon glyphicon-trash"},
+			"btn-message": 	{group:2, id:"btn-message", title:"Chat/Message/Attach", bstyle:"btn-info", icon:"glyphicon glyphicon-comment"},
+			"btn-export": 	{group:3, id:"btn-export", title:"Export", bstyle:"btn-warning", icon:"glyphicon glyphicon-save"},
+			"btn-print": 		{group:3, id:"btn-print", title:"Print", bstyle:"bg-purple", icon:"glyphicon glyphicon-print"},
+			"btn-import": 	{group:3, id:"btn-import", title:"Import", bstyle:"btn-warning", icon:"glyphicon glyphicon-open"},
+			"btn-viewlog": 	{group:4, id:"btn-viewlog", title:"Record Info", bstyle:"btn-default", icon:"fa fa-info fa-lg", style:"width:35px; height:35px;"},
+			"btn-filter": 	{group:5, id:"btn-filter", title:"Filter", bstyle:"btn-success", icon:"fa fa-filter fa-lg", style:"width:35px; height:35px;"},
+			"btn-sort": 		{group:5, id:"btn-sort", title:"Sort", bstyle:"btn-success", icon:"fa fa-sort-amount-asc fa-lg", style:"width:35px; height:35px;"},
+			"btn-process": 	{group:6, id:"btn-process", title:"Process", bstyle:"bg-purple", icon:"glyphicon glyphicon-cog dropdown-toggle", data_toggle:"dropdown"},
+		};
+		$.each(btnList, function(k,v){
+			var btn = $('<button/>', { type:"button", id:buttons[v].id, title:buttons[v].title, 'class':'btn '+buttons[v].bstyle+' '+buttons[v].icon, style:buttons[v].style, 'data-toggle':buttons[v].data_toggle });
+			container.find('.btnGroup'+buttons[v].group).append(btn); 
+		});
+		
+		return container;
+	}
+
 	var toolbarBtn = setToolbarBtn(Toolbar_Init.toolbarBtn);
 	
 	$('.content').find('div:first').before( toolbarBtn.css('margin-bottom','10px') );
@@ -245,6 +253,14 @@ function initDataTable()
 			"dataFilter": function(data){
 				if (data) {
 					var json = jQuery.parseJSON( data );
+					
+					$.each(DataTable_Init.summary, function(k,v){
+						// console.log(json.data.summary['abc'] != undefined ? 'a' : 'b');
+						if ($("#"+v).length > 0 && json.data.summary[v] != undefined)
+							$("#"+v).val(format_money(json.data.summary[v]));
+					});
+					// $("#grand_total").val(json.data.summary.grand_total);
+					
 					json.recordsTotal = json.data.total;
 					json.recordsFiltered = json.data.total;
 					json.data = json.data.rows;

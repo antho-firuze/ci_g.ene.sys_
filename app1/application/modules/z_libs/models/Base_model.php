@@ -103,9 +103,14 @@ class Base_Model extends CI_Model
 	* @return object
 	* @author antho.firuze@gmail.com
 	*/
-	function mget_rec($params = NULL, $counter = FALSE)
+	function mget_rec($params = NULL, $counter = FALSE, $summary = [])
 	{
-		$this->db->select($params['select']);
+		// $this->db->select($params['select']);
+		if (!$counter)
+			$this->db->select($params['select']);
+		else if ($counter && empty($summary))
+			$this->db->select($params['select']);
+		
 		$this->db->from($params['table']);
 		if ( key_exists('join', $params)) DBX::join($this, $params['join']);
 		// if ( key_exists('where', $params)) $this->db->where($params['where']);
@@ -192,13 +197,42 @@ class Base_Model extends CI_Model
 				$this->db->where('t1.is_deleted', '0');
 		}
 		
-		if ($counter){
+		/* For counting record number */
+		if ($counter && empty($summary)){
 			if (! $query = $this->db->get() ){
 				// $this->db->error(); // Has keys 'code' and 'message'
 				$this->set_error($this->db->error()['message']);
 				return FALSE;
 			} 
 			return ($query->num_rows() > 0) ? $query->num_rows() : 0;
+		}
+		
+		/* For summarize field value. 
+		 * $summary param required (array) */
+		if ($counter && $summary){
+			// method #1 | process in database (using query)
+			// function added($v){	return "coalesce(sum($v), 0) as $v";	}
+			// $a1 = array_map('added', $summary);
+			// $str = implode(",", $a1);
+			// $this->db->select($str);
+			// if (! $query = $this->db->get() ){
+				// $this->set_error($this->db->error()['message']);
+				// return FALSE;
+			// } 
+			// return $query->result();
+			
+			// method #2 | process in script (using php)
+			$this->db->select($summary);
+			if (! $query = $this->db->get() ){
+				$this->set_error($this->db->error()['message']);
+				return FALSE;
+			} 
+			$result = $query->result();
+			
+			foreach($summary as $k => $v){
+				$a[$v] = array_sum(array_column($result, $v)); 
+			}
+			return $a;
 		}
 		
 		/* sample: &ob=field1,field2,field3... */
@@ -255,8 +289,16 @@ class Base_Model extends CI_Model
 			return $result;
 		} 
 		
-		$response['total'] = $this->mget_rec($params, TRUE);
+		$response['total'] = $this->mget_rec($params, TRUE, []);
 		$response['rows']  = $result;
+		if ($summary){
+			$response['summary'] = $this->mget_rec($params, TRUE, $summary);
+			// debug($result);
+			// foreach($summary as $k => $v){
+				// $a[$v] = array_sum(array_column($result, $v)); 
+			// }
+			// $response['summary'] = $a;
+		}
 		return $response;
 	}
 	

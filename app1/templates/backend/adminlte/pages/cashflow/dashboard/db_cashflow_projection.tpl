@@ -11,10 +11,10 @@
 </div>
 <!-- /.content-wrapper -->
 <link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/daterangepicker/daterangepicker.css">
-<script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/moment.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/daterangepicker.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/datatables/extensions/FixedColumns/js/dataTables.fixedColumns.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
@@ -43,10 +43,6 @@
 	$('#btn_cal').daterangepicker(
 			{
 				ranges: {
-					{* 'Today': [moment(), moment()], *}
-					{* 'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')], *}
-					{* 'Last 7 Days': [moment().subtract(6, 'days'), moment()], *}
-					{* 'Last 30 Days': [moment().subtract(29, 'days'), moment()], *}
 					'This Week': [moment().startOf('week'), moment().endOf('week')],
 					'Last Week': [moment().subtract(1, 'week').startOf('week'), moment().subtract(1, 'week').endOf('week')],
 					'Next Week': [moment().add(1, 'week').startOf('week'), moment().add(1, 'week').endOf('week')],

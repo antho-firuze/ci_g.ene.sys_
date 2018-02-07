@@ -1631,19 +1631,27 @@ class Cashflow_Model extends CI_Model
 		(select name from a_org where id = t1.org_id) as org_name, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
 		t1.*, 
-		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where order_id = t1.id) as invoice_plan_date, (select doc_no from cf_order where id = t1.id) as so_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.id) as so_date, (select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
+		(select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where order_id = t1.id) as invoice_plan_date, 
+		(select doc_no from cf_order where id = t1.id) as so_no, 
+		(select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.id) as so_date, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
 		$params['table'] 	= " (
 			select * 
 			from cf_order f1 where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_sotrx='1'
-			and not exists (select distinct(id) from cf_order_plan where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and order_id = f1.id)
+			is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between date_trunc('year', current_date)::date and (date_trunc('year', current_date) + interval '1 year - 1 day')::date
+			and not exists (select 1 from cf_order_plan where is_active = '1' and is_deleted = '0' and order_id = f1.id)
 			) t1";
 
 		$params['table'] = translate_variable($params['table']);
-		return $this->base_model->mget_rec($params);
+		/* Additional data */
+		// $result = $this->base_model->mget_rec($params);
+		return $this->base_model->mget_rec($params, FALSE, ['grand_total','plan_total']);
 	}
 	
 	function db_incomplete_po($params)

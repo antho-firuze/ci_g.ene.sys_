@@ -1540,55 +1540,55 @@ class Getmeb extends CI_Controller
 		return $_output;
 	}
 
-	/**
-	 * li
-	 *
-	 * Function for left menu on backend <li></li>
-	 *
-	 * @param	string	$cur_page   Current page
-	 * @param	string	$page_chk   Page check
-	 * @param	string	$url   Url
-	 * @param	string	$menu_name   Menu label
-	 * @param	string	$icon   bootstrap glyphicon class
-	 * @param	string	$submenu   Submenu (TRUE or FALSE)
-	 * @return  string
-	 */
-	private function _getmenu_li($cur_page, $page_chk, $url, $menu_name, $icon)
-	{
-		$active = ($cur_page == $page_chk) ? ' class="active"' : '';
-		$glyp_icon = ($icon) ? '<i class="'.$icon.'"></i> ' : '<i class="fa fa-circle"></i>';
-		
-		$html = '<li'.$active.'><a href="'.base_url().''.$url.'">'.$glyp_icon.'<span>'.$menu_name.'</span></a></li>';
-		return $html;
-	}
-	
-	function _getmenu_recursively($categories, $parent = null, $menu_active = array())
-	{
-    $ret = '';
-    foreach($categories as $index => $category)
-    {
-			if($category['parent_id'] == $parent)
-			{
-				$url = base_url().'systems/x_page?pageid='.$category['id'];
-				$active = in_array($category['id'], $menu_active) ? 'active' : '';
-				if ($category['is_parent'] == '1'){
-					$glyp_icon = ($category['icon']) ? '<i class="'.$category['icon'].'"></i> ' : '<i class="glyphicon glyphicon-menu-hamburger"></i>';
-					$ret .= '<li class="treeview '.$active.'"><a href="'.$url.'">'.$glyp_icon.'<span>'.$category['name'].'</span><i class="fa fa-angle-left pull-right"></i></a>';
-					$ret .= '<ul class="treeview-menu">'.$this->_getmenu_recursively($categories, $category['id'], $menu_active).'</ul>';
-					$ret .= '</li>';
-				} else {
-					$glyp_icon = ($category['icon']) ? '<i class="'.$category['icon'].'"></i> ' : '<i class="fa fa-circle"></i>';
-					$ret .= '<li class="treeview '.$active.'"><a href="'.$url.'">'.$glyp_icon.'<span>'.$category['name'].'</span></a>';
-					$ret .= $this->_getmenu_recursively($categories, $category['id'], $menu_active);
-					$ret .= '</li>';
-				}
-			}
-    }
-    return $ret;
-	}
-	
 	function _getmenu_structure($cur_page)
 	{
+		/**
+		 * li
+		 *
+		 * Function for left menu on backend <li></li>
+		 *
+		 * @param	string	$cur_page   Current page
+		 * @param	string	$page_chk   Page check
+		 * @param	string	$url   Url
+		 * @param	string	$menu_name   Menu label
+		 * @param	string	$icon   bootstrap glyphicon class
+		 * @param	string	$submenu   Submenu (TRUE or FALSE)
+		 * @return  string
+		 */
+		function _getmenu_li($cur_page, $page_chk, $url, $menu_name, $icon)
+		{
+			$active = ($cur_page == $page_chk) ? ' class="active"' : '';
+			$glyp_icon = ($icon) ? '<i class="'.$icon.'"></i> ' : '<i class="fa fa-circle"></i>';
+			
+			$html = '<li'.$active.'><a href="'.base_url().''.$url.'">'.$glyp_icon.'<span>'.$menu_name.'</span></a></li>';
+			return $html;
+		}
+		
+		function _getmenu_recursively($categories, $parent = null, $menu_active = array())
+		{
+			$ret = '';
+			foreach($categories as $index => $category)
+			{
+				if($category['parent_id'] == $parent)
+				{
+					$url = base_url().'systems/x_page?pageid='.$category['id'];
+					$active = in_array($category['id'], $menu_active) ? 'active' : '';
+					if ($category['is_parent'] == '1'){
+						$glyp_icon = ($category['icon']) ? '<i class="'.$category['icon'].'"></i> ' : '<i class="glyphicon glyphicon-menu-hamburger"></i>';
+						$ret .= '<li class="treeview '.$active.'"><a href="'.$url.'">'.$glyp_icon.'<span>'.$category['name'].'</span><i class="fa fa-angle-left pull-right"></i></a>';
+						$ret .= '<ul class="treeview-menu">'._getmenu_recursively($categories, $category['id'], $menu_active).'</ul>';
+						$ret .= '</li>';
+					} else {
+						$glyp_icon = ($category['icon']) ? '<i class="'.$category['icon'].'"></i> ' : '<i class="fa fa-circle"></i>';
+						$ret .= '<li class="treeview '.$active.'"><a href="'.$url.'">'.$glyp_icon.'<span>'.$category['name'].'</span></a>';
+						$ret .= _getmenu_recursively($categories, $category['id'], $menu_active);
+						$ret .= '</li>';
+					}
+				}
+			}
+			return $ret;
+		}
+		
 		$cur_page = $cur_page ? 'and id = '.$cur_page : '';
 		$str = "WITH RECURSIVE menu_tree (id, parent_id, level, menu_active) 
 			AS ( 
@@ -1637,9 +1637,11 @@ class Getmeb extends CI_Controller
 			ORDER BY parent_id, line_no;";
 		$qry = $this->db->query($str);
 		$html = '';
-		$html.= $this->_getmenu_li($cur_page, 1, 'systems/x_page?pageid=1', 'Dashboard', 'fa fa-dashboard');
+		// $html.= $this->_getmenu_li($cur_page, 1, 'systems/x_page?pageid=1', 'Dashboard', 'fa fa-dashboard');
+		$html.= _getmenu_li($cur_page, 1, 'systems/x_page?pageid=1', 'Dashboard', 'fa fa-dashboard');
 		// debug($qry->result_array());
-		$html.= $this->_getmenu_recursively($qry->result_array(), null, $menu_active);
+		// $html.= $this->_getmenu_recursively($qry->result_array(), null, $menu_active);
+		$html.= _getmenu_recursively($qry->result_array(), null, $menu_active);
 		$html.= '<br><li><a href="#" id="go-lock-screen" onclick="lock_the_screen();"><i class="fa fa-circle-o text-yellow"></i> <span>' . lang('nav_lckscr') . '</span></a></li>';
 		$html.= '<li><a href="'.LOGOUT_LNK.'" id="go-sign-out"><i class="fa fa-sign-out text-red"></i> <span>' . lang('nav_logout') . '</span></a></li>';
 		return $html;
