@@ -1651,7 +1651,7 @@ class Cashflow_Model extends CI_Model
 		$params['table'] = translate_variable($params['table']);
 		/* Additional data */
 		// $result = $this->base_model->mget_rec($params);
-		return $this->base_model->mget_rec($params, FALSE, ['grand_total','plan_total']);
+		return $this->base_model->mget_rec($params);
 	}
 	
 	function db_incomplete_po($params)

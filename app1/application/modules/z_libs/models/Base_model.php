@@ -218,14 +218,17 @@ class Base_Model extends CI_Model
 			// if (! $query = $this->db->get() ){
 				// $this->set_error($this->db->error()['message']);
 				// return FALSE;
+				// return [FALSE, $this->db->error()['message']];
 			// } 
 			// return $query->result();
 			
 			// method #2 | process in script (using php)
 			$this->db->select($summary);
 			if (! $query = $this->db->get() ){
-				$this->set_error($this->db->error()['message']);
-				return FALSE;
+				// debug($this->db->error()['message']);
+				// $this->set_error($this->db->error()['message']);
+				// return FALSE;
+				return [FALSE, $this->db->error()['message']];
 			} 
 			$result = $query->result();
 			
@@ -291,8 +294,10 @@ class Base_Model extends CI_Model
 		
 		$response['total'] = $this->mget_rec($params, TRUE, []);
 		$response['rows']  = $result;
-		if ($summary){
-			$response['summary'] = $this->mget_rec($params, TRUE, $summary);
+		// if ($summary){
+		if (key_exists('footer', $this->params) && ($this->params['footer'])) {
+			// debug(explode(',', $this->params['footer']));
+			$response['summary'] = $this->mget_rec($params, TRUE, explode(',', $this->params['footer']));
 			// debug($result);
 			// foreach($summary as $k => $v){
 				// $a[$v] = array_sum(array_column($result, $v)); 

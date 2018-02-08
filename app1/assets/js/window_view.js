@@ -245,7 +245,12 @@ function initDataTable()
 		remove('sfilter_'+$method);
 		$("#btn-filter").removeClass("active");
 	}
-	
+	/* param footer */
+	if (DataTable_Init.footers || DataTable_Init.footers != undefined) {
+		var foot = $.map(DataTable_Init.footers, function(v, k){ return v['data']; }).join(',')
+		// $url = URI($url).addSearch('footer', encodeURI(JSON.stringify(DataTable_Init.footers)));
+		$url = URI($url).addSearch('footer', foot);
+	}
 	dataTable1 = tableData1.DataTable({ "pagingType": 'full_numbers', "processing": true, "serverSide": true, "select": true, "scrollX": true, "iDisplayLength": DataTable_Init.length ? DataTable_Init.length : 10,
 		"ajax": {
 			"url": $url,
@@ -254,12 +259,7 @@ function initDataTable()
 				if (data) {
 					var json = jQuery.parseJSON( data );
 					
-					$.each(DataTable_Init.summary, function(k,v){
-						// console.log(json.data.summary['abc'] != undefined ? 'a' : 'b');
-						if ($("#"+v).length > 0 && json.data.summary[v] != undefined)
-							$("#"+v).val(format_money(json.data.summary[v]));
-					});
-					// $("#grand_total").val(json.data.summary.grand_total);
+					initFooter(DataTable_Init.footers, json.data);
 					
 					json.recordsTotal = json.data.total;
 					json.recordsFiltered = json.data.total;
@@ -306,14 +306,38 @@ function initDataTable()
 		}, */
 		/* "footerCallback": function ( row, data, start, end, display ) {
 			var api = this.api(), data;
-			console.log($( api.column( 4 ).footer() ));
-			$( api.column( 4 ).footer() ).html(
+			console.log('123456789');
+			$( api.column( 0 ).footer() ).html(
 					'123456789'
 			);
-		}, */
+		},  */
 	})
 	.search($q ? $q : '');
 
+	function initFooter(footer, data)
+	{
+		var col = [], row = [];
+		$.each(footer, function(k,v){
+			if ($("#"+v['data']).length > 0 && data.summary[v['data']] != undefined){
+				$("#"+v['data']).val(format_money(data.summary[v['data']]));
+			} else {
+				// console.log(data.summar);
+				var val = data.summary != undefined ? format_money(data.summary[v['data']]) : 0;
+				col.push(BSHelper.Input({ horz:true, lblsize:"col-sm-4", colsize:"col-sm-8", type:"text", label: v['title'], idname: v['data'], style: "text-align: right;", value: val, readonly: true, }));
+			}
+		});
+		if (!isempty_arr(col)){
+			var boxFooter = BSHelper.Box({ type:"info", footer: false });
+			row.push(subCol(12, col)); col = [];
+			boxFooter.find('.box-body').append(subRow(row)); 
+			row = [];
+			row.push(subCol(7));
+			row.push(subCol(5, boxFooter));
+			$(".content").append(subRow(row));
+		}
+		// $("#grand_total").val(json.data.summary.grand_total);
+	}
+					
 	$('.table thead th.sorting').unbind('click.DT');
 	$('.table thead th.sorting').click(function(){
 		var columns = dataTable1.settings().init().columns;
@@ -596,7 +620,7 @@ function initActionMenu(tableData1, dataTable1)
 						subs[v] = data.id;
 					});
 				}
-				$filter = '&filter='+$.map(subs, function(i, v){return v+'='+i;}).join(',');
+				$filter = '&filter='+$.map(subs, function(v, k){return k+'='+v;}).join(',');
 				$url = $BASE_URL+"systems/x_page"+$pageid+$filter;
 				/* BUG::Show the history double */
 				// window.location.href = $url;
