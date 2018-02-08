@@ -9,9 +9,28 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/daterangepicker/daterangepicker.css">
+<script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/moment.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/daterangepicker.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
+	{* Advance filter Init *}
+	var AdvanceFilter_Init = {
+		enable: true, 
+		params: [ 'fdate', 'tdate' ],
+		fdate: moment().startOf("year"),
+		tdate: moment().endOf("year"),
+		dateRanges: {
+			'This Week': [moment().startOf('week'), moment().endOf('week')],
+			'Last Week': [moment().subtract(1, 'week').startOf('week'), moment().subtract(1, 'week').endOf('week')],
+			'This Month': [moment().startOf('month'), moment().endOf('month')],
+			'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+			'This Year': [moment().startOf('year'), moment().endOf('year')],
+			'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+		},
+	};
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		enable: true,
@@ -34,14 +53,24 @@
 			{ width:"100px", orderable:true, data:"orgtrx_name", title:"Org Trx Name" },
 			{ width:"100px", orderable:true, data:"bpartner_name", title:"Business Partner" },
 			{ width:"100px", orderable:true, data:"residence", title:"Residence" },
-			{ width:"100px", orderable:true, data:"so_no", title:"SO No" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"so_date", title:"SO Date" },
+			{ width:"100px", orderable:true, data:"doc_no", title:"SO No" },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"doc_date", title:"SO Date" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"etd", title:"SCM ETD" },
 			{ width:"100px", orderable:true, data:"category_name", title:"Category" },
-			{ width:"200px", orderable:true, data:"note", title:"Payment Type" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"invoice_plan_date", title:"Invoice Date (Plan)" },
-			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"amount", title:"Received Amount (Plan)", render: function(data, type, row){ return format_money(data); } },
+			{* { width:"200px", orderable:true, data:"note", title:"Payment Type" }, *}
+			{* { width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"invoice_plan_date", title:"Invoice Date (Plan)" }, *}
+			{* { width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"amount", title:"Received Amount (Plan)", render: function(data, type, row){ return format_money(data); } }, *}
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Total", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"plan_total", title:"Plan Total", render: function(data, type, row){ return format_money(data); } },		
+			{ width:"200px", orderable:true, data:"description", title:"Description" },
 			{ width:"20px", orderable:true, className:"dt-head-center dt-body-center", data:"so_top", title:"TOP (days)" },
+		],
+		footers: [
+			{ data: 'sub_total', 	title: 'Sub Total' }, 
+			{ data: 'vat_total', 	title: 'VAT Total' }, 
+			{ data: 'grand_total', 	title: 'Grand Total' }, 
 		],
 	};
 	

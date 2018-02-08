@@ -99,14 +99,76 @@ function initFlashMessage()
 
 function initAdvanceFilter()
 {
-	if (!AdvanceFilter_Init.enable)
+	if (typeof(AdvanceFilter_Init) == 'undefined')
 		return false;
 	
+	if (! AdvanceFilter_Init.enable)
+		return false;
 	
+	// {* Advance filter: Display Setup *}
+	var col = [], row = [], a = [];
+	var form0 = BSHelper.Form({ autocomplete:"off" });
+	var box0 = BSHelper.Box({ type:"info", header:true, title:"Advance Filter", toolbtn:['min'], collapse:true });
+	
+	$.each(AdvanceFilter_Init.params, function(i, v){
+		col.push(BSHelper.Input({ type:"hidden", idname: v, }));
+	});
+	
+	a.push(BSHelper.Button({ type:"button", label:'<i class="fa fa-calendar"></i>&nbsp;<span>Date range picker</span> &nbsp;&nbsp;<i class="fa fa-caret-down"></i>', cls:"btn-danger", idname: "btn_cal", }));
+	col.push(BSHelper.Label({ horz: false, label:"Period", idname:"fperiod", required: false, elcustom: a }));
+	row.push(subCol(6, col)); col = [];
+	form0.append(subRow(row));
+	form0.append(subRow(subCol()));
+	col.push( BSHelper.Button({ type:"submit", label:"Submit", idname:"submit_btn" }) );
+	form0.append( col );
+	box0.find('.box-body').append(form0);
+	
+	if ($(".dataTables_filter").length > 0)
+		$(".dataTables_filter").before(box0);
+	else 
+		$(".datagrid").before(box0);
+	
+	// {* Advance filter: Event for Submit *}
+	form0.validator().on('submit', function(e) {
+		if (e.isDefaultPrevented()) { return false;	} 
+		
+		var $origin_url = getURLFull();
+		$origin_url = URI($origin_url).setSearch("filter", form0.serializeJSON());
+		$url_module = URI(dataTable1.ajax.url()).setSearch("filter", form0.serializeJSON());
+		$filter = form0.serializeJSON();
+		history.pushState({}, '', $origin_url);
+		dataTable1.ajax.url( $url_module ).load();
+		
+		return false;
+	});
+
+	// {* Advance filter: Default Value *}
+	function advance_filter_set_value(obj){
+		var start = obj == undefined ? AdvanceFilter_Init.fdate : moment(obj.fdate);
+		var end = obj == undefined ? AdvanceFilter_Init.tdate : moment(obj.tdate);
+		var dateRanges = AdvanceFilter_Init.dateRanges;
+		
+		$('#btn_cal').daterangepicker({	startDate: start, endDate: end,	ranges: dateRanges,	})
+		.on('apply.daterangepicker', function(ev, picker) {
+			$('#btn_cal span').html(picker.startDate.format('MMMM D, YYYY') + ' - ' + picker.endDate.format('MMMM D, YYYY'));
+			$("#fdate").val(picker.startDate.format('YYYY-MM-DD'));
+			$("#tdate").val(picker.endDate.format('YYYY-MM-DD'));
+		});
+		$('#btn_cal span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+		$("#fdate").val(start.format('YYYY-MM-DD'));
+		$("#tdate").val(end.format('YYYY-MM-DD'));
+	}
+	
+	// {* Advance filter: Pre-defined Value *}
+	var $filter = $.parseJSON(getURLParameter("filter"));
+	advance_filter_set_value($filter);
 }
 
 function initToolbarButton()
 {
+	if (typeof(Toolbar_Init) == 'undefined')
+		return false;
+	
 	/* Get variable Toolbar_Init */
 	if (!Toolbar_Init.enable)
 		return false;
@@ -176,9 +238,12 @@ function initToolbarButton()
 
 function initDataTable()
 {
+	if (typeof(DataTable_Init) == 'undefined')
+		return false;
+	
 	$url = $url_module;
 	/* Get variable DataTable_Init */
-	if (!DataTable_Init.enable)
+	if (! DataTable_Init.enable)
 		return false;
 	
 	tableWidth = (DataTable_Init.tableWidth) ? DataTable_Init.tableWidth : '100%';
@@ -1046,6 +1111,8 @@ $(".content").before(BSHelper.PageHeader({
 initFlashMessage();
 /* Init for Toolbar */
 initToolbarButton();
+/* Init for Advance Filter */
+initAdvanceFilter();
 /* Init for DataTable */
 initDataTable();
 

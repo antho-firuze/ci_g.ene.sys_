@@ -56,16 +56,39 @@
 			{ width:"100px", orderable:true, data:"orgtrx_name", title:"Org Trx Name" },
 			{ width:"100px", orderable:true, data:"bpartner_name", title:"Business Partner" },
 			{ width:"100px", orderable:true, data:"residence", title:"Residence" },
-			{ width:"100px", orderable:true, data:"so_no", title:"SO No" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"so_date", title:"SO Date" },		
+			{ width:"100px", orderable:true, data:"doc_no", title:"SO No" },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"doc_date", title:"SO Date" },		
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"expected_dt_cust", title:"DT Customer" },		
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"etd", title:"SCM ETD" },		
-			{ width:"100px", orderable:true, data:"category_name", title:"Category" },
-			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"grand_total", title:"SO Taxable (Amount)", render: function(data, type, row){ return format_money(data); } },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"estimate_late", title:"Estimate Late (Days)", 
+				render: function(data, type, row){ 
+					if ( parseInt(data) > 0 && parseInt(data) <= 7 ) 
+						return $("<span>").addClass('label label-warning').text(data).prop('outerHTML');
+					else if ( parseInt(data) > 7 ) 
+						return $("<span>").addClass('label label-danger').text(data).prop('outerHTML'); 
+					else 
+						return $("<span>").addClass('label label-success').text(data).prop('outerHTML'); 
+				},
+				{* createdCell: function (td, cellData, rowData, row, col) { 
+					if ( parseInt(cellData) > 0 && parseInt(cellData) <= 7 ) 
+						{ $(td).append($("<span>").addClass('label label-warning').text(rowData.estimation_late)); } 
+					else if ( parseInt(cellData) > 7 ) 
+						{ $(td).append($("<span>").addClass('label label-danger').text(rowData.estimation_late)); } 
+					else 
+						{ $(td).append($("<span>").addClass('label label-success').text(rowData.estimation_late)); } 
+				}, *}
+			},
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Total", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"plan_total", title:"Plan Total (Amount)", render: function(data, type, row){ return format_money(data); } },		
+			{ width:"200px", orderable:true, data:"description", title:"Description" },
 		],
 		footers: [
+			{ data: 'sub_total', 	title: 'Sub Total' }, 
+			{ data: 'vat_total', 	title: 'VAT Total' }, 
 			{ data: 'grand_total', 	title: 'Grand Total' }, 
-			{* { data: 'plan_total', 	title: 'Total Plan' },  *}
+			{ data: 'plan_total', 	title: 'Total Plan' }, 
 		],
 	};
 	

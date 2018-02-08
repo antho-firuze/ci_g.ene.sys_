@@ -9,9 +9,28 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/daterangepicker/daterangepicker.css">
+<script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/moment.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/daterangepicker.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
+	{* Advance filter Init *}
+	var AdvanceFilter_Init = {
+		enable: true, 
+		params: [ 'fdate', 'tdate' ],
+		fdate: moment().startOf("year"),
+		tdate: moment().endOf("year"),
+		dateRanges: {
+			'This Week': [moment().startOf('week'), moment().endOf('week')],
+			'Last Week': [moment().subtract(1, 'week').startOf('week'), moment().subtract(1, 'week').endOf('week')],
+			'This Month': [moment().startOf('month'), moment().endOf('month')],
+			'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+			'This Year': [moment().startOf('year'), moment().endOf('year')],
+			'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+		},
+	};
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		enable: true,
@@ -51,8 +70,16 @@
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"estimation_penalty_amount", title:"Estimation Penalty Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"200px", orderable:true, data:"reason_name", title:"Late Reason", createdCell: function (td, cellData, rowData, row, col) { $(td).css({ 'text-overflow':'unset', 'overflow-x':'auto' }); } },
 			{ width:"100px", orderable:true, data:"category_name", title:"Category" },
-			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"sub_total", title:"SO Taxable (Amount)", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Total", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_money(data); } },
 			{ width:"250px", orderable:true, data:"description", title:"Description" },
+		],
+		footers: [
+			{ data: 'sub_total', 	title: 'Sub Total' }, 
+			{ data: 'vat_total', 	title: 'VAT Total' }, 
+			{ data: 'grand_total', 	title: 'Grand Total' }, 
+			{ data: 'estimation_penalty_amount', 	title: 'Est. Penalty Total' }, 
 		],
 	};
 	

@@ -961,6 +961,7 @@ class Cashflow_Model extends CI_Model
 				from cf_order a1 
 				where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 				is_active = '1' and is_deleted = '0' and is_sotrx = '1'
+				and doc_date between '".$params['fdate']."' and '".$params['tdate']."'
 			) r1
 			where (delivery_date > etd or delivery_date is not null) and to_char(etd, 'YYYY-MM') = to_char(current_date, 'YYYY-MM')
 		) t1";
@@ -995,6 +996,7 @@ class Cashflow_Model extends CI_Model
 				from cf_order a1 
 				where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 				is_active = '1' and is_deleted = '0' and is_sotrx = '1'
+				and doc_date between '".$params['fdate']."' and '".$params['tdate']."'
 			) r1
 			where (delivery_date > etd or delivery_date is not null) and to_char(etd, 'YYYY-MM') = to_char(current_date, 'YYYY-MM')
 		) t1";
@@ -1081,17 +1083,12 @@ class Cashflow_Model extends CI_Model
 			client_id = {client_id} and org_id = {org_id} and (select orgtrx_id from cf_order f1 where id = o1.id) in {orgtrx} and 
 			is_active = '1' and is_deleted = '0' and is_sotrx = '1'
 			and current_date > o1.etd 
-			and exists(
-			select 
-			distinct(id) 
-			from cf_order_line a1
+			and exists(select distinct(id) from cf_order_line a1
 			where is_active = '1' and is_deleted = '0' 
-			and a1.order_id = o1.id
-			and not exists(
-			select * from cf_inout_line 
-			where is_active = '1' and is_deleted = '0'
-			and is_completed = '1' and order_line_id =a1.id 
-			))) t1";
+			and a1.order_id = o1.id 
+			and not exists(select * from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id)
+			and doc_date between '".$params['fdate']."' and '".$params['tdate']."')
+		) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
@@ -1119,17 +1116,12 @@ class Cashflow_Model extends CI_Model
 			client_id = {client_id} and org_id = {org_id} and (select orgtrx_id from cf_order f1 where id = o1.id) in {orgtrx} and 
 			is_active = '1' and is_deleted = '0' and is_sotrx = '1'
 			and current_date > o1.etd 
-			and exists(
-			select 
-			distinct(id) 
-			from cf_order_line a1
+			and exists(select distinct(id) from cf_order_line a1
 			where is_active = '1' and is_deleted = '0' 
-			and a1.order_id = o1.id
-			and not exists(
-			select * from cf_inout_line 
-			where is_active = '1' and is_deleted = '0'
-			and is_completed = '1' and order_line_id =a1.id 
-			))) t1";
+			and a1.order_id = o1.id 
+			and not exists(select * from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id)
+			and doc_date between '".$params['fdate']."' and '".$params['tdate']."')
+		) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
@@ -1152,7 +1144,8 @@ class Cashflow_Model extends CI_Model
 			select * from cf_order f1
 			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 			is_active = '1' and is_deleted = '0' and is_sotrx = '0' 
-			AND NOT EXISTS(SELECT 1 FROM cf_inout WHERE is_active = '1' AND is_deleted = '0'	AND order_id = f1.ID) 
+			AND NOT EXISTS(SELECT 1 FROM cf_inout WHERE is_active = '1' AND is_deleted = '0'	AND order_id = f1.ID)
+			and doc_date between '".$params['fdate']."' and '".$params['tdate']."'
 		) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
@@ -1177,6 +1170,7 @@ class Cashflow_Model extends CI_Model
 			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
 			is_active = '1' and is_deleted = '0' and is_sotrx = '0' 
 			AND NOT EXISTS(SELECT 1 FROM cf_inout WHERE is_active = '1' AND is_deleted = '0'	AND order_id = f1.ID) 
+			and doc_date between '".$params['fdate']."' and '".$params['tdate']."'
 		) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
@@ -1536,21 +1530,20 @@ class Cashflow_Model extends CI_Model
 		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
 		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
 		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
-		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
 		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
-		(select to_char(doc_date, '".$this->session->date_format."') from cf_order_plan where id = t1.order_plan_id) as invoice_plan_date, 
-		(select doc_no from cf_order where id = t1.order_id) as so_no, 
-		(select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as so_date, 
-		(select to_char(etd, '".$this->session->date_format."') from cf_order where id = t1.order_id) as etd, 
-		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		to_char(t1.etd, '".$this->session->date_format."') as etd, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
 		$params['table'] 	= "(
-			select f1.doc_no,f1.doc_date,f1.bpartner_id,f1.doc_ref_date,g1.id as order_plan_id,g1.order_id, f1.client_id, f1.org_id,f1.orgtrx_id,f1.is_active,f1.is_deleted,f1.id, g1.note,g1.description,f1.grand_total,g1.amount from cf_order f1 inner join 
-			cf_order_plan g1 on f1.id = g1.order_id 
+			select * from cf_order o1 
 			where
-			f1.client_id = {client_id} and f1.org_id = {org_id} and f1.orgtrx_id in {orgtrx} and 
-			f1.is_active = '1' and f1.is_deleted = '0' and f1.is_sotrx='1' and g1.is_active='1' and g1.is_deleted = '0'
-			and not exists(select distinct(id) from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = g1.id)
-			) t1";
+			o1.client_id = {client_id} and o1.org_id = {org_id} and o1.orgtrx_id in {orgtrx} and
+			o1.is_active = '1' and o1.is_deleted = '0' and o1.is_sotrx='1' 
+			and exists (select DISTINCT (order_id) from cf_order_plan op1 where o1.id = op1.order_id 
+			and op1.is_active = '1' and op1.is_deleted = '0'
+			and not exists(select DISTINCT (order_id) from cf_invoice inv1 where is_active = '1' and is_deleted = '0' and inv1.order_id=o1.id and inv1.order_plan_id = op1.id))
+			and o1.doc_date between '".$params['fdate']."' and '".$params['tdate']."'
+		) t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}
@@ -1644,13 +1637,11 @@ class Cashflow_Model extends CI_Model
 			select * 
 			from cf_order f1 where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between date_trunc('year', current_date)::date and (date_trunc('year', current_date) + interval '1 year - 1 day')::date
+			is_active = '1' and is_deleted = '0' and is_sotrx = '1' and doc_date between '".$params['fdate']."' and '".$params['tdate']."'
 			and not exists (select 1 from cf_order_plan where is_active = '1' and is_deleted = '0' and order_id = f1.id)
 			) t1";
 
 		$params['table'] = translate_variable($params['table']);
-		/* Additional data */
-		// $result = $this->base_model->mget_rec($params);
 		return $this->base_model->mget_rec($params);
 	}
 	
@@ -1673,10 +1664,8 @@ class Cashflow_Model extends CI_Model
 			select * 
 			from cf_order f1 where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_sotrx='0'
-			and not exists (select distinct(id) from cf_order_plan where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and order_id = f1.id)
+			is_active = '1' and is_deleted = '0' and is_sotrx = '0' and doc_date between '".$params['fdate']."' and '".$params['tdate']."'
+			and not exists (select 1 from cf_order_plan where is_active = '1' and is_deleted = '0' and order_id = f1.id)
 			) t1";
 
 		$params['table'] = translate_variable($params['table']);
@@ -1694,7 +1683,8 @@ class Cashflow_Model extends CI_Model
 			select * from cf_ar_ap t1 
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '1' and grand_total = 0
+			is_active = '1' and is_deleted = '0' and is_receipt = '1' and doc_date between '".$params['fdate']."' and '".$params['tdate']."'
+			and not exists (select 1 from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and ar_ap_id = f1.id)
 			) t1";
 
 		$params['table'] = translate_variable($params['table']);
@@ -1712,7 +1702,8 @@ class Cashflow_Model extends CI_Model
 			select * from cf_ar_ap t1 
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and grand_total = 0
+			is_active = '1' and is_deleted = '0' and is_receipt = '0' and doc_date between '".$params['fdate']."' and '".$params['tdate']."'
+			and not exists (select 1 from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and ar_ap_id = f1.id)
 			) t1";
 
 		$params['table'] = translate_variable($params['table']);
@@ -1862,6 +1853,45 @@ class Cashflow_Model extends CI_Model
 			is_active = '1' and is_deleted = '0' and is_receipt = '1' and doc_type = '1' and 
 			received_plan_date <= current_date and doc_date is null
 			) t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+
+	function db_total_so($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name,
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
+		to_char(t1.etd, '".$this->session->date_format."') as etd, 
+		to_char(t1.expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, 
+		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name,
+		array_to_string(scm_dt_reasons, ',') as scm_dt_reasons,
+		(select string_agg(name, E',') from rf_scm_dt_reason where id = ANY(t1.scm_dt_reasons)) as reason_name,
+		case when coalesce(etd - expected_dt_cust, 0) < 1 then 0 else coalesce(etd - expected_dt_cust, 0) end as estimate_late,
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name,
+		case 
+		when ((etd - expected_dt_cust) * penalty_percent * grand_total) > (max_penalty_percent * grand_total) 
+		then (max_penalty_percent * grand_total) 
+		else (case when (etd - expected_dt_cust) > 0 then ((etd - expected_dt_cust) * penalty_percent * grand_total) else 0 end) 
+		end as estimation_penalty_amount";
+		$params['table'] 	= "(
+			select * from cf_order f1 where exists(
+				select distinct(o1.id)
+				from cf_order o1 
+				inner join cf_order_line a1 on o1.id = a1.order_id
+				where 
+				o1.client_id = {client_id} and o1.org_id = {org_id} and o1.orgtrx_id in {orgtrx} and 
+				o1.is_active = '1' and o1.is_deleted = '0' and o1.is_sotrx = '1'
+				and a1.is_active = '1' and a1.is_deleted = '0' and doc_date between '".$params['fdate']."' and '".$params['tdate']."'
+				and o1.id = f1.id
+			)
+		) as t1";
 		$params['table'] = translate_variable($params['table']);
 		return $this->base_model->mget_rec($params);
 	}

@@ -106,9 +106,9 @@ class Base_Model extends CI_Model
 	function mget_rec($params = NULL, $counter = FALSE, $summary = [])
 	{
 		// $this->db->select($params['select']);
-		if (!$counter)
-			$this->db->select($params['select']);
-		else if ($counter && empty($summary))
+		// if (!$counter)
+			// $this->db->select($params['select']);
+		// else if ($counter && empty($summary))
 			$this->db->select($params['select']);
 		
 		$this->db->from($params['table']);
@@ -210,28 +210,23 @@ class Base_Model extends CI_Model
 		/* For summarize field value. 
 		 * $summary param required (array) */
 		if ($counter && $summary){
-			// method #1 | process in database (using query)
+			// method #1 | process in database (using query) | weakness: if a field not exist from the table (throw error), because the field is from formulation
 			// function added($v){	return "coalesce(sum($v), 0) as $v";	}
 			// $a1 = array_map('added', $summary);
 			// $str = implode(",", $a1);
 			// $this->db->select($str);
 			// if (! $query = $this->db->get() ){
-				// $this->set_error($this->db->error()['message']);
-				// return FALSE;
 				// return [FALSE, $this->db->error()['message']];
 			// } 
 			// return $query->result();
 			
 			// method #2 | process in script (using php)
-			$this->db->select($summary);
+			// $this->db->select($summary);
 			if (! $query = $this->db->get() ){
-				// debug($this->db->error()['message']);
-				// $this->set_error($this->db->error()['message']);
-				// return FALSE;
 				return [FALSE, $this->db->error()['message']];
 			} 
 			$result = $query->result();
-			
+			// debug($this->db->last_query());
 			foreach($summary as $k => $v){
 				$a[$v] = array_sum(array_column($result, $v)); 
 			}
