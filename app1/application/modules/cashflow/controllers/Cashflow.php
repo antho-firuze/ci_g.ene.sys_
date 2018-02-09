@@ -4698,7 +4698,47 @@ class Cashflow extends Getmeb
 	function db_uninvoiced_sales_order()
 	{
 		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','t1.description',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)'], TRUE);
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				't1.description',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			], TRUE);
+			
+			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
+				$filter = json_decode($this->params['filter']);
+				$this->params = array_merge($this->params, (array) $filter);
+				unset($this->params['filter']);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
+			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
+
+			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				xresponse(TRUE, $result);
+			}
+		}
+	}
+	
+	function db_invoiced_so()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				't1.description',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			], TRUE);
 			
 			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
 				$filter = json_decode($this->params['filter']);

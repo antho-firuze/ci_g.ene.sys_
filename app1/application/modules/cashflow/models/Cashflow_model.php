@@ -1535,13 +1535,40 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.etd, '".$this->session->date_format."') as etd, 
 		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
 		$params['table'] 	= "(
-			select * from cf_order o1 
-			where
+			select * 
+			from cf_order o1 
+			where 
 			o1.client_id = {client_id} and o1.org_id = {org_id} and o1.orgtrx_id in {orgtrx} and
-			o1.is_active = '1' and o1.is_deleted = '0' and o1.is_sotrx='1' 
-			and exists (select DISTINCT (order_id) from cf_order_plan op1 where o1.id = op1.order_id 
-			and op1.is_active = '1' and op1.is_deleted = '0'
-			and not exists(select DISTINCT (order_id) from cf_invoice inv1 where is_active = '1' and is_deleted = '0' and inv1.order_id=o1.id and inv1.order_plan_id = op1.id))
+			o1.is_active = '1' and o1.is_deleted = '0' and o1.is_sotrx = '1' 
+			and exists (select distinct(order_id) from cf_order_plan op where is_active = '1' and is_deleted = '0' and order_id = o1.id
+			and not exists(select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = op.id))
+			and o1.doc_date between '".$params['fdate']."' and '".$params['tdate']."'
+		) t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+
+	function db_invoiced_so($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date, 
+		to_char(t1.etd, '".$this->session->date_format."') as etd, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
+		$params['table'] 	= "(
+			select * 
+			from cf_order o1 
+			where 
+			o1.client_id = {client_id} and o1.org_id = {org_id} and o1.orgtrx_id in {orgtrx} and
+			o1.is_active = '1' and o1.is_deleted = '0' and o1.is_sotrx = '1' 
+			and exists (select distinct(order_id) from cf_order_plan op where is_active = '1' and is_deleted = '0' and order_id = o1.id
+			and exists(select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = op.id))
 			and o1.doc_date between '".$params['fdate']."' and '".$params['tdate']."'
 		) t1";
 		$params['table'] = translate_variable($params['table']);
