@@ -831,6 +831,37 @@ class Cashflow extends Getmeb
 				xresponse(TRUE, $result);
 			}
 		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check is already completed shipment */
+			if ($this->params->event == 'pre_post'){
+				if ($this->params->is_completed == '1') {
+					$HadCompletedItem = $this->base_model->isDataExist($this->c_table, [
+						'order_line_id' => $this->params->order_line_id, 
+						'itemcat_id' => $this->params->itemcat_id, 
+						'is_completed' => '1', 
+						'is_active' => '1', 'is_deleted' => '0'
+					]);
+					if ($HadCompletedItem) {
+						$doc_no = $this->base_model->getValue('doc_no', 'cf_inout', 'id', $this->params->inout_id)->doc_no;
+						xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_saving_shipment_already_completed'), $doc_no)], 401);
+					}
+				}
+			}
+			if ($this->params->event == 'pre_put'){
+				if ($this->params->is_completed == '1') {
+					$HadCompletedItem = $this->base_model->isDataExist($this->c_table, [
+						'order_line_id' => $this->params->order_line_id, 
+						'itemcat_id' => $this->params->itemcat_id, 
+						'is_completed' => '1', 
+						'is_active' => '1', 'is_deleted' => '0'
+					]);
+					if ($HadCompletedItem && $HadCompletedItem->id != $this->params->id) {
+						$doc_no = $this->base_model->getValue('doc_no', 'cf_inout', 'id', $this->params->inout_id)->doc_no;
+						xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_saving_shipment_already_completed'), $doc_no)], 401);
+					}
+				}
+			}
+		}
 	}
 	
 	function cf_pinout()
@@ -913,6 +944,37 @@ class Cashflow extends Getmeb
 				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
 				xresponse(TRUE, $result);
+			}
+		}
+		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
+			/* Check is already completed material receipt */
+			if ($this->params->event == 'pre_post'){
+				if ($this->params->is_completed == '1') {
+					$HadCompletedItem = $this->base_model->isDataExist($this->c_table, [
+						'order_line_id' => $this->params->order_line_id, 
+						'itemcat_id' => $this->params->itemcat_id, 
+						'is_completed' => '1', 
+						'is_active' => '1', 'is_deleted' => '0'
+					]);
+					if ($HadCompletedItem) {
+						$doc_no = $this->base_model->getValue('doc_no', 'cf_inout', 'id', $this->params->inout_id)->doc_no;
+						xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_saving_material_receipt_already_completed'), $doc_no)], 401);
+					}
+				}
+			}
+			if ($this->params->event == 'pre_put'){
+				if ($this->params->is_completed == '1') {
+					$HadCompletedItem = $this->base_model->isDataExist($this->c_table, [
+						'order_line_id' => $this->params->order_line_id, 
+						'itemcat_id' => $this->params->itemcat_id, 
+						'is_completed' => '1', 
+						'is_active' => '1', 'is_deleted' => '0'
+					]);
+					if ($HadCompletedItem && $HadCompletedItem->id != $this->params->id) {
+						$doc_no = $this->base_model->getValue('doc_no', 'cf_inout', 'id', $this->params->inout_id)->doc_no;
+						xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_saving_material_receipt_already_completed'), $doc_no)], 401);
+					}
+				}
 			}
 		}
 	}
@@ -4194,6 +4256,86 @@ class Cashflow extends Getmeb
 					'doc_date' 		=> 't1.doc_date', 
 					'eta' 				=> 't1.eta', 
 					'received_date' 		=> 't1.received_date', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
+			}
+			
+			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
+				$filter = json_decode($this->params['filter']);
+				$this->params = array_merge($this->params, (array) $filter);
+				unset($this->params['filter']);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
+			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
+
+			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				xresponse(TRUE, $result);
+			}
+		}
+	}
+
+	function db_already_trans_so()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'etd' 				=> 't1.etd', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
+			}
+			
+			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
+				$filter = json_decode($this->params['filter']);
+				$this->params = array_merge($this->params, (array) $filter);
+				unset($this->params['filter']);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
+			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
+
+			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			if (isset($this->params['export']) && !empty($this->params['export'])) {
+				$this->_pre_export_data();
+			}
+			
+			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			} else {
+				xresponse(TRUE, $result);
+			}
+		}
+	}
+
+	function db_already_trans_so_qty()
+	{
+		if ($this->r_method == 'GET') {
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'etd' 				=> 't1.etd', 
 					'sub_total' 	=> 'coalesce(sub_total, 0)', 
 					'vat_total' 	=> 'coalesce(vat_total, 0)', 
 					'grand_total' => 'coalesce(grand_total, 0)', 

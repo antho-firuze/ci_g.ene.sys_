@@ -1060,6 +1060,70 @@ class Cashflow_Model extends CI_Model
 		return $this->base_model->mget_rec($params);
 	}
 	
+	function db_already_trans_so($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name, 
+		case when coalesce(expected_dt_cust-current_date, 0) < 1 then 0 else coalesce(expected_dt_cust-current_date, 0) end as estimate_late,
+		case when coalesce(current_date-expected_dt_cust, 0) < 1 then 0 else coalesce(current_date-expected_dt_cust, 0) end as late,
+		(select penalty_percent from cf_order where id = t1.id) as penalty_percent, 
+		(select max_penalty_percent from cf_order where id = t1.id) as max_penalty_percent, 
+		to_char(doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, 
+		to_char(etd, '".$this->session->date_format."') as etd";
+		$params['table'] 	= "(
+			select *
+			from cf_order o1
+			where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} 
+			and is_active = '1' and is_deleted = '0' and is_sotrx = '1'
+			-- and etd < current_date
+			and (select count(*) from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = o1.id) = (select count(*) from cf_order_line a1 where is_active = '1' and is_deleted = '0' and order_id = o1.id
+			and exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = a1.id))
+			and doc_date between '".$params['fdate']."' and '".$params['tdate']."'
+		) t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+	
+	function db_already_trans_so_qty($params)
+	{
+		$params['select']	= isset($params['select']) ? $params['select'] : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name, 
+		case when coalesce(expected_dt_cust-current_date, 0) < 1 then 0 else coalesce(expected_dt_cust-current_date, 0) end as estimate_late,
+		case when coalesce(current_date-expected_dt_cust, 0) < 1 then 0 else coalesce(current_date-expected_dt_cust, 0) end as late,
+		(select penalty_percent from cf_order where id = t1.id) as penalty_percent, 
+		(select max_penalty_percent from cf_order where id = t1.id) as max_penalty_percent, 
+		to_char(doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(expected_dt_cust, '".$this->session->date_format."') as expected_dt_cust, 
+		to_char(etd, '".$this->session->date_format."') as etd";
+		$params['table'] 	= "(
+			select *
+			from cf_order o1
+			where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} 
+			and is_active = '1' and is_deleted = '0' and is_sotrx = '1'
+			-- and etd < current_date
+			and (select count(*) from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = o1.id) = (select count(*) from cf_order_line a1 where is_active = '1' and is_deleted = '0' and order_id = o1.id
+			and exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = a1.id))
+			and doc_date between '".$params['fdate']."' and '".$params['tdate']."'
+		) t1";
+		$params['table'] = translate_variable($params['table']);
+		return $this->base_model->mget_rec($params);
+	}
+	
 	function db_outstanding_trans_so($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
@@ -1081,12 +1145,10 @@ class Cashflow_Model extends CI_Model
 			select * from cf_order o1
 			where 
 			client_id = {client_id} and org_id = {org_id} and (select orgtrx_id from cf_order f1 where id = o1.id) in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_sotrx = '1'
-			and current_date > o1.etd 
-			and exists(select distinct(id) from cf_order_line a1
-			where is_active = '1' and is_deleted = '0' 
-			and a1.order_id = o1.id 
-			and not exists(select * from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id)
+			is_active = '1' and is_deleted = '0' and is_sotrx = '1'	
+			-- and current_date > o1.etd 
+			and exists(select 1 from cf_order_line a1 where is_active = '1' and is_deleted = '0' and order_id = o1.id 
+			and not exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id)
 			and doc_date between '".$params['fdate']."' and '".$params['tdate']."')
 		) t1";
 		$params['table'] = translate_variable($params['table']);
@@ -1114,12 +1176,10 @@ class Cashflow_Model extends CI_Model
 			select * from cf_order o1
 			where 
 			client_id = {client_id} and org_id = {org_id} and (select orgtrx_id from cf_order f1 where id = o1.id) in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_sotrx = '1'
-			and current_date > o1.etd 
-			and exists(select distinct(id) from cf_order_line a1
-			where is_active = '1' and is_deleted = '0' 
-			and a1.order_id = o1.id 
-			and not exists(select * from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id)
+			is_active = '1' and is_deleted = '0' and is_sotrx = '1'	
+			-- and current_date > o1.etd 
+			and exists(select 1 from cf_order_line a1 where is_active = '1' and is_deleted = '0' and order_id = o1.id 
+			and not exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id)
 			and doc_date between '".$params['fdate']."' and '".$params['tdate']."')
 		) t1";
 		$params['table'] = translate_variable($params['table']);

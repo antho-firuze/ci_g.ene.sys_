@@ -49,4 +49,6 @@ $lang['error_delete_pr_had_po'] 		= "Error: Data cannot be delete, because this 
 $lang['error_delete_pr_line_had_po'] 		= "Error: Data cannot be delete, because this Requisition Line has been made PO. <br>Plase Delete PO first for this Line !<br><br>PO no: %s";
 $lang['error_delete_request_had_pr'] 		= "Error: Data cannot be delete, because this Request has been made PR. <br>Plase Delete PR first for this Request !<br><br>PR no: %s";
 $lang['error_delete_request_line_had_pr'] 		= "Error: Data cannot be delete, because this Request Line has been made PR. <br>Plase Delete PR first for this Line !<br><br>PR no: %s";
+$lang['error_saving_shipment_already_completed'] 		= "Error: Data cannot be save, because this item has been Completed.<br><br>Shipment no: %s";
+$lang['error_saving_material_receipt_already_completed'] 		= "Error: Data cannot be save, because this item has been Completed.<br><br>Material Receipt no: %s";
 /* Information: info_ */
