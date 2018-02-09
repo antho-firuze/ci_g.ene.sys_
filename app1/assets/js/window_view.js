@@ -107,7 +107,7 @@ function initAdvanceFilter()
 	
 	// {* Advance filter: Display Setup *}
 	var col = [], row = [], a = [];
-	var form0 = BSHelper.Form({ autocomplete:"off" });
+	var form0 = BSHelper.Form({ autocomplete:"off", idname:"form_advance_filter" });
 	var box0 = BSHelper.Box({ type:"info", header:true, title:"Advance Filter", toolbtn:['min'], collapse:true });
 	
 	$.each(AdvanceFilter_Init.params, function(i, v){

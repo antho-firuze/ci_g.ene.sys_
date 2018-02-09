@@ -15,7 +15,7 @@
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
 	{* Toolbar Init *}
 	var Toolbar_Init = {
-		enable: false,
+		enable: true,
 		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process'],
 		disableBtn: ['btn-copy','btn-message','btn-print','btn-process'],
 		hiddenBtn: ['btn-copy','btn-message'],
@@ -30,6 +30,7 @@
 		tableWidth: '150%',
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [],
+		order: ['id desc'],
 		columns: [
 			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
 			{ width:"100px", orderable:true, data:"orgtrx_name", title:"Org Trx Name" },
@@ -52,7 +53,9 @@
 			{ width:"100px", orderable:false, data:"note", title:"Note" },
 			{ width:"200px", orderable:false, data:"description", title:"Description" },
 		],
-		order: ['id desc'],
+		footers: [
+			{ data: 'net_amount', 	title: 'Net Amount Total' }, 
+		],
 	};
 	
 	{* INITILIZATION *}

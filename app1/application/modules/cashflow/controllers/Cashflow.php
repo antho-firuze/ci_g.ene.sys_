@@ -4018,7 +4018,7 @@ class Cashflow extends Getmeb
 			(select name from a_user where id = t1.updated_by) as updated_by_name
 			from cf_invoice t1
 			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}
-			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) 
+			-- and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) 
 			and is_active = '1' and is_deleted = '0' ".$str;
 			$str = translate_variable($str);
 			// debug($str);
@@ -4532,15 +4532,14 @@ class Cashflow extends Getmeb
 			$this->_get_filtered(FALSE, FALSE);
 			
 			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				// debug(json_decode($this->params['filter']));
 				$filter = json_decode($this->params['filter']);
 				$this->params = array_merge($this->params, (array) $filter);
 				unset($this->params['filter']);
 			}
-			// debug($this->params);
+
 			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('week')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('week')->format('Y-m-d');
+			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('month')->format('Y-m-d');
+			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('month')->format('Y-m-d');
 			
 			if (isset($this->params['export']) && !empty($this->params['export'])) {
 				$this->_pre_export_data();
@@ -5519,7 +5518,7 @@ class Cashflow extends Getmeb
 		}
 	}
 
-	function rpt_cf_statement_invoice()
+	/* function rpt_cf_statement_invoice()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(FALSE, FALSE);
@@ -5541,9 +5540,9 @@ class Cashflow extends Getmeb
 				xresponse(TRUE, $result);
 			}
 		}
-	}
+	} */
 	
-	function rpt_cf_statement_invoice_detail()
+	/* function rpt_cf_statement_invoice_detail()
 	{
 		if ($this->r_method == 'GET') {
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no', 'note',
@@ -5582,7 +5581,7 @@ class Cashflow extends Getmeb
 				xresponse(TRUE, $result);
 			}
 		}
-	}
+	} */
 	
 	function rf_invoice_adj_reason()
 	{

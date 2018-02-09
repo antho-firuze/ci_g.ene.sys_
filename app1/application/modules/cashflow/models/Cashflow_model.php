@@ -1245,7 +1245,6 @@ class Cashflow_Model extends CI_Model
 			from cf_invoice s1
 			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and
 			is_active = '1' and is_deleted = '0' and account_id = ANY(ARRAY[t1.accounts])
-			-- and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = s1.id)
 			and (received_plan_date between '".$params['fdate']."' and '".$params['tdate']."' or payment_plan_date between '".$params['fdate']."' and '".$params['tdate']."')
 		),
 		(
@@ -1255,8 +1254,6 @@ class Cashflow_Model extends CI_Model
 			s1.is_active = '1' and s1.is_deleted = '0' and account_id = ANY(ARRAY[t1.accounts])
 			and (received_date between '".$params['fdate']."' and '".$params['tdate']."' or payment_date between '".$params['fdate']."' and '".$params['tdate']."')
 		),
-		'account_id='||t1.account_id||',date='''||'".$params['fdate']."'||''',type=1' as projection_param,
-		'account_id='||t1.account_id||',date='''||'".$params['fdate']."'||''',type=2' as actual_param,
 		'Projection' as projection_title,
 		'Actual' as actual_title
 		"
@@ -1328,7 +1325,6 @@ class Cashflow_Model extends CI_Model
 			$params['where']['is_active'] = '1';
 			$params['where']['account_id'] = $params['account_id'];
 			$params['where_custom'][] = "(received_plan_date between '".$params['fdate']."' and '".$params['tdate']."' or payment_plan_date between '".$params['fdate']."' and '".$params['tdate']."')";
-			$params['where_custom'][] = "not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = t1.id)";
 		}
 		if ($params['type'] == 2) {
 			$params['select']	= isset($params['select']) ? $params['select'] : "
@@ -2275,7 +2271,7 @@ class Cashflow_Model extends CI_Model
 		return $qry;
 	}
 	
-	function rpt_cf_statement_invoice($params)
+	/* function rpt_cf_statement_invoice($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		t1.account_id, (select is_receipt from cf_account where id = t1.account_id), type, seq, description, 
@@ -2326,9 +2322,9 @@ class Cashflow_Model extends CI_Model
 			}
 		}
 		return $result;
-	}
+	} */
 	
-	function rpt_cf_statement_invoice_old($params)
+	/* function rpt_cf_statement_invoice_old($params)
 	{
 		$params['select']	= isset($params['select']) ? $params['select'] : "
 		t1.account_id, (select is_receipt from cf_account where id = t1.account_id), type, seq, description, 
@@ -2487,9 +2483,9 @@ class Cashflow_Model extends CI_Model
 			}
 		}
 		return $result;
-	}
+	} */
 	
-	function rpt_cf_statement_invoice_detail($params)
+	/* function rpt_cf_statement_invoice_detail($params)
 	{
 		if ($params['type'] == 1) {
 			$params['select']	= isset($params['select']) ? $params['select'] : "
@@ -2528,7 +2524,7 @@ class Cashflow_Model extends CI_Model
 			$params['where']['is_active'] = '1';
 			$params['where']['account_id'] = $params['account_id'];
 			$params['where_custom'][] = "(received_plan_date = ".$params['date']." or payment_plan_date = ".$params['date'].")";
-			$params['where_custom'][] = "not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = t1.id)";
+			// $params['where_custom'][] = "not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = t1.id)";
 		}
 		if ($params['type'] == 2) {
 			$params['select']	= isset($params['select']) ? $params['select'] : "
@@ -2573,7 +2569,7 @@ class Cashflow_Model extends CI_Model
 		}
 		
 		return $this->base_model->mget_rec($params);
-	}
+	} */
 
 	function rf_invoice_adj_reason($params)
 	{
