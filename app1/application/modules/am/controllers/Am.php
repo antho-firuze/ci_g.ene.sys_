@@ -13,35 +13,15 @@ class Am extends Getmeb
 	
 	function am_asset_type()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function am_asset_reminder()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	

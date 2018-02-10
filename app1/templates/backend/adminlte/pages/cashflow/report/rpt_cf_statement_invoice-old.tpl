@@ -36,6 +36,7 @@
 		fixedColumns: {
 			leftColumns: 1,
 		},
+		order: ['seq asc'],
 		columns: [
 			{ width:"200px", orderable:false, data:"description", title:"Description", render: function(data, type, row){ return (row.type == 'T' || row.type == 'L') ? '<b>'+data+'</b>' : data; } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"prev_90_after", title:"< 90 <br>Outstanding", render: function(data, type, row){ return (row.type == 'T' || row.type == 'C') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&filter='+row.prev_90_after_param+'&title='+row.prev_90_after_title+'">'+format_money(data)+'</a>' : format_money(data); } },
@@ -51,7 +52,6 @@
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"next_90", title:"60-90 <br>Projection", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&filter='+row.next_90_param+'&title='+row.next_90_title+'">'+format_money(data)+'</a>' : format_money(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"next_90_after", title:"> 90 <br>Projection", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&filter='+row.next_90_after_param+'&title='+row.next_90_after_title+'">'+format_money(data)+'</a>' : format_money(data); } },
 		],
-		order: ['seq asc'],
 	};
 	
 	{* INITILIZATION *}

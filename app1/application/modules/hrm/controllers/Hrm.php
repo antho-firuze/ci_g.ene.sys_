@@ -13,375 +13,155 @@ class Hrm extends Getmeb
 	
 	function hr_allowance()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_card()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_education()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_education_level()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_employee_level()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_employee_status()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_excuse()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_experience()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_facility()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_gender()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_home_status()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_job_title()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_leave()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_marital_status()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_marital_tax_status()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_mutation()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_nationality()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_occupation()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_religion()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_sosial()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_training()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_personnel()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_post_put'){
@@ -440,266 +220,109 @@ class Hrm extends Getmeb
 	
 	function hr_personnel_photo()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['personnel_id']) && !empty($this->params['personnel_id'])) 
-				$this->params['where']['t1.personnel_id'] = $this->params['personnel_id'];
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->personnel_id) && !empty($this->params->personnel_id)) 
+				$this->params->where['t1.personnel_id'] = $this->params->personnel_id;
 			
 			$this->_get_filtered();
-	
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				foreach($result['data']['rows'] as $k => $v){
-					ob_start(); // Let's start output buffering.
-					fpassthru($v->photo_bin); 
-					$contents = ob_get_contents(); //Instead, output above is saved to $contents
-					ob_end_clean(); //End the output buffer.
-					
-					$result['data']['rows'][$k]->photo_binx = "data:image/png;base64," . base64_encode(hex2bin($contents));
-					// $dataUri = "data:image/png;base64," . base64_encode(hex2bin($contents));
-					// echo "<img src='$dataUri' />";
-					unset($result['data']['rows'][$k]->photo_bin);
-				}
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_personnel_allowance()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_personnel_card()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_personnel_education()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_personnel_experience()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_personnel_facility()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_personnel_leave()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_personnel_loan()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_personnel_location()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_personnel_mutation()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_personnel_requirement_ga()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_personnel_requirement_it()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_personnel_sosial()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_personnel_training()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function hr_personnel_travel()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered();
-	
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 		

@@ -22,15 +22,15 @@ class Cashflow extends Getmeb
 	
 	function get_calendar_value()
 	{
-		if ($this->r_method == 'GET') {
-			if (empty($this->params['fdate']) && empty($this->params['tdate']))
+		if ($this->params->event == 'pre_get'){
+			if (empty($this->params->fdate) && empty($this->params->tdate))
 				xresponse(FALSE, ['message' => lang('error_filling_params')],401);
 			
-			if (!empty($this->params['fdate']) && empty($this->params['tdate']))
+			if (!empty($this->params->fdate) && empty($this->params->tdate))
 				xresponse(FALSE, ['message' => lang('error_filling_params')],401);
 			
-			if (!empty($this->params['fdate']) && !empty($this->params['tdate'])) {
-				// if (date_differ($this->params['fdate'], $this->params['tdate'], 'day') > 60 || date_differ($this->params['fdate'], $this->params['tdate'], 'day') < 0)
+			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
+				// if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
 					// xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 			} 
 				
@@ -44,7 +44,7 @@ class Cashflow extends Getmeb
 				and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = t1.id)
 				and (to_char(received_plan_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD') or to_char(payment_plan_date, 'YYYY-MM-DD') = to_char(i.date, 'YYYY-MM-DD'))
 			) as net_amount
-			from generate_series('".$this->params['fdate']."', '".$this->params['tdate']."', '1 day'::interval) i";
+			from generate_series('".$this->params->fdate."', '".$this->params->tdate."', '1 day'::interval) i";
 			$str = translate_variable($str);
 			// debug($str);
 			$qry = $this->db->query($str);
@@ -61,30 +61,20 @@ class Cashflow extends Getmeb
 	
 	function cf_account()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE);
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function cf_ar()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
 			
-			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.ttl_amt';
-					$this->params['where_custom'] = "exists (
+			if (isset($this->params->for_invoice) && !empty($this->params->for_invoice)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.ttl_amt';
+					$this->params->where_custom = "exists (
 						select distinct(ar_ap_id) from (
 							select * from cf_ar_ap_plan f1 where is_active = '1' and is_deleted = '0'
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_plan_id = f1.id $having)
@@ -93,17 +83,8 @@ class Cashflow extends Getmeb
 				}
 			}
 			
-			$this->params['where']['is_receipt'] = '1';
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['is_receipt'] = '1';
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* This Event is used for Import */
@@ -131,43 +112,33 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
-				$this->db->set($this->delete_log)->where_in('ar_ap_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			if ($this->params->event == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('ar_ap_id', explode(',', $this->params->id))->update($this->c_table.'_line');
 			}
 		}
 	}
 	
 	function cf_ar_plan()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE);
 			
-			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
-				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total', 'cf_ar_ap', 'id', $this->params['ar_ap_id']);
+			if (isset($this->params->summary) && !empty($this->params->summary)) {
+				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total', 'cf_ar_ap', 'id', $this->params->ar_ap_id);
 				xresponse(TRUE, ['data' => $result]);
 			}
 			
-			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.ttl_amt';
-					$this->params['where_custom'] = "exists (
+			if (isset($this->params->for_invoice) && !empty($this->params->for_invoice)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.ttl_amt';
+					$this->params->where_custom = "exists (
 						select distinct(id) from (
-							select * from cf_ar_ap_plan f1 where is_active = '1' and is_deleted = '0' and ".$this->params['filter']."
+							select * from cf_ar_ap_plan f1 where is_active = '1' and is_deleted = '0' and ".$this->params->filter."
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_plan_id = f1.id $having)
 						) as t2 where t2.id = t1.id
 					)";
-					unset($this->params['filter']);
+					unset($this->params->filter);
 				}
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -197,8 +168,8 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			/* Checking, is data plan already invoiced? */
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$doc_no = [];
 				foreach($ids as $id){
 					$invoice = $this->base_model->isDataExist('cf_invoice', ['ar_ap_plan_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
@@ -211,9 +182,9 @@ class Cashflow extends Getmeb
 					// xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
 				}
 			}
-			if ($this->params['event'] == 'post_delete'){
-				$this->params['is_plan'] = 1;
-				$this->params['ar_ap_id'] = $this->base_model->getValue('ar_ap_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->ar_ap_id;
+			if ($this->params->event == 'post_delete'){
+				$this->params->is_plan = 1;
+				$this->params->ar_ap_id = $this->base_model->getValue('ar_ap_id', $this->c_table, 'id', @end(explode(',', $this->params->id)))->ar_ap_id;
 				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
 			}
 		}
@@ -221,7 +192,7 @@ class Cashflow extends Getmeb
 	
 	function cf_ar_plan_posting()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			if ($this->params->is_posted > 0)
 				xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_posting')]);
 			
@@ -260,7 +231,7 @@ class Cashflow extends Getmeb
 	
 	function cf_ar_plan_unposting()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			if ($this->params->is_posted < 1)
 				xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_unposting')]);
 			
@@ -289,13 +260,13 @@ class Cashflow extends Getmeb
 	
 	function cf_ap()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
 			
-			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.ttl_amt';
-					$this->params['where_custom'] = "exists (
+			if (isset($this->params->for_invoice) && !empty($this->params->for_invoice)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.ttl_amt';
+					$this->params->where_custom = "exists (
 						select distinct(ar_ap_id) from (
 							select * from cf_ar_ap_plan f1 where is_active = '1' and is_deleted = '0'
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_plan_id = f1.id $having)
@@ -304,27 +275,18 @@ class Cashflow extends Getmeb
 				}
 			}
 			
-			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					// $this->params['select'] = "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_request where id = t1.request_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
-					// $this->params['where_custom'][] = "request_id = (select request_id from cf_requisition where id = $requisition_id)";
-					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-					// $this->params['where_custom'] = "exists (select distinct(inout_id) from cf_inout_line f1 where is_active = '1' and is_deleted = '0' 
+			if (isset($this->params->for_cashbank) && !empty($this->params->for_cashbank)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					// $this->params->select = "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_request where id = t1.request_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
+					// $this->params->where_custom[] = "request_id = (select request_id from cf_requisition where id = $requisition_id)";
+					// $having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+					// $this->params->where_custom = "exists (select distinct(inout_id) from cf_inout_line f1 where is_active = '1' and is_deleted = '0' 
 						// and not exists (select 1 from cf_invoice_line where is_active = '1' and is_deleted = '0' and inout_line_id = f1.id $having) and f1.inout_id = t1.id)";
 				}
 			}
 			
-			$this->params['where']['is_receipt'] = '0';
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['is_receipt'] = '0';
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* This Event is used for Import */
@@ -352,53 +314,43 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
-				$this->db->set($this->delete_log)->where_in('ar_ap_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			if ($this->params->event == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('ar_ap_id', explode(',', $this->params->id))->update($this->c_table.'_line');
 			}
 		}
 	}
 	
 	function cf_ap_plan()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE);
 			
-			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
-				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total', 'cf_ar_ap', 'id', $this->params['ar_ap_id']);
+			if (isset($this->params->summary) && !empty($this->params->summary)) {
+				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total', 'cf_ar_ap', 'id', $this->params->ar_ap_id);
 				xresponse(TRUE, ['data' => $result]);
 			}
 			
-			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.ttl_amt';
-					$this->params['where_custom'] = "exists (
+			if (isset($this->params->for_invoice) && !empty($this->params->for_invoice)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.ttl_amt';
+					$this->params->where_custom = "exists (
 						select distinct(id) from (
-							select * from cf_ar_ap_plan f1 where is_active = '1' and is_deleted = '0' and ".$this->params['filter']."
+							select * from cf_ar_ap_plan f1 where is_active = '1' and is_deleted = '0' and ".$this->params->filter."
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_plan_id = f1.id $having)
 						) as t2 where t2.id = t1.id
 					)";
-					unset($this->params['filter']);
+					unset($this->params->filter);
 				}
 			}
 			
-			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$this->params['select'] = "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_request where id = t1.request_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
-					$this->params['where_custom'][] = "request_id = (select request_id from cf_requisition where id = $requisition_id)";
-					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-					// $this->params['where_custom'] = "exists (select distinct(inout_id) from cf_inout_line f1 where is_active = '1' and is_deleted = '0' 
+			if (isset($this->params->for_cashbank) && !empty($this->params->for_cashbank)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$this->params->select = "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_request where id = t1.request_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
+					$this->params->where_custom[] = "request_id = (select request_id from cf_requisition where id = $requisition_id)";
+					// $having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+					// $this->params->where_custom = "exists (select distinct(inout_id) from cf_inout_line f1 where is_active = '1' and is_deleted = '0' 
 						// and not exists (select 1 from cf_invoice_line where is_active = '1' and is_deleted = '0' and inout_line_id = f1.id $having) and f1.inout_id = t1.id)";
 				}
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -428,8 +380,8 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			/* Checking, is data plan already invoiced? */
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$doc_no = [];
 				foreach($ids as $id){
 					$invoice = $this->base_model->isDataExist('cf_invoice', ['ar_ap_plan_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
@@ -442,9 +394,9 @@ class Cashflow extends Getmeb
 					// xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
 				}
 			}
-			if ($this->params['event'] == 'post_delete'){
-				$this->params['is_plan'] = 1;
-				$this->params['ar_ap_id'] = $this->base_model->getValue('ar_ap_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->ar_ap_id;
+			if ($this->params->event == 'post_delete'){
+				$this->params->is_plan = 1;
+				$this->params->ar_ap_id = $this->base_model->getValue('ar_ap_id', $this->c_table, 'id', @end(explode(',', $this->params->id)))->ar_ap_id;
 				$this->{$this->mdl}->cf_ar_ap_update_summary($this->params);
 			}
 		}
@@ -452,7 +404,7 @@ class Cashflow extends Getmeb
 	
 	function cf_ap_plan_posting()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			if ($this->params->is_posted > 0)
 				xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_posting')]);
 			
@@ -491,7 +443,7 @@ class Cashflow extends Getmeb
 	
 	function cf_ap_plan_unposting()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			if ($this->params->is_posted < 1)
 				xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_unposting')]);
 			
@@ -520,19 +472,10 @@ class Cashflow extends Getmeb
 	
 	function cf_cashbank_balance()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from cf_account where id = t1.account_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
 			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* Check duplicate period */
@@ -560,20 +503,11 @@ class Cashflow extends Getmeb
 	
 	function cf_cashbank_r()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
 			
-			$this->params['where']['is_receipt'] = '1';
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['is_receipt'] = '1';
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* Check duplicate doc_no */
@@ -595,30 +529,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
-				$this->db->set($this->delete_log)->where_in('cashbank_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			if ($this->params->event == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('cashbank_id', explode(',', $this->params->id))->update($this->c_table.'_line');
 			}
 		}
 	}
 	
 	function cf_cashbank_r_line()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['(select doc_no from cf_invoice where id = t1.invoice_id)'], TRUE);
 			
-			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
-				$result = $this->base_model->getValueArray('coalesce(grand_total,0) as grand_total', 'cf_cashbank', 'id', $this->params['cashbank_id']);
+			if (isset($this->params->summary) && !empty($this->params->summary)) {
+				$result = $this->base_model->getValueArray('coalesce(grand_total,0) as grand_total', 'cf_cashbank', 'id', $this->params->cashbank_id);
 				xresponse(TRUE, ['data' => $result]);
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -634,9 +558,9 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
-				$this->params['is_line'] = 1;
-				$this->params['cashbank_id'] = $this->base_model->getValue('cashbank_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->cashbank_id;
+			if ($this->params->event == 'post_delete'){
+				$this->params->is_line = 1;
+				$this->params->cashbank_id = $this->base_model->getValue('cashbank_id', $this->c_table, 'id', @end(explode(',', $this->params->id)))->cashbank_id;
 				$this->{$this->mdl}->cf_cashbank_update_summary($this->params);
 			}
 		}
@@ -644,20 +568,11 @@ class Cashflow extends Getmeb
 	
 	function cf_cashbank_p()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
 			
-			$this->params['where']['is_receipt'] = '0';
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['is_receipt'] = '0';
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* Check duplicate doc_no */
@@ -679,30 +594,20 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
-				$this->db->set($this->delete_log)->where_in('cashbank_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			if ($this->params->event == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('cashbank_id', explode(',', $this->params->id))->update($this->c_table.'_line');
 			}
 		}
 	}
 	
 	function cf_cashbank_p_line()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['(select doc_no from cf_invoice where id = t1.invoice_id)'], TRUE);
 			
-			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
-				$result = $this->base_model->getValueArray('coalesce(grand_total,0) as grand_total', 'cf_cashbank', 'id', $this->params['cashbank_id']);
+			if (isset($this->params->summary) && !empty($this->params->summary)) {
+				$result = $this->base_model->getValueArray('coalesce(grand_total,0) as grand_total', 'cf_cashbank', 'id', $this->params->cashbank_id);
 				xresponse(TRUE, ['data' => $result]);
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -718,9 +623,9 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
-				$this->params['is_line'] = 1;
-				$this->params['cashbank_id'] = $this->base_model->getValue('cashbank_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->cashbank_id;
+			if ($this->params->event == 'post_delete'){
+				$this->params->is_line = 1;
+				$this->params->cashbank_id = $this->base_model->getValue('cashbank_id', $this->c_table, 'id', @end(explode(',', $this->params->id)))->cashbank_id;
 				$this->{$this->mdl}->cf_cashbank_update_summary($this->params);
 			}
 		}
@@ -728,24 +633,14 @@ class Cashflow extends Getmeb
 	
 	function cf_charge_type()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE);
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function cf_sinout()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
 			"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",
 			'(select name from c_bpartner where id = t1.bpartner_id)',
@@ -753,24 +648,15 @@ class Cashflow extends Getmeb
 			'(select name from a_org where id = t1.orgtrx_id)',
 			]);
 			
-			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-				$this->params['where_custom'] = "exists (select distinct(inout_id) from cf_inout_line f1 where is_active = '1' and is_deleted = '0' 
+			if (isset($this->params->for_invoice) && !empty($this->params->for_invoice)) {
+				$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+				$this->params->where_custom = "exists (select distinct(inout_id) from cf_inout_line f1 where is_active = '1' and is_deleted = '0' 
 					and not exists (select 1 from cf_invoice_line where is_active = '1' and is_deleted = '0' and inout_line_id = f1.id $having) and f1.inout_id = t1.id)";
 			}
 			
-			$this->params['level'] = 1;
-			$this->params['where']['t1.is_sotrx'] = '1';
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->level = 1;
+			$this->params->where['t1.is_sotrx'] = '1';
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* Check duplicate doc_no */
@@ -792,43 +678,33 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
-				$this->db->set($this->delete_log)->where_in('inout_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			if ($this->params->event == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('inout_id', explode(',', $this->params->id))->update($this->c_table.'_line');
 			}
 		}
 	}
 	
 	function cf_sinout_line()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, [], TRUE);
 			
-			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				$invoice_id = isset($this->params['invoice_id']) && $this->params['invoice_id'] ? $this->params['invoice_id'] : 0;
-				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
-				$this->params['where_custom'][] = "inout_id = (select inout_id from cf_invoice where id = $invoice_id)";
-				$this->params['where_custom'][] = "not exists (select 1 from cf_invoice_line where is_active = '1' and is_deleted = '0' and inout_line_id = t1.id and invoice_id = $invoice_id $having)";
+			if (isset($this->params->for_invoice) && !empty($this->params->for_invoice)) {
+				$invoice_id = isset($this->params->invoice_id) && $this->params->invoice_id ? $this->params->invoice_id : 0;
+				$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
+				$this->params->where_custom[] = "inout_id = (select inout_id from cf_invoice where id = $invoice_id)";
+				$this->params->where_custom[] = "not exists (select 1 from cf_invoice_line where is_active = '1' and is_deleted = '0' and inout_line_id = t1.id and invoice_id = $invoice_id $having)";
 			}
 			
-			if (isset($this->params['get_order_id']) && !empty($this->params['get_order_id'])) {
-				$result = $this->base_model->getValueArray('order_id', 'cf_inout', 'id', $this->params['inout_id']);
+			if (isset($this->params->get_order_id) && !empty($this->params->get_order_id)) {
+				$result = $this->base_model->getValueArray('order_id', 'cf_inout', 'id', $this->params->inout_id);
 				xresponse(TRUE, ['data' => $result]);
 			}
 			
-			if (isset($this->params['get_order_line']) && !empty($this->params['get_order_line'])) {
-				// $result = $this->base_model->getValueArray('order_id', 'cf_inout', 'id', $this->params['inout_id']);
+			if (isset($this->params->get_order_line) && !empty($this->params->get_order_line)) {
+				// $result = $this->base_model->getValueArray('order_id', 'cf_inout', 'id', $this->params->inout_id);
 				$result = $this->{$this->mdl}->cf_order_line_vs_inout_line($this->params);
 				xresponse(TRUE, ['data' => $result]);
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -866,7 +742,7 @@ class Cashflow extends Getmeb
 	
 	function cf_pinout()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
 			"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",
 			'(select name from c_bpartner where id = t1.bpartner_id)',
@@ -874,24 +750,15 @@ class Cashflow extends Getmeb
 			'(select name from a_org where id = t1.orgtrx_id)',
 			]);
 			
-			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-				$this->params['where_custom'] = "exists (select distinct(inout_id) from cf_inout_line f1 where is_active = '1' and is_deleted = '0' 
+			if (isset($this->params->for_invoice) && !empty($this->params->for_invoice)) {
+				$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+				$this->params->where_custom = "exists (select distinct(inout_id) from cf_inout_line f1 where is_active = '1' and is_deleted = '0' 
 					and not exists (select 1 from cf_invoice_line where is_active = '1' and is_deleted = '0' and inout_line_id = f1.id $having) and f1.inout_id = t1.id)";
 			}
 			
-			$this->params['level'] = 1;
-			$this->params['where']['t1.is_sotrx'] = '0';
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->level = 1;
+			$this->params->where['t1.is_sotrx'] = '0';
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* Check duplicate doc_no */
@@ -913,37 +780,27 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
-				$this->db->set($this->delete_log)->where_in('inout_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			if ($this->params->event == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('inout_id', explode(',', $this->params->id))->update($this->c_table.'_line');
 			}
 		}
 	}
 	
 	function cf_pinout_line()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE);
 			
-			if (isset($this->params['get_order_id']) && !empty($this->params['get_order_id'])) {
-				$result = $this->base_model->getValueArray('order_id', 'cf_inout', 'id', $this->params['inout_id']);
+			if (isset($this->params->get_order_id) && !empty($this->params->get_order_id)) {
+				$result = $this->base_model->getValueArray('order_id', 'cf_inout', 'id', $this->params->inout_id);
 				xresponse(TRUE, ['data' => $result]);
 			}
 			
-			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				$invoice_id = isset($this->params['invoice_id']) && $this->params['invoice_id'] ? $this->params['invoice_id'] : 0;
-				$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
-				$this->params['where_custom'][] = "inout_id = (select inout_id from cf_invoice where id = $invoice_id)";
-				$this->params['where_custom'][] = "not exists (select 1 from cf_invoice_line where is_active = '1' and is_deleted = '0' and inout_line_id = t1.id and invoice_id = $invoice_id $having)";
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
+			if (isset($this->params->for_invoice) && !empty($this->params->for_invoice)) {
+				$invoice_id = isset($this->params->invoice_id) && $this->params->invoice_id ? $this->params->invoice_id : 0;
+				$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
+				$this->params->where_custom[] = "inout_id = (select inout_id from cf_invoice where id = $invoice_id)";
+				$this->params->where_custom[] = "not exists (select 1 from cf_invoice_line where is_active = '1' and is_deleted = '0' and inout_line_id = t1.id and invoice_id = $invoice_id $having)";
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -981,23 +838,23 @@ class Cashflow extends Getmeb
 	
 	function cf_oinvoice_i()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
 				'(select name from c_bpartner where id = t1.bpartner_id)',
 				'(select name from a_org where id = t1.org_id)',
 				'(select name from a_org where id = t1.orgtrx_id)',
 				"case when t1.doc_date is null then 'Projection' else 'Actual' end"]);
 			
-			$this->params['level'] = 1;
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			$this->params->level = 1;
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 			
-			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
-					// $this->params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
+			if (isset($this->params->for_cashbank) && !empty($this->params->for_cashbank)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					// $having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					// $this->params->where_custom = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
 						// and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
 					
-					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params['cashbank_id']);
+					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params->cashbank_id);
 					$params = $this->params;
 					$params['select']	= "t1.*, 
 					(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
@@ -1016,17 +873,7 @@ class Cashflow extends Getmeb
 				} 
 			}
 			
-			$this->params['where']['t1.doc_type'] = '5';
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['t1.doc_type'] = '5';
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* Check duplicate doc_no */
@@ -1049,24 +896,24 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'pre_delete'){
+			if ($this->params->event == 'pre_delete'){
 				/* get cashbank */
-				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params['id'],'1','0']);
+				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 				/* delete fail if invoice has actual payment */
 				if ($cashbank)
 					xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')], 401);
 			}
 		}
 		/* if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
-				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
+			if ($this->params->event == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params->id))->update($this->c_table.'_plan');
 			}
 		} */
 	}
 	
 	function cf_oinvoice_i_actualization()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			$id = $this->params->id;
 			unset($this->params->id);
 			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
@@ -1081,7 +928,7 @@ class Cashflow extends Getmeb
 	
 	function cf_oinvoice_i_adjustment()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			/* for array field treatment */
 			$this->params->reasons = $this->params->reasons ? '{'.$this->params->reasons.'}' : NULL;
 			/* for inject additional description from existing */
@@ -1104,23 +951,23 @@ class Cashflow extends Getmeb
 	
 	function cf_oinvoice_o()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
 				'(select name from c_bpartner where id = t1.bpartner_id)',
 				'(select name from a_org where id = t1.org_id)',
 				'(select name from a_org where id = t1.orgtrx_id)',
 				"case when t1.doc_date is null then 'Projection' else 'Actual' end"]);
 			
-			$this->params['level'] = 1;
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			$this->params->level = 1;
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 			
-			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
-					// $this->params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
+			if (isset($this->params->for_cashbank) && !empty($this->params->for_cashbank)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					// $having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					// $this->params->where_custom = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
 						// and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
 
-					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params['cashbank_id']);
+					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params->cashbank_id);
 					$params = $this->params;
 					$params['select']	= "t1.*, 
 					(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
@@ -1139,17 +986,7 @@ class Cashflow extends Getmeb
 				} 
 			}
 			
-			$this->params['where']['t1.doc_type'] = '6';
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['t1.doc_type'] = '6';
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* Check duplicate doc_no */
@@ -1172,24 +1009,24 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'pre_delete'){
+			if ($this->params->event == 'pre_delete'){
 				/* get cashbank */
-				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params['id'],'1','0']);
+				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 				/* delete fail if invoice has actual payment */
 				if ($cashbank)
 					xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')], 401);
 			}
 		}
 		/* if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
-				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
+			if ($this->params->event == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('invoice_id', explode(',', $this->params->id))->update($this->c_table.'_plan');
 			}
 		} */
 	}
 	
 	function cf_oinvoice_o_actualization()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			$id = $this->params->id;
 			unset($this->params->id);
 			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
@@ -1204,7 +1041,7 @@ class Cashflow extends Getmeb
 	
 	function cf_oinvoice_o_adjustment()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			/* for array field treatment */
 			$this->params->reasons = $this->params->reasons ? '{'.$this->params->reasons.'}' : NULL;
 			/* for inject additional description from existing */
@@ -1227,7 +1064,7 @@ class Cashflow extends Getmeb
 	
 	function cf_sinvoice()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
 				'(select name from c_bpartner where id = t1.bpartner_id)',
 				'(select name from a_org where id = t1.org_id)',
@@ -1237,7 +1074,7 @@ class Cashflow extends Getmeb
 				'(select doc_ref_no from cf_order where id = t1.order_id)',
 			]);
 			
-			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
 				$sortFields = [
 					'doc_no' 			=> 't1.doc_no', 
 					'doc_date' 		=> 't1.doc_date', 
@@ -1249,30 +1086,20 @@ class Cashflow extends Getmeb
 					'adj_amount' 	=> 'coalesce(adj_amount, 0)', 
 					'net_amount' => 'coalesce(net_amount, 0)', 
 				];
-				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
+				$this->params->ob = strtr($this->params->ob, $sortFields);
 			}
 			
-			$this->params['level'] = 1;
-			$this->params['where']['t1.doc_type'] = '1';
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			$this->params->level = 1;
+			$this->params->where['t1.doc_type'] = '1';
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 			
-			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
+			if (isset($this->params->for_cashbank) && !empty($this->params->for_cashbank)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
 					// debug($this->params);
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.net_amount';
-					$this->params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
+					$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.net_amount';
+					$this->params->where_custom = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
 						and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
 				}
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -1296,9 +1123,9 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'pre_delete'){
+			if ($this->params->event == 'pre_delete'){
 				/* get cashbank */
-				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params['id'],'1','0']);
+				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 				/* delete fail if invoice has actual payment */
 				if ($cashbank)
 					xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')], 401);
@@ -1308,7 +1135,7 @@ class Cashflow extends Getmeb
 	
 	function cf_sinvoice_actualization()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			$id = $this->params->id;
 			unset($this->params->id);
 			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
@@ -1323,7 +1150,7 @@ class Cashflow extends Getmeb
 	
 	function cf_sinvoice_adjustment()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			/* for array field treatment */
 			$this->params->reasons = $this->params->reasons ? '{'.$this->params->reasons.'}' : NULL;
 			/* for inject additional description from existing */
@@ -1346,7 +1173,7 @@ class Cashflow extends Getmeb
 	
 	function cf_pinvoice()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
 				'(select name from c_bpartner where id = t1.bpartner_id)',
 				'(select name from a_org where id = t1.org_id)',
@@ -1354,7 +1181,7 @@ class Cashflow extends Getmeb
 				'(select doc_no from cf_order where id = t1.order_id)',
 				"case when t1.doc_date is null then 'Projection' else 'Actual' end"]);
 			
-			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
 				$sortFields = [
 					'doc_no' 			=> 't1.doc_no', 
 					'doc_date' 		=> 't1.doc_date', 
@@ -1366,29 +1193,19 @@ class Cashflow extends Getmeb
 					'adj_amount' 	=> 'coalesce(adj_amount, 0)', 
 					'net_amount' => 'coalesce(net_amount, 0)', 
 				];
-				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
+				$this->params->ob = strtr($this->params->ob, $sortFields);
 			}
 			
-			$this->params['level'] = 1;
-			$this->params['where_in']['t1.doc_type'] = ['2', '3', '4'];
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+			$this->params->level = 1;
+			$this->params->where_in['t1.doc_type'] = ['2', '3', '4'];
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 			
-			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.net_amount';
-					$this->params['where_custom'] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
+			if (isset($this->params->for_cashbank) && !empty($this->params->for_cashbank)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.net_amount';
+					$this->params->where_custom = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
 						and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
 				}
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -1420,9 +1237,9 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'pre_delete'){
+			if ($this->params->event == 'pre_delete'){
 				/* get cashbank */
-				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params['id'],'1','0']);
+				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 				/* delete fail if invoice has actual payment */
 				if ($cashbank)
 					xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')], 401);
@@ -1432,7 +1249,7 @@ class Cashflow extends Getmeb
 	
 	function cf_pinvoice_actualization()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			$id = $this->params->id;
 			unset($this->params->id);
 			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
@@ -1447,7 +1264,7 @@ class Cashflow extends Getmeb
 	
 	function cf_pinvoice_adjustment()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			/* for array field treatment */
 			$this->params->reasons = $this->params->reasons ? '{'.$this->params->reasons.'}' : NULL;
 			/* for inject additional description from existing */
@@ -1470,26 +1287,26 @@ class Cashflow extends Getmeb
 	
 	function cf_omovement()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
 			'(select name from c_bpartner where id = t2.bpartner_id)',
 			'(select name from a_org where id = t1.org_id)',
 			'(select name from a_org where id = t1.orgtrx_id)',
 			'(select doc_no from cf_request where id = t1.request_id)',]);
 			
-			if (isset($this->params['for_inbound']) && !empty($this->params['for_inbound'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$this->params['where_custom'] = "received_date is null";
-					$this->params['where_in']['t1.orgtrx_to_id'] = $this->_get_orgtrx();
-					$this->params['level'] = 1;
+			if (isset($this->params->for_inbound) && !empty($this->params->for_inbound)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$this->params->where_custom = "received_date is null";
+					$this->params->where_in['t1.orgtrx_to_id'] = $this->_get_orgtrx();
+					$this->params->level = 1;
 					if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 						xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 					} else {
 						xresponse(TRUE, $result);
 					}
 				} else {
-					$this->params['where_in']['t1.orgtrx_to_id'] = $this->_get_orgtrx();
-					$this->params['level'] = 1;
+					$this->params->where_in['t1.orgtrx_to_id'] = $this->_get_orgtrx();
+					$this->params->level = 1;
 					if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 						xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 					} else {
@@ -1498,17 +1315,8 @@ class Cashflow extends Getmeb
 				}
 			}
 			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			$this->params['level'] = 1;
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->level = 1;
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* Check duplicate doc_no */
@@ -1535,54 +1343,35 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'pre_delete'){
-				$Outbound = $this->db->select('count(received_date) as cnt')->where_in('id', explode(',', $this->params['id']))->get($this->c_table)->row()->cnt;
+			if ($this->params->event == 'pre_delete'){
+				$Outbound = $this->db->select('count(received_date) as cnt')->where_in('id', explode(',', $this->params->id))->get($this->c_table)->row()->cnt;
 				if ($Outbound)
 						xresponse(FALSE, ['data' => [], 'message' => lang('error_update_outbound_completed')], 401);
 			}
-			if ($this->params['event'] == 'post_delete'){
-				$this->db->set($this->delete_log)->where_in('movement_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			if ($this->params->event == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('movement_id', explode(',', $this->params->id))->update($this->c_table.'_line');
 			}
 		}
 	}
 	
 	function cf_omovement_line()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE);
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function cf_imovement()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
 			'(select name from c_bpartner where id = t2.bpartner_id)',
 			'(select name from a_org where id = t1.org_id)',
 			'(select name from a_org where id = t1.orgtrx_id)']);
 			
-			$this->params['level'] = 1;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			$this->params['where_in']['t1.orgtrx_to_id'] = $this->_get_orgtrx();
-			$this->params['where_custom'] = 't1.received_date is not null';
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->level = 1;
+			$this->params->where_in['t1.orgtrx_to_id'] = $this->_get_orgtrx();
+			$this->params->where_custom = 't1.received_date is not null';
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* Check duplicate doc_no */
@@ -1614,8 +1403,8 @@ class Cashflow extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$return = 0;
 				foreach($ids as $v)
 				{
@@ -1632,35 +1421,25 @@ class Cashflow extends Getmeb
 				// $this->_recordUpdate($this->c_table, ['received_date' => NULL], ['id' => ])
 				// xresponse(FALSE, ['message' => lang('error_update_inbound_completed')], 401);
 			}
-			/* if ($this->params['event'] == 'post_delete'){
-				$this->db->set($this->delete_log)->where_in('movement_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			/* if ($this->params->event == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('movement_id', explode(',', $this->params->id))->update($this->c_table.'_line');
 			} */
 		}
 	}
 	
 	function cf_imovement_line()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE);
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function cf_sorder()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
 
-			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
 				$sortFields = [
 					'doc_no' 			=> 't1.doc_no', 
 					'doc_date' 		=> 't1.doc_date', 
@@ -1672,23 +1451,23 @@ class Cashflow extends Getmeb
 					'grand_total' => 'coalesce(grand_total, 0)', 
 					'plan_total' 	=> 'coalesce(plan_total, 0)', 
 				];
-				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
+				$this->params->ob = strtr($this->params->ob, $sortFields);
 			}
 			
-			if (isset($this->params['for_shipment']) && !empty($this->params['for_shipment'])) {
-				// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-				// $this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
+			if (isset($this->params->for_shipment) && !empty($this->params->for_shipment)) {
+				// $having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+				// $this->params->where_custom = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
 					// and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = f1.id $having) and f1.order_id = t1.id)";
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$this->params->where_custom = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
 						and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = f1.id) and f1.order_id = t1.id)";
 				}
 			}
 			
-			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
-					$this->params['where_custom'] = "exists (
+			if (isset($this->params->for_invoice) && !empty($this->params->for_invoice)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params->where_custom = "exists (
 						select distinct(order_id) from (
 							select * from cf_order_plan f1 where is_active = '1' and is_deleted = '0'
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = f1.id $having)
@@ -1697,34 +1476,25 @@ class Cashflow extends Getmeb
 				}
 			}
 			
-			if (isset($this->params['for_request']) && !empty($this->params['for_request'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
+			if (isset($this->params->for_request) && !empty($this->params->for_request)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$this->params->where_custom = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
 						and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = f1.id) and f1.order_id = t1.id)";
 				}
 			}
 			
 			// $field = [];
-			// foreach($this->params['columns'] as $k => $v){
+			// foreach($this->params->columns as $k => $v){
 				// $field[] = $v['data'];
 			// }
 			// $order = [];
-			// foreach($this->params['order'] as $k => $v){
+			// foreach($this->params->order as $k => $v){
 				// $order[] = $v['column'];
 			// }
 			// debug($field);
 			
-			$this->params['where']['is_sotrx'] = '1';
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['is_sotrx'] = '1';
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* This Event is used for Import */
@@ -1753,8 +1523,8 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			/* Checking, is data so already shipment ? */
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$doc_no = [];
 				foreach($ids as $id){
 					$header = $this->base_model->isDataExist('cf_inout', ['order_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
@@ -1767,8 +1537,8 @@ class Cashflow extends Getmeb
 				}
 			}
 			/* Checking, is data so plan already posted ? */
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$doc_no = [];
 				foreach($ids as $id){
 					$header = $this->base_model->isDataExist('cf_invoice', ['order_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
@@ -1780,49 +1550,39 @@ class Cashflow extends Getmeb
 					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_so_has_been_posted'), '')], 401);
 				}
 			}
-			if ($this->params['event'] == 'post_delete'){
-				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
-				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
+			if ($this->params->event == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params->id))->update($this->c_table.'_line');
+				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params->id))->update($this->c_table.'_plan');
 			}
 		}
 	}
 	
 	function cf_sorder_line()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, [], TRUE);
 			
-			if (isset($this->params['for_shipment']) && !empty($this->params['for_shipment'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$inout_id = isset($this->params['inout_id']) && $this->params['inout_id'] ? $this->params['inout_id'] : 0;
-					$this->params['where_custom'][] = "order_id = (select order_id from cf_inout where id = $inout_id)";
-					$this->params['where_custom'][] = "not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id)";
+			if (isset($this->params->for_shipment) && !empty($this->params->for_shipment)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$inout_id = isset($this->params->inout_id) && $this->params->inout_id ? $this->params->inout_id : 0;
+					$this->params->where_custom[] = "order_id = (select order_id from cf_inout where id = $inout_id)";
+					$this->params->where_custom[] = "not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id)";
 				}
 			}
 			
-			if (isset($this->params['for_request']) && !empty($this->params['for_request'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$request_id = isset($this->params['request_id']) && $this->params['request_id'] ? $this->params['request_id'] : 0;
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
-					$this->params['where_custom'][] = "order_id = (select order_id from cf_request where id = $request_id)";
-					// $this->params['where_custom'][] = "not exists (select 1 from cf_request_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and request_id = $request_id $having)";
-					$this->params['where_custom'][] = "not exists (select 1 from cf_request_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and request_id = $request_id)";
+			if (isset($this->params->for_request) && !empty($this->params->for_request)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$request_id = isset($this->params->request_id) && $this->params->request_id ? $this->params->request_id : 0;
+					$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
+					$this->params->where_custom[] = "order_id = (select order_id from cf_request where id = $request_id)";
+					// $this->params->where_custom[] = "not exists (select 1 from cf_request_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and request_id = $request_id $having)";
+					$this->params->where_custom[] = "not exists (select 1 from cf_request_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and request_id = $request_id)";
 				}
 			}
 			
-			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
-				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total, coalesce(plan_cl_total,0) as plan_cl_total, coalesce(plan_im_total,0) as plan_im_total', 'cf_order', 'id',$this->params['order_id']);
+			if (isset($this->params->summary) && !empty($this->params->summary)) {
+				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total, coalesce(plan_cl_total,0) as plan_cl_total, coalesce(plan_im_total,0) as plan_im_total', 'cf_order', 'id',$this->params->order_id);
 				xresponse(TRUE, ['data' => $result]);
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -1840,8 +1600,8 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			/* Checking, is data line already shipment ? */
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$doc_no = [];
 				foreach($ids as $id){
 					$line = $this->base_model->isDataExist('cf_inout_line', ['order_line_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
@@ -1853,9 +1613,9 @@ class Cashflow extends Getmeb
 					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_so_line_had_shipment'), implode(',',array_unique($doc_no)))], 401);
 				}
 			}
-			if ($this->params['event'] == 'post_delete'){
-				$this->params['is_line'] = 1;
-				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
+			if ($this->params->event == 'post_delete'){
+				$this->params->is_line = 1;
+				$this->params->order_id = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params->id)))->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
 		}
@@ -1863,45 +1623,35 @@ class Cashflow extends Getmeb
 	
 	function cf_sorder_plan()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, [], TRUE);
 			
-			if (isset($this->params['get_custom_field']) && !empty($this->params['get_custom_field'])) {
+			if (isset($this->params->get_custom_field) && !empty($this->params->get_custom_field)) {
 				$qry = "select 
 				to_char(t1.etd, '".$this->session->date_format."') as etd, 
 				(select so_top from c_bpartner where id = t1.bpartner_id) as so_top,
 				(grand_total - (select coalesce(sum(amount),0) from cf_order_plan where is_active = '1' and is_deleted = '0' and order_id = t1.id)) as amount
-				from cf_order t1 where t1.id = ".$this->params['order_id'];
+				from cf_order t1 where t1.id = ".$this->params->order_id;
 				$result = $this->db->query($qry)->row_array();
 				xresponse(TRUE, ['data' => $result]);
 			}
 			
-			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
-					$this->params['where_custom'] = "exists (
+			if (isset($this->params->for_invoice) && !empty($this->params->for_invoice)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params->where_custom = "exists (
 						select distinct(id) from (
-							select * from cf_order_plan f1 where is_active = '1' and is_deleted = '0' and ".$this->params['filter']."
+							select * from cf_order_plan f1 where is_active = '1' and is_deleted = '0' and ".$this->params->filter."
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = f1.id $having)
 						) as t2 where t2.id = t1.id
 					)";
-					unset($this->params['filter']);
+					unset($this->params->filter);
 				}
 			}
 			
-			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
-				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total, coalesce(plan_cl_total,0) as plan_cl_total, coalesce(plan_im_total,0) as plan_im_total', 'cf_order', 'id',$this->params['order_id']);
+			if (isset($this->params->summary) && !empty($this->params->summary)) {
+				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total, coalesce(plan_cl_total,0) as plan_cl_total, coalesce(plan_im_total,0) as plan_im_total', 'cf_order', 'id',$this->params->order_id);
 				xresponse(TRUE, ['data' => $result]);
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -1931,8 +1681,8 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			/* Checking, is data plan already invoiced? */
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$doc_no = [];
 				foreach($ids as $id){
 					$invoice = $this->base_model->isDataExist('cf_invoice', ['order_plan_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
@@ -1945,9 +1695,9 @@ class Cashflow extends Getmeb
 					// xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
 				}
 			}
-			if ($this->params['event'] == 'post_delete'){
-				$this->params['is_plan'] = 1;
-				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
+			if ($this->params->event == 'post_delete'){
+				$this->params->is_plan = 1;
+				$this->params->order_id = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params->id)))->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
 		}
@@ -1955,7 +1705,7 @@ class Cashflow extends Getmeb
 	
 	function cf_sorder_plan_posting()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			if ($this->params->is_posted > 0)
 				xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_posting')]);
 			
@@ -1994,7 +1744,7 @@ class Cashflow extends Getmeb
 	
 	function cf_sorder_plan_unposting()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			if ($this->params->is_posted < 1)
 				xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_unposting')]);
 			
@@ -2023,7 +1773,7 @@ class Cashflow extends Getmeb
 	
 	function cf_sorder_etd()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			/* for array field treatment */
 			$this->params->scm_dt_reasons = $this->params->scm_dt_reasons ? '{'.$this->params->scm_dt_reasons.'}' : NULL;
 			/* for inject additional description from existing */
@@ -2046,14 +1796,14 @@ class Cashflow extends Getmeb
 	
 	function cf_porder()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
 				'(select name from c_bpartner where id = t1.bpartner_id)',
 				'(select name from a_org where id = t1.org_id)',
 				'(select name from a_org where id = t1.orgtrx_id)',
 				'(select doc_no from cf_requisition where id = t1.requisition_id)']);
 			
-			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
 				$sortFields = [
 					'doc_no' 			=> 't1.doc_no', 
 					'doc_date' 		=> 't1.doc_date', 
@@ -2068,21 +1818,21 @@ class Cashflow extends Getmeb
 					'plan_cl_total' 	=> 'coalesce(plan_cl_total, 0)', 
 					'plan_im_total' 	=> 'coalesce(plan_im_total, 0)', 
 				];
-				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
+				$this->params->ob = strtr($this->params->ob, $sortFields);
 			}
 			
-			if (isset($this->params['for_material_receipt']) && !empty($this->params['for_material_receipt'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-					$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
+			if (isset($this->params->for_material_receipt) && !empty($this->params->for_material_receipt)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					// $having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+					$this->params->where_custom = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
 						and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = f1.id) and f1.order_id = t1.id)";
 				}
 			}
 			
-			if (isset($this->params['for_invoice_plan']) && !empty($this->params['for_invoice_plan'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
-					$this->params['where_custom'] = "exists (
+			if (isset($this->params->for_invoice_plan) && !empty($this->params->for_invoice_plan)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params->where_custom = "exists (
 						select distinct(order_id) from (
 							select * from cf_order_plan f1 where is_active = '1' and is_deleted = '0'
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = f1.id $having)
@@ -2091,10 +1841,10 @@ class Cashflow extends Getmeb
 				}
 			}
 			
-			if (isset($this->params['for_invoice_plan_clearance']) && !empty($this->params['for_invoice_plan_clearance'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
-					$this->params['where_custom'] = "exists (
+			if (isset($this->params->for_invoice_plan_clearance) && !empty($this->params->for_invoice_plan_clearance)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params->where_custom = "exists (
 						select distinct(order_id) from (
 							select * from cf_order_plan_clearance f1 where is_active = '1' and is_deleted = '0'
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_clearance_id = f1.id $having)
@@ -2103,10 +1853,10 @@ class Cashflow extends Getmeb
 				}
 			}
 			
-			if (isset($this->params['for_invoice_plan_import']) && !empty($this->params['for_invoice_plan_import'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
-					$this->params['where_custom'] = "exists (
+			if (isset($this->params->for_invoice_plan_import) && !empty($this->params->for_invoice_plan_import)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params->where_custom = "exists (
 						select distinct(order_id) from (
 							select * from cf_order_plan_import f1 where is_active = '1' and is_deleted = '0'
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_import_id = f1.id $having)
@@ -2115,48 +1865,39 @@ class Cashflow extends Getmeb
 				}
 			}
 			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				foreach (explode(",", $this->params['filter']) as $value) {
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				foreach (explode(",", $this->params->filter) as $value) {
 					if ($value == 'for_uninvoiced_po') {
-						$this->params['where_custom'] = "(
+						$this->params->where_custom = "(
 							exists (select distinct(order_id) from cf_order_plan f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = f1.id))
 							or 
 							exists (select distinct(order_id) from cf_order_plan_clearance f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_clearance_id = f1.id))
 							or
 							exists (select distinct(order_id) from cf_order_plan_import f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_import_id = f1.id))
 						)";
-						unset($this->params['filter']);
+						unset($this->params->filter);
 					}
 					if ($value == 'for_uninvoiced_plan') {
-						$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_plan f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id 
+						$this->params->where_custom = "exists (select distinct(order_id) from cf_order_plan f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id 
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = f1.order_id and order_plan_id = f1.id))";
-						unset($this->params['filter']);
+						unset($this->params->filter);
 					}
 					if ($value == 'for_uninvoiced_plan_clearance') {
-						$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_plan_clearance f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id 
+						$this->params->where_custom = "exists (select distinct(order_id) from cf_order_plan_clearance f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id 
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = f1.order_id and order_plan_clearance_id = f1.id))";
-						unset($this->params['filter']);
+						unset($this->params->filter);
 					}
 					if ($value == 'for_uninvoiced_plan_import') {
-						$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_plan_import f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id 
+						$this->params->where_custom = "exists (select distinct(order_id) from cf_order_plan_import f1 where is_active = '1' and is_deleted = '0' and order_id = t1.id 
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_id = f1.order_id and order_plan_import_id = f1.id))";
-						unset($this->params['filter']);
+						unset($this->params->filter);
 					}
 				}
 			}
 			
-			$this->params['level'] = 1;
-			$this->params['where']['is_sotrx'] = '0';
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->level = 1;
+			$this->params->where['is_sotrx'] = '0';
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* This Event is used for Import */
@@ -2200,8 +1941,8 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			/* Checking, is data po already mr ? */
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$doc_no = [];
 				foreach($ids as $id){
 					$header = $this->base_model->isDataExist('cf_inout', ['order_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
@@ -2214,8 +1955,8 @@ class Cashflow extends Getmeb
 				}
 			}
 			/* Checking, is data po plan already posted ? */
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$doc_no = [];
 				foreach($ids as $id){
 					$header = $this->base_model->isDataExist('cf_invoice', ['order_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
@@ -2227,43 +1968,33 @@ class Cashflow extends Getmeb
 					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_po_has_been_posted'), '')], 401);
 				}
 			}
-			if ($this->params['event'] == 'post_delete'){
-				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
-				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params['id']))->update($this->c_table.'_plan');
-				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params['id']))->update($this->c_table.'_plan_clearance');
-				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params['id']))->update($this->c_table.'_plan_import');
+			if ($this->params->event == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params->id))->update($this->c_table.'_line');
+				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params->id))->update($this->c_table.'_plan');
+				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params->id))->update($this->c_table.'_plan_clearance');
+				$this->db->set($this->delete_log)->where_in('order_id', explode(',', $this->params->id))->update($this->c_table.'_plan_import');
 			}
 		}
 	}
 	
 	function cf_porder_line()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, [], TRUE);
 			
-			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
-				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total, coalesce(plan_cl_total,0) as plan_cl_total, coalesce(plan_im_total,0) as plan_im_total', 'cf_order', 'id',$this->params['order_id']);
+			if (isset($this->params->summary) && !empty($this->params->summary)) {
+				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total, coalesce(plan_cl_total,0) as plan_cl_total, coalesce(plan_im_total,0) as plan_im_total', 'cf_order', 'id',$this->params->order_id);
 				xresponse(TRUE, ['data' => $result]);
 			}
 			
-			if (isset($this->params['for_material_receipt']) && !empty($this->params['for_material_receipt'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$inout_id = isset($this->params['inout_id']) && $this->params['inout_id'] ? $this->params['inout_id'] : 0;
-					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
-					$this->params['where_custom'][] = "order_id = (select order_id from cf_inout where id = $inout_id)";
-					// $this->params['where_custom'][] = "not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and inout_id = $inout_id $having)";
-					$this->params['where_custom'][] = "not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id and inout_id = $inout_id)";
+			if (isset($this->params->for_material_receipt) && !empty($this->params->for_material_receipt)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$inout_id = isset($this->params->inout_id) && $this->params->inout_id ? $this->params->inout_id : 0;
+					// $having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = t1.qty' : 'having sum(ttl_amt) = t1.ttl_amt';
+					$this->params->where_custom[] = "order_id = (select order_id from cf_inout where id = $inout_id)";
+					// $this->params->where_custom[] = "not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and order_line_id = t1.id and inout_id = $inout_id $having)";
+					$this->params->where_custom[] = "not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = t1.id and inout_id = $inout_id)";
 				}
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -2286,8 +2017,8 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			/* Checking, is data line already mr ? */
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$doc_no = [];
 				foreach($ids as $id){
 					$line = $this->base_model->isDataExist('cf_inout_line', ['order_line_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
@@ -2299,9 +2030,9 @@ class Cashflow extends Getmeb
 					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_po_line_had_received'), implode(',',array_unique($doc_no)))], 401);
 				}
 			}
-			if ($this->params['event'] == 'post_delete'){
-				$this->params['is_line'] = 1;
-				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
+			if ($this->params->event == 'post_delete'){
+				$this->params->is_line = 1;
+				$this->params->order_id = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params->id)))->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
 		}
@@ -2309,49 +2040,39 @@ class Cashflow extends Getmeb
 	
 	function cf_porder_plan()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, [], TRUE);
 			
-			if (isset($this->params['get_custom_field']) && !empty($this->params['get_custom_field'])) {
-				$qry = "select to_char(t1.eta, '".$this->session->date_format."') as eta, (select po_top from c_bpartner where id = t1.bpartner_id) as po_top from cf_order t1 where t1.id = ".$this->params['order_id'];
+			if (isset($this->params->get_custom_field) && !empty($this->params->get_custom_field)) {
+				$qry = "select to_char(t1.eta, '".$this->session->date_format."') as eta, (select po_top from c_bpartner where id = t1.bpartner_id) as po_top from cf_order t1 where t1.id = ".$this->params->order_id;
 				$result = $this->db->query($qry)->row_array();
 				xresponse(TRUE, ['data' => $result]);
 			}
 			
-			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
-					$this->params['where_custom'] = "exists (
+			if (isset($this->params->for_invoice) && !empty($this->params->for_invoice)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params->where_custom = "exists (
 						select distinct(id) from (
-							select * from cf_order_plan f1 where is_active = '1' and is_deleted = '0' and ".$this->params['filter']."
+							select * from cf_order_plan f1 where is_active = '1' and is_deleted = '0' and ".$this->params->filter."
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = f1.id $having)
 						) as t2 where t2.id = t1.id
 					)";
-					unset($this->params['filter']);
+					unset($this->params->filter);
 				}
 			}
 			
-			if (isset($this->params['for_cashbank']) && !empty($this->params['for_cashbank'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-					// $this->params['where_custom'] = "not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id)";
+			if (isset($this->params->for_cashbank) && !empty($this->params->for_cashbank)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					// $having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+					// $this->params->where_custom = "not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_id = t1.id)";
 				}
 			}
 			
-			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
-				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total, coalesce(plan_cl_total,0) as plan_cl_total, coalesce(plan_im_total,0) as plan_im_total', 'cf_order', 'id',$this->params['order_id']);
-				// $result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total, coalesce(plan_cl_total,0) as plan_cl_total, coalesce(plan_im_total,0) as plan_im_total', 'cf_order', 'id',$this->params['order_id']);
+			if (isset($this->params->summary) && !empty($this->params->summary)) {
+				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total, coalesce(plan_cl_total,0) as plan_cl_total, coalesce(plan_im_total,0) as plan_im_total', 'cf_order', 'id',$this->params->order_id);
+				// $result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total, coalesce(plan_cl_total,0) as plan_cl_total, coalesce(plan_im_total,0) as plan_im_total', 'cf_order', 'id',$this->params->order_id);
 				xresponse(TRUE, ['data' => $result]);
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -2380,8 +2101,8 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			/* Checking, is data plan already invoiced? */
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$doc_no = [];
 				foreach($ids as $id){
 					$invoice = $this->base_model->isDataExist('cf_invoice', ['order_plan_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
@@ -2394,9 +2115,9 @@ class Cashflow extends Getmeb
 					// xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
 				}
 			}
-			if ($this->params['event'] == 'post_delete'){
-				$this->params['is_plan'] = 1;
-				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
+			if ($this->params->event == 'post_delete'){
+				$this->params->is_plan = 1;
+				$this->params->order_id = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params->id)))->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
 		}
@@ -2404,7 +2125,7 @@ class Cashflow extends Getmeb
 	
 	function cf_porder_plan_posting()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			if ($this->params->is_posted > 0)
 				xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_posting')]);
 			
@@ -2443,7 +2164,7 @@ class Cashflow extends Getmeb
 	
 	function cf_porder_plan_unposting()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			if ($this->params->is_posted < 1)
 				xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_unposting')]);
 			
@@ -2472,41 +2193,31 @@ class Cashflow extends Getmeb
 	
 	function cf_porder_plan_clearance()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE);
 			
-			if (isset($this->params['get_custom_field']) && !empty($this->params['get_custom_field'])) {
-				$qry = "select to_char(t1.eta, '".$this->session->date_format."') as eta, (select po_top from c_bpartner where id = t1.bpartner_id) as po_top from cf_order t1 where t1.id = ".$this->params['order_id'];
+			if (isset($this->params->get_custom_field) && !empty($this->params->get_custom_field)) {
+				$qry = "select to_char(t1.eta, '".$this->session->date_format."') as eta, (select po_top from c_bpartner where id = t1.bpartner_id) as po_top from cf_order t1 where t1.id = ".$this->params->order_id;
 				$result = $this->db->query($qry)->row_array();
 				xresponse(TRUE, ['data' => $result]);
 			}
 			
-			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
-					$this->params['where_custom'] = "exists (
+			if (isset($this->params->for_invoice) && !empty($this->params->for_invoice)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params->where_custom = "exists (
 						select distinct(id) from (
-							select * from cf_order_plan_clearance f1 where is_active = '1' and is_deleted = '0' and ".$this->params['filter']."
+							select * from cf_order_plan_clearance f1 where is_active = '1' and is_deleted = '0' and ".$this->params->filter."
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_clearance_id = f1.id $having)
 						) as t2 where t2.id = t1.id
 					)";
-					unset($this->params['filter']);
+					unset($this->params->filter);
 				}
 			}
 			
-			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
-				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total, coalesce(plan_cl_total,0) as plan_cl_total, coalesce(plan_im_total,0) as plan_im_total', 'cf_order', 'id',$this->params['order_id']);
+			if (isset($this->params->summary) && !empty($this->params->summary)) {
+				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total, coalesce(plan_cl_total,0) as plan_cl_total, coalesce(plan_im_total,0) as plan_im_total', 'cf_order', 'id',$this->params->order_id);
 				xresponse(TRUE, ['data' => $result]);
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -2528,8 +2239,8 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			/* Checking, is data plan already invoiced? */
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$doc_no = [];
 				foreach($ids as $id){
 					$invoice = $this->base_model->isDataExist('cf_invoice', ['order_plan_clearance_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
@@ -2541,9 +2252,9 @@ class Cashflow extends Getmeb
 					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
 				}
 			}
-			if ($this->params['event'] == 'post_delete'){
+			if ($this->params->event == 'post_delete'){
 				$this->params->is_plan_cl = 1;
-				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
+				$this->params->order_id = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params->id)))->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
 		}
@@ -2551,7 +2262,7 @@ class Cashflow extends Getmeb
 	
 	function cf_porder_plan_clearance_posting()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			if ($this->params->is_posted > 0)
 				xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_posting')]);
 			
@@ -2590,7 +2301,7 @@ class Cashflow extends Getmeb
 	
 	function cf_porder_plan_clearance_unposting()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			if ($this->params->is_posted < 1)
 				xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_unposting')]);
 			
@@ -2619,41 +2330,31 @@ class Cashflow extends Getmeb
 	
 	function cf_porder_plan_import()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE);
 			
-			if (isset($this->params['get_custom_field']) && !empty($this->params['get_custom_field'])) {
-				$qry = "select to_char(t1.eta, '".$this->session->date_format."') as eta, (select po_top from c_bpartner where id = t1.bpartner_id) as po_top from cf_order t1 where t1.id = ".$this->params['order_id'];
+			if (isset($this->params->get_custom_field) && !empty($this->params->get_custom_field)) {
+				$qry = "select to_char(t1.eta, '".$this->session->date_format."') as eta, (select po_top from c_bpartner where id = t1.bpartner_id) as po_top from cf_order t1 where t1.id = ".$this->params->order_id;
 				$result = $this->db->query($qry)->row_array();
 				xresponse(TRUE, ['data' => $result]);
 			}
 			
-			if (isset($this->params['for_invoice']) && !empty($this->params['for_invoice'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
-					$this->params['where_custom'] = "exists (
+			if (isset($this->params->for_invoice) && !empty($this->params->for_invoice)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params->where_custom = "exists (
 						select distinct(id) from (
-							select * from cf_order_plan_import f1 where is_active = '1' and is_deleted = '0' and ".$this->params['filter']."
+							select * from cf_order_plan_import f1 where is_active = '1' and is_deleted = '0' and ".$this->params->filter."
 							and not exists (select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and order_plan_import_id = f1.id $having)
 						) as t2 where t2.id = t1.id
 					)";
-					unset($this->params['filter']);
+					unset($this->params->filter);
 				}
 			}
 			
-			if (isset($this->params['summary']) && !empty($this->params['summary'])) {
-				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total, coalesce(plan_cl_total,0) as plan_cl_total, coalesce(plan_im_total,0) as plan_im_total', 'cf_order', 'id',$this->params['order_id']);
+			if (isset($this->params->summary) && !empty($this->params->summary)) {
+				$result = $this->base_model->getValueArray('coalesce(sub_total,0) as sub_total, coalesce(vat_total,0) as vat_total, coalesce(grand_total,0) as grand_total, coalesce(plan_total,0) as plan_total, coalesce(plan_cl_total,0) as plan_cl_total, coalesce(plan_im_total,0) as plan_im_total', 'cf_order', 'id',$this->params->order_id);
 				xresponse(TRUE, ['data' => $result]);
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -2675,8 +2376,8 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			/* Checking, is data plan already invoiced? */
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$doc_no = [];
 				foreach($ids as $id){
 					$invoice = $this->base_model->isDataExist('cf_invoice', ['order_plan_import_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
@@ -2688,9 +2389,9 @@ class Cashflow extends Getmeb
 					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
 				}
 			}
-			if ($this->params['event'] == 'post_delete'){
+			if ($this->params->event == 'post_delete'){
 				$this->params->is_plan_im = 1;
-				$this->params['order_id'] = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params['id'])))->order_id;
+				$this->params->order_id = $this->base_model->getValue('order_id', $this->c_table, 'id', @end(explode(',', $this->params->id)))->order_id;
 				$this->{$this->mdl}->cf_order_update_summary($this->params);
 			}
 		}
@@ -2698,7 +2399,7 @@ class Cashflow extends Getmeb
 	
 	function cf_porder_plan_import_posting()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			if ($this->params->is_posted > 0)
 				xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_posting')]);
 			
@@ -2737,7 +2438,7 @@ class Cashflow extends Getmeb
 	
 	function cf_porder_plan_import_unposting()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			if ($this->params->is_posted < 1)
 				xresponse(FALSE, ['data' => [], 'message' => lang('success_plan_unposting')]);
 			
@@ -2766,18 +2467,18 @@ class Cashflow extends Getmeb
 	
 	function cf_request()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
 			
-			if (isset($this->params['for_requisition']) && !empty($this->params['for_requisition'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-					$this->params['where_custom'] = "exists(
+			if (isset($this->params->for_requisition) && !empty($this->params->for_requisition)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					// $having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+					$this->params->where_custom = "exists(
 						select distinct(request_id) 
 						from cf_request_line f1 where is_active = '1' and is_deleted = '0' and is_stocked = '0' and f1.request_id = t1.id and 
 						not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and request_line_id = f1.id)
 					)";
-					/* $this->params['where_custom'] = "exists(
+					/* $this->params->where_custom = "exists(
 						select distinct(request_id) 
 						from cf_request_line f1 left join cf_movement_line f2 on f1.id = f2.request_line_id and f2.is_active = '1' and f2.is_deleted = '0' 
 						where f1.is_active = '1' and f1.is_deleted = '0' and f2.request_line_id is null and f1.request_id = t1.id
@@ -2786,7 +2487,7 @@ class Cashflow extends Getmeb
 						from cf_request_line f1 left join cf_requisition_line f2 on f1.id = f2.request_line_id and f2.is_active = '1' and f2.is_deleted = '0' 
 						where f1.is_active = '1' and f1.is_deleted = '0' and f2.request_line_id is null and f1.request_id = t1.id
 					)"; */
-					/* $this->params['where_custom'] = "exists(
+					/* $this->params->where_custom = "exists(
 						select distinct(request_id) 
 						from cf_request_line f1 left join cf_movement_line f2 on f1.id = f2.request_line_id and f2.is_active = '1' and f2.is_deleted = '0' 
 						where f1.is_active = '1' and f1.is_deleted = '0' and f2.request_line_id is null and f1.request_id = t1.id
@@ -2794,15 +2495,15 @@ class Cashflow extends Getmeb
 				}
 			}
 			
-			if (isset($this->params['for_outbound']) && !empty($this->params['for_outbound'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					// $having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-					/* $this->params['where_custom'] = "exists(
+			if (isset($this->params->for_outbound) && !empty($this->params->for_outbound)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					// $having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+					/* $this->params->where_custom = "exists(
 						select distinct(request_id) 
 						from cf_request_line f1 left join cf_movement_line f2 on f1.id = f2.request_line_id and f2.is_active = '1' and f2.is_deleted = '0' 
 						where f1.is_active = '1' and f1.is_deleted = '0' and f2.request_line_id is null and f1.request_id = t1.id
 					)"; */
-					$this->params['where_custom'] = "exists(
+					$this->params->where_custom = "exists(
 						select distinct(request_id) 
 						from cf_request_line f1 where is_active = '1' and is_deleted = '0' and f1.request_id = t1.id and 
 						not exists (select 1 from cf_movement_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and request_line_id = f1.id)
@@ -2810,18 +2511,10 @@ class Cashflow extends Getmeb
 				}
 			}
 			
-			$this->params['level'] = 1;
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->params['excl_cols'] = array_merge($this->protected_fields,
-				['id','client_id','org_id','orgtrx_id','is_active','code','name','bpartner_id','code_name','request_type_id','order_id']);
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
+			$this->params->level = 1;
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
+			if (isset($this->params->export) && !empty($this->params->export)) {
+				$this->params->excl_cols = array_merge($this->protected_fields,	['id','client_id','org_id','orgtrx_id','is_active','code','name','bpartner_id','code_name','request_type_id','order_id']);
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
@@ -2858,8 +2551,8 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			/* Checking, is data request already pr ? */
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$doc_no = [];
 				foreach($ids as $id){
 					$header = $this->base_model->isDataExist('cf_requisition', ['request_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
@@ -2871,53 +2564,43 @@ class Cashflow extends Getmeb
 					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_request_had_pr'), implode(',',array_unique($doc_no)))], 401);
 				}
 			}
-			if ($this->params['event'] == 'post_delete'){
-				$this->db->set($this->delete_log)->where_in('request_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			if ($this->params->event == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('request_id', explode(',', $this->params->id))->update($this->c_table.'_line');
 			}
 		}
 	}
 	
 	function cf_request_line()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, [], TRUE);
 			
-			if (isset($this->params['for_requisition']) && !empty($this->params['for_requisition'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$requisition_id = isset($this->params['requisition_id']) && $this->params['requisition_id'] ? $this->params['requisition_id'] : 0;
-					$this->params['where']['is_stocked'] = '0';
-					$this->params['where_custom'][] = "request_id = (select request_id from cf_requisition where id = $requisition_id)";
-					$this->params['where_custom'][] = "not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and request_line_id = t1.id)";
+			if (isset($this->params->for_requisition) && !empty($this->params->for_requisition)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$requisition_id = isset($this->params->requisition_id) && $this->params->requisition_id ? $this->params->requisition_id : 0;
+					$this->params->where['is_stocked'] = '0';
+					$this->params->where_custom[] = "request_id = (select request_id from cf_requisition where id = $requisition_id)";
+					$this->params->where_custom[] = "not exists (select 1 from cf_requisition_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and request_line_id = t1.id)";
 				}
 			}
 			
-			if (isset($this->params['for_outbound']) && !empty($this->params['for_outbound'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$movement_id = isset($this->params['movement_id']) && $this->params['movement_id'] ? $this->params['movement_id'] : 0;
-					$this->params['where_custom'][] = "request_id = (select request_id from cf_movement where id = $movement_id)";
-					$this->params['where_custom'][] = "not exists (select 1 from cf_movement_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and request_line_id = t1.id)";
+			if (isset($this->params->for_outbound) && !empty($this->params->for_outbound)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$movement_id = isset($this->params->movement_id) && $this->params->movement_id ? $this->params->movement_id : 0;
+					$this->params->where_custom[] = "request_id = (select request_id from cf_movement where id = $movement_id)";
+					$this->params->where_custom[] = "not exists (select 1 from cf_movement_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and request_line_id = t1.id)";
 				}
 			}
 			
-			if (isset($this->params['get_order_id']) && !empty($this->params['get_order_id'])) {
-				$result = $this->base_model->getValueArray('order_id', 'cf_request', 'id', $this->params['request_id']);
+			if (isset($this->params->get_order_id) && !empty($this->params->get_order_id)) {
+				$result = $this->base_model->getValueArray('order_id', 'cf_request', 'id', $this->params->request_id);
 				xresponse(TRUE, ['data' => $result]);
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
 			}
 		}
 		if ($this->r_method == 'DELETE') {
 			/* Checking, is data line already pr ? */
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$doc_no = [];
 				foreach($ids as $id){
 					$line = $this->base_model->isDataExist('cf_requisition_line', ['request_line_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
@@ -2934,47 +2617,35 @@ class Cashflow extends Getmeb
 	
 	function cf_request_type()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE);
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function cf_requisition()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select doc_no from cf_request where id = t1.request_id)','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
 			
-			if (isset($this->params['for_purchase_order']) && !empty($this->params['for_purchase_order'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$having = isset($this->params['having']) && $this->params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
-					$this->params['where_custom'] = "exists (select distinct(requisition_id) from cf_requisition_line f1 where is_active = '1' and is_deleted = '0' 
+			if (isset($this->params->for_purchase_order) && !empty($this->params->for_purchase_order)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(ttl_amt) = f1.ttl_amt';
+					$this->params->where_custom = "exists (select distinct(requisition_id) from cf_requisition_line f1 where is_active = '1' and is_deleted = '0' 
 						and not exists (select 1 from cf_order_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and requisition_line_id = f1.id) and f1.requisition_id = t1.id)";
 				}
 			}
 			
-			$this->params['level'] = 1;
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->params['excl_cols'] = array_merge($this->protected_fields,
-				['id','client_id','org_id','orgtrx_id','is_active','code','name','request_id','bpartner_id','code_name']);
-				$this->_pre_export_data();
+			$this->params->level = 1;
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
+			if (isset($this->params->export) && !empty($this->params->export)) {
+				$this->params->excl_cols = array_merge($this->protected_fields,	['id','client_id','org_id','orgtrx_id','is_active','code','name','request_id','bpartner_id','code_name']);
 			}
 			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			// if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
+				// xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
+			// } else {
+				// xresponse(TRUE, $result);
+			// }
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			/* Check duplicate doc_no */
@@ -3011,8 +2682,8 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			/* Checking, is data pr already po ? */
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$doc_no = [];
 				foreach($ids as $id){
 					$header = $this->base_model->isDataExist('cf_order', ['requisition_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
@@ -3024,34 +2695,30 @@ class Cashflow extends Getmeb
 					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_pr_had_po'), implode(',',array_unique($doc_no)))], 401);
 				}
 			}
-			if ($this->params['event'] == 'post_delete'){
-				$this->db->set($this->delete_log)->where_in('requisition_id', explode(',', $this->params['id']))->update($this->c_table.'_line');
+			if ($this->params->event == 'post_delete'){
+				$this->db->set($this->delete_log)->where_in('requisition_id', explode(',', $this->params->id))->update($this->c_table.'_line');
 			}
 		}
 	}
 	
 	function cf_requisition_line()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE);
 			
-			if (isset($this->params['get_request_id']) && !empty($this->params['get_request_id'])) {
-				$result = $this->base_model->getValueArray('request_id', 'cf_requisition', 'id', $this->params['requisition_id']);
+			if (isset($this->params->get_request_id) && !empty($this->params->get_request_id)) {
+				$result = $this->base_model->getValueArray('request_id', 'cf_requisition', 'id', $this->params->requisition_id);
 				xresponse(TRUE, ['data' => $result]);
 			}
 			
-			if (isset($this->params['for_purchase_order']) && !empty($this->params['for_purchase_order'])) {
-				if (isset($this->params['act']) && in_array($this->params['act'], ['new', 'cpy'])) {
-					$order_id = isset($this->params['order_id']) && $this->params['order_id'] ? $this->params['order_id'] : 0;
-					$this->params['select'] = "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_requisition where id = t1.requisition_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
-					$this->params['where_custom'][] = "requisition_id = (select requisition_id from cf_order where id = $order_id)";
-					$this->params['where_custom'][] = "not exists (select 1 from cf_order_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and requisition_line_id = t1.id)";
-					// $this->params['where_custom'][] = "(t1.qty - (select coalesce(sum(qty),0) from cf_order_line where is_active = '1' and is_deleted = '0' and requisition_line_id = t1.id)) > 0";
+			if (isset($this->params->for_purchase_order) && !empty($this->params->for_purchase_order)) {
+				if (isset($this->params->act) && in_array($this->params->act, ['new', 'cpy'])) {
+					$order_id = isset($this->params->order_id) && $this->params->order_id ? $this->params->order_id : 0;
+					$this->params->select = "t1.*, (select name from m_itemcat where id = t1.itemcat_id) as itemcat_name, ((select doc_no from cf_requisition where id = t1.requisition_id) ||'_'|| (t1.seq) ||'_'|| (select name from m_itemcat where id = t1.itemcat_id)) as list_name";
+					$this->params->where_custom[] = "requisition_id = (select requisition_id from cf_order where id = $order_id)";
+					$this->params->where_custom[] = "not exists (select 1 from cf_order_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and requisition_line_id = t1.id)";
+					// $this->params->where_custom[] = "(t1.qty - (select coalesce(sum(qty),0) from cf_order_line where is_active = '1' and is_deleted = '0' and requisition_line_id = t1.id)) > 0";
 				}
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
 			}
 			
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
@@ -3062,8 +2729,8 @@ class Cashflow extends Getmeb
 		}
 		if ($this->r_method == 'DELETE') {
 			/* Checking, is data line already po ? */
-			if ($this->params['event'] == 'pre_delete'){
-				$ids = array_filter(array_map('trim',explode(',',$this->params['id'])));
+			if ($this->params->event == 'pre_delete'){
+				$ids = array_filter(array_map('trim',explode(',',$this->params->id)));
 				$doc_no = [];
 				foreach($ids as $id){
 					$line = $this->base_model->isDataExist('cf_order_line', ['requisition_line_id' => $id, 'is_active' => '1', 'is_deleted' => '0']);
@@ -3078,9 +2745,1261 @@ class Cashflow extends Getmeb
 		}
 	}
 	
+	function db_unmatch_crp_so_vs_invoice()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','t1.status','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+			if (isset($this->params->export) && !empty($this->params->export)) {
+				/* Define the excluding fields */
+				$this->params->excl_cols = array_merge($this->protected_fields, 
+					['id','client_id','org_id','orgtrx_id','account_id','ar_ap_id','ar_ap_plan_id','bpartner_id','code','name','is_active','is_sotrx','is_receipt','order_id','order_plan_clearance_id','order_plan_import_id','order_plan_id','payment_plan_date']
+				);
+			}
+		}
+	}
+
+	function db_unmatch_cpp_po_vs_invoice()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','t1.status','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_unmatch_crp_oth_inflow_vs_invoice()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_ar_ap where id = t1.ar_ap_id)",'(select name from c_bpartner where id = t1.bpartner_id)','t1.status','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_unmatch_cpp_oth_outflow_vs_invoice()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_ar_ap where id = t1.ar_ap_id)",'(select name from c_bpartner where id = t1.bpartner_id)','t1.status','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_unmatch_trans_date_so_vs_shp()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(FALSE, FALSE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'expected_dt_cust' 	=> 't1.expected_dt_cust', 
+					'etd' 				=> 't1.etd', 
+					'delivery_date' 		=> 't1.delivery_date', 
+					'estimation_late' 	=> 'coalesce(etd - expected_dt_cust, 0)', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params->ob = strtr($this->params->ob, $sortFields);
+			}
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_unmatch_trans_date_so_vs_shp_qty()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(FALSE, FALSE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'expected_dt_cust' 	=> 't1.expected_dt_cust', 
+					'etd' 				=> 't1.etd', 
+					'delivery_date' 		=> 't1.delivery_date', 
+					'estimation_late' 	=> 'coalesce(etd - expected_dt_cust, 0)', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params->ob = strtr($this->params->ob, $sortFields);
+			}
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_unmatch_trans_date_po_vs_mr()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'eta' 				=> 't1.eta', 
+					'received_date' 		=> 't1.received_date', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params->ob = strtr($this->params->ob, $sortFields);
+			}
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_unmatch_trans_date_po_vs_mr_qty()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'eta' 				=> 't1.eta', 
+					'received_date' 		=> 't1.received_date', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params->ob = strtr($this->params->ob, $sortFields);
+			}
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_already_trans_so()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'etd' 				=> 't1.etd', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params->ob = strtr($this->params->ob, $sortFields);
+			}
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_already_trans_so_qty()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'etd' 				=> 't1.etd', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params->ob = strtr($this->params->ob, $sortFields);
+			}
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_outstanding_trans_so()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'etd' 				=> 't1.etd', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params->ob = strtr($this->params->ob, $sortFields);
+			}
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_outstanding_trans_so_qty()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'etd' 				=> 't1.etd', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params->ob = strtr($this->params->ob, $sortFields);
+			}
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_outstanding_trans_po()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'eta' 				=> 't1.eta', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params->ob = strtr($this->params->ob, $sortFields);
+			}
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_outstanding_trans_po_qty()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'eta' 				=> 't1.eta', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params->ob = strtr($this->params->ob, $sortFields);
+			}
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_cashflow_projection()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(FALSE, FALSE);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('month')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('month')->format('Y-m-d');
+		}
+	}
+	
+	function db_cashflow_projection_dd()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(FALSE, FALSE);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('week')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('week')->format('Y-m-d');
+		}
+	}
+	
+	function db_unmatch_daily_entry()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(FALSE, FALSE);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : '1900-01-01';
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : '1900-01-01';
+			
+			/* Validation */
+			switch(isset($this->params->module_id) ? $this->params->module_id : 1){
+			case 1:
+				$this->params->module = 'Sales Order';
+				$this->params->table = 'cf_order';
+				$this->params->where = "is_sotrx = '1'";
+				break;
+			case 2:
+				$this->params->module = 'Shipment';
+				$this->params->table = 'cf_inout';
+				$this->params->where = "is_sotrx = '1'";
+				break;
+			case 3:
+				$this->params->module = 'Request/Planning';
+				$this->params->table = 'cf_request';
+				break;
+			case 4:
+				$this->params->module = 'Purchase Request';
+				$this->params->table = 'cf_requisition';
+				break;
+			case 5:
+				$this->params->module = 'Purchase Order';
+				$this->params->table = 'cf_order';
+				$this->params->where = "is_sotrx = '0'";
+				break;
+			case 6:
+				$this->params->module = 'Material Receipt';
+				$this->params->table = 'cf_inout';
+				$this->params->where = "is_sotrx = '0'";
+				break;
+			case 7:
+				$this->params->module = 'Inflow';
+				$this->params->table = 'cf_ar_ap';
+				$this->params->where = "is_receipt = '1'";
+				break;
+			case 8:
+				$this->params->module = 'Outflow';
+				$this->params->table = 'cf_ar_ap';
+				$this->params->where = "is_receipt = '0'";
+				break;
+			case 9:
+				$this->params->module = 'Invoice Customer';
+				$this->params->table = 'cf_invoice';
+				$this->params->where = "doc_type = '1'";
+				break;
+			case 10:
+				$this->params->module = 'Invoice Vendor';
+				$this->params->table = 'cf_invoice';
+				$this->params->where = "doc_type = '2'";
+				break;
+			case 11:
+				$this->params->module = 'Invoice Inflow';
+				$this->params->table = 'cf_invoice';
+				$this->params->where = "doc_type = '5'";
+				break;
+			case 12:
+				$this->params->module = 'Invoice Outflow';
+				$this->params->table = 'cf_invoice';
+				$this->params->where = "doc_type = '6'";
+				break;
+			case 13:
+				$this->params->module = 'Bank Received';
+				$this->params->table = 'cf_cashbank';
+				$this->params->where = "is_receipt = '1'";
+				break;
+			case 14:
+				$this->params->module = 'Bank Payment';
+				$this->params->table = 'cf_cashbank';
+				$this->params->where = "is_receipt = '0'";
+				break;
+			}
+			}
+	}
+
+	function db_unmatch_daily_entry_dd()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(FALSE, FALSE);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : '1900-01-01';
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : '1900-01-01';
+			$this->params->where['orgtrx_id'] = $this->params->orgtrx_id;
+			
+			/* Validation */
+			switch(isset($this->params->module_id) ? $this->params->module_id : 1){
+			case 1:
+				$this->params->module = 'Sales Order';
+				$this->params->table = 'cf_order';
+				$this->params->where[] = "is_sotrx = '1'";
+				break;
+			case 2:
+				$this->params->module = 'Shipment';
+				$this->params->table = 'cf_inout';
+				$this->params->where[] = "is_sotrx = '1'";
+				break;
+			case 3:
+				$this->params->module = 'Request/Planning';
+				$this->params->table = 'cf_request';
+				break;
+			case 4:
+				$this->params->module = 'Purchase Request';
+				$this->params->table = 'cf_requisition';
+				break;
+			case 5:
+				$this->params->module = 'Purchase Order';
+				$this->params->table = 'cf_order';
+				$this->params->where[] = "is_sotrx = '0'";
+				break;
+			case 6:
+				$this->params->module = 'Material Receipt';
+				$this->params->table = 'cf_inout';
+				$this->params->where[] = "is_sotrx = '0'";
+				break;
+			case 7:
+				$this->params->module = 'Inflow';
+				$this->params->table = 'cf_ar_ap';
+				$this->params->where[] = "is_receipt = '1'";
+				break;
+			case 8:
+				$this->params->module = 'Outflow';
+				$this->params->table = 'cf_ar_ap';
+				$this->params->where[] = "is_receipt = '0'";
+				break;
+			case 9:
+				$this->params->module = 'Invoice Customer';
+				$this->params->table = 'cf_invoice';
+				$this->params->where[] = "doc_type = '1'";
+				break;
+			case 10:
+				$this->params->module = 'Invoice Vendor';
+				$this->params->table = 'cf_invoice';
+				$this->params->where[] = "doc_type = '2'";
+				break;
+			case 11:
+				$this->params->module = 'Invoice Inflow';
+				$this->params->table = 'cf_invoice';
+				$this->params->where[] = "doc_type = '5'";
+				break;
+			case 12:
+				$this->params->module = 'Invoice Outflow';
+				$this->params->table = 'cf_invoice';
+				$this->params->where[] = "doc_type = '6'";
+				break;
+			case 13:
+				$this->params->module = 'Bank Received';
+				$this->params->table = 'cf_cashbank';
+				$this->params->where[] = "is_receipt = '1'";
+				break;
+			case 14:
+				$this->params->module = 'Bank Payment';
+				$this->params->table = 'cf_cashbank';
+				$this->params->where[] = "is_receipt = '0'";
+				break;
+			}
+			// debug($this->params->where);
+		}
+	}
+
+	function db_late_invoice_vs_bank_received()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_late_invoice_vs_bank_received_inflow()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_unmatch_invoice_vs_bank_payment()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.payment_status','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_uninvoiced_sales_order()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				't1.description',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			], TRUE);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+	
+	function db_invoiced_so()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				't1.description',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			], TRUE);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+	
+	function db_uninvoiced_purchase_order()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','t1.description',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)'], TRUE);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+	
+	function db_uninvoiced_other_inflow()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','t1.description',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)'], TRUE);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+	
+	function db_uninvoiced_other_outflow()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','t1.description',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)'], TRUE);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_incomplete_so()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				"(select doc_no from cf_order where is_sotrx = '1' and id = t1.id)",
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			]);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_incomplete_po()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				"(select doc_no from cf_order where is_sotrx = '0' and id = t1.id)",
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			]);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_incomplete_other_inflow()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			]);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_incomplete_other_outflow()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_outstanding_invoice_customer()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_outstanding_invoice_supplier()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_outstanding_invoice_other_inflow()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+	
+	function db_outstanding_invoice_other_outflow()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_unmatch_so_etd_vs_planner_etd()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_total_so()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			]);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_overdue_uninvoiced_so()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_outstanding_invoice_customer_by_amount()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_outstanding_invoice_vendor_by_amount()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_outstanding_invoice_other_outflow_by_amount()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_outstanding_invoice_other_inflow_by_amount()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_late_invoice_vs_bank_payment()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_late_invoice_vs_bank_payment_outflow()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_incomplete_request()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
+			'(select name from c_bpartner where id = t1.bpartner_id)',
+			'(select name from a_org where id = t1.org_id)',
+			'(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_outstanding_request()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
+			'(select name from c_bpartner where id = t1.bpartner_id)',
+			'(select name from a_org where id = t1.org_id)',
+			'(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_outstanding_requisition()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
+			'(select name from c_bpartner where id = t1.bpartner_id)',
+			'(select name from a_org where id = t1.org_id)',
+			'(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_outstanding_outbound()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
+			'(select doc_no from cf_request where id = t1.request_id)',
+			'(select name from a_org where id = t1.org_id)',
+			'(select name from a_org where id = t1.orgtrx_id)',
+			'(select name from a_org where id = t1.org_to_id)',
+			'(select name from a_org where id = t1.orgtrx_to_id)',
+			]);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_unmatch_po_plan_vs_invoice_payment_plan()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+			't1.note', 't1.description',
+			'(select doc_no from cf_order where id = t1.order_id)',
+			'(select name from c_bpartner where id = t1.bpartner_id)',
+			'(select name from a_org where id = t1.org_id)',
+			'(select name from a_org where id = t1.orgtrx_id)',
+			], TRUE);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	/* function rpt_cf_statement_invoice()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(FALSE, FALSE);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				list($k, $v) = explode('=', $this->params->filter);
+				$this->params->date = $v;
+				
+				unset($this->params->filter);
+			}
+		}
+	} */
+	
+	/* function rpt_cf_statement_invoice_detail()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no', 'note',
+			'(select name from a_org where id = t1.org_id)',
+			'(select name from a_org where id = t1.orgtrx_id)',
+			'(select name from c_bpartner where id = t1.bpartner_id)',
+			'(select name from a_user where id = t1.created_by)',
+			'(select name from a_user where id = t1.updated_by)',
+			"case doc_type 
+			when '1' then (select doc_no from cf_order where id = t1.order_id) 
+			when '2' then (select doc_no from cf_order where id = t1.order_id)
+			when '3' then (select doc_no from cf_order where id = t1.order_id)
+			when '4' then (select doc_no from cf_order where id = t1.order_id)
+			when '5' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
+			when '6' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
+			end",
+			]);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				foreach (explode(",", $this->params->filter) as $value) {
+					list($k, $v) = explode('=', trim($value));
+					$this->params[$k] = $v;
+				}
+				
+				unset($this->params->filter);
+			}
+		}
+	} */
+	
+	function rf_invoice_adj_reason()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, FALSE);
+		}
+	}
+	
+	function rf_scm_dt_reason()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, FALSE);
+		}
+	}
+	
 	function rpt_cashflow_projection()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			/* Validation */
 			$fdate = date_first(NULL, $this->params->fyear, $this->params->fmonth);
 			$tdate = date_first(NULL, $this->params->tyear, $this->params->tmonth);
@@ -3205,28 +4124,81 @@ class Cashflow extends Getmeb
 			
 			/* Unset account_id: 31 & 32 */
 			unset($rows[42],$rows[43]);
-			/* Export the result to client */
-			$filename = 'result_'.$this->c_table.'_'.date('YmdHi').'.xls';
 			/* Remove this fields */
-			$excl_cols = ['account_id','is_receipt','type','seq'];
-			if (! $result = $this->_export_data_array($rows, $excl_cols, $filename, 'xls', TRUE)) {
-				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
+			$this->params->excl_cols = ['account_id','is_receipt','type','seq'];
+			
+			$this->base_model->export_data_array($rows, $this->params);
+		}
+	}
+	
+	function rpt_cashflow_projection_detail()
+	{
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->peek_account) && !empty($this->params->peek_account)) {
+				$this->_get_filtered(TRUE, TRUE, []);
+				
+				xresponse(TRUE, $this->{$this->mdl}->cf_account($this->params));
 			}
+		}
+		if ($this->params->event == 'pre_options'){
+			/* Validation */
+			// debug($this->params);
+			if (empty($this->params->fdate) && empty($this->params->tdate))
+				xresponse(FALSE, ['message' => lang('error_filling_params')],401);
 			
-			/* Update status on process table */
-			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-			/* Unset id_process, so can't be called again from client  */
-			// $this->session->unset_userdata('id_process');
+			$str = "";
+			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
+				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 190 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
+					xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
+				
+				$str .= "and (received_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."' or payment_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."')";
+			} 
+			if (!empty($this->params->account_id))
+				$str .= "and account_id = ".$this->params->account_id;
+				
+			/* Re-quering Data */
+			$str = "select 
+			(select name from a_org where id = t1.org_id) as org_name, 
+			(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+			(select name from c_bpartner where id = t1.bpartner_id) as customer_name,
+			(select name from cf_account where id = t1.account_id) as account_name,
+			case doc_type 
+			when '1' then 'Sales Order' 
+			when '2' then 'Purchase Order'
+			when '3' then 'Purchase Order Clearance'
+			when '4' then 'Purchase Order Custom Duty'
+			when '5' then 'Other Inflow'
+			when '6' then 'Other Outflow'
+			end as doc_type_name,
+			case doc_type 
+			when '1' then (select doc_no from cf_order where id = t1.order_id) 
+			when '2' then (select doc_no from cf_order where id = t1.order_id)
+			when '3' then (select doc_no from cf_order where id = t1.order_id)
+			when '4' then (select doc_no from cf_order where id = t1.order_id)
+			when '5' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
+			when '6' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
+			end as doc_type_reference,
+			doc_no as invoice_no, invoice_plan_date, doc_date as invoice_date, received_plan_date, payment_plan_date, note, description, amount, adj_amount, net_amount,
+			(select (select doc_no from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_no, 
+			(select (select doc_date from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_date,
+			(select name from a_user where id = t1.created_by) as created_by_name,
+			(select name from a_user where id = t1.updated_by) as updated_by_name
+			from cf_invoice t1
+			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}
+			-- and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) 
+			and is_active = '1' and is_deleted = '0' ".$str;
+			$str = translate_variable($str);
+			// debug($str);
+			if (! $qry = $this->db->query($str))
+				xresponse(FALSE, ['data' => [], 'message' => $this->db->error()['message']], 401);;
 			
-			$result['message'] = lang('success_import_data');
-			xresponse(TRUE, $result);
+			$this->base_model->export_data($qry, $this->params);
 		}
 	}
 	
 	function rpt_cashflow_projection_plan()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			/* Validation */
 			$fdate = date_first(NULL, $this->params->fyear, $this->params->fmonth);
 			$tdate = date_first(NULL, $this->params->tyear, $this->params->tmonth);
@@ -3346,28 +4318,16 @@ class Cashflow extends Getmeb
 			
 			/* Unset account_id: 31 & 32 */
 			unset($rows[42],$rows[43]);
-			/* Export the result to client */
-			$filename = 'result_'.$this->c_table.'_'.date('YmdHi').'.xls';
 			/* Remove this fields */
-			$excl_cols = ['account_id','is_receipt','type','seq'];
-			if (! $result = $this->_export_data_array($rows, $excl_cols, $filename, 'xls', TRUE)) {
-				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
-			}
+			$this->params->excl_cols = ['account_id','is_receipt','type','seq'];
 			
-			/* Update status on process table */
-			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-			/* Unset id_process, so can't be called again from client  */
-			// $this->session->unset_userdata('id_process');
-			
-			$result['message'] = lang('success_import_data');
-			xresponse(TRUE, $result);
+			$this->base_model->export_data_array($rows, $this->params);
 		}
 	}
 	
 	function rpt_cashflow_projection_old()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			/* Validation */
 			$fdate = date_first(NULL, $this->params->fyear, $this->params->fmonth);
 			$tdate = date_first(NULL, $this->params->tyear, $this->params->tmonth);
@@ -3468,11 +4428,11 @@ class Cashflow extends Getmeb
 	
 	function rpt_cf_trace_performance_delivery()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['peek_so']) && !empty($this->params['peek_so'])) {
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->peek_so) && !empty($this->params->peek_so)) {
 				$this->_get_filtered(TRUE, TRUE, ['t1.doc_no']);
-				$this->params['where']['is_sotrx'] = '1';
-				$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+				$this->params->where['is_sotrx'] = '1';
+				$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 				if (! $result['data'] = $this->{$this->mdl}->cf_sorder($this->params)){
 					xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 				} else {
@@ -3480,7 +4440,7 @@ class Cashflow extends Getmeb
 				}
 			}
 		}
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			/* Validation */
 			// debug($this->params);
 			if (empty($this->params->fdate) && empty($this->params->tdate) && empty($this->params->order_id))
@@ -3538,11 +4498,11 @@ class Cashflow extends Getmeb
 	
 	function rpt_cf_so_plan_vs_actual()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['peek_so']) && !empty($this->params['peek_so'])) {
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->peek_so) && !empty($this->params->peek_so)) {
 				$this->_get_filtered(TRUE, TRUE, ['t1.doc_no']);
-				$this->params['where']['is_sotrx'] = '1';
-				$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+				$this->params->where['is_sotrx'] = '1';
+				$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 				if (! $result['data'] = $this->{$this->mdl}->cf_sorder($this->params)){
 					xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 				} else {
@@ -3550,7 +4510,7 @@ class Cashflow extends Getmeb
 				}
 			}
 		}
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			/* Validation */
 			// debug($this->params);
 			if (empty($this->params->fdate) && empty($this->params->tdate))
@@ -3625,11 +4585,11 @@ class Cashflow extends Getmeb
 	
 	function rpt_cf_po_plan_vs_actual()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['peek_po']) && !empty($this->params['peek_po'])) {
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->peek_po) && !empty($this->params->peek_po)) {
 				$this->_get_filtered(TRUE, TRUE, ['t1.doc_no']);
-				$this->params['where']['is_sotrx'] = '0';
-				$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
+				$this->params->where['is_sotrx'] = '0';
+				$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 				if (! $result['data'] = $this->{$this->mdl}->cf_sorder($this->params)){
 					xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 				} else {
@@ -3637,7 +4597,7 @@ class Cashflow extends Getmeb
 				}
 			}
 		}
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			/* Validation */
 			// debug($this->params);
 			if (empty($this->params->fdate) && empty($this->params->tdate))
@@ -3698,7 +4658,7 @@ class Cashflow extends Getmeb
 	
 	function rpt_cf_other_inflow_vs_actual()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			/* Validation */
 			// debug($this->params);
 			if (empty($this->params->fdate) && empty($this->params->tdate))
@@ -3754,7 +4714,7 @@ class Cashflow extends Getmeb
 	
 	function rpt_cf_other_outflow_vs_actual()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			/* Validation */
 			// debug($this->params);
 			if (empty($this->params->fdate) && empty($this->params->tdate))
@@ -3810,7 +4770,7 @@ class Cashflow extends Getmeb
 	
 	function rpt_cf_daily_entry_summary()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			/* Validation */
 			if (empty($this->params->fdate) && empty($this->params->tdate))
 				xresponse(FALSE, ['message' => lang('error_filling_params')],401);
@@ -3899,7 +4859,7 @@ class Cashflow extends Getmeb
 				break;
 			}
 				
-			$this->params = (array) $this->params;
+			/* $this->params = (array) $this->params;
 			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -3908,19 +4868,17 @@ class Cashflow extends Getmeb
 					// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
 					xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
 				}
-				/* Update status on process table */
 				// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				/* Unset id_process, so can't be called again from client  */
 				// $this->session->unset_userdata('id_process');
 				$result['message'] = lang('success_import_data');
 				xresponse(TRUE, $result);
-			}
+			} */
 		}
 	}
 	
 	function rpt_cf_analysis()
 	{
-		if ($this->r_method == 'OPTIONS') {
+		if ($this->params->event == 'pre_options'){
 			/* Validation */
 			// debug($this->params);
 			// if (empty($this->params->fdate) && empty($this->params->tdate))
@@ -3961,1742 +4919,68 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function rpt_cashflow_projection_detail()
-	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['peek_account']) && !empty($this->params['peek_account'])) {
-				$this->_get_filtered(TRUE, TRUE, []);
-				if (! $result['data'] = $this->{$this->mdl}->cf_account($this->params)){
-					xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-				} else {
-					xresponse(TRUE, $result);
-				}
-			}
-		}
-		if ($this->r_method == 'OPTIONS') {
-			/* Validation */
-			// debug($this->params);
-			if (empty($this->params->fdate) && empty($this->params->tdate))
-				xresponse(FALSE, ['message' => lang('error_filling_params')],401);
-			
-			$str = "";
-			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
-				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 190 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
-					xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
-				
-				$str .= "and (received_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."' or payment_plan_date between '".$this->params->fdate."' and '".$this->params->tdate."')";
-			} 
-			if (!empty($this->params->account_id))
-				$str .= "and account_id = ".$this->params->account_id;
-				
-			/* Re-quering Data */
-			$str = "select 
-			(select name from a_org where id = t1.org_id) as org_name, 
-			(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
-			(select name from c_bpartner where id = t1.bpartner_id) as customer_name,
-			(select name from cf_account where id = t1.account_id) as account_name,
-			case doc_type 
-			when '1' then 'Sales Order' 
-			when '2' then 'Purchase Order'
-			when '3' then 'Purchase Order Clearance'
-			when '4' then 'Purchase Order Custom Duty'
-			when '5' then 'Other Inflow'
-			when '6' then 'Other Outflow'
-			end as doc_type_name,
-			case doc_type 
-			when '1' then (select doc_no from cf_order where id = t1.order_id) 
-			when '2' then (select doc_no from cf_order where id = t1.order_id)
-			when '3' then (select doc_no from cf_order where id = t1.order_id)
-			when '4' then (select doc_no from cf_order where id = t1.order_id)
-			when '5' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
-			when '6' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
-			end as doc_type_reference,
-			doc_no as invoice_no, invoice_plan_date, doc_date as invoice_date, received_plan_date, payment_plan_date, note, description, amount, adj_amount, net_amount,
-			(select (select doc_no from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_no, 
-			(select (select doc_date from cf_cashbank where id = s1.cashbank_id) from cf_cashbank_line s1 where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) as voucher_date,
-			(select name from a_user where id = t1.created_by) as created_by_name,
-			(select name from a_user where id = t1.updated_by) as updated_by_name
-			from cf_invoice t1
-			where client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}
-			-- and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = t1.id) 
-			and is_active = '1' and is_deleted = '0' ".$str;
-			$str = translate_variable($str);
-			// debug($str);
-			if (! $qry = $this->db->query($str))
-				xresponse(FALSE, ['data' => [], 'message' => $this->db->error()['message']], 401);;
-			
-			// $rows = $qry->result();
-			// debug($this->params);
-			/* Export the result to client */
-			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
-			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
-				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
-			}
-			/* Update status on process table */
-			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-			/* Unset id_process, so can't be called again from client  */
-			// $this->session->unset_userdata('id_process');
-			$result['message'] = lang('success_import_data');
-			xresponse(TRUE, $result);
-		}
-	}
-	
-	function db_unmatch_crp_so_vs_invoice()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','t1.status','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				/* Define the excluding fields */
-				$this->params['excl_cols'] = array_merge($this->protected_fields, 
-					['id','client_id','org_id','orgtrx_id','account_id','ar_ap_id','ar_ap_plan_id','bpartner_id','code','name','is_active','is_sotrx','is_receipt','order_id','order_plan_clearance_id','order_plan_import_id','order_plan_id','payment_plan_date']
-				);
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_unmatch_cpp_po_vs_invoice()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','t1.status','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_unmatch_crp_oth_inflow_vs_invoice()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_ar_ap where id = t1.ar_ap_id)",'(select name from c_bpartner where id = t1.bpartner_id)','t1.status','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_unmatch_cpp_oth_outflow_vs_invoice()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_ar_ap where id = t1.ar_ap_id)",'(select name from c_bpartner where id = t1.bpartner_id)','t1.status','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_unmatch_trans_date_so_vs_shp()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(FALSE, FALSE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
-				$sortFields = [
-					'doc_no' 			=> 't1.doc_no', 
-					'doc_date' 		=> 't1.doc_date', 
-					'expected_dt_cust' 	=> 't1.expected_dt_cust', 
-					'etd' 				=> 't1.etd', 
-					'delivery_date' 		=> 't1.delivery_date', 
-					'estimation_late' 	=> 'coalesce(etd - expected_dt_cust, 0)', 
-					'sub_total' 	=> 'coalesce(sub_total, 0)', 
-					'vat_total' 	=> 'coalesce(vat_total, 0)', 
-					'grand_total' => 'coalesce(grand_total, 0)', 
-				];
-				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
-			}
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_unmatch_trans_date_so_vs_shp_qty()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(FALSE, FALSE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
-				$sortFields = [
-					'doc_no' 			=> 't1.doc_no', 
-					'doc_date' 		=> 't1.doc_date', 
-					'expected_dt_cust' 	=> 't1.expected_dt_cust', 
-					'etd' 				=> 't1.etd', 
-					'delivery_date' 		=> 't1.delivery_date', 
-					'estimation_late' 	=> 'coalesce(etd - expected_dt_cust, 0)', 
-					'sub_total' 	=> 'coalesce(sub_total, 0)', 
-					'vat_total' 	=> 'coalesce(vat_total, 0)', 
-					'grand_total' => 'coalesce(grand_total, 0)', 
-				];
-				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
-			}
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_unmatch_trans_date_po_vs_mr()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
-				$sortFields = [
-					'doc_no' 			=> 't1.doc_no', 
-					'doc_date' 		=> 't1.doc_date', 
-					'eta' 				=> 't1.eta', 
-					'received_date' 		=> 't1.received_date', 
-					'sub_total' 	=> 'coalesce(sub_total, 0)', 
-					'vat_total' 	=> 'coalesce(vat_total, 0)', 
-					'grand_total' => 'coalesce(grand_total, 0)', 
-				];
-				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
-			}
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_unmatch_trans_date_po_vs_mr_qty()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
-				$sortFields = [
-					'doc_no' 			=> 't1.doc_no', 
-					'doc_date' 		=> 't1.doc_date', 
-					'eta' 				=> 't1.eta', 
-					'received_date' 		=> 't1.received_date', 
-					'sub_total' 	=> 'coalesce(sub_total, 0)', 
-					'vat_total' 	=> 'coalesce(vat_total, 0)', 
-					'grand_total' => 'coalesce(grand_total, 0)', 
-				];
-				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
-			}
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_already_trans_so()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
-				$sortFields = [
-					'doc_no' 			=> 't1.doc_no', 
-					'doc_date' 		=> 't1.doc_date', 
-					'etd' 				=> 't1.etd', 
-					'sub_total' 	=> 'coalesce(sub_total, 0)', 
-					'vat_total' 	=> 'coalesce(vat_total, 0)', 
-					'grand_total' => 'coalesce(grand_total, 0)', 
-				];
-				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
-			}
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_already_trans_so_qty()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
-				$sortFields = [
-					'doc_no' 			=> 't1.doc_no', 
-					'doc_date' 		=> 't1.doc_date', 
-					'etd' 				=> 't1.etd', 
-					'sub_total' 	=> 'coalesce(sub_total, 0)', 
-					'vat_total' 	=> 'coalesce(vat_total, 0)', 
-					'grand_total' => 'coalesce(grand_total, 0)', 
-				];
-				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
-			}
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_outstanding_trans_so()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
-				$sortFields = [
-					'doc_no' 			=> 't1.doc_no', 
-					'doc_date' 		=> 't1.doc_date', 
-					'etd' 				=> 't1.etd', 
-					'sub_total' 	=> 'coalesce(sub_total, 0)', 
-					'vat_total' 	=> 'coalesce(vat_total, 0)', 
-					'grand_total' => 'coalesce(grand_total, 0)', 
-				];
-				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
-			}
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_outstanding_trans_so_qty()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
-				$sortFields = [
-					'doc_no' 			=> 't1.doc_no', 
-					'doc_date' 		=> 't1.doc_date', 
-					'etd' 				=> 't1.etd', 
-					'sub_total' 	=> 'coalesce(sub_total, 0)', 
-					'vat_total' 	=> 'coalesce(vat_total, 0)', 
-					'grand_total' => 'coalesce(grand_total, 0)', 
-				];
-				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
-			}
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_outstanding_trans_po()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
-				$sortFields = [
-					'doc_no' 			=> 't1.doc_no', 
-					'doc_date' 		=> 't1.doc_date', 
-					'eta' 				=> 't1.eta', 
-					'sub_total' 	=> 'coalesce(sub_total, 0)', 
-					'vat_total' 	=> 'coalesce(vat_total, 0)', 
-					'grand_total' => 'coalesce(grand_total, 0)', 
-				];
-				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
-			}
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_outstanding_trans_po_qty()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (key_exists('ob', $this->params) && isset($this->params['ob'])) {
-				$sortFields = [
-					'doc_no' 			=> 't1.doc_no', 
-					'doc_date' 		=> 't1.doc_date', 
-					'eta' 				=> 't1.eta', 
-					'sub_total' 	=> 'coalesce(sub_total, 0)', 
-					'vat_total' 	=> 'coalesce(vat_total, 0)', 
-					'grand_total' => 'coalesce(grand_total, 0)', 
-				];
-				$this->params['ob'] = strtr($this->params['ob'], $sortFields);
-			}
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_cashflow_projection()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(FALSE, FALSE);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('month')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('month')->format('Y-m-d');
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-	
-	function db_cashflow_projection_dd()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(FALSE, FALSE);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				// debug(json_decode($this->params['filter']));
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			// debug($this->params);
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('week')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('week')->format('Y-m-d');
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-	
-	function db_unmatch_daily_entry()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(FALSE, FALSE);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				// debug(json_decode($this->params['filter']));
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			// debug($this->params);
-			
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : '1900-01-01';
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : '1900-01-01';
-			
-			/* Validation */
-			switch(isset($this->params['module_id']) ? $this->params['module_id'] : 1){
-			case 1:
-				$this->params['module'] = 'Sales Order';
-				$this->params['table'] = 'cf_order';
-				$this->params['where'] = "is_sotrx = '1'";
-				break;
-			case 2:
-				$this->params['module'] = 'Shipment';
-				$this->params['table'] = 'cf_inout';
-				$this->params['where'] = "is_sotrx = '1'";
-				break;
-			case 3:
-				$this->params['module'] = 'Request/Planning';
-				$this->params['table'] = 'cf_request';
-				break;
-			case 4:
-				$this->params['module'] = 'Purchase Request';
-				$this->params['table'] = 'cf_requisition';
-				break;
-			case 5:
-				$this->params['module'] = 'Purchase Order';
-				$this->params['table'] = 'cf_order';
-				$this->params['where'] = "is_sotrx = '0'";
-				break;
-			case 6:
-				$this->params['module'] = 'Material Receipt';
-				$this->params['table'] = 'cf_inout';
-				$this->params['where'] = "is_sotrx = '0'";
-				break;
-			case 7:
-				$this->params['module'] = 'Inflow';
-				$this->params['table'] = 'cf_ar_ap';
-				$this->params['where'] = "is_receipt = '1'";
-				break;
-			case 8:
-				$this->params['module'] = 'Outflow';
-				$this->params['table'] = 'cf_ar_ap';
-				$this->params['where'] = "is_receipt = '0'";
-				break;
-			case 9:
-				$this->params['module'] = 'Invoice Customer';
-				$this->params['table'] = 'cf_invoice';
-				$this->params['where'] = "doc_type = '1'";
-				break;
-			case 10:
-				$this->params['module'] = 'Invoice Vendor';
-				$this->params['table'] = 'cf_invoice';
-				$this->params['where'] = "doc_type = '2'";
-				break;
-			case 11:
-				$this->params['module'] = 'Invoice Inflow';
-				$this->params['table'] = 'cf_invoice';
-				$this->params['where'] = "doc_type = '5'";
-				break;
-			case 12:
-				$this->params['module'] = 'Invoice Outflow';
-				$this->params['table'] = 'cf_invoice';
-				$this->params['where'] = "doc_type = '6'";
-				break;
-			case 13:
-				$this->params['module'] = 'Bank Received';
-				$this->params['table'] = 'cf_cashbank';
-				$this->params['where'] = "is_receipt = '1'";
-				break;
-			case 14:
-				$this->params['module'] = 'Bank Payment';
-				$this->params['table'] = 'cf_cashbank';
-				$this->params['where'] = "is_receipt = '0'";
-				break;
-			}
-				
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_unmatch_daily_entry_dd()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(FALSE, FALSE);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			// debug($this->params);
-			
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : '1900-01-01';
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : '1900-01-01';
-			$this->params['where']['orgtrx_id'] = $this->params['orgtrx_id'];
-			// $this->params['where'][] = 'orgtrx_id = '.$this->params['orgtrx_id'];
-			
-			/* Validation */
-			switch(isset($this->params['module_id']) ? $this->params['module_id'] : 1){
-			case 1:
-				$this->params['module'] = 'Sales Order';
-				$this->params['table'] = 'cf_order';
-				$this->params['where'][] = "is_sotrx = '1'";
-				break;
-			case 2:
-				$this->params['module'] = 'Shipment';
-				$this->params['table'] = 'cf_inout';
-				$this->params['where'][] = "is_sotrx = '1'";
-				break;
-			case 3:
-				$this->params['module'] = 'Request/Planning';
-				$this->params['table'] = 'cf_request';
-				break;
-			case 4:
-				$this->params['module'] = 'Purchase Request';
-				$this->params['table'] = 'cf_requisition';
-				break;
-			case 5:
-				$this->params['module'] = 'Purchase Order';
-				$this->params['table'] = 'cf_order';
-				$this->params['where'][] = "is_sotrx = '0'";
-				break;
-			case 6:
-				$this->params['module'] = 'Material Receipt';
-				$this->params['table'] = 'cf_inout';
-				$this->params['where'][] = "is_sotrx = '0'";
-				break;
-			case 7:
-				$this->params['module'] = 'Inflow';
-				$this->params['table'] = 'cf_ar_ap';
-				$this->params['where'][] = "is_receipt = '1'";
-				break;
-			case 8:
-				$this->params['module'] = 'Outflow';
-				$this->params['table'] = 'cf_ar_ap';
-				$this->params['where'][] = "is_receipt = '0'";
-				break;
-			case 9:
-				$this->params['module'] = 'Invoice Customer';
-				$this->params['table'] = 'cf_invoice';
-				$this->params['where'][] = "doc_type = '1'";
-				break;
-			case 10:
-				$this->params['module'] = 'Invoice Vendor';
-				$this->params['table'] = 'cf_invoice';
-				$this->params['where'][] = "doc_type = '2'";
-				break;
-			case 11:
-				$this->params['module'] = 'Invoice Inflow';
-				$this->params['table'] = 'cf_invoice';
-				$this->params['where'][] = "doc_type = '5'";
-				break;
-			case 12:
-				$this->params['module'] = 'Invoice Outflow';
-				$this->params['table'] = 'cf_invoice';
-				$this->params['where'][] = "doc_type = '6'";
-				break;
-			case 13:
-				$this->params['module'] = 'Bank Received';
-				$this->params['table'] = 'cf_cashbank';
-				$this->params['where'][] = "is_receipt = '1'";
-				break;
-			case 14:
-				$this->params['module'] = 'Bank Payment';
-				$this->params['table'] = 'cf_cashbank';
-				$this->params['where'][] = "is_receipt = '0'";
-				break;
-			}
-			// debug($this->params['where']);
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_late_invoice_vs_bank_received()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_late_invoice_vs_bank_received_inflow()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_unmatch_invoice_vs_bank_payment()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.payment_status','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_uninvoiced_sales_order()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, [
-				't1.doc_no',
-				't1.description',
-				'(select name from c_bpartner where id = t1.bpartner_id)',
-				'(select name from a_org where id = t1.org_id)',
-				'(select name from a_org where id = t1.orgtrx_id)'
-			], TRUE);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-	
-	function db_invoiced_so()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, [
-				't1.doc_no',
-				't1.description',
-				'(select name from c_bpartner where id = t1.bpartner_id)',
-				'(select name from a_org where id = t1.org_id)',
-				'(select name from a_org where id = t1.orgtrx_id)'
-			], TRUE);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-	
-	function db_uninvoiced_purchase_order()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','t1.description',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)'], TRUE);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-	
-	function db_uninvoiced_other_inflow()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','t1.description',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)'], TRUE);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-	
-	function db_uninvoiced_other_outflow()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','t1.description',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)'], TRUE);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_incomplete_so()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, [
-				't1.doc_no',
-				"(select doc_no from cf_order where is_sotrx = '1' and id = t1.id)",
-				'(select name from c_bpartner where id = t1.bpartner_id)',
-				'(select name from a_org where id = t1.org_id)',
-				'(select name from a_org where id = t1.orgtrx_id)'
-			]);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_incomplete_po()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, [
-				't1.doc_no',
-				"(select doc_no from cf_order where is_sotrx = '0' and id = t1.id)",
-				'(select name from c_bpartner where id = t1.bpartner_id)',
-				'(select name from a_org where id = t1.org_id)',
-				'(select name from a_org where id = t1.orgtrx_id)'
-			]);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_incomplete_other_inflow()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, [
-				't1.doc_no',
-				"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",
-				'(select name from c_bpartner where id = t1.bpartner_id)',
-				'(select name from a_org where id = t1.org_id)',
-				'(select name from a_org where id = t1.orgtrx_id)'
-			]);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_incomplete_other_outflow()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_outstanding_invoice_customer()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_outstanding_invoice_supplier()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_outstanding_invoice_other_inflow()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-	
-	function db_outstanding_invoice_other_outflow()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_unmatch_so_etd_vs_planner_etd()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			// $this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_total_so()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, [
-				't1.doc_no',
-				'(select name from c_bpartner where id = t1.bpartner_id)',
-				'(select name from a_org where id = t1.org_id)',
-				'(select name from a_org where id = t1.orgtrx_id)'
-			]);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_overdue_uninvoiced_so()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			// $this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_outstanding_invoice_customer_by_amount()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			// $this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_outstanding_invoice_vendor_by_amount()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			// $this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_outstanding_invoice_other_outflow_by_amount()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			// $this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_outstanding_invoice_other_inflow_by_amount()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			// $this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_late_invoice_vs_bank_payment()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_late_invoice_vs_bank_payment_outflow()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_incomplete_request()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
-			'(select name from c_bpartner where id = t1.bpartner_id)',
-			'(select name from a_org where id = t1.org_id)',
-			'(select name from a_org where id = t1.orgtrx_id)']);
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_outstanding_request()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
-			'(select name from c_bpartner where id = t1.bpartner_id)',
-			'(select name from a_org where id = t1.org_id)',
-			'(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_outstanding_requisition()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
-			'(select name from c_bpartner where id = t1.bpartner_id)',
-			'(select name from a_org where id = t1.org_id)',
-			'(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_outstanding_outbound()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
-			'(select doc_no from cf_request where id = t1.request_id)',
-			'(select name from a_org where id = t1.org_id)',
-			'(select name from a_org where id = t1.orgtrx_id)',
-			'(select name from a_org where id = t1.org_to_id)',
-			'(select name from a_org where id = t1.orgtrx_to_id)',
-			]);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				$filter = json_decode($this->params['filter']);
-				$this->params = array_merge($this->params, (array) $filter);
-				unset($this->params['filter']);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params['fdate'] = isset($this->params['fdate']) ? $this->params['fdate'] : $m->startOf('year')->format('Y-m-d');
-			$this->params['tdate'] = isset($this->params['tdate']) ? $this->params['tdate'] : $m->endOf('year')->format('Y-m-d');
-
-			// $this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	function db_unmatch_po_plan_vs_invoice_payment_plan()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, [
-			't1.note', 't1.description',
-			'(select doc_no from cf_order where id = t1.order_id)',
-			'(select name from c_bpartner where id = t1.bpartner_id)',
-			'(select name from a_org where id = t1.org_id)',
-			'(select name from a_org where id = t1.orgtrx_id)',
-			], TRUE);
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-
-	/* function rpt_cf_statement_invoice()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(FALSE, FALSE);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				list($k, $v) = explode('=', $this->params['filter']);
-				$this->params['date'] = $v;
-				
-				unset($this->params['filter']);
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	} */
-	
-	/* function rpt_cf_statement_invoice_detail()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no', 'note',
-			'(select name from a_org where id = t1.org_id)',
-			'(select name from a_org where id = t1.orgtrx_id)',
-			'(select name from c_bpartner where id = t1.bpartner_id)',
-			'(select name from a_user where id = t1.created_by)',
-			'(select name from a_user where id = t1.updated_by)',
-			"case doc_type 
-			when '1' then (select doc_no from cf_order where id = t1.order_id) 
-			when '2' then (select doc_no from cf_order where id = t1.order_id)
-			when '3' then (select doc_no from cf_order where id = t1.order_id)
-			when '4' then (select doc_no from cf_order where id = t1.order_id)
-			when '5' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
-			when '6' then (select doc_no from cf_ar_ap where id = t1.ar_ap_id)
-			end",
-			]);
-			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				foreach (explode(",", $this->params['filter']) as $value) {
-					list($k, $v) = explode('=', trim($value));
-					$this->params[$k] = $v;
-				}
-				
-				unset($this->params['filter']);
-			}
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	} */
-	
-	function rf_invoice_adj_reason()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, FALSE);
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-	
-	function rf_scm_dt_reason()
-	{
-		if ($this->r_method == 'GET') {
-			$this->_get_filtered(TRUE, FALSE);
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
-		}
-	}
-	
 	function va_finance()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->{$this->mdl}->{$this->c_method}($this->params);
 		}
 	}
 	
 	function va_finance_dd()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE);
 			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				foreach (explode(",", $this->params['filter']) as $value) {
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				foreach (explode(",", $this->params->filter) as $value) {
 					list($k, $v) = explode('=', $value);
 					$this->params[$k] = $v;
 				}
 				
-				unset($this->params['filter']);
+				unset($this->params->filter);
 			}
 			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 		}
 	}
 	
 	function va_finance2()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->{$this->mdl}->{$this->c_method}($this->params);
 		}
 	}
 	
 	function va_finance2_dd()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE);
 			
-			if (isset($this->params['filter']) && !empty($this->params['filter'])) {
-				foreach (explode(",", $this->params['filter']) as $value) {
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				foreach (explode(",", $this->params->filter) as $value) {
 					list($k, $v) = explode('=', $value);
 					$this->params[$k] = $v;
 				}
 				
-				unset($this->params['filter']);
+				unset($this->params->filter);
 			}
 			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			$this->params['where_in']['t1.orgtrx_id'] = $this->_get_orgtrx();
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where_in['t1.orgtrx_id'] = $this->_get_orgtrx();
 		}
 	}
 	
 	function va_sales()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->{$this->mdl}->{$this->c_method}($this->params);
 		}
 	}
 	
 	function dashboard_sales()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['run']) && $this->params['run']) {
-				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->run) && $this->params->run) {
+				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params->id)->query;
 				if ($str) {
 					$str = translate_variable($str);
 					
@@ -5714,8 +4998,8 @@ class Cashflow extends Getmeb
 				xresponse(FALSE, []);
 			}
 			
-			$this->params['list'] = 1;
-			$this->params['where']['tags'] = 'sales';
+			$this->params->list = 1;
+			$this->params->where['tags'] = 'sales';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -5730,9 +5014,9 @@ class Cashflow extends Getmeb
 	
 	function dashboard_purchase()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['run']) && $this->params['run']) {
-				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->run) && $this->params->run) {
+				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params->id)->query;
 				if ($str) {
 					$str = translate_variable($str);
 					
@@ -5750,8 +5034,8 @@ class Cashflow extends Getmeb
 				xresponse(FALSE, []);
 			}
 			
-			$this->params['list'] = 1;
-			$this->params['where']['tags'] = 'purchase';
+			$this->params->list = 1;
+			$this->params->where['tags'] = 'purchase';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -5766,9 +5050,9 @@ class Cashflow extends Getmeb
 	
 	function dashboard_warehouse()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['run']) && $this->params['run']) {
-				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->run) && $this->params->run) {
+				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params->id)->query;
 				if ($str) {
 					$str = translate_variable($str);
 					
@@ -5786,8 +5070,8 @@ class Cashflow extends Getmeb
 				xresponse(FALSE, []);
 			}
 			
-			$this->params['list'] = 1;
-			$this->params['where']['tags'] = 'warehouse';
+			$this->params->list = 1;
+			$this->params->where['tags'] = 'warehouse';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -5802,9 +5086,9 @@ class Cashflow extends Getmeb
 	
 	function dashboard_finance_customer()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['run']) && $this->params['run']) {
-				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->run) && $this->params->run) {
+				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params->id)->query;
 				if ($str) {
 					$str = translate_variable($str);
 					
@@ -5822,8 +5106,8 @@ class Cashflow extends Getmeb
 				xresponse(FALSE, []);
 			}
 			
-			$this->params['list'] = 1;
-			$this->params['where']['tags'] = 'finance_customer';
+			$this->params->list = 1;
+			$this->params->where['tags'] = 'finance_customer';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -5838,9 +5122,9 @@ class Cashflow extends Getmeb
 	
 	function dashboard_finance_vendor()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['run']) && $this->params['run']) {
-				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->run) && $this->params->run) {
+				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params->id)->query;
 				if ($str) {
 					$str = translate_variable($str);
 					
@@ -5858,8 +5142,8 @@ class Cashflow extends Getmeb
 				xresponse(FALSE, []);
 			}
 			
-			$this->params['list'] = 1;
-			$this->params['where']['tags'] = 'finance_vendor';
+			$this->params->list = 1;
+			$this->params->where['tags'] = 'finance_vendor';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -5874,9 +5158,9 @@ class Cashflow extends Getmeb
 	
 	function dashboard_finance_inflow()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['run']) && $this->params['run']) {
-				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->run) && $this->params->run) {
+				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params->id)->query;
 				if ($str) {
 					$str = translate_variable($str);
 					
@@ -5894,8 +5178,8 @@ class Cashflow extends Getmeb
 				xresponse(FALSE, []);
 			}
 			
-			$this->params['list'] = 1;
-			$this->params['where']['tags'] = 'finance_inflow';
+			$this->params->list = 1;
+			$this->params->where['tags'] = 'finance_inflow';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -5910,9 +5194,9 @@ class Cashflow extends Getmeb
 	
 	function dashboard_finance_outflow()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['run']) && $this->params['run']) {
-				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->run) && $this->params->run) {
+				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params->id)->query;
 				if ($str) {
 					$str = translate_variable($str);
 					
@@ -5930,8 +5214,8 @@ class Cashflow extends Getmeb
 				xresponse(FALSE, []);
 			}
 			
-			$this->params['list'] = 1;
-			$this->params['where']['tags'] = 'finance_outflow';
+			$this->params->list = 1;
+			$this->params->where['tags'] = 'finance_outflow';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {

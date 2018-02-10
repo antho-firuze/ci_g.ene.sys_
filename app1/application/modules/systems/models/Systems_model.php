@@ -121,7 +121,7 @@ class Systems_Model extends CI_model
 	
 	function a_user($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, 
+		$params->select	= isset($params->select) ? $params->select : "t1.id, 
 		t1.client_id, t1.user_org_id, t1.user_orgtrx_id, t1.user_role_id, t1.is_active, t1.code, t1.name, api_token,
 		coalesce(t1.code, '')||'_'||t1.name as code_name, 
 		t1.description, t1.email, t1.last_login, t1.is_online, t1.supervisor_id, t1.bpartner_id, t1.is_fullbpaccess, t1.is_expired, t1.ip_address, t1.photo_file,
@@ -131,117 +131,117 @@ class Systems_Model extends CI_model
 		(select coalesce(code, '')||'_'||name from a_org where id = t1.user_orgdept_id) as default_user_orgdept_name,
 		(select coalesce(code, '')||'_'||name from a_org where id = t1.user_orgdiv_id) as default_user_orgdiv_name
 		";
-		$params['table'] 	= "a_user as t1";
-		return $this->base_model->mget_rec($params);
+		$params->table 	= "a_user as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_user_org($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "
+		$params->select	= isset($params->select) ? $params->select : "
 		(select name from a_user where id = t1.user_id) as user_name,
 		t1.*, 
 		(select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, 
 		(select (select coalesce(code,'') ||'_'|| name from a_org where id = f1.org_id) from a_user_org f1 where id = t1.parent_id) as parent_name,
 		(select count(user_org_id) from a_user where id = t1.user_id and user_org_id = t1.org_id) as is_default";
-		$params['table'] 	= "a_user_org as t1";
-		return $this->base_model->mget_rec($params);
+		$params->table 	= "a_user_org as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_user_orgtrx($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "
+		$params->select	= isset($params->select) ? $params->select : "
 		(select name from a_user where id = t1.user_id) as user_name,
 		t1.*, 
 		(select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, 
 		(select (select coalesce(code,'') ||'_'|| name from a_org where id = f1.org_id) from a_user_org f1 where id = t1.parent_id) as parent_name,
 		(select count(user_orgtrx_id) from a_user where id = t1.user_id and user_orgtrx_id = t1.org_id) as is_default";
-		$params['table'] 	= "a_user_org as t1";
-		return $this->base_model->mget_rec($params);
+		$params->table 	= "a_user_org as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_user_orgdept($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "
+		$params->select	= isset($params->select) ? $params->select : "
 		(select name from a_user where id = t1.user_id) as user_name,
 		t1.*, 
 		(select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, 
 		(select (select coalesce(code,'') ||'_'|| name from a_org where id = f1.org_id) from a_user_org f1 where id = t1.parent_id) as parent_name,
 		(select count(user_orgdept_id) from a_user where id = t1.user_id and user_orgdept_id = t1.org_id) as is_default";
-		$params['table'] 	= "a_user_org as t1";
-		return $this->base_model->mget_rec($params);
+		$params->table 	= "a_user_org as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_user_orgdiv($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "
+		$params->select	= isset($params->select) ? $params->select : "
 		(select name from a_user where id = t1.user_id) as user_name,
 		t1.*, 
 		(select coalesce(code,'') ||'_'|| name from a_org where id = t1.org_id) as code_name, 
 		(select (select coalesce(code,'') ||'_'|| name from a_org where id = f1.org_id) from a_user_org f1 where id = t1.parent_id) as parent_name,
 		(select count(user_orgdiv_id) from a_user where id = t1.user_id and user_orgdiv_id = t1.org_id) as is_default";
-		$params['table'] 	= "a_user_org as t1";
-		return $this->base_model->mget_rec($params);
+		$params->table 	= "a_user_org as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_user_role($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "
+		$params->select	= isset($params->select) ? $params->select : "
 		(select name from a_user where id = t1.user_id) as user_name,
 		t1.*, (select coalesce(code,'') ||'_'|| name from a_role where id = t1.role_id) as code_name, 
 		(select count(user_role_id) from a_user where id = t1.user_id and user_role_id = t1.role_id) as is_default";
-		$params['table'] 	= $this->c_method." as t1";
-		// $params['table'] 	= $this->c_table." as t1";
-		// $params['table'] 	= "a_user_role as t1";
-		return $this->base_model->mget_rec($params);
+		$params->table 	= $this->c_method." as t1";
+		// $params->table 	= $this->c_table." as t1";
+		// $params->table 	= "a_user_role as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_user_substitute($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, (select coalesce(code,'') ||'_'|| name from a_user where id = t1.user_id) as code_name, to_char(t1.valid_from, '".$this->session->date_format."') as valid_from, to_char(t1.valid_to, '".$this->session->date_format."') as valid_to";
-		$params['table'] 	= $this->c_table." as t1";
-		return $this->base_model->mget_rec($params);
+		$params->select	= isset($params->select) ? $params->select : "t1.*, (select coalesce(code,'') ||'_'|| name from a_user where id = t1.user_id) as code_name, to_char(t1.valid_from, '".$this->session->date_format."') as valid_from, to_char(t1.valid_to, '".$this->session->date_format."') as valid_to";
+		$params->table 	= $this->c_table." as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_user_config($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_table." as t1";
+		$params->select	= isset($params->select) ? $params->select : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params->table 	= $this->c_table." as t1";
 		
-		return $this->base_model->mget_rec($params);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_user_dataset($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*";
-		$params['table'] 	= $this->c_table." as t1";
-		return $this->base_model->mget_rec($params);
+		$params->select	= isset($params->select) ? $params->select : "t1.*";
+		$params->table 	= $this->c_table." as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_user_recent($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_table." as t1";
+		$params->select	= isset($params->select) ? $params->select : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params->table 	= $this->c_table." as t1";
 		
-		return $this->base_model->mget_rec($params);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_menu($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, 
+		$params->select	= isset($params->select) ? $params->select : "t1.*, 
 		coalesce(t1.code,'') ||'_'|| t1.name as code_name, 
 		(select coalesce(code,'') ||'_'|| name from a_menu where id = t1.parent_id) as parent_name";
-		$params['table'] 	= "(select id as grp, * from a_menu where is_parent = '1' union all	select parent_id as grp, * from a_menu where is_parent = '0') as t1";
-		return $this->base_model->mget_rec($params);
+		$params->table 	= "(select id as grp, * from a_menu where is_parent = '1' union all	select parent_id as grp, * from a_menu where is_parent = '0') as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_menu_parent_list($params)
 	{
 		$id = '';
-		if (isset($params['where']['id']) && $params['where']['id'])
-			$id = 'and id = '.$params['where']['id'];
+		if (isset($params->where['id']) && $params->where['id'])
+			$id = 'and id = '.$params->where['id'];
 		$q = '';
-		if (isset($params['like']) && $params['like'])
-			$q = 'and '.$params['like'];
+		if (isset($params->like) && $params->like)
+			$q = 'and '.$params->like;
 		
 		$str = "WITH RECURSIVE tmp_tree (id, level, parent_id, line_no, is_parent, name) 
 			AS ( 
@@ -283,59 +283,59 @@ class Systems_Model extends CI_model
 	
 	function a_role_menu($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, 
+		$params->select	= isset($params->select) ? $params->select : "t1.id, 
 		t1.menu_id, t2.code, t2.name, 
 		coalesce(t2.code,'') ||'_'|| t2.name as code_name, 
 		t1.is_active, t2.is_parent, 
 		(select coalesce(code,'') ||'_'|| name from a_role where id = t1.role_id) as role_name, 
 		(select coalesce(code,'') ||'_'|| name from a_menu where id = t2.parent_id) as parent_name, 
 		t2.type, t1.permit_form, t1.permit_process, t1.permit_window";
-		$params['table'] 	= "a_role_menu as t1";
-		$params['join'][] = ['a_menu t2', 't1.menu_id = t2.id', 'left'];
-		$params['where']['t2.is_deleted']	= '0';
-		return $this->base_model->mget_rec($params);
+		$params->table 	= "a_role_menu as t1";
+		$params->join[] = ['a_menu t2', 't1.menu_id = t2.id', 'left'];
+		$params->where['t2.is_deleted']	= '0';
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_role_dashboard($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "
+		$params->select	= isset($params->select) ? $params->select : "
 		t1.id, t1.role_id, t1.dashboard_id, 
 		(select coalesce(code,'') ||'_'|| name from a_role where id = t1.role_id) as role_name, 
 		t1.seq, t2.code, t2.name, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active, t2.type, t2.tags";
-		$params['table'] 	= $this->c_table." as t1";
-		$params['join'][] = ['a_dashboard t2', 't1.dashboard_id = t2.id', 'left'];
-		$params['where']['t2.is_deleted']	= '0';
-		return $this->base_model->mget_rec($params);
+		$params->table 	= $this->c_table." as t1";
+		$params->join[] = ['a_dashboard t2', 't1.dashboard_id = t2.id', 'left'];
+		$params->where['t2.is_deleted']	= '0';
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_role_process($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.id, t1.process_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active";
-		$params['table'] 	= $this->c_table." as t1";
-		$params['join'][] = ['a_process t2', 't1.process_id = t2.id', 'left'];
-		$params['where']['t2.is_deleted']	= '0';
-		return $this->base_model->mget_rec($params);
+		$params->select	= isset($params->select) ? $params->select : "t1.id, t1.process_id, coalesce(t2.code,'') ||'_'|| t2.name as code_name, t1.is_active";
+		$params->table 	= $this->c_table." as t1";
+		$params->join[] = ['a_process t2', 't1.process_id = t2.id', 'left'];
+		$params->where['t2.is_deleted']	= '0';
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_org($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, 
+		$params->select	= isset($params->select) ? $params->select : "t1.*, 
 		coalesce(t1.code,'') ||'_'|| t1.name as code_name, 
 		(select coalesce(code,'') ||'_'|| name from a_orgtype where id = t1.orgtype_id) as orgtype_name, 
 		(select coalesce(code,'') ||'_'|| name from a_org where id = t1.parent_id limit 1) as parent_name";
-		$params['table'] 	= "a_org as t1";
-		return $this->base_model->mget_rec($params);
+		$params->table 	= "a_org as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_org_parent_list($params)
 	{
-		$q = isset($params['like']) ? 'and '.$params['like'] : '';
-		$id = isset($params['where']['id']) ? 'and id = '.$params['where']['id'] : '';
-		$client_id = isset($params['where']['client_id']) ? 'client_id = '.$params['where']['client_id'] : 'client_id = '.$this->session->client_id;
-		$org_id = isset($params['where']['org_id']) ? 'and org_id = '.$params['where']['org_id'] : '';
-		$orgtype_id = isset($params['where']['orgtype_id']) ? 'and orgtype_id = '.$params['where']['orgtype_id'] : '';
-		$parent_id = isset($params['where']['parent_id']) ? 'and parent_id = '.$params['where']['parent_id'] : '';
-		$org_id_in = isset($params['where_in']['org_id']) ? 'and org_id in ('.implode(',',$params['where_in']['org_id']).')' : '';
+		$q = isset($params->like) ? 'and '.$params->like : '';
+		$id = isset($params->where['id']) ? 'and id = '.$params->where['id'] : '';
+		$client_id = isset($params->where['client_id']) ? 'client_id = '.$params->where['client_id'] : 'client_id = '.$this->session->client_id;
+		$org_id = isset($params->where['org_id']) ? 'and org_id = '.$params->where['org_id'] : '';
+		$orgtype_id = isset($params->where['orgtype_id']) ? 'and orgtype_id = '.$params->where['orgtype_id'] : '';
+		$parent_id = isset($params->where['parent_id']) ? 'and parent_id = '.$params->where['parent_id'] : '';
+		$org_id_in = isset($params->where_in['org_id']) ? 'and org_id in ('.implode(',',$params->where_in['org_id']).')' : '';
 		// debug("$client_id $org_id $orgtype_id $id $q $parent_id $org_id_in");
 		
 		$str = "WITH RECURSIVE tmp_tree (id, parent_id, level, line_no, is_parent, client_id, org_id, orgtype_id, name, name_tree) 
@@ -378,82 +378,82 @@ class Systems_Model extends CI_model
 	
 	function a_sequence($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_table." as t1";
-		return $this->base_model->mget_rec($params);
+		$params->select	= isset($params->select) ? $params->select : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params->table 	= $this->c_table." as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_orgtype($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_table." as t1";
-		return $this->base_model->mget_rec($params);
+		$params->select	= isset($params->select) ? $params->select : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params->table 	= $this->c_table." as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_role($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, (select name from c_currency where id = t1.currency_id limit 1) as currency_name, (select name from a_user where id = t1.supervisor_id limit 1) as supervisor_name";
-		$params['table'] 	= "a_role as t1";
-		// $params['join'][] 	= ['c_currency as cc', 't1.currency_id = cc.id', 'left'];
-		// $params['join'][] 	= ['a_user as au4', 't1.supervisor_id = au4.id', 'left'];
+		$params->select	= isset($params->select) ? $params->select : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name, (select name from c_currency where id = t1.currency_id limit 1) as currency_name, (select name from a_user where id = t1.supervisor_id limit 1) as supervisor_name";
+		$params->table 	= "a_role as t1";
+		// $params->join[] 	= ['c_currency as cc', 't1.currency_id = cc.id', 'left'];
+		// $params->join[] 	= ['a_user as au4', 't1.supervisor_id = au4.id', 'left'];
 		
-		return $this->base_model->mget_rec($params);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function dashboard1($params)
 	{
-		$params['select']	= "t2.*, t1.seq";
-		$params['table'] 	= "a_role_dashboard t1";
-		$params['join'][] 	= ['a_dashboard t2', 't2.id = t1.dashboard_id', 'left'];
-		$params['where']['t1.role_id'] = $this->session->role_id;
-		$params['where']['t1.is_active'] = '1';
-		$params['where']['t1.is_deleted'] = '0';
-		$params['where']['t2.is_active'] = '1';
-		$params['where']['t2.is_deleted'] = '0';
-		// $params['order']	= "t2.type, t2.lineno";
-		$params['sort']	= "t1.seq asc";
+		$params->select	= "t2.*, t1.seq";
+		$params->table 	= "a_role_dashboard t1";
+		$params->join[] 	= ['a_dashboard t2', 't2.id = t1.dashboard_id', 'left'];
+		$params->where['t1.role_id'] = $this->session->role_id;
+		$params->where['t1.is_active'] = '1';
+		$params->where['t1.is_deleted'] = '0';
+		$params->where['t2.is_active'] = '1';
+		$params->where['t2.is_deleted'] = '0';
+		// $params->order	= "t2.type, t2.lineno";
+		$params->sort	= "t1.seq asc";
 		// debug($this->base_model->mget_rec($params));
-		return $this->base_model->mget_rec($params);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_system($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_table." as t1";
-		return $this->base_model->mget_rec($params);
+		$params->select	= isset($params->select) ? $params->select : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params->table 	= $this->c_table." as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_client($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_table." as t1";
-		return $this->base_model->mget_rec($params);
+		$params->select	= isset($params->select) ? $params->select : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params->table 	= $this->c_table." as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_dashboard($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name ||', tags: '|| coalesce(t1.tags,'') as code_name";
-		$params['table'] 	= $this->c_table." as t1";
-		return $this->base_model->mget_rec($params);
+		$params->select	= isset($params->select) ? $params->select : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name ||', tags: '|| coalesce(t1.tags,'') as code_name";
+		$params->table 	= $this->c_table." as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_dataset($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_table." as t1";
-		return $this->base_model->mget_rec($params);
+		$params->select	= isset($params->select) ? $params->select : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params->table 	= $this->c_table." as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_domain($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_table." as t1";
-		return $this->base_model->mget_rec($params);
+		$params->select	= isset($params->select) ? $params->select : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params->table 	= $this->c_table." as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function a_info($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*,
+		$params->select	= isset($params->select) ? $params->select : "t1.*,
 		to_char(t1.valid_from, '".$this->session->date_format." HH24:MI') as valid_from,
 		to_char(t1.valid_till, '".$this->session->date_format." HH24:MI') as valid_till,
 		array_to_string(valid_org, ',') as valid_org,
@@ -461,56 +461,56 @@ class Systems_Model extends CI_model
 		array_to_string(valid_menu, ',') as valid_menu,
 		(select string_agg(coalesce(code, '')||'_'||name, E',') from a_menu where id = ANY(t1.valid_menu)) as menu_name
 		";
-		$params['table'] 	= "a_info as t1";
-		return $this->base_model->mget_rec($params);
+		$params->table 	= "a_info as t1";
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function c_currency($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_table." as t1";
+		$params->select	= isset($params->select) ? $params->select : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params->table 	= $this->c_table." as t1";
 		
-		return $this->base_model->mget_rec($params);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function c_1country($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_table." as t1";
+		$params->select	= isset($params->select) ? $params->select : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params->table 	= $this->c_table." as t1";
 		
-		return $this->base_model->mget_rec($params);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function c_2province($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_table." as t1";
+		$params->select	= isset($params->select) ? $params->select : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params->table 	= $this->c_table." as t1";
 		
-		return $this->base_model->mget_rec($params);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function c_3city($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_table." as t1";
+		$params->select	= isset($params->select) ? $params->select : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params->table 	= $this->c_table." as t1";
 		
-		return $this->base_model->mget_rec($params);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function c_4district($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_table." as t1";
+		$params->select	= isset($params->select) ? $params->select : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params->table 	= $this->c_table." as t1";
 		
-		return $this->base_model->mget_rec($params);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	function c_5village($params)
 	{
-		$params['select']	= isset($params['select']) ? $params['select'] : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
-		$params['table'] 	= $this->c_table." as t1";
+		$params->select	= isset($params->select) ? $params->select : "t1.*, coalesce(t1.code,'') ||'_'|| t1.name as code_name";
+		$params->table 	= $this->c_table." as t1";
 		
-		return $this->base_model->mget_rec($params);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
 	// function fun_

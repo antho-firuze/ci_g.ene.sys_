@@ -42,6 +42,11 @@ $( document ).ready(function() {
 		$('input[name="'+$(this).attr('id')+'"]').val( datetime_db_format($(this).val(), $(this).attr('data-format')) );
 	});
 	
+	/* For inputmask */
+	if (jQuery().inputmask) {
+		$("[data-mask]").inputmask();
+	}
+	
 	/* Init form */
 	$('form').each(function(e){
 		var form = $(this);
@@ -54,42 +59,19 @@ $( document ).ready(function() {
 		
 		form.validator().on('submit', function(e) {
 			if (e.isDefaultPrevented()) { return false;	} 
-			// var r_method = ($act == 'new') ? 'POST' : ($act == 'cpy') ? 'POST' : 'PUT';
-			// var r_method = $.inArray($act, ['new','cpy']) > -1 ? 'POST' : $.inArray($act, ['edt']) > -1 ? 'PUT' : 'OPTIONS';
-			
+
 			/* adding primary key id on the fly */
-			// form.append(BSHelper.Input({ type:"hidden", idname:"id", value:$id }));
-			
-			/* adding foreign key id on the fly */
-			// if ($filter){
-				// $.each($filter.split(','), function(i, val){
-					// var fil = val.split('=');
-					// form.append(BSHelper.Input({ type:"hidden", idname:fil[0], value:fil[1] }));
-				// });
-			// }
-			// console.log(form.serializeJSON()); return false;
+			form.append(BSHelper.Input({ type:"hidden", idname:"export", value:1 }));
 			
 			form.find("[type='submit']").prop( "disabled", true );
 			
 			$.ajax({ url: $url_module, method: 'OPTIONS', async: true, dataType:'json',
 				data: form.serializeJSON(),
-				success: function(data) {
-					if (data.status){
+				success: function(result) {
+					if (result.status){
 						form.find("[type='submit']").prop( "disabled", false );
-						window.open(data.file_url);
+						window.open(result.data.file_url);
 					}
-					/* BootstrapDialog.show({ message:data.message, closable: false,
-						buttons: [{ label: 'OK', hotkey: 13, 
-							action: function(dialogRef) {
-								window.open(result.file_url);
-								// window.history.back();
-							} 
-						}],
-					}); */
-					// var dialog = BootstrapDialog.alert(data.message, function(){
-						// window.history.back();
-					// });
-					// setInterval(function(){ $('#'+dialog.getButtons()[0].id).focus(); },100);
 				},
 				error: function(data) {
 					if (data.status >= 500){
@@ -106,7 +88,6 @@ $( document ).ready(function() {
 							} 
 						}],
 					});
-					// BootstrapDialog.alert({ type:'modal-danger', title:'Notification', message:message });
 				}
 			});
 

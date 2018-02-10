@@ -105,11 +105,9 @@ class Base_Model extends CI_Model
 	*/
 	function mget_rec($params = NULL, $counter = FALSE, $summary = [])
 	{
-		// $this->db->select($params['select']);
-		// if (!$counter)
-			// $this->db->select($params['select']);
-		// else if ($counter && empty($summary))
-			$this->db->select($params['select']);
+		$params = (array) $params;
+		
+		$this->db->select($params['select']);
 		
 		$this->db->from($params['table']);
 		if ( key_exists('join', $params)) DBX::join($this, $params['join']);
@@ -127,7 +125,7 @@ class Base_Model extends CI_Model
 			}
 		}
 		
-		/* sample: $this->params['where_in']['t1.doc_type'] = ['5', '6']; */
+		/* sample: $this->params->where_in['t1.doc_type'] = ['5', '6']; */
 		if ( key_exists('where_in', $params)) {
 			foreach($params['where_in'] as $k => $v){
 				$this->db->where_in($k, $v);
@@ -135,7 +133,7 @@ class Base_Model extends CI_Model
 		}
 		/* 
 		sample: 
-		$this->params['where_custom'] = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
+		$this->params->where_custom = "exists (select distinct(order_id) from cf_order_line f1 where is_active = '1' and is_deleted = '0' 
 			and not exists (select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = f1.id) and f1.order_id = t1.id)";
 		 */
 		if ( key_exists('where_custom', $params)) {
@@ -157,13 +155,13 @@ class Base_Model extends CI_Model
 				}
 			}
 		}
-		if (key_exists('order', $this->params) && isset($this->params['order'])) {
-			foreach($this->params['order'] as $k => $v){
-				$this->db->order_by($this->params['columns'][$v['column']]['data'], $v['dir']);
+		if (key_exists('order', $this->params) && isset($this->params->order)) {
+			foreach($this->params->order as $k => $v){
+				$this->db->order_by($this->params->columns[$v['column']]['data'], $v['dir']);
 			}
 			// $sort = '';
-			// foreach($this->params['order'] as $k => $v){
-				// $sort .= ($sort ? ', ' : '').$this->params['columns'][$v['column']]['data'].' '.$v['dir'];
+			// foreach($this->params->order as $k => $v){
+				// $sort .= ($sort ? ', ' : '').$this->params->columns[$v['column']]['data'].' '.$v['dir'];
 			// }
 			// debug($sort);
 		}
@@ -172,8 +170,8 @@ class Base_Model extends CI_Model
 		}
 		
 		/* sample: &filter=field1=value1,field2=value2... */
-		if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
-			$array = explode(",", $this->params['filter']);
+		if (key_exists('filter', $this->params) && !empty($this->params->filter)){
+			$array = explode(",", $this->params->filter);
 			if (!empty($array)) {
 				foreach ($array as $value) {
 					// list($k, $v) = explode("=", $value);
@@ -185,16 +183,24 @@ class Base_Model extends CI_Model
 
 		/* SQL Filter
 		 * sample: &sfilter=is_import='1' and name like '%anonym%' */
-		if (key_exists('sfilter', $this->params) && !empty($this->params['sfilter'])){
-			$this->db->where($this->params['sfilter'], NULL, FALSE);
+		if (key_exists('sfilter', $this->params) && !empty($this->params->sfilter)){
+			$this->db->where($this->params->sfilter, NULL, FALSE);
 		}
 
 		/* Special feature for showing deleted records */
-		if (key_exists('xdel', $this->params) && ($this->params['xdel'] == '1') && ($this->session->user_id == 11)){
+		if (key_exists('xdel', $this->params) && ($this->params->xdel == '1') && ($this->session->user_id == 11)){
 			$this->db->where('t1.is_deleted', '1');
 		} else {
 			if (!key_exists('xdel', $params))
 				$this->db->where('t1.is_deleted', '0');
+		}
+		
+		/* For export data */
+		if (isset($this->params->export) && !empty($this->params->export)) {
+			if (! $query = $this->db->get() ){
+				xresponse(FALSE, ['data' => [], 'message' => '[get_rec] '.$this->db->error()['message']]);
+			} 
+			$this->export_data($query, $params);
 		}
 		
 		/* For counting record number */
@@ -235,8 +241,8 @@ class Base_Model extends CI_Model
 		
 		/* sample: &ob=field1,field2,field3... */
 		/* sample: &ob=field1 desc,field2 desc,field3... */
-		if (key_exists('ob', $this->params) && !empty($this->params['ob'])){
-			$array = explode(",", $this->params['ob']);
+		if (key_exists('ob', $this->params) && !empty($this->params->ob)){
+			$array = explode(",", $this->params->ob);
 			if (!empty($array)) {
 				foreach ($array as $value) {
 					$this->db->order_by($value);
@@ -245,12 +251,12 @@ class Base_Model extends CI_Model
 		}
 		
 		/* sample: &limit=1&offset=0 */
-		if (key_exists('limit', $this->params) && !empty($this->params['limit'])){
+		if (key_exists('limit', $this->params) && !empty($this->params->limit)){
 			$offset = 0;
-			if (key_exists('offset', $this->params) && !empty($this->params['offset'])){
-				$offset = $this->params['offset'];
+			if (key_exists('offset', $this->params) && !empty($this->params->offset)){
+				$offset = $this->params->offset;
 			}
-			$this->db->limit($this->params['limit'], $offset);
+			$this->db->limit($this->params->limit, $offset);
 		}
 		
 		// LIMITATION FOR JQUERY DATATABLES COMPONENT
@@ -290,9 +296,9 @@ class Base_Model extends CI_Model
 		$response['total'] = $this->mget_rec($params, TRUE, []);
 		$response['rows']  = $result;
 		// if ($summary){
-		if (key_exists('footer', $this->params) && ($this->params['footer'])) {
-			// debug(explode(',', $this->params['footer']));
-			$response['summary'] = $this->mget_rec($params, TRUE, explode(',', $this->params['footer']));
+		if (key_exists('footer', $this->params) && ($this->params->footer)) {
+			// debug(explode(',', $this->params->footer));
+			$response['summary'] = $this->mget_rec($params, TRUE, explode(',', $this->params->footer));
 			// debug($result);
 			// foreach($summary as $k => $v){
 				// $a[$v] = array_sum(array_column($result, $v)); 
@@ -300,6 +306,273 @@ class Base_Model extends CI_Model
 			// $response['summary'] = $a;
 		}
 		return $response;
+	}
+	
+	/* 
+	*	$qry 	= $this->db->get()						;From get() result
+	*	$params = array/object
+	*	======================
+	* $params->excl_cols			array				;Ex: ['id','password']
+	*
+	*/
+	function export_data($qry, $params=[])
+	{
+		if (is_array($params))
+			$params = (object) $params;
+
+		ini_set('memory_limit', '-1');
+		$this->load->library('z_libs/Excel');
+		$objPHPExcel = new PHPExcel();
+		$objPHPExcel->getProperties()->setTitle("export")->setDescription("none");
+ 
+		$objPHPExcel->setActiveSheetIndex(0);
+
+		// Set the Title in the first row
+		$current = 'A';
+		$col = 0;
+		$fields = [];
+		if ($params->excl_cols) {
+			foreach ($qry->list_fields() as $field) {
+				if (!in_array($field, $params->excl_cols)){
+					$columns[] = ($col == 0) ? $current : ++$current;
+					$fields[] = $field;
+					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, 1, $field);
+					$col++;
+				}
+			}
+		} else {
+			foreach ($qry->list_fields() as $field) {
+				$columns[] = ($col == 0) ? $current : ++$current;
+				$fields[] = $field;
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, 1, $field);
+				$col++;
+			}
+		}
+		// debug($fields);
+		// Set the Data in the next row
+		$row = 2;
+		foreach($qry->result() as $data) {
+			$col = 0;
+			// foreach ($qry->list_fields() as $field) {
+			foreach ($fields as $field) {
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, $row, $data->{$field});
+				$col++;
+			}
+			$row++;
+		}
+		
+		// Set the Column to Fit AutoSize
+		foreach($columns as $column) {
+			$objPHPExcel->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
+		}
+		
+		$this->export_data_final($objPHPExcel, $params);
+	}
+	
+	/* 
+	*	$rows 	= array						;From get() result
+	*	$params = array/object
+	*	======================
+	* $params->excl_cols			array				;Ex: ['id','password']
+	*
+	*/
+	function export_data_array($rows, $params=[])
+	{
+		if (is_array($params))
+			$params = (object) $params;
+
+		ini_set('memory_limit', '-1');
+		$this->load->library('z_libs/Excel');
+		$objPHPExcel = new PHPExcel();
+		$objPHPExcel->getProperties()->setTitle("export")->setDescription("none");
+ 
+		$objPHPExcel->setActiveSheetIndex(0);
+		
+		// Set the Title in the first row
+		$current = 'A';
+		$col = 0;
+		$fields = [];
+		if ($params->excl_cols) {
+			foreach ($rows[0] as $field => $val) {
+				if (!in_array($field, $params->excl_cols)){
+					$columns[] = ($col == 0) ? $current : ++$current;
+					$fields[] = $field;
+					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, 1, $field);
+					$col++;
+				}
+			}
+		} else {
+			foreach ($rows[0] as $field => $val) {
+				$columns[] = ($col == 0) ? $current : ++$current;
+				$fields[] = $field;
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, 1, $field);
+				$col++;
+			}
+		}
+		
+		// Set the Data in the next row
+		$row = 2;
+		foreach($rows as $data) {
+			$col = 0;
+			foreach ($fields as $field) {
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, $row, $data->{$field});
+				$col++;
+			}
+			$row++;
+		}
+		
+		// Set the Column to Fit AutoSize
+		foreach($columns as $column) {
+			$objPHPExcel->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
+		}
+		
+		$this->export_data_final($objPHPExcel, $params);
+	}
+	
+	/* 
+	*	$objPHPExcel = object PHPExcel()					;From PHPExcel() object
+	*	$params = array/object
+	*	======================
+	* $params->filetype					string				;Ex: 'xls' or 'xlsx' or 'csv' or 'pdf' or 'html'
+	* $params->tmp_dir_absolute	string				;Ex: 'd:/var/tmp/'
+	* $params->tmp_dir_relative	string				;Ex: 'var/tmp/'
+	* $params->is_compress			boolean				:Ex: TRUE/FALSE
+	* $params->base_url					string				;Ex: BASE_URL
+	* $params->filename					string				;Ex: 'filename.xls' 
+	*
+	*/
+	function export_data_final($objPHPExcel, $params=[])
+	{
+		if (is_array($params))
+			$params = (object) $params;
+
+		if (in_array($params->filetype, ['xls', 'xlsx'])) {
+			$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
+			$objWriter->save($params->tmp_dir_absolute.$params->filename);
+		}
+		if ($params->filetype == 'csv'){
+			PHPExcel_Shared_String::setDecimalSeparator('.');
+			PHPExcel_Shared_String::setThousandsSeparator(',');
+
+			$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);
+			$objWriter->save($params->tmp_dir_absolute.$params->filename);
+		}
+		if ($params->filetype == 'pdf'){
+			$rendererName = PHPExcel_Settings::PDF_RENDERER_MPDF;
+			$rendererLibraryPath = FCPATH.'../vendor/mpdf/mpdf/src/';
+			if (!PHPExcel_Settings::setPdfRenderer($rendererName,	$rendererLibraryPath)) {
+				xresponse(FALSE, [
+					'data' => [], 
+					'message' => '[final] Please set the $rendererName and $rendererLibraryPath values' .
+												PHP_EOL .
+												' as appropriate for your directory structure'
+				]);
+			}
+			$objWriter = new PHPExcel_Writer_PDF($objPHPExcel);
+			$objWriter->save($params->tmp_dir_absolute.$params->filename);
+		}
+		if ($params->filetype == 'html'){
+			$objWriter = new PHPExcel_Writer_HTML($objPHPExcel);
+			$objWriter->save($params->tmp_dir_absolute.$params->filename);
+		}
+		
+		$result = [
+			'filename' => $params->filename, 
+			'filepath' => $params->tmp_dir_absolute.$params->filename, 
+			'file_url' => $params->base_url.$params->tmp_dir_relative.$params->filename
+		];
+		
+		if ($params->is_compress) 
+			$this->compress_file($result['filepath'], $params);
+			
+		xresponse(TRUE, ['data' => $result]);
+	}
+	
+	/* 
+	*	$files 	= array/string									;Absolute file path
+	*	$params = array/object
+	*	======================
+	* $params->separate_zip	= true/false			;Separate or not
+	* $params->remove_source	= true/false		;Remove source file
+	* $params->base_url			= BASE_URL
+	* $params->tmp_dir_relative	= 'var/tmp/'
+	*
+	*/
+	function compress_file($files, $params=[])
+	{
+		if (is_array($params))
+			$params = (object) $params;
+
+		// Default value
+		$params->separate_zip		= isset($params->separate_zip) ? $params->separate_zip : TRUE;
+		$params->remove_source	= isset($params->remove_source) ? $params->remove_source : TRUE;
+		
+		if (is_array($files)) {
+			$i = 1;
+			foreach($files as $file){
+				
+				$pathinfo = pathinfo($file);
+				$dir = $pathinfo['dirname'];
+				$fil = $pathinfo['filename'];
+				$fbn = $pathinfo['basename'];
+				$ext = strtolower($pathinfo['extension']);
+				$filezip = $fil.'.zip';
+				$fil_tmp = $dir.'/'.$filezip;
+				
+				if ($params->separate_zip) {
+					$zip = new ZipArchive();
+					if ($zip->open($fil_tmp, ZipArchive::CREATE) !== TRUE) {
+						xresponse(FALSE, ['data' => [], 'message' => "Cannot open <$fil_tmp>\n"], 401);
+					}
+					$zip->addFile($file, $fbn);
+					$zip->close();
+					
+				} else {
+					if ($i == 1) {
+						$zip = new ZipArchive();
+						if ($zip->open($fil_tmp, ZipArchive::CREATE) !== TRUE) {
+							xresponse(FALSE, ['data' => [], 'message' => "Cannot open <$fil_tmp>\n"], 401);
+						}
+					}
+					
+					$zip->addFile($file, $fbn);
+				}
+				
+				if ($params->remove_source)
+					@unlink($file);	
+
+				$i++;
+			}
+			
+			if (! $params->separate_zip)
+				$zip->close();
+			
+		} else {
+			$pathinfo = pathinfo($files);
+			$dir = $pathinfo['dirname'];
+			$fil = $pathinfo['filename'];
+			$fbn = $pathinfo['basename'];
+			$ext = strtolower($pathinfo['extension']);
+			$filezip = $fil.'.zip';
+			$fil_tmp = $dir.'/'.$filezip;
+			
+			$zip = new ZipArchive();
+			if ($zip->open($fil_tmp, ZipArchive::CREATE) !== TRUE) {
+				xresponse(FALSE, ['data' => [], 'message' => "Cannot open <$fil_tmp>\n"], 401);
+			}
+			$zip->addFile($files, $fbn);
+			$zip->close();
+
+			if ($params->remove_source)
+				@unlink($files);
+		}
+
+		$result = [
+			'filename' => $filezip, 
+			'filepath' => $params->tmp_dir_relative.$filezip, 
+			'file_url' => $params->base_url.$params->tmp_dir_relative.$filezip
+		];
+		xresponse(TRUE, ['data' => $result]);
 	}
 	
 	function isDataExist($table, $where=array())
@@ -324,8 +597,8 @@ class Base_Model extends CI_Model
 		if ( key_exists('where_custom', $params)) $this->db->where($params['where_custom']);
 		if ( key_exists('like', $params)) $this->db->where($params['like']);
 
-		if (key_exists('filter', $this->params) && !empty($this->params['filter'])){
-			$array = explode(",", $this->params['filter']);
+		if (key_exists('filter', $this->params) && !empty($this->params->filter)){
+			$array = explode(",", $this->params->filter);
 			if (!empty($array)) {
 				foreach ($array as $value) {
 					// list($k, $v) = explode("=", $value);

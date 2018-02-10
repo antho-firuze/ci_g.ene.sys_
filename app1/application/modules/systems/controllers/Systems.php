@@ -18,9 +18,9 @@ class Systems extends Getmeb
 	
 	function dashboard1()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['run']) && $this->params['run']) {
-				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params['id'])->query;
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->run) && $this->params->run) {
+				$str = $this->base_model->getValue('query', 'a_dashboard', 'id', $this->params->id)->query;
 				if ($str) {
 					$str = translate_variable($str);
 					
@@ -50,9 +50,9 @@ class Systems extends Getmeb
 				xresponse(FALSE, []);
 			}
 			
-			$this->params['list'] = 1;
-			$this->params['where_custom'][] = 'tags is null';
-			// $this->params['where_custom'][] = 'tags is not null';
+			$this->params->list = 1;
+			$this->params->where_custom[] = 'tags is null';
+			// $this->params->where_custom[] = 'tags is not null';
 			if (!$result = $this->{$this->mdl}->{$this->c_method}($this->params)){
 				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
 			} else {
@@ -68,7 +68,7 @@ class Systems extends Getmeb
 			if (isset($this->params->send_mail) && $this->params->send_mail) {
 				// debug($this->params);
 				if(! send_mail_systems($this->params->email_from, $this->params->email_to, $this->params->subject, $this->params->message)) {
-					xresponse(FALSE, ['message' => $this->session->flashdata('message')], 401);
+					xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
 				}
 				
 				/* success */
@@ -79,9 +79,9 @@ class Systems extends Getmeb
 	
 	function va_server()
 	{
-		if ($this->r_method == 'GET') {
-			$fdate = $this->params['fdate'] . ' 00:00:00';
-			$tdate = $this->params['tdate'] . ' 23:59:59';
+		if ($this->params->event == 'pre_get'){
+			$fdate = $this->params->fdate . ' 00:00:00';
+			$tdate = $this->params->tdate . ' 23:59:59';
 			
 			/* line chart */
 			if (date_differ($fdate, $tdate, 'day') < 1) {
@@ -298,9 +298,9 @@ class Systems extends Getmeb
 		$this->load->library('z_auth/auth');
 		
 		/* This line for validating forgot code */
-		if (isset($this->params['code']) && $this->params['code']) {
+		if (isset($this->params->code) && $this->params->code) {
 			/* Checking forgotten code */
-			if (($user = $this->auth->forgotten_password_complete($this->params['code'])) === FALSE ) {
+			if (($user = $this->auth->forgotten_password_complete($this->params->code)) === FALSE ) {
 				$this->session->set_flashdata('message', '<b>'.$this->auth->errors().'</b>');
 				redirect(BASE_URL.'frontend/not_found');
 			}
@@ -315,13 +315,13 @@ class Systems extends Getmeb
 		$this->load->library('z_auth/auth');
 		
 		/* This line for processing forgot password */
-		if (isset($this->params['forgot']) && $this->params['forgot']) {
+		if (isset($this->params->forgot) && $this->params->forgot) {
 			//run the forgotten password method to email an activation code to the user
-			if (($user = $this->auth->forgotten_password($this->params['email'])) === FALSE){
+			if (($user = $this->auth->forgotten_password($this->params->email)) === FALSE){
 				/* Trapping user_agent, ip address & status */
-				$this->{$this->mdl}->_save_useragent($this->params['email'], 'Email Not Registered/Intruder Detected');
+				$this->{$this->mdl}->_save_useragent($this->params->email, 'Email Not Registered/Intruder Detected');
 				
-				xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+				xresponse(FALSE, ['message' => $this->auth->errors()]);
 			}
 			
 			/* Trying to sending email */
@@ -333,23 +333,23 @@ class Systems extends Getmeb
 			$body .= "System.";
 			$message = $body;
 			if($result = send_mail_systems(NULL, $user->email, 'Your Reset Password Link', $message) !== TRUE) {
-				$this->{$this->mdl}->_save_useragent($this->params['email'], 'Forgot Password: Reset Link failed delivered !', $this->session->flashdata('message'));
-				xresponse(FALSE, ['message' => $this->session->flashdata('message')], 401);
+				$this->{$this->mdl}->_save_useragent($this->params->email, 'Forgot Password: Reset Link failed delivered !', $this->session->flashdata('message'));
+				xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
 			}
 			
 			/* Trapping user_agent, ip address & status */
-			$this->{$this->mdl}->_save_useragent($this->params['email'], 'Forgot Password: Reset Link succeeded delivered !');
+			$this->{$this->mdl}->_save_useragent($this->params->email, 'Forgot Password: Reset Link succeeded delivered !');
 		
 			/* success */
 			xresponse(TRUE, ['message' => 'The link for reset your password has been sent to your email.']);
 		}
 		
 		/* This line for processing reset password */
-		if (isset($this->params['reset']) && $this->params['reset']) {
+		if (isset($this->params->reset) && $this->params->reset) {
 			
 			/* Check code for expiration */
-			if (($user = $this->auth->forgotten_password_complete($this->params['code'])) === FALSE ) {
-				xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+			if (($user = $this->auth->forgotten_password_complete($this->params->code)) === FALSE ) {
+				xresponse(FALSE, ['message' => $this->auth->errors()]);
 			}
 			
 			$http_auth = $this->input->server('HTTP_X_AUTH');
@@ -366,7 +366,7 @@ class Systems extends Getmeb
 				/* Trapping user_agent, ip address & status */
 				$this->{$this->mdl}->_save_useragent($username, 'Reset Password Failed');
 				
-				xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+				xresponse(FALSE, ['message' => $this->auth->errors()]);
 			}
 			
 			/* Remove forgotten_password_code & forgotten_password_time */
@@ -383,7 +383,7 @@ class Systems extends Getmeb
 		}
 		
 		/* This line for authentication login page */
-		if (isset($this->params['login']) && $this->params['login']) {
+		if (isset($this->params->login) && $this->params->login) {
 			$http_auth 	= $this->input->server('HTTP_X_AUTH');
 			// debug(filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE));
 			// debug($_SERVER['REMOTE_ADDR'].'-'.$_SERVER['SERVER_ADDR']);
@@ -400,13 +400,13 @@ class Systems extends Getmeb
 			}
 
 			$username = strtolower($username);
-			$rememberme = isset($this->params['rememberme']) && $this->params['rememberme'] ? TRUE : FALSE;
+			$rememberme = isset($this->params->rememberme) && $this->params->rememberme ? TRUE : FALSE;
 			/* Try to login */
 			if (! $user_id = $this->auth->login($username, $password, $rememberme)) {
 				/* Trapping user_agent, ip address & status */
 				$this->{$this->mdl}->_save_useragent($username, 'Login Failed/Intruder Detected');
 				
-				xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+				xresponse(FALSE, ['message' => $this->auth->errors()]);
 			}
 
 			/* Trapping user_agent, ip address & status */
@@ -415,15 +415,15 @@ class Systems extends Getmeb
 			/* Store configuration to session */
 			$this->{$this->mdl}->_store_config($user_id);
 			
-			$url = $this->session->referred_index == $this->params['current_url'] ? APPS_LNK : $this->session->referred_index;
+			$url = $this->session->referred_index == $this->params->current_url ? APPS_LNK : $this->session->referred_index;
 			$url = $url ? $url : APPS_LNK;
 			xresponse(TRUE, ['message' => 'Login Success !', 'url' => $url]);
 		}
 
 		/* This line for unlock the screen */
-		if (isset($this->params['unlock']) && $this->params['unlock']) {
+		if (isset($this->params->unlock) && $this->params->unlock) {
 			$this->_check_is_login();
-			
+			// xresponse(FALSE, ['message' => 'testing']);
 			$http_auth 	= $this->input->server('HTTP_X_AUTH');
 			if ($http_auth !== NULL)
 			{
@@ -439,7 +439,7 @@ class Systems extends Getmeb
 				/* Trapping user_agent, ip address & status */
 				$this->{$this->mdl}->_save_useragent($username, 'Unlock Failed/Intruder Detected');
 				
-				xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+				xresponse(FALSE, ['message' => $this->auth->errors()]);
 			}
 			
 			xresponse(TRUE);
@@ -459,8 +459,8 @@ class Systems extends Getmeb
 	
 	function x_chgpwd()
 	{
-		if ($this->r_method == 'GET') {
-			$this->params['where']['t1.id'] = $this->session->user_id;
+		if ($this->params->event == 'pre_get'){
+			$this->params->where['t1.id'] = $this->session->user_id;
 			
 			if (($result['data'] = $this->{$this->mdl}->a_user($this->params)) === FALSE){
 				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
@@ -481,7 +481,7 @@ class Systems extends Getmeb
 			}
 			if (! $this->auth->change_password($username, $password, $this->params->password_new))
 			{
-				xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+				xresponse(FALSE, ['message' => $this->auth->errors()]);
 			}
 
 			xresponse(TRUE, ['message' => $this->auth->messages()]);
@@ -506,25 +506,25 @@ class Systems extends Getmeb
 	// REQUIRED LOGIN
 	function x_srcmenu()
 	{
-		if (isset($this->params['q']) && $this->params['q']) 
-			$this->params['like']	= DBX::like_or('t2.name', $this->params['q']);
+		if (isset($this->params->q) && $this->params->q) 
+			$this->params->like	= DBX::like_or('t2.name', $this->params->q);
 			
-		$this->params['where']['t1.role_id']	= $this->session->role_id;
-		$this->params['where']['t2.is_active']	= '1';
-		$this->params['where']['t1.is_active']	= '1';
-		$this->params['where']['t2.is_parent']	= '0';
-		$this->params['where']['t2.is_submodule']	= '0';
-		$this->params['order'] = "t2.name";
-		$this->params['list']	= 1;
+		$this->params->where['t1.role_id']	= $this->session->role_id;
+		$this->params->where['t2.is_active']	= '1';
+		$this->params->where['t1.is_active']	= '1';
+		$this->params->where['t2.is_parent']	= '0';
+		$this->params->where['t2.is_submodule']	= '0';
+		$this->params->order = "t2.name";
+		$this->params->list	= 1;
 		$result['data'] = $this->{$this->mdl}->a_role_menu($this->params);
 		xresponse(TRUE, $result);
 	}
 	
 	function x_profile($mode=NULL)
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['view']) && $this->params['view']) {
-				$this->params['where']['t1.id'] = $this->session->user_id;
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->view) && $this->params->view) {
+				$this->params->where['t1.id'] = $this->session->user_id;
 				if (($result['data'] = $this->{$this->mdl}->a_user($this->params)) === FALSE){
 					$result['data'] = [];
 					$result['message'] = $this->base_model->errors();
@@ -625,27 +625,23 @@ class Systems extends Getmeb
 	
 	function x_info()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
 
-			if (key_exists('valid', $this->params) && ($this->params['valid'])) {
-				$this->params['where']['is_active'] = '1';
-				$this->params['where']['valid_from <='] = date('Y-m-d H:i:s');
-				$this->params['where_custom'][] = $this->session->org_id . " = ANY (valid_org)";
-				$this->params['where_custom'][] = $this->session->orgtrx_id . " = ANY (valid_orgtrx)";
-				$this->params['where_custom'][] = "(valid_till >= '". date('Y-m-d H:i:s') ."' or valid_till is null)";
+			if (key_exists('valid', $this->params) && ($this->params->valid)) {
+				$this->params->where['is_active'] = '1';
+				$this->params->where['valid_from <='] = date('Y-m-d H:i:s');
+				$this->params->where_custom[] = $this->session->org_id . " = ANY (valid_org)";
+				$this->params->where_custom[] = $this->session->orgtrx_id . " = ANY (valid_orgtrx)";
+				$this->params->where_custom[] = "(valid_till >= '". date('Y-m-d H:i:s') ."' or valid_till is null)";
 			}
 			
-			if (isset($this->params['pageid']) && ($this->params['pageid'])) {
-				$this->params['where_custom'][] = @end(explode(',',$this->params['pageid'])) . " = ANY (valid_menu)";
+			if (isset($this->params->pageid) && ($this->params->pageid)) {
+				$this->params->where_custom[] = @end(explode(',',$this->params->pageid)) . " = ANY (valid_menu)";
 			}
 			
-			$this->params['sort'] = 'seq';
-			if (! $result['data'] = $this->{$this->mdl}->a_info($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->sort = 'seq';
+			$this->{$this->mdl}->a_info($this->params);
 		}
 	}
 	
@@ -654,14 +650,14 @@ class Systems extends Getmeb
 	*/
 	function x_page()
 	{
-		if (isset($this->params['pageid']) && !empty($this->params['pageid'])) {
+		if (isset($this->params->pageid) && !empty($this->params->pageid)) {
 			
 			if (! $menu = $this->_check_is_allow('html'))
 				$menu = array();
 			
 			/* For getting breadcrumb */
-			$this->params['bread'] = [];
-			if ($qry = $this->db->where_in('id', explode(',', $this->params['pageid']))->order_by('id')->get('a_menu')) {
+			$this->params->bread = [];
+			if ($qry = $this->db->where_in('id', explode(',', $this->params->pageid))->order_by('id')->get('a_menu')) {
 				$menus = $qry->result();
 				for($i = 0; $i < count($menus); $i++){
 					$link = 'javascript:history.go(-'.(count($menus)-$i).')';
@@ -673,37 +669,37 @@ class Systems extends Getmeb
 
 					/* Last menu on bc */
 					if (count($menus) == $i+1) {
-						if (isset($this->params['action']) && $this->params['action'] == 'imp'){
+						if (isset($this->params->action) && $this->params->action == 'imp'){
 							$link = 'javascript:history.go(-'.(count($menus)-$i).')';
 							$title = $menus[$i]->title;
 							$bc[] = ['pageid' => $menus[$i]->id, 'icon' => $menus[$i]->icon, 'title' => $title, 'title_desc' => $menus[$i]->title_desc, 'link' => $link];
 						}
-						if (isset($this->params['action']) && $this->params['action'] == 'exp'){
+						if (isset($this->params->action) && $this->params->action == 'exp'){
 							$link = 'javascript:history.go(-'.(count($menus)-$i).')';
 							$title = $menus[$i]->title;
 							$bc[] = ['pageid' => $menus[$i]->id, 'icon' => $menus[$i]->icon, 'title' => $title, 'title_desc' => $menus[$i]->title_desc, 'link' => $link];
 						}
 						$link = ''; 
 						$actions = ['new'=>'(New)', 'edt'=>'(Edit)', 'cpy'=>'(Copy)', 'imp'=>'(Import)', 'exp'=>'(Export)'];
-						$act_name = isset($this->params['action']) && isset($actions[$this->params['action']]) ? ' '.$actions[$this->params['action']] : '';
+						$act_name = isset($this->params->action) && isset($actions[$this->params->action]) ? ' '.$actions[$this->params->action] : '';
 						$title = $menus[$i]->title.$act_name;
 					}
 					$bc[] = ['pageid' => $menus[$i]->id, 'icon' => $menus[$i]->icon, 'title' => $title, 'title_desc' => $menus[$i]->title_desc, 'link' => $link];
 				}
-				$this->params['bread'] = isset($bc) ? $bc : array();
+				$this->params->bread = isset($bc) ? $bc : array();
 			}
 			
 			/* For identify opened table to client (property for auto reload event) */
 			if ($menu)
 				setcookie('table', $menu['table']);
 			
-			if (isset($this->params['bread']) && count($this->params['bread']) >= 0)
-				$menu = array_merge($menu, ['bread' => $this->params['bread']]);
+			if (isset($this->params->bread) && count($this->params->bread) >= 0)
+				$menu = array_merge($menu, ['bread' => $this->params->bread]);
 			
 			
 			/* Check for action pages */
-			if (isset($this->params['action']) && !empty($this->params['action'])){
-				switch($this->params['action']) {
+			if (isset($this->params->action) && !empty($this->params->action)){
+				switch($this->params->action) {
 					case 'new': 
 					case 'cpy': 
 					case 'edt': 
@@ -744,7 +740,7 @@ class Systems extends Getmeb
 				$result = $this->_recordUpdate('a_user', $this->params, ['id'=>$this->session->user_id], FALSE);
 				
 				if (! $result)
-					xresponse(FALSE, ['message' => $this->messages()], 401);
+					xresponse(FALSE, ['message' => $this->messages()]);
 
 				xresponse(TRUE, ['message' => $this->messages()]);
 			}
@@ -784,18 +780,11 @@ class Systems extends Getmeb
 	/* Don't make example from a_user & a_role */
 	function a_user()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
+			if (isset($this->params->export) && !empty($this->params->export)) {
 				$this->protected_fields = ['user_org_id','user_role_id','api_token','password','salt','remember_token','is_online','forgotten_password_code','forgotten_password_time','ip_address','photo_file'];
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
 			}
 		}
 		if ($this->r_method == 'POST') {
@@ -836,7 +825,7 @@ class Systems extends Getmeb
 				
 				$this->load->library('z_auth/auth');
 				if (! $id = $this->auth->register($this->params->name, $this->params->password, $this->params->email, array_merge($this->fixed_data, $this->create_log)))
-					xresponse(FALSE, ['message' => $this->auth->errors()], 401);
+					xresponse(FALSE, ['message' => $this->auth->errors()]);
 
 				/* create avatar image */
 				$data = ['word'=>$this->params->name[0], 'img_path'=>$this->session->user_photo_path, 'img_url'=> base_url().$this->session->user_photo_path];
@@ -864,15 +853,10 @@ class Systems extends Getmeb
 	{
 		$this->identity_keys = ['user_id', 'org_id'];
 		
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE, ['(select code from a_org where id = t1.org_id)','(select name from a_org where id = t1.org_id)',], TRUE);
 
-			$this->params['where']['orgtype_id'] = 2;
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['orgtype_id'] = 2;
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
@@ -881,7 +865,7 @@ class Systems extends Getmeb
 				
 				/* Throwing the result to Ajax */
 				if (! $result)
-					xresponse(FALSE, ['message' => $this->messages()], 401);
+					xresponse(FALSE, ['message' => $this->messages()]);
 
 				xresponse(TRUE, ['message' => $this->messages()]);
 			}
@@ -892,9 +876,9 @@ class Systems extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'pre_delete'){
+			if ($this->params->event == 'pre_delete'){
 				$str = "with recursive tbl AS (
-				select id, user_id, org_id, orgtype_id from a_user_org where id in (".$this->params['id'].")
+				select id, user_id, org_id, orgtype_id from a_user_org where id in (".$this->params->id.")
 				union all
 				select cld.id, cld.user_id, cld.org_id, cld.orgtype_id from a_user_org cld join tbl on tbl.id = cld.parent_id
 				) select id, user_id, org_id, orgtype_id from tbl";
@@ -913,9 +897,9 @@ class Systems extends Getmeb
 					}
 				}
 			}
-			if ($this->params['event'] == 'post_delete'){
+			if ($this->params->event == 'post_delete'){
 				$str = "with recursive tbl AS (
-				select id from a_user_org where id in (".$this->params['id'].")
+				select id from a_user_org where id in (".$this->params->id.")
 				union all
 				select cld.id from a_user_org cld join tbl on tbl.id = cld.parent_id
 				) update a_user_org set is_deleted = '1', deleted_by = ".$this->session->user_id.", deleted_at = '".date('Y-m-d H:i:s')."' where id in (select id from tbl)";
@@ -928,25 +912,20 @@ class Systems extends Getmeb
 	{
 		$this->identity_keys = ['user_id', 'org_id'];
 		
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE, ['(select code from a_org where id = t1.org_id)','(select name from a_org where id = t1.org_id)',], TRUE);
 
 			/* For getting org_id in a_user_orgtrx.tpl */
-			if (isset($this->params['get_org_id']) && !empty($this->params['get_org_id'])) {
-				$row = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $this->params['parent_id']);
+			if (isset($this->params->get_org_id) && !empty($this->params->get_org_id)) {
+				$row = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $this->params->parent_id);
 				xresponse(TRUE, ['data'=>$row]);
 			}
 			
-			if (isset($this->params['parent_org_id']) && !empty($this->params['parent_org_id'])) {
-				$this->params['where']['parent_org_id'] = $this->params['parent_org_id'];
+			if (isset($this->params->parent_org_id) && !empty($this->params->parent_org_id)) {
+				$this->params->where['parent_org_id'] = $this->params->parent_org_id;
 			}
 			
-			$this->params['where']['orgtype_id'] = 3;
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['orgtype_id'] = 3;
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
@@ -954,7 +933,7 @@ class Systems extends Getmeb
 				
 				/* Throwing the result to Ajax */
 				if (! $result)
-					xresponse(FALSE, ['message' => $this->messages()], 401);
+					xresponse(FALSE, ['message' => $this->messages()]);
 
 				xresponse(TRUE, ['message' => $this->messages()]);
 			}
@@ -966,9 +945,9 @@ class Systems extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'pre_delete'){
+			if ($this->params->event == 'pre_delete'){
 				$str = "with recursive tbl AS (
-				select id, user_id, org_id, orgtype_id from a_user_org where id in (".$this->params['id'].")
+				select id, user_id, org_id, orgtype_id from a_user_org where id in (".$this->params->id.")
 				union all
 				select cld.id, cld.user_id, cld.org_id, cld.orgtype_id from a_user_org cld join tbl on tbl.id = cld.parent_id
 				) select id, user_id, org_id, orgtype_id from tbl";
@@ -987,9 +966,9 @@ class Systems extends Getmeb
 					}
 				}
 			}
-			if ($this->params['event'] == 'post_delete'){
+			if ($this->params->event == 'post_delete'){
 				$str = "with recursive tbl AS (
-				select id from a_user_org where id in (".$this->params['id'].")
+				select id from a_user_org where id in (".$this->params->id.")
 				union all
 				select cld.id from a_user_org cld join tbl on tbl.id = cld.parent_id
 				) update a_user_org set is_deleted = '1', deleted_by = ".$this->session->user_id.", deleted_at = '".date('Y-m-d H:i:s')."' where id in (select id from tbl)";
@@ -1002,21 +981,16 @@ class Systems extends Getmeb
 	{
 		$this->identity_keys = ['user_id', 'org_id'];
 		
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE, ['(select code from a_org where id = t1.org_id)','(select name from a_org where id = t1.org_id)',], TRUE);
 
 			/* For getting org_id in a_user_orgdept.tpl */
-			if (isset($this->params['get_org_id']) && !empty($this->params['get_org_id'])) {
-				$row = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $this->params['parent_id']);
+			if (isset($this->params->get_org_id) && !empty($this->params->get_org_id)) {
+				$row = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $this->params->parent_id);
 				xresponse(TRUE, ['data'=>$row]);
 			}
 			
-			$this->params['where']['orgtype_id'] = 4;
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['orgtype_id'] = 4;
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
@@ -1024,7 +998,7 @@ class Systems extends Getmeb
 				
 				/* Throwing the result to Ajax */
 				if (! $result)
-					xresponse(FALSE, ['message' => $this->messages()], 401);
+					xresponse(FALSE, ['message' => $this->messages()]);
 
 				xresponse(TRUE, ['message' => $this->messages()]);
 			}
@@ -1036,9 +1010,9 @@ class Systems extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'pre_delete'){
+			if ($this->params->event == 'pre_delete'){
 				$str = "with recursive tbl AS (
-				select id, user_id, org_id, orgtype_id from a_user_org where id in (".$this->params['id'].")
+				select id, user_id, org_id, orgtype_id from a_user_org where id in (".$this->params->id.")
 				union all
 				select cld.id, cld.user_id, cld.org_id, cld.orgtype_id from a_user_org cld join tbl on tbl.id = cld.parent_id
 				) select id, user_id, org_id, orgtype_id from tbl";
@@ -1057,9 +1031,9 @@ class Systems extends Getmeb
 					}
 				}
 			}
-			if ($this->params['event'] == 'post_delete'){
+			if ($this->params->event == 'post_delete'){
 				$str = "with recursive tbl AS (
-				select id from a_user_org where id in (".$this->params['id'].")
+				select id from a_user_org where id in (".$this->params->id.")
 				union all
 				select cld.id from a_user_org cld join tbl on tbl.id = cld.parent_id
 				) update a_user_org set is_deleted = '1', deleted_by = ".$this->session->user_id.", deleted_at = '".date('Y-m-d H:i:s')."' where id in (select id from tbl)";
@@ -1072,21 +1046,16 @@ class Systems extends Getmeb
 	{
 		$this->identity_keys = ['user_id', 'org_id'];
 		
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE, ['(select code from a_org where id = t1.org_id)','(select name from a_org where id = t1.org_id)',], TRUE);
 
 			/* For getting org_id in a_user_orgdiv.tpl */
-			if (isset($this->params['get_org_id']) && !empty($this->params['get_org_id'])) {
-				$row = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $this->params['parent_id']);
+			if (isset($this->params->get_org_id) && !empty($this->params->get_org_id)) {
+				$row = $this->base_model->getValue('user_id, org_id', 'a_user_org', 'id', $this->params->parent_id);
 				xresponse(TRUE, ['data'=>$row]);
 			}
 			
-			$this->params['where']['orgtype_id'] = 5;
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['orgtype_id'] = 5;
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if (isset($this->params->set_default) && !empty($this->params->set_default)) {
@@ -1094,7 +1063,7 @@ class Systems extends Getmeb
 				
 				/* Throwing the result to Ajax */
 				if (! $result)
-					xresponse(FALSE, ['message' => $this->messages()], 401);
+					xresponse(FALSE, ['message' => $this->messages()]);
 
 				xresponse(TRUE, ['message' => $this->messages()]);
 			}
@@ -1106,9 +1075,9 @@ class Systems extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'pre_delete'){
+			if ($this->params->event == 'pre_delete'){
 				$str = "with recursive tbl AS (
-				select id, user_id, org_id, orgtype_id from a_user_org where id in (".$this->params['id'].")
+				select id, user_id, org_id, orgtype_id from a_user_org where id in (".$this->params->id.")
 				union all
 				select cld.id, cld.user_id, cld.org_id, cld.orgtype_id from a_user_org cld join tbl on tbl.id = cld.parent_id
 				) select id, user_id, org_id, orgtype_id from tbl";
@@ -1134,17 +1103,8 @@ class Systems extends Getmeb
 	{
 		$this->identity_keys = ['user_id', 'role_id'];
 		
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE, ['(select code from a_role where id = t1.role_id)','(select name from a_role where id = t1.role_id)',], TRUE);
-
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				$result['data'] = [];
-				$result['message'] = $this->base_model->errors();
-				$result['str_query'] = $this->session->flashdata('str_query');
-				xresponse(FALSE, $result);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 		if ($this->r_method == 'PUT') {
 			
@@ -1153,14 +1113,14 @@ class Systems extends Getmeb
 				
 				/* Throwing the result to Ajax */
 				if (! $result)
-					xresponse(FALSE, ['message' => $this->messages()], 401);
+					xresponse(FALSE, ['message' => $this->messages()]);
 
 				xresponse(TRUE, ['message' => $this->messages()]);
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'pre_delete'){
-				foreach(explode(',', $this->params['id']) as $id) {
+			if ($this->params->event == 'pre_delete'){
+				foreach(explode(',', $this->params->id) as $id) {
 					$user_role = $this->base_model->getValue('user_id, role_id', 'a_user_role', 'id', $id);
 					$str = "update a_user set user_role_id = NULL where id = ".$user_role->user_id." and user_role_id = ".$user_role->role_id;
 					$this->db->query($str);
@@ -1173,29 +1133,24 @@ class Systems extends Getmeb
 	{
 		$this->identity_keys = ['user_id', 'substitute_id'];
 		
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->id) && ($this->params->id !== '')) 
+				$this->params->where['t1.id'] = $this->params->id;
 			
-			if (key_exists('user_id', $this->params) && ($this->params['user_id'] != '')) 
-				$this->params['where']['t1.user_id'] = $this->params['user_id'];
+			if (key_exists('user_id', $this->params) && ($this->params->user_id != '')) 
+				$this->params->where['t1.user_id'] = $this->params->user_id;
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name, t1.description', $this->params['q']);
+			if (isset($this->params->q) && !empty($this->params->q))
+				$this->params->like = DBX::like_or('t1.name, t1.description', $this->params->q);
 
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function a_user_config()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['user_id']) && ($this->params['user_id'] !== '')) 
-				$user_id = $this->params['user_id'];
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->user_id) && ($this->params->user_id !== '')) 
+				$user_id = $this->params->user_id;
 			else
 				$user_id = $this->session->user_id;
 			
@@ -1255,19 +1210,10 @@ class Systems extends Getmeb
 	
 	function a_user_dataset()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE);
 			
-			$this->params['where']['user_id'] = $this->session->user_id;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['user_id'] = $this->session->user_id;
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_post_put'){
@@ -1279,39 +1225,25 @@ class Systems extends Getmeb
 	/* Don't make example from a_role & a_user */
 	function a_role()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
-				$this->params['where_in']['id'] = $this->_get_role($this->params['for_user']);
-			}
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
+			if (isset($this->params->for_user) && !empty($this->params->for_user)) {
+				$this->params->where_in['id'] = $this->_get_role($this->params->for_user);
 			}
 		}
 	}
 	
 	function a_role_list()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
-				$this->params['where_in']['id'] = $this->_get_role();
+			if (isset($this->params->for_user) && !empty($this->params->for_user)) {
+				$this->params->where_in['id'] = $this->_get_role();
 			}
 			
-			if (! $result['data'] = $this->{$this->mdl}->a_role($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->{$this->mdl}->a_role($this->params);
 		}
 	}
 	
@@ -1319,36 +1251,16 @@ class Systems extends Getmeb
 	{
 		$this->identity_keys = ['role_id', 'menu_id'];
 		
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->id) && ($this->params->id !== '')) 
+				$this->params->where['t1.id'] = $this->params->id;
 			
-			if (isset($this->params['role_id']) && ($this->params['role_id'] != '')) 
-				$this->params['where']['t1.role_id'] = $this->params['role_id'];
+			if (isset($this->params->role_id) && ($this->params->role_id != '')) 
+				$this->params->where['t1.role_id'] = $this->params->role_id;
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t2.code, t2.name, t2.description', $this->params['q']);
+			if (isset($this->params->q) && !empty($this->params->q))
+				$this->params->like = DBX::like_or('t2.code, t2.name, t2.description', $this->params->q);
 
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				// $this->_pre_export_data();
-				$this->params['export'] = 1;
-				$this->params['select']	= "t1.is_active, t2.code, t2.name, t2.type, (select coalesce(code,'') ||'_'|| name from a_menu where id = t2.parent_id limit 1) as parent_name, t1.permit_form, t1.permit_process, t1.permit_window";
-				$this->params['table'] 	= "a_role_menu t1";
-				$this->params['join'][] = ['a_menu t2', 't1.menu_id = t2.id', 'left'];
-				$this->params['where']['t1.is_deleted']	= '0';
-				$this->params['where']['t2.is_deleted']	= '0';
-				if (! $result = $this->base_model->mget_rec($this->params))
-					xresponse(FALSE, ['message' => $this->base_model->errors()]);
-				
-				$result = $this->_export_data($result, [], TRUE);
-				xresponse(TRUE, $result);
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_post_put'){
@@ -1392,36 +1304,16 @@ class Systems extends Getmeb
 	{
 		$this->identity_keys = ['role_id', 'dashboard_id'];
 		
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->id) && ($this->params->id !== '')) 
+				$this->params->where['t1.id'] = $this->params->id;
 			
-			if (isset($this->params['role_id']) && ($this->params['role_id'] != '')) 
-				$this->params['where']['t1.role_id'] = $this->params['role_id'];
+			if (isset($this->params->role_id) && ($this->params->role_id != '')) 
+				$this->params->where['t1.role_id'] = $this->params->role_id;
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t2.code, t2.name, t2.description', $this->params['q']);
+			if (isset($this->params->q) && !empty($this->params->q))
+				$this->params->like = DBX::like_or('t2.code, t2.name, t2.description', $this->params->q);
 
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				// $this->_pre_export_data();
-				$this->params['export'] = 1;
-				$this->params['select']	= "t1.is_active, t2.code, t2.name, t2.type";
-				$this->params['table'] 	= "a_role_menu t1";
-				$this->params['join'][] = ['a_menu t2', 't1.menu_id = t2.id', 'left'];
-				$this->params['where']['t1.is_deleted']	= '0';
-				$this->params['where']['t2.is_deleted']	= '0';
-				if (! $result = $this->base_model->mget_rec($this->params))
-					xresponse(FALSE, ['message' => $this->base_model->errors()]);
-				
-				$result = $this->_export_data($result, [], TRUE);
-				xresponse(TRUE, $result);
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'post_post_put'){
@@ -1431,7 +1323,7 @@ class Systems extends Getmeb
 				// debug($this->params->role_id);
 				if (isset($this->params->newline) && $this->params->newline != ''){
 					if (!$result = $this->_recordUpdate($this->c_method, ['seq' => $this->params->newline], ['id' => $this->params->id], FALSE))
-						xresponse(FALSE, ['message' => $this->messages()], 401);
+						xresponse(FALSE, ['message' => $this->messages()]);
 					else {
 						$this->_reorder_dashboard($this->params->role_id);
 						xresponse(TRUE, ['message' => $this->messages()]);
@@ -1445,11 +1337,11 @@ class Systems extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'pre_delete'){
-				$this->params['role_id'] = $this->base_model->getValue('role_id', $this->c_table, 'id', explode(',', $this->params['id'])[0])->role_id;
+			if ($this->params->event == 'pre_delete'){
+				$this->params->role_id = $this->base_model->getValue('role_id', $this->c_table, 'id', explode(',', $this->params->id)[0])->role_id;
 			}
-			if ($this->params['event'] == 'post_delete'){
-				$this->_reorder_dashboard($this->params['role_id']);
+			if ($this->params->event == 'post_delete'){
+				$this->_reorder_dashboard($this->params->role_id);
 			}
 		}
 	}
@@ -1483,17 +1375,11 @@ class Systems extends Getmeb
 	
 	function a_system()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(FALSE, FALSE);
 			
-			$this->params['where']['t1.client_id'] 	=	DEFAULT_CLIENT_ID;
-			$this->params['where']['t1.org_id']			= DEFAULT_ORG_ID;
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['t1.client_id'] 	=	DEFAULT_CLIENT_ID;
+			$this->params->where['t1.org_id']			= DEFAULT_ORG_ID;
 		}
 		if (($this->r_method == 'POST')) {
 			if ($this->params->event == 'pre_post'){
@@ -1506,7 +1392,7 @@ class Systems extends Getmeb
 					$body .= "Your's Systems.";
 					$message = $body;
 					if($result = send_mail_systems(NULL, $this->session->user_email, 'Email Testing From '.$this->session->head_title, $message) !== TRUE) {
-						xresponse(FALSE, ['message' => $this->session->flashdata('message')], 401);
+						xresponse(FALSE, ['message' => $this->session->flashdata('message')]);
 					}
 					/* success */
 					xresponse(TRUE, ['message' => 'Testing Mail has been sent to your email address.']);
@@ -1517,18 +1403,8 @@ class Systems extends Getmeb
 	
 	function a_client()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(FALSE, FALSE);
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
@@ -1541,10 +1417,10 @@ class Systems extends Getmeb
 				if ($this->params->query) {
 					$query = translate_variable($this->params->query);
 					
-					// xresponse(FALSE, ['message' => $query], 401);
+					// xresponse(FALSE, ['message' => $query]);
 					
 					if (!$qry = $this->db->query($query)) {
-						xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
+						xresponse(FALSE, ['message' => $this->db->error()['message']]);
 					} else {
 						// debugf(count($qry->list_fields()));
 						$result['data']['qry_str'] = $query;
@@ -1563,25 +1439,16 @@ class Systems extends Getmeb
 				}
 			}
 		}
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE, ['t1.type', 't1.tags']);
 			
-			// $this->params['ob'] = "type, line_no";
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			// $this->params->ob = "type, line_no";
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_put'){
 				if (isset($this->params->newline) && $this->params->newline != ''){
 					if (!$result = $this->_recordUpdate($this->c_method, ['line_no' => $this->params->newline], ['id' => $this->params->id], FALSE))
-						xresponse(FALSE, ['message' => $this->messages()], 401);
+						xresponse(FALSE, ['message' => $this->messages()]);
 					else {
 						xresponse(TRUE, ['message' => $this->messages()]);
 					}
@@ -1592,35 +1459,15 @@ class Systems extends Getmeb
 	
 	function a_dataset()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function a_domain()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_post'){
@@ -1634,18 +1481,8 @@ class Systems extends Getmeb
 	{
 		$this->identity_keys = ['name', 'parent_id'];
 		
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE, ['method','title','title_desc']);
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_post_put'){
@@ -1660,7 +1497,7 @@ class Systems extends Getmeb
 				if (isset($this->params->newline) && $this->params->newline != ''){
 					$needsort = $this->params->line_no - $this->params->newline;
 					if (!$result = $this->_recordUpdate($this->c_method, ['line_no' => $this->params->newline, 'is_needsort' => $needsort], ['id' => $this->params->id], FALSE))
-						xresponse(FALSE, ['message' => $this->messages()], 401);
+						xresponse(FALSE, ['message' => $this->messages()]);
 					else {
 						$this->_reorder_menu($this->params->parent_id);
 						xresponse(TRUE, ['message' => $this->messages()]);
@@ -1676,18 +1513,13 @@ class Systems extends Getmeb
 	
 	function a_menu_parent_list()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
-				$this->params['where']['id'] = $this->params['id'];
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->id) && !empty($this->params->id)) 
+				$this->params->where['id'] = $this->params->id;
 		
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('name', $this->params['q']);
+			if (isset($this->params->q) && !empty($this->params->q))
+				$this->params->like = DBX::like_or('name', $this->params->q);
 		
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
@@ -1695,27 +1527,18 @@ class Systems extends Getmeb
 	{
 		$this->identity_keys = ['name', 'parent_id'];
 		
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
-				if (isset($this->params['parent_id']) && !empty($this->params['parent_id'])) {
-					$this->params['where_in']['parent_id'] = $this->params['parent_id'];
+			if (isset($this->params->for_user) && !empty($this->params->for_user)) {
+				if (isset($this->params->parent_id) && !empty($this->params->parent_id)) {
+					$this->params->where_in['parent_id'] = $this->params->parent_id;
 				} else {
-					$this->params['where_in']['id'] = $this->_get_org();
+					$this->params->where_in['id'] = $this->_get_org();
 				}
 			}
 			
-			$this->params['where']['orgtype_id'] = 2;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['orgtype_id'] = 2;
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_post'){
@@ -1724,9 +1547,9 @@ class Systems extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
+			if ($this->params->event == 'post_delete'){
 				$str = "with recursive tbl AS (
-				select id from a_org where id in (".$this->params['id'].")
+				select id from a_org where id in (".$this->params->id.")
 				union all
 				select cld.id from a_org cld join tbl on tbl.id = cld.parent_id
 				) update a_org set is_deleted = '1', deleted_by = ".$this->session->user_id.", deleted_at = '".date('Y-m-d H:i:s')."' where id in (select id from tbl)";
@@ -1739,28 +1562,20 @@ class Systems extends Getmeb
 	{
 		$this->identity_keys = ['name', 'parent_id'];
 		
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
-				if (isset($this->params['parent_id']) && !empty($this->params['parent_id'])) {
-					// debug($this->params['parent_id']);
-					$this->params['where_in']['parent_id'] = explode(',', $this->params['parent_id']);
+			if (isset($this->params->for_user) && !empty($this->params->for_user)) {
+				if (isset($this->params->parent_id) && !empty($this->params->parent_id)) {
+					// debug($this->params->parent_id);
+					$this->params->where_in['parent_id'] = explode(',', $this->params->parent_id);
 				} else {
-					$this->params['where_in']['id'] = $this->_get_orgtrx();
+					$this->params->where_in['id'] = $this->_get_orgtrx();
 				}
 			}
 			
-			$this->params['where']['orgtype_id'] = 3;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-
-			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['orgtype_id'] = 3;
+			$this->{$this->mdl}->a_org($this->params);
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_post'){
@@ -1769,9 +1584,9 @@ class Systems extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
+			if ($this->params->event == 'post_delete'){
 				$str = "with recursive tbl AS (
-				select id from a_org where id in (".$this->params['id'].")
+				select id from a_org where id in (".$this->params->id.")
 				union all
 				select cld.id from a_org cld join tbl on tbl.id = cld.parent_id
 				) update a_org set is_deleted = '1', deleted_by = ".$this->session->user_id.", deleted_at = '".date('Y-m-d H:i:s')."' where id in (select id from tbl)";
@@ -1784,23 +1599,15 @@ class Systems extends Getmeb
 	{
 		$this->identity_keys = ['name', 'parent_id'];
 		
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['for_user_org']) && !empty($this->params['for_user_org'])) {
-				$this->params['where_in']['id'] = $this->_get_org($this->params['for_user_org']);
+			if (isset($this->params->for_user_org) && !empty($this->params->for_user_org)) {
+				$this->params->where_in['id'] = $this->_get_org($this->params->for_user_org);
 			}
 			
-			$this->params['where']['orgtype_id'] = 4;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['orgtype_id'] = 4;
+			$this->{$this->mdl}->a_org($this->params);
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_post'){
@@ -1809,9 +1616,9 @@ class Systems extends Getmeb
 			}
 		}
 		if ($this->r_method == 'DELETE') {
-			if ($this->params['event'] == 'post_delete'){
+			if ($this->params->event == 'post_delete'){
 				$str = "with recursive tbl AS (
-				select id from a_org where id in (".$this->params['id'].")
+				select id from a_org where id in (".$this->params->id.")
 				union all
 				select cld.id from a_org cld join tbl on tbl.id = cld.parent_id
 				) update a_org set is_deleted = '1', deleted_by = ".$this->session->user_id.", deleted_at = '".date('Y-m-d H:i:s')."' where id in (select id from tbl)";
@@ -1824,23 +1631,15 @@ class Systems extends Getmeb
 	{
 		$this->identity_keys = ['name', 'parent_id'];
 		
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['for_user_org']) && !empty($this->params['for_user_org'])) {
-				$this->params['where_in']['id'] = $this->_get_org($this->params['for_user_org']);
+			if (isset($this->params->for_user_org) && !empty($this->params->for_user_org)) {
+				$this->params->where_in['id'] = $this->_get_org($this->params->for_user_org);
 			}
 			
-			$this->params['where']['orgtype_id'] = 5;
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['orgtype_id'] = 5;
+			$this->{$this->mdl}->a_org($this->params);
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_post'){
@@ -1852,174 +1651,131 @@ class Systems extends Getmeb
 	
 	function a_org_list()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
-				$this->params['where_in']['id'] = $this->_get_org();
+			if (isset($this->params->for_user) && !empty($this->params->for_user)) {
+				$this->params->where_in['id'] = $this->_get_org();
 			}
 			
-			$this->params['where']['orgtype_id'] = 2;
-			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['orgtype_id'] = 2;
+			$this->{$this->mdl}->a_org($this->params);
 		}
 	}
 	
 	function a_orgtrx_list()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
-				if (! $orgtrx = $this->_get_orgtrx($this->params['parent_org_id']))
+			if (isset($this->params->for_user) && !empty($this->params->for_user)) {
+				if (! $orgtrx = $this->_get_orgtrx($this->params->parent_org_id))
 					$orgtrx = 0;
 				
-				$this->params['where_in']['id'] = $orgtrx;
+				$this->params->where_in['id'] = $orgtrx;
 			}
 			
-			$this->params['where']['orgtype_id'] = 3;
-			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['orgtype_id'] = 3;
+			$this->{$this->mdl}->a_org($this->params);
 		}
 	}
 	
 	function a_orgdept_list()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
-				if (! $orgdept = $this->_get_orgdept($this->params['parent_org_id']))
+			if (isset($this->params->for_user) && !empty($this->params->for_user)) {
+				if (! $orgdept = $this->_get_orgdept($this->params->parent_org_id))
 					$orgdept = 0;
 				
-				$this->params['where_in']['id'] = $orgdept;
+				$this->params->where_in['id'] = $orgdept;
 			}
 			
-			$this->params['where']['orgtype_id'] = 4;
-			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['orgtype_id'] = 4;
+			$this->{$this->mdl}->a_org($this->params);
 		}
 	}
 	
 	function a_orgdiv_list()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
 			
-			if (isset($this->params['for_user']) && !empty($this->params['for_user'])) {
-				if (! $orgdiv = $this->_get_orgdiv($this->params['parent_org_id']))
+			if (isset($this->params->for_user) && !empty($this->params->for_user)) {
+				if (! $orgdiv = $this->_get_orgdiv($this->params->parent_org_id))
 					$orgdiv = 0;
 				
-				$this->params['where_in']['id'] = $orgdiv;
+				$this->params->where_in['id'] = $orgdiv;
 			}
 			
-			$this->params['where']['orgtype_id'] = 5;
-			if (! $result['data'] = $this->{$this->mdl}->a_org($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
+			$this->params->where['orgtype_id'] = 5;
+			$this->{$this->mdl}->a_org($this->params);
 		}
 	}
 	
 	function a_org_parent_list()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			// debug($this->_get_orgtrx());
-			if (isset($this->params['id']) && !empty($this->params['id'])) 
-				$this->params['where']['id'] = $this->params['id'];
+			if (isset($this->params->id) && !empty($this->params->id)) 
+				$this->params->where['id'] = $this->params->id;
 			
-			if (isset($this->params['client_id']) && !empty($this->params['client_id'])) 
-				$this->params['where']['client_id'] = $this->params['client_id'];
+			if (isset($this->params->client_id) && !empty($this->params->client_id)) 
+				$this->params->where['client_id'] = $this->params->client_id;
 		
-			if (isset($this->params['org_id']) && !empty($this->params['org_id'])) 
-				$this->params['where']['org_id'] = $this->params['org_id'];
+			if (isset($this->params->org_id) && !empty($this->params->org_id)) 
+				$this->params->where['org_id'] = $this->params->org_id;
 			
-			if (isset($this->params['orgtype_id']) && !empty($this->params['orgtype_id'])) 
-				$this->params['where']['orgtype_id'] = $this->params['orgtype_id'];
+			if (isset($this->params->orgtype_id) && !empty($this->params->orgtype_id)) 
+				$this->params->where['orgtype_id'] = $this->params->orgtype_id;
 		
-			if (isset($this->params['user_org']) && !empty($this->params['user_org'])) 
-				$this->params['where_in']['org_id'] = $this->_get_org();
+			if (isset($this->params->user_org) && !empty($this->params->user_org)) 
+				$this->params->where_in['org_id'] = $this->_get_org();
 		
-			if (isset($this->params['user_orgtrx']) && !empty($this->params['user_orgtrx'])) 
-				$this->params['where_in']['org_id'] = $this->_get_orgtrx();
+			if (isset($this->params->user_orgtrx) && !empty($this->params->user_orgtrx)) 
+				$this->params->where_in['org_id'] = $this->_get_orgtrx();
 		
-			if (isset($this->params['parent_id']) && !empty($this->params['parent_id'])) 
-				$this->params['where']['parent_id'] = $this->params['parent_id'];
+			if (isset($this->params->parent_id) && !empty($this->params->parent_id)) 
+				$this->params->where['parent_id'] = $this->params->parent_id;
 		
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('name', $this->params['q']);
+			if (isset($this->params->q) && !empty($this->params->q))
+				$this->params->like = DBX::like_or('name', $this->params->q);
 		
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function a_orgtype()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function a_sequence()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function a_info()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
 
-			$this->params['where_in']['org_id'] = $this->_get_org();
+			$this->params->where_in['org_id'] = $this->_get_org();
 			
-			if (key_exists('valid', $this->params) && ($this->params['valid'])) {
-				$this->params['where']['t1.is_active'] = '1';
-				$this->params['where']['t1.valid_from <='] = datetime_db_format();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
+			if (key_exists('valid', $this->params) && ($this->params->valid)) {
+				$this->params->where['t1.is_active'] = '1';
+				$this->params->where['t1.valid_from <='] = datetime_db_format();
 			}
 		}
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_put'){
 				if (isset($this->params->newline) && $this->params->newline != ''){
 					if (!$result = $this->_recordUpdate($this->c_method, ['seq' => $this->params->newline], ['id' => $this->params->id], FALSE))
-						xresponse(FALSE, ['message' => $this->messages()], 401);
+						xresponse(FALSE, ['message' => $this->messages()]);
 					else {
 						xresponse(TRUE, ['message' => $this->messages()]);
 					}
@@ -2039,144 +1795,89 @@ class Systems extends Getmeb
 	
 	function c_currency()
 	{
-		if ($this->r_method == 'GET') {
+		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
-			
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function c_1country()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->id) && ($this->params->id !== '')) 
+				$this->params->where['t1.id'] = $this->params->id;
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
+			if (isset($this->params->q) && !empty($this->params->q))
+				$this->params->like = DBX::like_or('t1.name', $this->params->q);
 
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function c_2province()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->id) && ($this->params->id !== '')) 
+				$this->params->where['t1.id'] = $this->params->id;
 			
-			if (key_exists('country_id', $this->params) && !empty($this->params['country_id'])) 
-				$this->params['where']['t1.country_id'] = $this->params['country_id'];
+			if (key_exists('country_id', $this->params) && !empty($this->params->country_id)) 
+				$this->params->where['t1.country_id'] = $this->params->country_id;
 			else
-				$this->params['where']['t1.country_id'] = 0;
+				$this->params->where['t1.country_id'] = 0;
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
+			if (isset($this->params->q) && !empty($this->params->q))
+				$this->params->like = DBX::like_or('t1.name', $this->params->q);
 
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function c_3city()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->id) && ($this->params->id !== '')) 
+				$this->params->where['t1.id'] = $this->params->id;
 			
-			// $this->params['where']['t1.province_id'] = isset($this->params['province_id']) ? $this->params['province_id'] : 0;
-			if (key_exists('province_id', $this->params) && !empty($this->params['province_id'])) 
-				$this->params['where']['t1.province_id'] = $this->params['province_id'];
+			// $this->params->where['t1.province_id'] = isset($this->params->province_id) ? $this->params->province_id : 0;
+			if (key_exists('province_id', $this->params) && !empty($this->params->province_id)) 
+				$this->params->where['t1.province_id'] = $this->params->province_id;
 			else
-				$this->params['where']['t1.province_id'] = 0;
+				$this->params->where['t1.province_id'] = 0;
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
+			if (isset($this->params->q) && !empty($this->params->q))
+				$this->params->like = DBX::like_or('t1.name', $this->params->q);
 
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function c_4district()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->id) && ($this->params->id !== '')) 
+				$this->params->where['t1.id'] = $this->params->id;
 			
-			if (key_exists('city_id', $this->params) && !empty($this->params['city_id'])) 
-				$this->params['where']['t1.city_id'] = $this->params['city_id'];
+			if (key_exists('city_id', $this->params) && !empty($this->params->city_id)) 
+				$this->params->where['t1.city_id'] = $this->params->city_id;
 			else
-				$this->params['where']['t1.city_id'] = 0;
+				$this->params->where['t1.city_id'] = 0;
 			
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
+			if (isset($this->params->q) && !empty($this->params->q))
+				$this->params->like = DBX::like_or('t1.name', $this->params->q);
 
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	
 	function c_5village()
 	{
-		if ($this->r_method == 'GET') {
-			if (isset($this->params['id']) && ($this->params['id'] !== '')) 
-				$this->params['where']['t1.id'] = $this->params['id'];
+		if ($this->params->event == 'pre_get'){
+			if (isset($this->params->id) && ($this->params->id !== '')) 
+				$this->params->where['t1.id'] = $this->params->id;
 			else 
-				if (isset($this->params['district_id']) && !empty($this->params['district_id'])) 
-					$this->params['where']['t1.district_id'] = $this->params['district_id'];
+				if (isset($this->params->district_id) && !empty($this->params->district_id)) 
+					$this->params->where['t1.district_id'] = $this->params->district_id;
 				else
-					$this->params['where']['t1.district_id'] = 0;
+					$this->params->where['t1.district_id'] = 0;
 
-			if (isset($this->params['q']) && !empty($this->params['q']))
-				$this->params['like'] = DBX::like_or('t1.name', $this->params['q']);
+			if (isset($this->params->q) && !empty($this->params->q))
+				$this->params->like = DBX::like_or('t1.name', $this->params->q);
 
-			if (isset($this->params['export']) && !empty($this->params['export'])) {
-				$this->_pre_export_data();
-			}
-			
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				xresponse(TRUE, $result);
-			}
 		}
 	}
 	

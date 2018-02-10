@@ -31,6 +31,8 @@ class Getmef extends CI_Controller
 		if (in_array($this->r_method, ['GET','DELETE'])){
 			/* Become Array */
 			$this->params = $this->input->get();
+			/* Become Object */
+			$this->params = (object) $this->params;
 		}
 		if (in_array($this->r_method, ['POST','PUT','OPTIONS'])){
 			/* Become Object */
@@ -42,60 +44,40 @@ class Getmef extends CI_Controller
 		$this->load->model('z_libs/getmef_model');
 	}
 	
-	function xresponse($status=TRUE, $response=array(), $statusHeader=200)
-	{
-		$BM =& load_class('Benchmark', 'core');
-		
-		$statusHeader = empty($statusHeader) ? 200 : $statusHeader;
-		if (! is_numeric($statusHeader))
-			show_error('Status codes must be numeric', 500);
-		
-		$elapsed = $BM->elapsed_time('total_execution_time_start', 'total_execution_time_end');
-
-		$output['status'] = $status;
-		$output['execution_time'] = $elapsed;
-		$output['environment'] = ENVIRONMENT;
-		
-		header("HTTP/1.0 $statusHeader");
-		header('Content-Type: application/json');
-		echo json_encode(array_merge($output, $response));
-		exit();
-	}
-	
-	/**
-	 * li
-	 *
-	 * Function for left menu on backend <li></li>
-	 *
-	 * @param	string	$cur_page   Current page
-	 * @param	string	$page_chk   Page check
-	 * @param	string	$url   Url
-	 * @param	string	$menu_name   Menu label
-	 * @param	string	$icon   bootstrap glyphicon class
-	 * @param	string	$submenu   Submenu (TRUE or FALSE)
-	 * @return  string
-	 */
-	private function li($cur_page, $page_chk, $url, $menu_name, $icon)
-	{
-		$active = ($cur_page == $page_chk) ? ' class="active"' : '';
-		$glyp_icon = ($icon) ? '<i class="'.$icon.'"></i> ' : '<i class="fa fa-circle"></i>';
-		
-		$html = '<li'.$active.'><a href="'.base_url().''.$url.'">'.$glyp_icon.'<span>'.$menu_name.'</span></a></li>';
-		return $html;
-	}
-	
-	private function li_parent($cur_page, $page_chk, $url, $menu_name, $icon)
-	{
-		$active = ($cur_page == $page_chk) ? ' class="treeview active"' : ' class="treeview"';
-		$glyp_icon = ($icon) ? '<i class="'.$icon.'"></i> ' : '<i class="glyphicon glyphicon-menu-hamburger"></i>';
-		
-		$html= '<li'.$active.'><a href="'.base_url().''.$url.'">'.$glyp_icon.'<span>'.$menu_name.'</span><i class="fa fa-angle-left pull-right"></i></a>';
-		$html.= '<ul class="treeview-menu">';
-		return $html;
-	}
-	
 	function _getmenu_structure($cur_page)
 	{
+		/**
+		 * li
+		 *
+		 * Function for left menu on backend <li></li>
+		 *
+		 * @param	string	$cur_page   Current page
+		 * @param	string	$page_chk   Page check
+		 * @param	string	$url   Url
+		 * @param	string	$menu_name   Menu label
+		 * @param	string	$icon   bootstrap glyphicon class
+		 * @param	string	$submenu   Submenu (TRUE or FALSE)
+		 * @return  string
+		 */
+		function _li($cur_page, $page_chk, $url, $menu_name, $icon)
+		{
+			$active = ($cur_page == $page_chk) ? ' class="active"' : '';
+			$glyp_icon = ($icon) ? '<i class="'.$icon.'"></i> ' : '<i class="fa fa-circle"></i>';
+			
+			$html = '<li'.$active.'><a href="'.base_url().''.$url.'">'.$glyp_icon.'<span>'.$menu_name.'</span></a></li>';
+			return $html;
+		}
+	
+		function _li_parent($cur_page, $page_chk, $url, $menu_name, $icon)
+		{
+			$active = ($cur_page == $page_chk) ? ' class="treeview active"' : ' class="treeview"';
+			$glyp_icon = ($icon) ? '<i class="'.$icon.'"></i> ' : '<i class="glyphicon glyphicon-menu-hamburger"></i>';
+			
+			$html= '<li'.$active.'><a href="'.base_url().''.$url.'">'.$glyp_icon.'<span>'.$menu_name.'</span><i class="fa fa-angle-left pull-right"></i></a>';
+			$html.= '<ul class="treeview-menu">';
+			return $html;
+		}
+	
 		/* Start Treeview Menu */
 		$html = ''; $li1_closed = false; $li2_closed = false; $menu_id1 = 0; $menu_id2 = 0; $menu_id3 = 0; $parent_id = 0;
 		$rowParentMenu = ($result = $this->getmef_model->getParentMenu($cur_page)) ? $result[0] : (object)['lvl1_id'=>0, 'lvl2_id'=>0];
@@ -112,25 +94,25 @@ class Getmef extends CI_Controller
 			if (!empty($menu->menu_id2) || !empty($menu->menu_id3)){
 				if ($menu_id1 != $menu->menu_id1){
 					$parent_id = $rowParentMenu->lvl2_id ? $rowParentMenu->lvl2_id : $rowParentMenu->lvl1_id;
-					$html.= $this->li_parent($parent_id, $menu->menu_id1, 'page?pageid='.$menu->menu_id1, $menu->name1, $menu->icon1);
+					$html.= _li_parent($parent_id, $menu->menu_id1, 'page?pageid='.$menu->menu_id1, $menu->name1, $menu->icon1);
 					$li1_closed = true;
 					$menu_id1 = $menu->menu_id1;
 				}
 				if (($menu_id2 != $menu->menu_id2) && !empty($menu->menu_id3)){
 					$parent_id = $rowParentMenu->lvl1_id;
-					$html.= $this->li_parent($parent_id, $menu->menu_id2, 'page?pageid='.$menu->menu_id2, $menu->name2, $menu->icon2);
+					$html.= _li_parent($parent_id, $menu->menu_id2, 'page?pageid='.$menu->menu_id2, $menu->name2, $menu->icon2);
 					$li2_closed = true;
 					$menu_id2 = $menu->menu_id2;
 					
 				} elseif (($menu_id2 != $menu->menu_id2) && empty($menu->menu_id3)){
-					$html.= $this->li($cur_page, $menu->menu_id2, 'page?pageid='.$menu->menu_id2, $menu->name2, $menu->icon2);
+					$html.= _li($cur_page, $menu->menu_id2, 'page?pageid='.$menu->menu_id2, $menu->name2, $menu->icon2);
 					$menu_id2 = $menu->menu_id2;
 				}
 				if (!empty($menu->menu_id3)){
-					$html.= $this->li($cur_page, $menu->menu_id3, 'page?pageid='.$menu->menu_id3, $menu->name3, $menu->icon3);
+					$html.= _li($cur_page, $menu->menu_id3, 'page?pageid='.$menu->menu_id3, $menu->name3, $menu->icon3);
 				}
 			} elseif (!empty($menu->menu_id1)){
-				$html.= $this->li($cur_page, $menu->menu_id1, 'page?pageid='.$menu->menu_id1, $menu->name1, $menu->icon1);
+				$html.= _li($cur_page, $menu->menu_id1, 'page?pageid='.$menu->menu_id1, $menu->name1, $menu->icon1);
 			}
 		}
 		if ($li1_closed)
@@ -147,7 +129,7 @@ class Getmef extends CI_Controller
 		
 		$select = 'head_title,page_title,logo_text_mn,logo_text_lg,date_format,time_format,datetime_format,skin_color';
 		$config = ($result = $this->base_model->getValueArray($select, 'w_config', ['client_id', 'org_id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID])) ? $result : [];
-		$pageid = (key_exists('pageid', $this->params) && !empty($this->params['pageid'])) ? $this->params['pageid'] : 0;
+		$pageid = (key_exists('pageid', $this->params) && !empty($this->params->pageid)) ? $this->params->pageid : 0;
 		$default['menus'] 			= $this->_getmenu_structure($pageid);
 		$default['content'] 		= TEMPLATE_PATH.$content.'.tpl';
 		$default['elapsed_time']= $elapsed;

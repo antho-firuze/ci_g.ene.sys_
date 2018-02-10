@@ -56,7 +56,7 @@ class Getmeb extends CI_Controller
 	function __construct() {
 		parent::__construct();
 		$this->r_method = $_SERVER['REQUEST_METHOD'];
-		$this->c_method = $this->uri->segment(2);
+		$this->c_method = $this->uri->segment(2) ? $this->uri->segment(2) : 'index';
 		
 		/* Load models */
 		$this->mdl = strtolower(get_class($this)).'_model';
@@ -93,7 +93,6 @@ class Getmeb extends CI_Controller
 			/* Become Object */
 			$this->params = json_decode($this->input->raw_input_stream);
 			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
-			$this->params = (array)$this->params;
 		} 
 		
 		/* This method for Selection Role Window */
@@ -108,9 +107,11 @@ class Getmeb extends CI_Controller
 			
 			/* Become Array */
 			$this->params = $this->input->get();
+			/* Become Object */
+			$this->params = (object) $this->params;
 			
 			/* This params for getting process status */
-			if (isset($this->params['get_process']) && !empty($this->params['get_process'])) {
+			if (isset($this->params->get_process) && !empty($this->params->get_process)) {
 				$this->_get_process();
 			}
 			
@@ -122,15 +123,15 @@ class Getmeb extends CI_Controller
 			}
 		
 			/* Parsing pageid */
-			if (isset($this->params['pageid'])) {
-				$this->pageid = @end(explode(',', $this->params['pageid']));
-				// $this->pageid = explode(',', $this->params['pageid']);
+			if (isset($this->params->pageid)) {
+				$this->pageid = @end(explode(',', $this->params->pageid));
+				// $this->pageid = explode(',', $this->params->pageid);
 				// $this->pageid = end($this->pageid);
 			}
 			
 			/* Request for viewlog */
-			if (isset($this->params['viewlog']) && !empty($this->params['viewlog'])) {
-				$pageid = explode(',', $this->params['pageid']);
+			if (isset($this->params->viewlog) && !empty($this->params->viewlog)) {
+				$pageid = explode(',', $this->params->pageid);
 				$this->c_table = $this->base_model->getValue('table', 'a_menu', 'id', end($pageid))->table;
 				/* Check permission in the role */
 				$this->_check_is_allow_inrole('canviewlog');
@@ -138,8 +139,8 @@ class Getmeb extends CI_Controller
 			}
 			
 			/* Request for Export Data */
-			if (isset($this->params['action']) && !empty($this->params['action'])) {
-				switch($this->params['action']) {
+			if (isset($this->params->action) && !empty($this->params->action)) {
+				switch($this->params->action) {
 					case 'exp':
 						/* Check permission in the role */
 						$this->_check_is_allow_inrole('canexport');
@@ -150,11 +151,26 @@ class Getmeb extends CI_Controller
 						break;
 				}
 			}
-			// if (isset($this->params['export']) && !empty($this->params['export'])) {
-				// /* Check permission in the role */
+			
+			if (isset($this->params->export) && !empty($this->params->export)) {
+				/* Check permission in the role */
 				// $this->_check_is_allow_inrole('canexport');
-			// }
-			// debug($this->c_table);
+				
+				// Preparation params
+				$this->params->filetype = isset($this->params->filetype) ? $this->params->filetype : 'xls';
+				$this->params->is_compress = isset($this->params->is_compress) ? $this->params->is_compress : 0;
+				$this->params->filename = $this->c_method.'_'.date('YmdHi').'.'.$this->params->filetype;
+				$this->params->base_url = BASE_URL;
+				$this->params->tmp_dir_absolute = $this->tmp_dir;
+				$this->params->tmp_dir_relative = $this->rel_tmp_dir;
+				/* Defined exclude fields/cols */
+				$this->params->excl_cols = isset($this->params->excl_cols) ? $this->params->excl_cols : $this->protected_fields;
+			}
+			
+			$this->params->event = 'pre_get';
+			$this->{$this->c_method}();
+			
+			$this->{$this->mdl}->{$this->c_method}($this->params);
 		}
 		
 		/* This Request for INSERT & UPDATE Data */
@@ -208,8 +224,23 @@ class Getmeb extends CI_Controller
 			if (isset($this->params->export) && !empty($this->params->export)) {
 				/* Check permission in the role */
 				$this->_check_is_allow_inrole('canexport');
-				$this->_pre_export_data();
+				// $this->_pre_export_data();
+				
+				// Preparation params
+				$this->params->filetype = isset($this->params->filetype) ? $this->params->filetype : 'xls';
+				$this->params->is_compress = isset($this->params->is_compress) ? $this->params->is_compress : 0;
+				$this->params->filename = $this->c_method.'_'.date('YmdHi').'.'.$this->params->filetype;
+				$this->params->base_url = BASE_URL;
+				$this->params->tmp_dir_absolute = $this->tmp_dir;
+				$this->params->tmp_dir_relative = $this->rel_tmp_dir;
+				/* Defined exclude fields/cols */
+				$this->params->excl_cols = isset($this->params->excl_cols) ? $this->params->excl_cols : $this->protected_fields;
 			}
+			
+			$this->params->event = 'pre_options';
+			$this->{$this->c_method}();
+			
+			$this->{$this->mdl}->{$this->c_method}($this->params);
 		}
 	}
 	
@@ -269,7 +300,7 @@ class Getmeb extends CI_Controller
 			return FALSE;
 		}
 		
-		if (key_exists('edit', $this->params) && !empty($this->params['edit'])) {
+		if (key_exists('edit', $this->params) && !empty($this->params->edit)) {
 			if (!$this->_check_path($data['path'].$data['method'].'_edit')) {
 				$this->set_message('ERROR: Page or File ['.$data['path'].$data['method'].'_edit'.'] is could not be found or file not exist !');
 				return FALSE;
@@ -317,8 +348,8 @@ class Getmeb extends CI_Controller
 	function _check_is_allow($output = 'json')
 	{
 		/* Trick for transition after login, which calling class "systems" without method. */
-		if (! $this->c_method)
-			return array();
+		if ($this->c_method == 'index')
+			return TRUE;
 		
 		$this->_check_is_login();
 		
@@ -343,13 +374,11 @@ class Getmeb extends CI_Controller
 		}
 		
 		/* This params for x_role_selection */
-		if (key_exists('identify', (array)$this->params))
+		if (key_exists('identify', $this->params))
 			return TRUE;
 		// debug(in_array('identify', $this->params));
 		
-		// debug($this->session->role_id);
 		if (! $this->session->role_id)
-			// redirect('systems/x_profile');
 			$this->single_view('pages/systems/auth/select_role');
 		
 		/* Set this menu using this table */
@@ -513,7 +542,7 @@ class Getmeb extends CI_Controller
 	function _get_process()
 	{
 		usleep(100000);
-		// if ($process = $this->base_model->getValue('*', 'a_tmp_process', 'id', $this->params['id'])){
+		// if ($process = $this->base_model->getValue('*', 'a_tmp_process', 'id', $this->params->id)){
 		if ($process = $this->base_model->getValue('*', 'a_tmp_process', 'id', $this->session->id_process)){
 			xresponse(TRUE, ['data' => $process]);
 		}
@@ -524,8 +553,8 @@ class Getmeb extends CI_Controller
 	{
 		$result = [];
 		$result['table'] = $this->c_table;
-		$result['id'] = $this->params['id'];
-		if ($info = $this->base_model->getValue('created_by, created_at, updated_by, updated_at, deleted_by, deleted_at', $result['table'], 'id', $this->params['id'])){
+		$result['id'] = $this->params->id;
+		if ($info = $this->base_model->getValue('created_by, created_at, updated_by, updated_at, deleted_by, deleted_at', $result['table'], 'id', $this->params->id)){
 			if ($info->created_by){
 				if ($user = $this->base_model->getValue('id, name', 'a_user', 'id', $info->created_by)) {
 					$result['created_by'] 		 = $user->id;
@@ -647,16 +676,16 @@ class Getmeb extends CI_Controller
 	function _record_permutation_delete()
 	{
 		/* For reverse value "is_deleted", if param "xdel" exists & user_id = 11 */
-		$this->delete_log['is_deleted'] = isset($this->params['xdel']) && ($this->params['xdel'] == 1) && ($this->session->user_id == 11) ? 0 : 1;
+		$this->delete_log['is_deleted'] = isset($this->params->xdel) && ($this->params->xdel == 1) && ($this->session->user_id == 11) ? 0 : 1;
 		
 		/* Trigger events before delete */
-		$this->params['event'] = 'pre_delete';
+		$this->params->event = 'pre_delete';
 		$this->{$this->c_method}();
 		
-		$result = $this->_recordDelete($this->c_table, $this->params['id']);
+		$result = $this->_recordDelete($this->c_table, $this->params->id);
 		
 		/* Trigger events after delete */
-		$this->params['event'] = 'post_delete';
+		$this->params->event = 'post_delete';
 		$this->{$this->c_method}();
 		
 		if (!$result)
@@ -767,21 +796,21 @@ class Getmeb extends CI_Controller
 	
 	function _get_filtered($client = TRUE, $org = TRUE, $qField = [], $qReplaceField = FALSE)
 	{
-		if (isset($this->params['id']) && !empty($this->params['id'])) 
-			$this->params['where']['t1.id'] = $this->params['id'];
+		if (isset($this->params->id) && !empty($this->params->id)) 
+			$this->params->where['t1.id'] = $this->params->id;
 		
-		if (isset($this->params['q']) && !empty($this->params['q'])) {
+		if (isset($this->params->q) && !empty($this->params->q)) {
 			$defaultField = $qReplaceField ? [] : ['t1.code', 't1.name', 't1.description'];
 			$qField = implode(',', array_merge($defaultField, $qField));
 			if ($qField)
-				$this->params['like'] = DBX::like_or($qField, $this->params['q']);
+				$this->params->like = DBX::like_or($qField, $this->params->q);
 		}
 		
 		if ($client)
-			$this->params['where']['t1.client_id'] = $this->session->client_id;
+			$this->params->where['t1.client_id'] = $this->session->client_id;
 
 		if ($org)
-			$this->params['where']['t1.org_id'] = $this->session->org_id;
+			$this->params->where['t1.org_id'] = $this->session->org_id;
 	}
 	
 	function _remove_empty($array) {
@@ -886,264 +915,6 @@ class Getmeb extends CI_Controller
 				return $result;
 			}
 		}
-	}
-	
-	function _pre_export_data($return = FALSE)
-	{
-		$filetype = $this->params['filetype'];
-		$filename = $this->c_method.'_'.date('YmdHi').'.'.$filetype;
-		$is_compress = $this->params['is_compress'];
-		/* Parsing pageid, if on sub module */
-		$this->pageid = explode(',', $this->params['pageid']);
-		$this->pageid = end($this->pageid);
-		
-		/* Used existing queries in model */
-		if (! $result = $this->{$this->mdl}->{$this->c_method}($this->params)){
-			$result['data'] = [];
-			$result['message'] = $this->base_model->errors();
-			xresponse(FALSE, $result);
-		}
-
-		if ($return)
-			return $result;
-		
-		/* Defined exclude fields/cols */
-		$excl_cols = isset($this->params['excl_cols']) ? $this->params['excl_cols'] : $this->protected_fields;
-		/* Export the data */
-		if (! $result = $this->_export_data($result, $excl_cols, $filename, $filetype, TRUE))
-			xresponse(FALSE, ['message' => 'export_data_failed']);
-		
-		/* Compress the file */
-		if ($is_compress) 
-			if(! $result = $this->_compress_file($result['filepath']))
-				xresponse(FALSE, ['message' => 'compress_file_failed']);
-			
-		xresponse(TRUE, $result);
-	}
-	
-	function _export_data($qry, $excl_cols=[], $filename, $filetype, $return = FALSE)
-	{
-		ini_set('memory_limit', '-1');
-		$this->load->library('z_libs/Excel');
-		$objPHPExcel = new PHPExcel();
-		$objPHPExcel->getProperties()->setTitle("export")->setDescription("none");
- 
-		$objPHPExcel->setActiveSheetIndex(0);
-
-		// Set the Title in the first row
-		$current = 'A';
-		$col = 0;
-		$fields = [];
-		if ($excl_cols) {
-			foreach ($qry->list_fields() as $field) {
-				if (!in_array($field,$excl_cols)){
-					$columns[] = ($col == 0) ? $current : ++$current;
-					$fields[] = $field;
-					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, 1, $field);
-					$col++;
-				}
-			}
-		} else {
-			foreach ($qry->list_fields() as $field) {
-				$columns[] = ($col == 0) ? $current : ++$current;
-				$fields[] = $field;
-				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, 1, $field);
-				$col++;
-			}
-		}
-		// debug($fields);
-		// Set the Data in the next row
-		$row = 2;
-		foreach($qry->result() as $data) {
-			$col = 0;
-			// foreach ($qry->list_fields() as $field) {
-			foreach ($fields as $field) {
-				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, $row, $data->{$field});
-				$col++;
-			}
-			$row++;
-		}
-		
-		// Set the Column to Fit AutoSize
-		foreach($columns as $column) {
-			$objPHPExcel->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
-		}
-		
-		if (in_array($filetype, ['xls', 'xlsx'])) {
-			if ($return){
-				$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
-				$objWriter->save($this->tmp_dir.$filename);
-				return ['filename' => $filename, 'filepath' => $this->tmp_dir.$filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
-			}
-
-			$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
-			$objWriter->save('php://output');
-		}
-		if ($filetype == 'csv'){
-			PHPExcel_Shared_String::setDecimalSeparator('.');
-			PHPExcel_Shared_String::setThousandsSeparator(',');
-
-			if ($return){
-				$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);
-				$objWriter->save($this->tmp_dir.$filename);
-				return ['filename' => $filename, 'filepath' => $this->tmp_dir.$filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
-			}
-			
-			$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);
-			$objWriter->save('php://output');
-			
-		}
-		if ($filetype == 'pdf'){
-			$rendererName = PHPExcel_Settings::PDF_RENDERER_MPDF;
-			$rendererLibraryPath = FCPATH.'../vendor/mpdf/mpdf/src/';
-			if (!PHPExcel_Settings::setPdfRenderer($rendererName,	$rendererLibraryPath)) {
-					die(
-							'Please set the $rendererName and $rendererLibraryPath values' .
-							PHP_EOL .
-							' as appropriate for your directory structure'
-					);
-			}
-			if ($return){
-				$objWriter = new PHPExcel_Writer_PDF($objPHPExcel);
-				$objWriter->save($this->tmp_dir.$filename);
-				return ['filename' => $filename, 'filepath' => $this->tmp_dir.$filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
-			}
-			$objWriter = new PHPExcel_Writer_PDF($objPHPExcel);
-			$objWriter->save('php://output');
-		}
-		if ($filetype == 'html'){
-			if ($return){
-				$objWriter = new PHPExcel_Writer_HTML($objPHPExcel);
-				$objWriter->save($this->tmp_dir.$filename);
-				return ['filename' => $filename, 'filepath' => $this->tmp_dir.$filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
-			}
-			
-			$objWriter = new PHPExcel_Writer_HTML($objPHPExcel);
-			$objWriter->save('php://output');
-		}
-		exit;
-	}
-	
-	function _export_data_array($rows, $excl_cols=[], $filename, $filetype, $return = FALSE)
-	{
-		ini_set('memory_limit', '-1');
-		$this->load->library('z_libs/Excel');
-		$objPHPExcel = new PHPExcel();
-		$objPHPExcel->getProperties()->setTitle("export")->setDescription("none");
- 
-		$objPHPExcel->setActiveSheetIndex(0);
-		
-		// Set the Title in the first row
-		$current = 'A';
-		$col = 0;
-		$fields = [];
-		if ($excl_cols) {
-			foreach ($rows[0] as $field => $val) {
-				if (!in_array($field,$excl_cols)){
-					$columns[] = ($col == 0) ? $current : ++$current;
-					$fields[] = $field;
-					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, 1, $field);
-					$col++;
-				}
-			}
-		} else {
-			foreach ($rows[0] as $field => $val) {
-				$columns[] = ($col == 0) ? $current : ++$current;
-				$fields[] = $field;
-				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, 1, $field);
-				$col++;
-			}
-		}
-		
-		// Set the Data in the next row
-		$row = 2;
-		foreach($rows as $data) {
-			$col = 0;
-			foreach ($fields as $field) {
-				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, $row, $data->{$field});
-				$col++;
-			}
-			$row++;
-		}
-		
-		// Set the Column to Fit AutoSize
-		foreach($columns as $column) {
-			$objPHPExcel->getActiveSheet()->getColumnDimension($column)->setAutoSize(true);
-		}
-		
-		if (in_array($filetype, ['xls', 'xlsx'])) {
-			if ($return){
-				$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
-				$objWriter->save($this->tmp_dir.$filename);
-				return ['filename' => $filename, 'filepath' => $this->tmp_dir.$filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
-			}
-
-			$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
-			$objWriter->save('php://output');
-		}
-		if ($filetype == 'csv'){
-			PHPExcel_Shared_String::setDecimalSeparator('.');
-			PHPExcel_Shared_String::setThousandsSeparator(',');
-
-			if ($return){
-				$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);
-				$objWriter->save($this->tmp_dir.$filename);
-				return ['filename' => $filename, 'filepath' => $this->tmp_dir.$filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
-			}
-			
-			$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);
-			$objWriter->save('php://output');
-			
-		}
-		if ($filetype == 'pdf'){
-			$rendererName = PHPExcel_Settings::PDF_RENDERER_MPDF;
-			$rendererLibraryPath = FCPATH.'../vendor/mpdf/mpdf/src/';
-			if (!PHPExcel_Settings::setPdfRenderer($rendererName,	$rendererLibraryPath)) {
-					die(
-							'Please set the $rendererName and $rendererLibraryPath values' .
-							PHP_EOL .
-							' as appropriate for your directory structure'
-					);
-			}
-			if ($return){
-				$objWriter = new PHPExcel_Writer_PDF($objPHPExcel);
-				$objWriter->save($this->tmp_dir.$filename);
-				return ['filename' => $filename, 'filepath' => $this->tmp_dir.$filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
-			}
-			$objWriter = new PHPExcel_Writer_PDF($objPHPExcel);
-			$objWriter->save('php://output');
-		}
-		if ($filetype == 'html'){
-			if ($return){
-				$objWriter = new PHPExcel_Writer_HTML($objPHPExcel);
-				$objWriter->save($this->tmp_dir.$filename);
-				return ['filename' => $filename, 'filepath' => $this->tmp_dir.$filename, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filename];
-			}
-			
-			$objWriter = new PHPExcel_Writer_HTML($objPHPExcel);
-			$objWriter->save('php://output');
-		}
-		exit;
-	}
-	
-	function _compress_file($file)
-	{
-		$zip = new ZipArchive();
-		$pathinfo = pathinfo($file);
-		$dir = $pathinfo['dirname'];
-		$fil = $pathinfo['filename'];
-		$fbn = $pathinfo['basename'];
-		$ext = strtolower($pathinfo['extension']);
-		$filezip = $fil.'.zip';
-		$fil_tmp = $dir.'/'.$filezip;
-		if ($zip->open($fil_tmp, ZipArchive::CREATE)!==TRUE) {
-			exit("cannot open <$fil_tmp>\n");
-		}
-		$zip->addFile($file,$fbn);
-		$zip->close();
-		/* remove master file */
-		@unlink($file);
-		return ['filename' => $filezip, 'filepath' => $this->rel_tmp_dir.$filezip, 'file_url' => BASE_URL.$this->rel_tmp_dir.$filezip];
 	}
 	
 	function _reorder_menu($parent_id = NULL)

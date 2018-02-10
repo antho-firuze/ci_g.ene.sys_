@@ -29,6 +29,7 @@
 		tableWidth: '150%',
 		act_menu: { copy: true, edit: true, delete: true },
 		sub_menu: [],
+		order: ['id desc'],
 		columns: [
 			{ width:"100px", orderable:false, data:"org_name", title:"Org Name" },
 			{ width:"100px", orderable:true, data:"orgtrx_name", title:"Org Trx Name" },
@@ -51,7 +52,6 @@
 			{ width:"100px", orderable:false, data:"note", title:"Note" },
 			{ width:"200px", orderable:false, data:"description", title:"Description" },
 		],
-		order: ['id desc'],
 	};
 	
 	{* INITILIZATION *}

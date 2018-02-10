@@ -95,8 +95,8 @@ class Frontend extends Getmef
 	
 	function page()
 	{
-		if (key_exists('pageid', $this->params) && !empty($this->params['pageid'])) {
-			$menu = $this->base_model->getValue('*', 'w_menu', ['client_id','org_id','id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID, $this->params['pageid']]);
+		if (key_exists('pageid', $this->params) && !empty($this->params->pageid)) {
+			$menu = $this->base_model->getValue('*', 'w_menu', ['client_id','org_id','id'], [DEFAULT_CLIENT_ID, DEFAULT_ORG_ID, $this->params->pageid]);
 			if (!$menu){
 				$this->frontend_view('pages/404', ['message'=>'## This page does not exists ! ##']);
 			}

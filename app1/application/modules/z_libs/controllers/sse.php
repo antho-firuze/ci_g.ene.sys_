@@ -88,8 +88,8 @@ class Sse extends CI_Controller {
 	/* Update user state */
 	function _4_set_user_state()
 	{
-		if (isset($this->params['_usr_state']) && !empty($this->params['_usr_state'])) {
-			$user_state = $this->params['_usr_state'];
+		if (isset($this->params->_usr_state) && !empty($this->params->_usr_state)) {
+			$user_state = $this->params->_usr_state;
 			
 			/* Skipped the process if value is the same with in the session */
 			if ($user_state == $this->session->user_state)
@@ -189,7 +189,7 @@ class Sse extends CI_Controller {
 			// Get request from client
 			$this->params = $this->input->get();
 			// if ajax request has send a timestamp, then $last_ajax_call = timestamp, else $last_ajax_call = null
-			$last_ajax_call = isset($this->params['timestamp']) ? (int)$this->params['timestamp'] : null;
+			$last_ajax_call = isset($this->params->timestamp) ? (int)$this->params->timestamp : null;
 			// PHP caches file data, like requesting the size of a file, by default. clearstatcache() clears that cache
 			clearstatcache();
 			// get timestamp of when file has been changed the last time

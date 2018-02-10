@@ -45,8 +45,6 @@
 	box1.find('.box-body').append(form1);
 	$(".content").append(box1);
 
-	{* $("[data-mask]").inputmask(); *}
-	
 	{* INITILIZATION *}
 	var start = moment().startOf('month');
 	var end = moment().endOf('month');

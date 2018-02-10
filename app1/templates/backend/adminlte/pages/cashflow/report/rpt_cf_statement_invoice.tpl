@@ -37,13 +37,13 @@
 		fixedColumns: {
 			leftColumns: 1,
 		},
+		order: ['seq asc'],
 		columns: [
 			{ width:"200px", orderable:false, data:"description", title:"Description", render: function(data, type, row){ return (row.type == 'T' || row.type == 'L') ? '<b>'+data+'</b>' : data; } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"current", title:"Projection", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&filter='+row.today_param+'&title='+row.today_title+'">'+format_money(data)+'</a>' : format_money(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"current_actual", title:"Actual", render: function(data, type, row){ return (row.type == 'T') ? '' : (row.account_id) ? '<a target="_blank" href="'+$BASE_URL+'systems/x_page?pageid=232&filter='+row.today_a_param+'&title='+row.today_a_title+'">'+format_money(data)+'</a>' : format_money(data); } },
 			{ width:"100px", orderable:false, className:"dt-head-center dt-body-right", data:"current", title:"Difference", render: function(data, type, row){ return format_money(Math.abs(row.current-row.current_actual)); } },
 		],
-		order: ['seq asc'],
 	};
 	
 	{* INITILIZATION *}

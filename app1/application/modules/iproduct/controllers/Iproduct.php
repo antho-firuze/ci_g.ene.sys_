@@ -44,8 +44,8 @@ class Iproduct extends Getmef
 		$this->db = $this->load->database(DB_DSN_SQLSVR, TRUE);
 		
 		$result['data'] = [];
-		if (key_exists('id', $this->params) && !empty($this->params['id'])) 
-			$result['data'] = $this->iproduct_model->getCertificates($this->params['id']);
+		if (key_exists('id', $this->params) && !empty($this->params->id)) 
+			$result['data'] = $this->iproduct_model->getCertificates($this->params->id);
 
 		xresponse(TRUE, $result);
 	}

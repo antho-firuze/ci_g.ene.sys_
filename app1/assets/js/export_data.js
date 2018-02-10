@@ -51,15 +51,25 @@ $( document ).ready(function() {
 			var data = form.serializeOBJ();
 			
 			$.getJSON( $BASE_URL+$class+'/'+$method, { export:1, pageid:$pageid, filter:$filter, ob:$ob, q:$q, filetype:data.filetype, is_compress:data.is_compress }, function(result){ 
-				if (!result.status) {
-					BootstrapDialog.alert(result.message);
-					form.find("[type='submit']").prop( "disabled", false );
-				} else {
+				if (result.status) {
 					console.log(result);
-					window.open(result.file_url);
-					
-					// setTimeout(function(){ window.history.back(); }, 500); 
+					window.open(result.data.file_url);
 				}
+			}).fail(function(data) {
+				if (data.status >= 500){
+					var message = data.statusText;
+				} else {
+					var error = JSON.parse(data.responseText);
+					var message = error.message;
+				}
+				form.find("[type='submit']").prop( "disabled", false );
+				BootstrapDialog.show({ message:message, closable: false, type:'modal-danger', title:'Notification', 
+					buttons: [{ label: 'OK', hotkey: 13, 
+						action: function(dialogRef) {
+							dialogRef.close();
+						} 
+					}],
+				});
 			});
 
 			return false;
