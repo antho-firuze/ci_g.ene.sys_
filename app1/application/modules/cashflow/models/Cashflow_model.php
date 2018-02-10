@@ -2275,16 +2275,7 @@ class Cashflow_Model extends CI_Model
 		$str = translate_variable($str);
 
 		$qry = $this->db->query($str);
-		return $qry;
-				/* $filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
-				if (! $result = $this->_export_data($result['data'], [], $filename, 'xls', TRUE)) {
-					// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-					xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
-				}
-				// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				// $this->session->unset_userdata('id_process');
-				$result['message'] = lang('success_import_data');
-				xresponse(TRUE, $result); */
+		$this->base_model->export_data($qry, $this->params);
 	}
 	
 	/* function rpt_cf_statement_invoice($params)

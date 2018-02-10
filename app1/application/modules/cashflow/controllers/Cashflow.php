@@ -4479,20 +4479,8 @@ class Cashflow extends Getmeb
 			$str = translate_variable($str);
 			// debug($str);
 			$qry = $this->db->query($str);
-			// $rows = $qry->result();
-			// debug($this->params);
-			/* Export the result to client */
-			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
-			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
-				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
-			}
-			/* Update status on process table */
-			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-			/* Unset id_process, so can't be called again from client  */
-			// $this->session->unset_userdata('id_process');
-			$result['message'] = lang('success_import_data');
-			xresponse(TRUE, $result);
+			
+			$this->base_model->export_data($qry, $this->params);
 		}
 	}
 	
@@ -4566,20 +4554,7 @@ class Cashflow extends Getmeb
 			if (! $qry = $this->db->query($str))
 				xresponse(FALSE, ['data' => [], 'message' => $this->db->error()['message']], 401);;
 			
-			// $rows = $qry->result();
-			// debug($this->params);
-			/* Export the result to client */
-			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
-			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
-				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
-			}
-			/* Update status on process table */
-			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-			/* Unset id_process, so can't be called again from client  */
-			// $this->session->unset_userdata('id_process');
-			$result['message'] = lang('success_import_data');
-			xresponse(TRUE, $result);
+			$this->base_model->export_data($qry, $this->params);
 		}
 	}
 	
@@ -4639,20 +4614,7 @@ class Cashflow extends Getmeb
 			if (! $qry = $this->db->query($str))
 				xresponse(FALSE, ['data' => [], 'message' => $this->db->error()['message']], 401);;
 			
-			// $rows = $qry->result();
-			// debug($this->params);
-			/* Export the result to client */
-			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
-			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
-				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
-			}
-			/* Update status on process table */
-			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-			/* Unset id_process, so can't be called again from client  */
-			// $this->session->unset_userdata('id_process');
-			$result['message'] = lang('success_import_data');
-			xresponse(TRUE, $result);
+			$this->base_model->export_data($qry, $this->params);
 		}
 	}
 	
@@ -4695,20 +4657,8 @@ class Cashflow extends Getmeb
 			$str = translate_variable($str);
 			// debug($str);
 			$qry = $this->db->query($str);
-			// $rows = $qry->result();
-			// debug($this->params);
-			/* Export the result to client */
-			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
-			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
-				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
-			}
-			/* Update status on process table */
-			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-			/* Unset id_process, so can't be called again from client  */
-			// $this->session->unset_userdata('id_process');
-			$result['message'] = lang('success_import_data');
-			xresponse(TRUE, $result);
+			
+			$this->base_model->export_data($qry, $this->params);
 		}
 	}
 	
@@ -4751,20 +4701,8 @@ class Cashflow extends Getmeb
 			$str = translate_variable($str);
 			// debug($str);
 			$qry = $this->db->query($str);
-			// $rows = $qry->result();
-			// debug($this->params);
-			/* Export the result to client */
-			$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
-			if (! $result = $this->_export_data($qry, [], $filename, 'xls', TRUE)) {
-				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
-			}
-			/* Update status on process table */
-			// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-			/* Unset id_process, so can't be called again from client  */
-			// $this->session->unset_userdata('id_process');
-			$result['message'] = lang('success_import_data');
-			xresponse(TRUE, $result);
+			
+			$this->base_model->export_data($qry, $this->params);
 		}
 	}
 	
@@ -4858,21 +4796,6 @@ class Cashflow extends Getmeb
 				$this->params->where = "and is_receipt = '0'";
 				break;
 			}
-				
-			/* $this->params = (array) $this->params;
-			if (! $result['data'] = $this->{$this->mdl}->{$this->c_method}($this->params)){
-				xresponse(FALSE, ['data' => [], 'message' => $this->base_model->errors()]);
-			} else {
-				$filename = 'result_'.$this->c_method.'_'.date('YmdHi').'.xls';
-				if (! $result = $this->_export_data($result['data'], [], $filename, 'xls', TRUE)) {
-					// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-					xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
-				}
-				// $this->_update_process(['message' => lang('success_import_data'), 'log' => lang('success_import_data'), 'status' => 'TRUE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				// $this->session->unset_userdata('id_process');
-				$result['message'] = lang('success_import_data');
-				xresponse(TRUE, $result);
-			} */
 		}
 	}
 	

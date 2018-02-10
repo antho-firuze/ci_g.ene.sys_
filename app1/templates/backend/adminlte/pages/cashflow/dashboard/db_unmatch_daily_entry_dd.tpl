@@ -27,7 +27,7 @@
 	var DataTable_Init = {
 		enable: true,
 		rows: 10,
-		showFilter: false,
+		showFilter: true,
 		showPaginate: true,
 		showColumnMenu: false,
 		act_menu: { copy: true, edit: true, delete: true },

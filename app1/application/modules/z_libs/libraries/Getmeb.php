@@ -374,7 +374,7 @@ class Getmeb extends CI_Controller
 		}
 		
 		/* This params for x_role_selection */
-		if (key_exists('identify', $this->params))
+		if (key_exists('identify', (array) $this->params))
 			return TRUE;
 		// debug(in_array('identify', $this->params));
 		
