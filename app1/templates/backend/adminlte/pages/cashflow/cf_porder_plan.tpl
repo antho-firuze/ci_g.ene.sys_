@@ -92,15 +92,13 @@
 				dataTable1.ajax.reload( null, false );
 			},
 			error: function(data) {
-				if (data.status==500){
+				if (data.status >= 500){
 					var message = data.statusText;
 				} else {
 					var error = JSON.parse(data.responseText);
 					var message = error.message;
 				}
-				BootstrapDialog.show({ closable: false, type:'modal-danger', title:'Notification', message:message, 
-					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); window.history.back(); } }],
-				});
+				BootstrapDialog.show({ type:'modal-danger', title:'Notification', message:message, buttons:[{ label:'OK', hotkey:13, action:function(dialogRef){ dialogRef.close(); }}] });
 			}
 		});
 	}
@@ -115,15 +113,13 @@
 				dataTable1.ajax.reload( null, false );
 			},
 			error: function(data) {
-				if (data.status==500){
+				if (data.status >= 500){
 					var message = data.statusText;
 				} else {
 					var error = JSON.parse(data.responseText);
 					var message = error.message;
 				}
-				BootstrapDialog.show({ closable: false, type:'modal-danger', title:'Notification', message:message, 
-					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); window.history.back(); } }],
-				});
+				BootstrapDialog.show({ type:'modal-danger', title:'Notification', message:message, buttons:[{ label:'OK', hotkey:13, action:function(dialogRef){ dialogRef.close(); }}] });
 			}
 		});
 	}

@@ -45,10 +45,12 @@ window.onhashchange = function(e){
 	// var hash = location.hash.replace(/^#/, '');
 	// var hash = location.href.indexOf('#');
 	// console.log(hash);
-	console.log('url-hash-change');
+	// console.log('url-hash-change');
 	// console.log(document.title);
+	// console.log(e.oldURL);
+	// console.log(e.originalEvent);
 	// console.log(e.originalEvent.oldURL);
-	history.replaceState ("", document.title, e.originalEvent.oldURL);
+	history.replaceState ("", document.title, e.oldURL);
 	// if (hash >= -1)
 		// window.history.back();
 }
@@ -508,12 +510,10 @@ function initDataTable()
 	$('.dataTables_filter input[type="search"]').unbind().keyup(function() {
 		// console.log('Datatables parsing URL Parameter for search/filter.');
 		$q = $(this).val();
-		// $url = insertParam('q', $q);
 		dataTable1.ajax.reload( null, false );
 		
 		$origin_url = $q ? URI($origin_url).setSearch('q', $q) : URI($origin_url).removeSearch('q');
 		history.pushState({}, '', $origin_url);
-		// history.pushState({}, '', $origin_url +'?'+ $url);
 	});		
 	
 	$('.dataTables_length select').bind().change(function() {

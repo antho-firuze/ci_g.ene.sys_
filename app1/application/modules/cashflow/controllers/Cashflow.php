@@ -103,7 +103,7 @@ class Cashflow extends Getmeb
 				if ($doc_no != $this->params->doc_no) {
 						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
 					if ($HadSameDocNo) {
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')]);
 					}
 				}
 			}
@@ -150,12 +150,12 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_put'){
 				if ($this->_is_posted(['ar_ap_plan_id' => $this->params->id]) > 0)
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')]);
 			}
 			/* if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['is_plan'] = 1;
 				if (! $this->{$this->mdl}->cf_ar_ap_valid_amount($this->mixed_data)){ 
-					xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+					xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])]);
 				}
 				unset($this->mixed_data['is_plan']);
 			} */
@@ -178,8 +178,8 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
-					// xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')]);
+					// xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))]);
 				}
 			}
 			if ($this->params->event == 'post_delete'){
@@ -220,7 +220,7 @@ class Cashflow extends Getmeb
 			
 			/* Insert the record */
 			if (!$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log)))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 			
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -239,17 +239,17 @@ class Cashflow extends Getmeb
 			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['ar_ap_plan_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 			/* unposting fail if invoice was actual */
 			if ($invoice->doc_date)
-				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')], 401);
+				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
 			
 			/* get cashbank */
 			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
 			/* unposting fail if plan has actual payment */
 			if ($cashbank)
-				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
+				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
 			
 			/* Delete the record */
 			if (!$result = $this->_recordDelete('cf_invoice', $invoice->id))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 			
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -305,7 +305,7 @@ class Cashflow extends Getmeb
 				if ($doc_no != $this->params->doc_no) {
 						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
 					if ($HadSameDocNo) {
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')]);
 					}
 				}
 			}
@@ -362,12 +362,12 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_put'){
 				if ($this->_is_posted(['ar_ap_plan_id' => $this->params->id]) > 0)
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')]);
 			}
 			/* if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['is_plan'] = 1;
 				if (! $this->{$this->mdl}->cf_ar_ap_valid_amount($this->mixed_data)){ 
-					xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+					xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])]);
 				}
 				unset($this->mixed_data['is_plan']);
 			} */
@@ -390,8 +390,8 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
-					// xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')]);
+					// xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))]);
 				}
 			}
 			if ($this->params->event == 'post_delete'){
@@ -432,7 +432,7 @@ class Cashflow extends Getmeb
 			
 			/* Insert the record */
 			if (!$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log)))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 			
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -451,17 +451,17 @@ class Cashflow extends Getmeb
 			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['ar_ap_plan_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 			/* unposting fail if invoice was actual */
 			if ($invoice->doc_date)
-				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')], 401);
+				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
 			
 			/* get cashbank */
 			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
 			/* unposting fail if plan has actual payment */
 			if ($cashbank)
-				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
+				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
 			
 			/* Delete the record */
 			if (!$result = $this->_recordDelete('cf_invoice', $invoice->id))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 			
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -491,7 +491,7 @@ class Cashflow extends Getmeb
 						$HadSameDocDate = $this->base_model->isDataExist($this->c_table, ['doc_date' => $params_doc_date, 'is_active' => '1', 'is_deleted' => '0']);
 					if ($HadSameDocDate) {
 						$period = date('m',strtotime($this->params->doc_date)).'-'.date('Y',strtotime($this->params->doc_date));
-						xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_duplicate_balance_amt'), $period)], 401);
+						xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_duplicate_balance_amt'), $period)]);
 					}
 				}
 			}
@@ -520,7 +520,7 @@ class Cashflow extends Getmeb
 				if ($doc_no != $this->params->doc_no) {
 						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0', 'is_receipt' => '1']);
 					if ($HadSameDocNo) {
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')]);
 					}
 				}
 			}
@@ -548,7 +548,7 @@ class Cashflow extends Getmeb
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_post_put'){
 				if (! $this->{$this->mdl}->cf_cashbank_valid_amount($this->mixed_data)){ 
-					xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+					xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])]);
 				}
 			}
 			if ($this->params->event == 'post_post_put'){
@@ -585,7 +585,7 @@ class Cashflow extends Getmeb
 				if ($doc_no != $this->params->doc_no) {
 						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0', 'is_receipt' => '0']);
 					if ($HadSameDocNo) {
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')]);
 					}
 				}
 			}
@@ -613,7 +613,7 @@ class Cashflow extends Getmeb
 		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
 			if ($this->params->event == 'pre_post_put'){
 				if (! $this->{$this->mdl}->cf_cashbank_valid_amount($this->mixed_data)){ 
-					xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+					xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])]);
 				}
 			}
 			if ($this->params->event == 'post_post_put'){
@@ -669,7 +669,7 @@ class Cashflow extends Getmeb
 				if ($doc_no != $this->params->doc_no) {
 						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
 					if ($HadSameDocNo) {
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')]);
 					}
 				}
 			}
@@ -719,7 +719,7 @@ class Cashflow extends Getmeb
 					]);
 					if ($HadCompletedItem) {
 						$doc_no = $this->base_model->getValue('doc_no', 'cf_inout', 'id', $this->params->inout_id)->doc_no;
-						xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_saving_shipment_already_completed'), $doc_no)], 401);
+						xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_saving_shipment_already_completed'), $doc_no)]);
 					}
 				}
 			}
@@ -733,7 +733,7 @@ class Cashflow extends Getmeb
 					]);
 					if ($HadCompletedItem && $HadCompletedItem->id != $this->params->id) {
 						$doc_no = $this->base_model->getValue('doc_no', 'cf_inout', 'id', $this->params->inout_id)->doc_no;
-						xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_saving_shipment_already_completed'), $doc_no)], 401);
+						xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_saving_shipment_already_completed'), $doc_no)]);
 					}
 				}
 			}
@@ -771,7 +771,7 @@ class Cashflow extends Getmeb
 				if ($doc_no != $this->params->doc_no) {
 						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
 					if ($HadSameDocNo) {
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')]);
 					}
 				}
 			}
@@ -815,7 +815,7 @@ class Cashflow extends Getmeb
 					]);
 					if ($HadCompletedItem) {
 						$doc_no = $this->base_model->getValue('doc_no', 'cf_inout', 'id', $this->params->inout_id)->doc_no;
-						xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_saving_material_receipt_already_completed'), $doc_no)], 401);
+						xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_saving_material_receipt_already_completed'), $doc_no)]);
 					}
 				}
 			}
@@ -829,7 +829,7 @@ class Cashflow extends Getmeb
 					]);
 					if ($HadCompletedItem && $HadCompletedItem->id != $this->params->id) {
 						$doc_no = $this->base_model->getValue('doc_no', 'cf_inout', 'id', $this->params->inout_id)->doc_no;
-						xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_saving_material_receipt_already_completed'), $doc_no)], 401);
+						xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_saving_material_receipt_already_completed'), $doc_no)]);
 					}
 				}
 			}
@@ -886,7 +886,7 @@ class Cashflow extends Getmeb
 				if ($doc_no != $this->params->doc_no) {
 						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0', 'is_receipt' => '1']);
 					if ($HadSameDocNo) {
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')]);
 					}
 				}
 			}
@@ -901,7 +901,7 @@ class Cashflow extends Getmeb
 				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 				/* delete fail if invoice has actual payment */
 				if ($cashbank)
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')]);
 			}
 		}
 		/* if ($this->r_method == 'DELETE') {
@@ -915,9 +915,9 @@ class Cashflow extends Getmeb
 	{
 		if ($this->params->event == 'pre_options'){
 			$id = $this->params->id;
-			unset($this->params->id);
+			unset($this->params->id, $this->params->event);
 			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -938,9 +938,9 @@ class Cashflow extends Getmeb
 			unset($this->params->description);
 			
 			$id = $this->params->id; 
-			unset($this->params->id);
+			unset($this->params->id, $this->params->event);
 			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -999,7 +999,7 @@ class Cashflow extends Getmeb
 				if ($doc_no != $this->params->doc_no) {
 						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0', 'is_receipt' => '0']);
 					if ($HadSameDocNo) {
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')]);
 					}
 				}
 			}
@@ -1014,7 +1014,7 @@ class Cashflow extends Getmeb
 				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 				/* delete fail if invoice has actual payment */
 				if ($cashbank)
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')]);
 			}
 		}
 		/* if ($this->r_method == 'DELETE') {
@@ -1028,9 +1028,9 @@ class Cashflow extends Getmeb
 	{
 		if ($this->params->event == 'pre_options'){
 			$id = $this->params->id;
-			unset($this->params->id);
+			unset($this->params->id, $this->params->event);
 			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -1051,9 +1051,9 @@ class Cashflow extends Getmeb
 			unset($this->params->description);
 			
 			$id = $this->params->id; 
-			unset($this->params->id);
+			unset($this->params->id, $this->params->event);
 			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -1113,7 +1113,7 @@ class Cashflow extends Getmeb
 				if ($doc_no != $this->params->doc_no) {
 						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
 					if ($HadSameDocNo) {
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')]);
 					}
 				}
 			}
@@ -1128,7 +1128,7 @@ class Cashflow extends Getmeb
 				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 				/* delete fail if invoice has actual payment */
 				if ($cashbank)
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')]);
 			}
 		}
 	}
@@ -1137,9 +1137,9 @@ class Cashflow extends Getmeb
 	{
 		if ($this->params->event == 'pre_options'){
 			$id = $this->params->id;
-			unset($this->params->id);
+			unset($this->params->id, $this->params->event);
 			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -1160,9 +1160,9 @@ class Cashflow extends Getmeb
 			unset($this->params->description);
 			
 			$id = $this->params->id; 
-			unset($this->params->id);
+			unset($this->params->id, $this->params->event);
 			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -1219,7 +1219,7 @@ class Cashflow extends Getmeb
 				if ($doc_no != $this->params->doc_no) {
 						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
 					if ($HadSameDocNo) {
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')]);
 					}
 				}
 			}
@@ -1242,7 +1242,7 @@ class Cashflow extends Getmeb
 				$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 				/* delete fail if invoice has actual payment */
 				if ($cashbank)
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_delete_invoice_has_payment')]);
 			}
 		}
 	}
@@ -1251,9 +1251,9 @@ class Cashflow extends Getmeb
 	{
 		if ($this->params->event == 'pre_options'){
 			$id = $this->params->id;
-			unset($this->params->id);
+			unset($this->params->id, $this->params->event);
 			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -1274,9 +1274,9 @@ class Cashflow extends Getmeb
 			unset($this->params->description);
 			
 			$id = $this->params->id; 
-			unset($this->params->id);
+			unset($this->params->id, $this->params->event);
 			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -1329,7 +1329,7 @@ class Cashflow extends Getmeb
 				if ($doc_no != $this->params->doc_no) {
 						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
 					if ($HadSameDocNo) {
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')]);
 					}
 				}
 			}
@@ -1339,14 +1339,14 @@ class Cashflow extends Getmeb
 			if ($this->params->event == 'pre_put'){
 				$received_date = $this->db->select('received_date')->where_in('id', $this->params->id)->get($this->c_table)->row()->received_date;
 				if ($received_date)
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_update_outbound_completed')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_update_outbound_completed')]);
 			}
 		}
 		if ($this->r_method == 'DELETE') {
 			if ($this->params->event == 'pre_delete'){
 				$Outbound = $this->db->select('count(received_date) as cnt')->where_in('id', explode(',', $this->params->id))->get($this->c_table)->row()->cnt;
 				if ($Outbound)
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_update_outbound_completed')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_update_outbound_completed')]);
 			}
 			if ($this->params->event == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('movement_id', explode(',', $this->params->id))->update($this->c_table.'_line');
@@ -1384,7 +1384,7 @@ class Cashflow extends Getmeb
 				if ($doc_no != $this->params->doc_no) {
 						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
 					if ($HadSameDocNo) {
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')]);
 					}
 				}
 			} */
@@ -1397,7 +1397,7 @@ class Cashflow extends Getmeb
 				$result = $this->_recordUpdate($this->c_table, array_merge($data_inbound, $this->update_log), ['id'=>$this->params->id]);
 				/* Throwing the result to Ajax */
 				if (! $result)
-					xresponse(FALSE, ['message' => $this->messages()], 401);
+					xresponse(FALSE, ['message' => $this->messages()]);
 
 				xresponse(TRUE, ['message' => $this->messages()]);
 			}
@@ -1419,7 +1419,7 @@ class Cashflow extends Getmeb
 					xresponse(FALSE, ['message' => $this->db->error()['message']]);
 					
 				// $this->_recordUpdate($this->c_table, ['received_date' => NULL], ['id' => ])
-				// xresponse(FALSE, ['message' => lang('error_update_inbound_completed')], 401);
+				// xresponse(FALSE, ['message' => lang('error_update_inbound_completed')]);
 			}
 			/* if ($this->params->event == 'post_delete'){
 				$this->db->set($this->delete_log)->where_in('movement_id', explode(',', $this->params->id))->update($this->c_table.'_line');
@@ -1513,7 +1513,7 @@ class Cashflow extends Getmeb
 				if ($doc_no != $this->params->doc_no) {
 						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
 					if ($HadSameDocNo) {
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')]);
 					}
 				}
 			}
@@ -1533,7 +1533,7 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_so_had_shipment'), implode(',',array_unique($doc_no)))], 401);
+					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_so_had_shipment'), implode(',',array_unique($doc_no)))]);
 				}
 			}
 			/* Checking, is data so plan already posted ? */
@@ -1547,7 +1547,7 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_so_has_been_posted'), '')], 401);
+					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_so_has_been_posted'), '')]);
 				}
 			}
 			if ($this->params->event == 'post_delete'){
@@ -1610,7 +1610,7 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_so_line_had_shipment'), implode(',',array_unique($doc_no)))], 401);
+					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_so_line_had_shipment'), implode(',',array_unique($doc_no)))]);
 				}
 			}
 			if ($this->params->event == 'post_delete'){
@@ -1663,12 +1663,12 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_put'){
 				if ($this->_is_posted(['order_plan_id' => $this->params->id]) > 0)
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')]);
 			}
 			if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['is_plan'] = 1;
 				if (! $this->{$this->mdl}->cf_order_valid_amount($this->mixed_data)){ 
-					xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+					xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])]);
 				}
 				unset($this->mixed_data['is_plan']);
 			}
@@ -1691,8 +1691,8 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
-					// xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')]);
+					// xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))]);
 				}
 			}
 			if ($this->params->event == 'post_delete'){
@@ -1733,7 +1733,7 @@ class Cashflow extends Getmeb
 			
 			/* Insert the record */
 			if (!$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log)))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 			
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -1752,17 +1752,17 @@ class Cashflow extends Getmeb
 			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['order_plan_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 			/* unposting fail if invoice was actual */
 			if ($invoice->doc_date)
-				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')], 401);
+				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
 			
 			/* get cashbank */
 			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
 			/* unposting fail if plan has actual payment */
 			if ($cashbank)
-				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
+				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
 			
 			/* Delete the record */
 			if (!$result = $this->_recordDelete('cf_invoice', $invoice->id))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 			
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -1783,9 +1783,9 @@ class Cashflow extends Getmeb
 			unset($this->params->description);
 			
 			$id = $this->params->id; 
-			unset($this->params->id);
+			unset($this->params->id, $this->params->event);
 			if (!$result = $this->_recordUpdate($this->c_table, array_merge((array)$this->params, $this->update_log), ['id'=>$id]))
-				xresponse(FALSE, ['message' => $this->db->error()['message']], 401);
+				xresponse(FALSE, ['message' => $this->db->error()['message']]);
 				
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -1917,7 +1917,7 @@ class Cashflow extends Getmeb
 				if ($doc_no != $this->params->doc_no) {
 						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
 					if ($HadSameDocNo) {
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')]);
 					}
 				}
 			}
@@ -1929,13 +1929,13 @@ class Cashflow extends Getmeb
 				// debug($this->c_table.'_line');
 				$HadDetail = $this->base_model->isDataExist($this->c_table.'_line', ['order_id' => $this->params->id]);
 				if ($this->mixed_data['requisition_id'] != $header->requisition_id && $HadDetail) {
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_had_detail')], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_had_detail')]);
 				}
 			}
 			if ($this->params->event == 'pre_post_put'){
 				$requisition = $this->base_model->getValue('*', 'cf_requisition', 'id', $this->params->requisition_id);
 				if ($this->mixed_data['eta'] >= $requisition->eta) {
-					xresponse(FALSE, ['message' => lang('error_po_eta', [datetime_db_format($requisition->eta, $this->session->date_format, FALSE)])], 401);
+					xresponse(FALSE, ['message' => lang('error_po_eta', [datetime_db_format($requisition->eta, $this->session->date_format, FALSE)])]);
 				}
 			}
 		}
@@ -1951,7 +1951,7 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_po_had_received'), implode(',',array_unique($doc_no)))], 401);
+					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_po_had_received'), implode(',',array_unique($doc_no)))]);
 				}
 			}
 			/* Checking, is data po plan already posted ? */
@@ -1965,7 +1965,7 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_po_has_been_posted'), '')], 401);
+					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_po_has_been_posted'), '')]);
 				}
 			}
 			if ($this->params->event == 'post_delete'){
@@ -2006,7 +2006,7 @@ class Cashflow extends Getmeb
 			}
 			/* if ($this->params->event == 'pre_post_put'){
 				if (! $this->{$this->mdl}->cf_order_valid_qty($this->mixed_data)){ 
-					xresponse(FALSE, ['message' => lang('error_qty_overload', [abs($this->session->flashdata('message'))])], 401);
+					xresponse(FALSE, ['message' => lang('error_qty_overload', [abs($this->session->flashdata('message'))])]);
 				}
 			} */
 			if ($this->params->event == 'post_post_put'){
@@ -2027,7 +2027,7 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_po_line_had_received'), implode(',',array_unique($doc_no)))], 401);
+					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_po_line_had_received'), implode(',',array_unique($doc_no)))]);
 				}
 			}
 			if ($this->params->event == 'post_delete'){
@@ -2084,12 +2084,12 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_put'){
 				if ($this->_is_posted(['order_plan_id' => $this->params->id]) > 0)
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')]);
 			}
 			if ($this->params->event == 'pre_post_put'){
 				$this->mixed_data['is_plan'] = 1;
 				if (! $this->{$this->mdl}->cf_order_valid_amount($this->mixed_data)){ 
-					xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])], 401);
+					xresponse(FALSE, ['message' => lang('error_amount_overload', [number_format(abs($this->session->flashdata('message')), $this->session->number_digit_decimal, $this->session->decimal_symbol, $this->session->group_symbol)])]);
 				}
 				unset($this->mixed_data['is_plan']);
 			}
@@ -2111,8 +2111,8 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
-					// xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')]);
+					// xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))]);
 				}
 			}
 			if ($this->params->event == 'post_delete'){
@@ -2153,7 +2153,7 @@ class Cashflow extends Getmeb
 			
 			/* Insert the record */
 			if (!$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log)))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 			
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -2172,17 +2172,17 @@ class Cashflow extends Getmeb
 			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['order_plan_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 			/* unposting fail if invoice was actual */
 			if ($invoice->doc_date)
-				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')], 401);
+				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
 			
 			/* get cashbank */
 			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
 			/* unposting fail if plan has actual payment */
 			if ($cashbank)
-				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
+				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
 			
 			/* Delete the record */
 			if (!$result = $this->_recordDelete('cf_invoice', $invoice->id))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 			
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -2229,7 +2229,7 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_put'){
 				if ($this->_is_posted(['order_plan_clearance_id' => $this->params->id]) > 0)
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')]);
 			}
 			if ($this->params->event == 'post_post_put'){
 				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
@@ -2249,7 +2249,7 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
+					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))]);
 				}
 			}
 			if ($this->params->event == 'post_delete'){
@@ -2290,7 +2290,7 @@ class Cashflow extends Getmeb
 			
 			/* Insert the record */
 			if (!$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log)))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 			
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -2309,17 +2309,17 @@ class Cashflow extends Getmeb
 			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['order_plan_clearance_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 			/* unposting fail if invoice was actual */
 			if ($invoice->doc_date)
-				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')], 401);
+				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
 			
 			/* get cashbank */
 			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
 			/* unposting fail if plan has actual payment */
 			if ($cashbank)
-				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
+				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
 			
 			/* Delete the record */
 			if (!$result = $this->_recordDelete('cf_invoice', $invoice->id))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 			
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -2366,7 +2366,7 @@ class Cashflow extends Getmeb
 			}
 			if ($this->params->event == 'pre_put'){
 				if ($this->_is_posted(['order_plan_import_id' => $this->params->id]) > 0)
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_plan_had_posted')]);
 			}
 			if ($this->params->event == 'post_post_put'){
 				$this->params->id = isset($this->params->id) && $this->params->id ? $this->params->id : $this->insert_id;
@@ -2386,7 +2386,7 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))], 401);
+					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_plan_had_invoiced'), implode(',',$doc_no))]);
 				}
 			}
 			if ($this->params->event == 'post_delete'){
@@ -2427,7 +2427,7 @@ class Cashflow extends Getmeb
 			
 			/* Insert the record */
 			if (!$result = $this->_recordInsert('cf_invoice', array_merge($this->mixed_data, $this->create_log)))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 			
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -2446,17 +2446,17 @@ class Cashflow extends Getmeb
 			$invoice = $this->base_model->getValue('id, doc_date', 'cf_invoice', ['order_plan_import_id','is_active','is_deleted'], [$this->params->id,'1','0']);
 			/* unposting fail if invoice was actual */
 			if ($invoice->doc_date)
-				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')], 401);
+				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_actual')]);
 			
 			/* get cashbank */
 			$cashbank = $this->base_model->getValue('id', 'cf_cashbank_line', ['invoice_id','is_active','is_deleted'], [$invoice->id,'1','0']);
 			/* unposting fail if plan has actual payment */
 			if ($cashbank)
-				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')], 401);
+				xresponse(FALSE, ['data' => [], 'message' => lang('error_unpost_plan_has_payment')]);
 			
 			/* Delete the record */
 			if (!$result = $this->_recordDelete('cf_invoice', $invoice->id))
-				xresponse(FALSE, ['message' => $this->messages()], 401);
+				xresponse(FALSE, ['message' => $this->messages()]);
 			
 			/* _crudlog here */
 			// $this->_crudlog();
@@ -2528,7 +2528,7 @@ class Cashflow extends Getmeb
 				if ($doc_no != $this->params->doc_no) {
 						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
 					if ($HadSameDocNo) {
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')]);
 					}
 				}
 			}
@@ -2539,10 +2539,10 @@ class Cashflow extends Getmeb
 				$HadDetail = $this->base_model->isDataExist($this->c_method.'_line', ['request_id' => $this->params->id]);
 				// debug($this->mixed_data['request_type_id']);
 				if ($this->mixed_data['request_type_id'] != $header->request_type_id && $HadDetail) {
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_had_detail')], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_had_detail')]);
 				}
 				if ($this->mixed_data['order_id'] != $header->order_id && $HadDetail) {
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_had_detail')], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_had_detail')]);
 				}
 				if ($this->mixed_data['request_type_id'] != 1){
 					$this->mixed_data['order_id'] = NULL;
@@ -2561,7 +2561,7 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_request_had_pr'), implode(',',array_unique($doc_no)))], 401);
+					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_request_had_pr'), implode(',',array_unique($doc_no)))]);
 				}
 			}
 			if ($this->params->event == 'post_delete'){
@@ -2609,7 +2609,7 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_request_line_had_pr'), implode(',',array_unique($doc_no)))], 401);
+					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_request_line_had_pr'), implode(',',array_unique($doc_no)))]);
 				}
 			}
 		}
@@ -2658,7 +2658,7 @@ class Cashflow extends Getmeb
 				if ($doc_no != $this->params->doc_no) {
 						$HadSameDocNo = $this->base_model->isDataExist($this->c_table, ['doc_no' => $this->params->doc_no, 'is_active' => '1', 'is_deleted' => '0']);
 					if ($HadSameDocNo) {
-						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')], 401);
+						xresponse(FALSE, ['data' => [], 'message' => lang('error_duplicate_doc_no')]);
 					}
 				}
 			}
@@ -2669,14 +2669,14 @@ class Cashflow extends Getmeb
 				$HadDetail = $this->base_model->isDataExist($this->c_method.'_line', ['requisition_id' => $this->params->id]);
 				// debug($this->mixed_data['request_type_id']);
 				if ($this->mixed_data['request_id'] != $header->request_id && $HadDetail) {
-					xresponse(FALSE, ['data' => [], 'message' => lang('error_had_detail')], 401);
+					xresponse(FALSE, ['data' => [], 'message' => lang('error_had_detail')]);
 				}
 			}
 			/* Check requisition eta */
 			if ($this->params->event == 'pre_post_put'){
 				$request = $this->base_model->getValue('*', 'cf_request', 'id', $this->params->request_id);
 				if ($this->mixed_data['eta'] >= $request->eta) {
-					xresponse(FALSE, ['message' => lang('error_requisition_eta', [datetime_db_format($request->eta, $this->session->date_format, FALSE)])], 401);
+					xresponse(FALSE, ['message' => lang('error_requisition_eta', [datetime_db_format($request->eta, $this->session->date_format, FALSE)])]);
 				}
 			}
 		}
@@ -2692,7 +2692,7 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_pr_had_po'), implode(',',array_unique($doc_no)))], 401);
+					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_pr_had_po'), implode(',',array_unique($doc_no)))]);
 				}
 			}
 			if ($this->params->event == 'post_delete'){
@@ -2739,7 +2739,7 @@ class Cashflow extends Getmeb
 					}
 				}
 				if ($doc_no){
-					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_pr_line_had_po'), implode(',',array_unique($doc_no)))], 401);
+					xresponse(FALSE, ['data' => [], 'message' => sprintf(lang('error_delete_pr_line_had_po'), implode(',',array_unique($doc_no)))]);
 				}
 			}
 		}
@@ -4190,7 +4190,7 @@ class Cashflow extends Getmeb
 			$str = translate_variable($str);
 			// debug($str);
 			if (! $qry = $this->db->query($str))
-				xresponse(FALSE, ['data' => [], 'message' => $this->db->error()['message']], 401);;
+				xresponse(FALSE, ['data' => [], 'message' => $this->db->error()['message']]);;
 			
 			$this->base_model->export_data($qry, $this->params);
 		}
@@ -4413,7 +4413,7 @@ class Cashflow extends Getmeb
 			$excl_cols = ['account_id','is_receipt','type','seq'];
 			if (! $result = $this->_export_data_array($rows, $excl_cols, $filename, 'xls', TRUE)) {
 				// $this->_update_process(['message' => 'Error: Exporting result data.', 'log' => 'Error: Exporting result data.', 'status' => 'FALSE', 'finished_at' => date('Y-m-d H:i:s'), 'stop_time' => time()], $id_process);
-				xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)], 401);
+				xresponse(FALSE, ['message' => sprintf(lang('error_downloading_report'), $filename)]);
 			}
 			
 			/* Update status on process table */
@@ -4552,7 +4552,7 @@ class Cashflow extends Getmeb
 			$str = translate_variable($str);
 			// debug($str);
 			if (! $qry = $this->db->query($str))
-				xresponse(FALSE, ['data' => [], 'message' => $this->db->error()['message']], 401);;
+				xresponse(FALSE, ['data' => [], 'message' => $this->db->error()['message']]);;
 			
 			$this->base_model->export_data($qry, $this->params);
 		}
@@ -4612,7 +4612,7 @@ class Cashflow extends Getmeb
 			$str = translate_variable($str);
 			// debug($str);
 			if (! $qry = $this->db->query($str))
-				xresponse(FALSE, ['data' => [], 'message' => $this->db->error()['message']], 401);;
+				xresponse(FALSE, ['data' => [], 'message' => $this->db->error()['message']]);;
 			
 			$this->base_model->export_data($qry, $this->params);
 		}

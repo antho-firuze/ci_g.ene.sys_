@@ -115,7 +115,7 @@
 								window.history.back(); 
 							},
 							error: function(data) {
-								if (data.status==500){
+								if (data.status >= 500){
 									var message = data.statusText;
 								} else {
 									var error = JSON.parse(data.responseText);
@@ -123,9 +123,7 @@
 								}
 								button.stopSpin();
 								button.enable();
-								BootstrapDialog.show({ closable: false, type:'modal-danger', title:'Notification', message:message, 
-									buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); window.history.back(); } }],
-								});
+								BootstrapDialog.show({ type:'modal-danger', title:'Notification', message:message, buttons:[{ label:'OK', hotkey:13, action:function(dialogRef){ dialogRef.close(); }}] });
 							}
 						});
 					}
@@ -196,7 +194,7 @@
 								window.history.back(); 
 							},
 							error: function(data) {
-								if (data.status==500){
+								if (data.status >= 500){
 									var message = data.statusText;
 								} else {
 									var error = JSON.parse(data.responseText);
@@ -204,9 +202,7 @@
 								}
 								button.stopSpin();
 								button.enable();
-								BootstrapDialog.show({ closable: false, type:'modal-danger', title:'Notification', message:message, 
-									buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); window.history.back(); } }],
-								});
+								BootstrapDialog.show({ type:'modal-danger', title:'Notification', message:message, buttons:[{ label:'OK', hotkey:13, action:function(dialogRef){ dialogRef.close(); }}] });
 							}
 						});
 					}

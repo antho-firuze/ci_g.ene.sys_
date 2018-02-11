@@ -141,7 +141,7 @@
 					BootstrapDialog.alert(data.message);
 				},
 				error: function(data) {
-					if (data.status==500){
+					if (data.status >= 500){
 						var message = data.statusText;
 					} else {
 						var error = JSON.parse(data.responseText);
@@ -274,7 +274,7 @@
 			}
 		},
 		error: function(data) {
-			if (data.status==500){
+			if (data.status >= 500){
 				var message = data.statusText;
 			} else {
 				var error = JSON.parse(data.responseText);
