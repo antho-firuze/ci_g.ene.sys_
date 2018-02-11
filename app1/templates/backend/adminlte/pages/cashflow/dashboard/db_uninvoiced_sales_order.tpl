@@ -29,6 +29,7 @@
 			'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
 			'This Year': [moment().startOf('year'), moment().endOf('year')],
 			'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+			'All Period': [moment('1601-01-01').startOf('year'), moment('9999-01-01').endOf('year')],
 		},
 	};
 	{* Toolbar Init *}
@@ -45,6 +46,7 @@
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '130%',
+		showColumnMenu: false,
 		act_menu: { copy: false, edit: false, delete: false },
 		sub_menu: [],
 		order: ['id desc'],
@@ -57,9 +59,6 @@
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"doc_date", title:"SO Date" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"etd", title:"SCM ETD" },
 			{ width:"100px", orderable:true, data:"category_name", title:"Category" },
-			{* { width:"200px", orderable:true, data:"note", title:"Payment Type" }, *}
-			{* { width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"invoice_plan_date", title:"Invoice Date (Plan)" }, *}
-			{* { width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"amount", title:"Received Amount (Plan)", render: function(data, type, row){ return format_money(data); } }, *}
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Total", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_money(data); } },

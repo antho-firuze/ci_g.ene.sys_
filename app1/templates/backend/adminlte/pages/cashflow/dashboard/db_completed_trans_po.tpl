@@ -29,6 +29,7 @@
 			'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
 			'This Year': [moment().startOf('year'), moment().endOf('year')],
 			'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+			'All Period': [moment('1601-01-01').startOf('year'), moment('9999-01-01').endOf('year')],
 		},
 	};
 	{* Toolbar Init *}
@@ -45,6 +46,7 @@
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '130%',
+		showColumnMenu: false,
 		act_menu: { copy: false, edit: false, delete: false },
 		sub_menu: [],
 		order: ['id desc'],

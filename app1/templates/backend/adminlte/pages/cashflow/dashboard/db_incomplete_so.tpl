@@ -29,6 +29,7 @@
 			'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
 			'This Year': [moment().startOf('year'), moment().endOf('year')],
 			'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+			'All Period': [moment('1601-01-01').startOf('year'), moment('9999-01-01').endOf('year')],
 		},
 	};
 	{* Toolbar Init *}
@@ -45,11 +46,9 @@
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '130%',
-		act_menu: { copy: true, edit: true, delete: true },
-		sub_menu: [
-			{* { pageid: 122, subKey: 'ar_ap_id', title: 'Outflow Line', }, *}
-			{ pageid: 123, subKey: 'ar_ap_id', title: 'Outflow Plan', },
-		],
+		showColumnMenu: false,
+		act_menu: { copy: false, edit: false, delete: false },
+		sub_menu: [],
 		order: ['id desc'],
 		columns: [
 			{ width:"100px", orderable:true, data:"org_name", title:"Org Name" },
@@ -65,7 +64,6 @@
 		],
 		footers: [
 			{ data: 'grand_total', 	title: 'Grand Total' }, 
-			{* { data: 'plan_total', 	title: 'Total Plan' },  *}
 		],
 	};
 	

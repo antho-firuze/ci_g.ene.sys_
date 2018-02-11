@@ -29,7 +29,6 @@
 			'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
 			'This Year': [moment().startOf('year'), moment().endOf('year')],
 			'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
-			'All Period': [moment('1601-01-01').startOf('year'), moment('9999-01-01').endOf('year')],
 		},
 	};
 	{* Toolbar Init *}
@@ -46,7 +45,6 @@
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '130%',
-		showColumnMenu: false,
 		act_menu: { copy: false, edit: false, delete: false },
 		sub_menu: [],
 		order: ['id desc'],
@@ -80,14 +78,6 @@
 				},
 			},
 			{ width:"100px", orderable:true, data:"category_name", title:"Category" },
-			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"sub_total", title:"Sub Total", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"vat_total", title:"VAT Total", render: function(data, type, row){ return format_money(data); } },
-			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"grand_total", title:"Grand Total", render: function(data, type, row){ return format_money(data); } },
-		],
-		footers: [
-			{ data: 'sub_total', 	title: 'Sub Total' }, 
-			{ data: 'vat_total', 	title: 'VAT Total' }, 
-			{ data: 'grand_total', 	title: 'Grand Total' }, 
 		],
 	};
 	
