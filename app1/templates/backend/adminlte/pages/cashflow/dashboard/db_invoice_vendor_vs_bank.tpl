@@ -55,14 +55,11 @@
 			{ width:"100px", orderable:true, data:"orgtrx_name", title:"Org Trx Name" },
 			{ width:"100px", orderable:true, data:"bpartner_name", title:"Business Partner" },
 			{ width:"100px", orderable:true, data:"residence", title:"Residence" },
-			{ width:"100px", orderable:true, data:"so_no", title:"SO No" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"so_date", title:"SO Date" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"etd", title:"SCM ETD" },
 			{ width:"100px", orderable:true, data:"doc_no", title:"Invoice No" },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"invoice_plan_date", title:"Invoice  Date (Plan)" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"invoice_date", title:"Invoice Date (Actual)" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"received_plan_date", title:"Received Date (Actual)" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"invoice_plan_date", title:"Invoice Date (Plan)" },
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"rcv_plan_date", title:"Received Date (Plan)" },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"payment_plan_date", title:"Payment Date (Plan)" },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"payment_date", title:"Payment Date (Actual)" },
 			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"late", title:"Late (Days)", 
 				render: function(data, type, row){ 
 					if ( parseInt(data) > 0 && parseInt(data) <= 7 ) 
@@ -73,13 +70,10 @@
 						return $("<span>").addClass('label label-success').text(data).prop('outerHTML'); 
 				},
 			},
-			{ width:"100px", orderable:true, data:"status", title:"Late Reason" },
-			{ width:"100px", orderable:true, data:"category_name", title:"Category" },
 			{ width:"200px", orderable:true, data:"note", title:"Payment Type" },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"amount", title:"Base Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"adj_amount", title:"Adj Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"net_amount", title:"Net Amount", render: function(data, type, row){ return format_money(data); } },
-			{ width:"20px", orderable:true, className:"dt-head-center dt-body-center", data:"so_top", title:"TOP (Days)" },
 		],
 		footers: [
 			{ data: 'amount', 	title: 'Base Total' }, 

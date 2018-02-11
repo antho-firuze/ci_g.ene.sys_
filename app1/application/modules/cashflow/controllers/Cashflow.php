@@ -3532,7 +3532,7 @@ class Cashflow extends Getmeb
 		}
 	}
 
-	function db_late_invoice_vs_bank_received()
+	function db_invoice_customer_vs_bank()
 	{
 		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
@@ -3821,25 +3821,7 @@ class Cashflow extends Getmeb
 		}
 	}
 
-	function db_outstanding_invoice_customer()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
-		}
-	}
-
-	function db_outstanding_invoice_supplier()
+	function db_invoice_vendor_to_issue()
 	{
 		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
@@ -3930,7 +3912,6 @@ class Cashflow extends Getmeb
 			$m = new \Moment\Moment();
 			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
 			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
 		}
 	}
 
@@ -3953,7 +3934,28 @@ class Cashflow extends Getmeb
 			$m = new \Moment\Moment();
 			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
 			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+		}
+	}
 
+	function db_total_invoice_customer()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			]);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
 		}
 	}
 
@@ -3975,7 +3977,25 @@ class Cashflow extends Getmeb
 		}
 	}
 
-	function db_outstanding_invoice_customer_by_amount()
+	function db_invoice_customer_to_issue()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_invoice_customer_to_receive()
 	{
 		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
@@ -3993,7 +4013,7 @@ class Cashflow extends Getmeb
 		}
 	}
 
-	function db_outstanding_invoice_vendor_by_amount()
+	function db_invoice_vendor_to_payment()
 	{
 		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
@@ -4047,7 +4067,7 @@ class Cashflow extends Getmeb
 		}
 	}
 
-	function db_late_invoice_vs_bank_payment()
+	function db_invoice_vendor_vs_bank()
 	{
 		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
