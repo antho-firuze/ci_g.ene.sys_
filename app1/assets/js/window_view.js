@@ -152,7 +152,10 @@ function initAdvanceFilter()
 		
 		$('#btn_cal').daterangepicker({	startDate: start, endDate: end,	ranges: dateRanges,	})
 		.on('apply.daterangepicker', function(ev, picker) {
-			$('#btn_cal span').html(picker.startDate.format('MMMM D, YYYY') + ' - ' + picker.endDate.format('MMMM D, YYYY'));
+			if (picker.startDate.format('YYYY-MM-DD') == '1601-01-01')
+				$('#btn_cal span').html('All Period');
+			else
+				$('#btn_cal span').html(picker.startDate.format('MMMM D, YYYY') + ' - ' + picker.endDate.format('MMMM D, YYYY'));
 			$("#fdate").val(picker.startDate.format('YYYY-MM-DD'));
 			$("#tdate").val(picker.endDate.format('YYYY-MM-DD'));
 		});
