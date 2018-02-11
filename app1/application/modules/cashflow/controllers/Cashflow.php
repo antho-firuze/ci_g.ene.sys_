@@ -2885,7 +2885,6 @@ class Cashflow extends Getmeb
 			$m = new \Moment\Moment();
 			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
 			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
 		}
 	}
 
@@ -2947,7 +2946,142 @@ class Cashflow extends Getmeb
 			$m = new \Moment\Moment();
 			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
 			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+		}
+	}
 
+	function db_completed_request()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			]);
+			
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'etd' 				=> 't1.etd', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params->ob = strtr($this->params->ob, $sortFields);
+			}
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+		}
+	}
+
+	function db_completed_requisition()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			]);
+			
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'etd' 				=> 't1.etd', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params->ob = strtr($this->params->ob, $sortFields);
+			}
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+		}
+	}
+
+	function db_completed_outbound()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			]);
+			
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'etd' 				=> 't1.etd', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params->ob = strtr($this->params->ob, $sortFields);
+			}
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+		}
+	}
+
+	function db_completed_inbound()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			]);
+			
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'etd' 				=> 't1.etd', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+				];
+				$this->params->ob = strtr($this->params->ob, $sortFields);
+			}
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
 		}
 	}
 
@@ -3006,7 +3140,6 @@ class Cashflow extends Getmeb
 			$m = new \Moment\Moment();
 			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
 			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
 		}
 	}
 
@@ -3125,7 +3258,6 @@ class Cashflow extends Getmeb
 			$m = new \Moment\Moment();
 			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
 			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
 		}
 	}
 
@@ -3185,7 +3317,6 @@ class Cashflow extends Getmeb
 			$m = new \Moment\Moment();
 			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
 			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
 		}
 	}
 
@@ -3583,6 +3714,26 @@ class Cashflow extends Getmeb
 		}
 	}
 
+	function db_incomplete_request()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
+			'(select name from c_bpartner where id = t1.bpartner_id)',
+			'(select name from a_org where id = t1.org_id)',
+			'(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+		}
+	}
+
 	function db_incomplete_so()
 	{
 		if ($this->params->event == 'pre_get'){
@@ -3929,26 +4080,6 @@ class Cashflow extends Getmeb
 			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
 			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
 
-		}
-	}
-
-	function db_incomplete_request()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
-			'(select name from c_bpartner where id = t1.bpartner_id)',
-			'(select name from a_org where id = t1.org_id)',
-			'(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
 		}
 	}
 

@@ -9,9 +9,38 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/daterangepicker/daterangepicker.css">
+<script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/moment.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/daterangepicker.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
+	{* Advance filter Init *}
+	var AdvanceFilter_Init = {
+		enable: true, 
+		params: [ 'fdate', 'tdate' ],
+		fdate: moment().startOf("year"),
+		tdate: moment().endOf("year"),
+		dateRanges: {
+			'This Week': [moment().startOf('week'), moment().endOf('week')],
+			'Last Week': [moment().subtract(1, 'week').startOf('week'), moment().subtract(1, 'week').endOf('week')],
+			'This Month': [moment().startOf('month'), moment().endOf('month')],
+			'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+			'This Year': [moment().startOf('year'), moment().endOf('year')],
+			'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+			'All Period': [moment('1601-01-01').startOf('year'), moment('9999-01-01').endOf('year')],
+		},
+	};
+	{* Toolbar Init *}
+	var Toolbar_Init = {
+		enable: true,
+		toolbarBtn: ['btn-new','btn-copy','btn-refresh','btn-delete','btn-message','btn-print','btn-export','btn-import','btn-viewlog','btn-process'],
+		disableBtn: ['btn-new','btn-copy','btn-delete','btn-print','btn-message','btn-import','btn-process'],
+		hiddenBtn: ['btn-copy','btn-message'],
+		processMenu: [{ id:"btn-process1", title:"Process 1" }, { id:"btn-process2", title:"Process 2" }, ],
+		processMenuDisable: ['btn-process1'],
+	};
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		enable: true,
@@ -26,6 +55,7 @@
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '130%',
+		showColumnMenu: false,
 		act_menu: { copy: false, edit: false, delete: false },
 		sub_menu: [],
 		order: ['id desc'],

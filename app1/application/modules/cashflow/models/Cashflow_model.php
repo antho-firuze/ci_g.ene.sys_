@@ -1067,6 +1067,123 @@ class Cashflow_Model extends CI_Model
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
+	function db_completed_request($params)
+	{
+		$params->select	= isset($params->select) ? $params->select : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		case when coalesce(current_date - doc_date, 0) < 1 then 0 else coalesce(current_date - doc_date, 0) end as estimate_late,
+		case when coalesce(current_date - eta, 0) < 1 then 0 else coalesce(current_date - eta, 0) end as late,
+		t1.*, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence,
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name,
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
+		to_char(t1.eta, '".$this->session->date_format."') as eta, 
+		(select name from cf_request_type where id = t1.request_type_id) as request_type_name,
+		(select doc_no from cf_order where id = t1.order_id) as doc_no_order,
+		(select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as doc_date_order,  
+		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		$params->table 	= "(
+			select * 
+			from cf_request f1 where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' 
+			and exists (select 1 from cf_request_line a1 where is_active = '1' and is_deleted = '0' and is_stocked = '0' and request_id = f1.id
+			and not exists (select 1 from cf_requisition_line b1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and request_line_id = a1.id))
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
+		$params->table = translate_variable($params->table);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
+	}
+	
+	function db_completed_requisition($params)
+	{
+		$params->select	= isset($params->select) ? $params->select : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence,
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_requisition_line s1 where requisition_id = t1.id) as category_name,
+		case when coalesce(current_date-doc_date, 0) < 1 then 0 else coalesce(current_date-doc_date, 0) end as estimate_late,
+		case when coalesce(current_date - eta, 0) < 1 then 0 else coalesce(current_date - eta, 0) end as late,
+		t1.*, 
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
+		to_char(t1.eta, '".$this->session->date_format."') as eta, 
+		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
+		$params->table 	= "(
+			select * 
+			from cf_requisition f1 where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} 
+			and is_active = '1' and is_deleted = '0' 
+			and exists(select 1 from cf_requisition_line a1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and requisition_id = f1.id
+			and not exists(select 1 from cf_order_line b1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and requisition_line_id = a1.id))
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
+		$params->table = translate_variable($params->table);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
+	}
+	
+	function db_completed_outbound($params)
+	{
+		$params->select	= isset($params->select) ? $params->select : "
+		(select name from a_org where id = t1.org_id) as org_name,
+		coalesce(current_date - doc_date, 0) as estimate_late, 
+		case when coalesce(current_date - (select eta from cf_request where id = t1.request_id), 0) < 1 then 0 else coalesce(current_date - (select eta from cf_request where id = t1.request_id), 0) end as late, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		(select name from a_org where id = t1.org_to_id) as org_to_name, 
+		(select name from a_org where id = t1.orgtrx_to_id) as orgtrx_to_name, 
+		t1.*, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_movement_line s1 where movement_id = t1.id) as category_name,
+		(select doc_no from cf_request where id = t1.request_id) as doc_no_request,
+		(select to_char(doc_date, '".$this->session->date_format."') from cf_request where id = t1.request_id) as doc_date_request,
+		(select to_char(eta, '".$this->session->date_format."') from cf_request where id = t1.request_id) as eta_request,
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
+		to_char(t1.delivery_date, '".$this->session->date_format."') as delivery_date, 
+		to_char(t1.received_date, '".$this->session->date_format."') as received_date";
+		$params->table 	= "(
+			select *  
+			from cf_movement where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} 
+			and is_active = '1' and is_deleted = '0' 
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
+		$params->table = translate_variable($params->table);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
+	}
+	
+	function db_completed_inbound($params)
+	{
+		$params->select	= isset($params->select) ? $params->select : "
+		(select name from a_org where id = t1.org_id) as org_name,
+		coalesce(current_date - doc_date, 0) as estimate_late, 
+		case when coalesce(current_date - (select eta from cf_request where id = t1.request_id), 0) < 1 then 0 else coalesce(current_date - (select eta from cf_request where id = t1.request_id), 0) end as late, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		(select name from a_org where id = t1.org_to_id) as org_to_name, 
+		(select name from a_org where id = t1.orgtrx_to_id) as orgtrx_to_name, 
+		t1.*, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_movement_line s1 where movement_id = t1.id) as category_name,
+		(select doc_no from cf_request where id = t1.request_id) as doc_no_request,
+		(select to_char(doc_date, '".$this->session->date_format."') from cf_request where id = t1.request_id) as doc_date_request,
+		(select to_char(eta, '".$this->session->date_format."') from cf_request where id = t1.request_id) as eta_request,
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
+		to_char(t1.delivery_date, '".$this->session->date_format."') as delivery_date, 
+		to_char(t1.received_date, '".$this->session->date_format."') as received_date";
+		$params->table 	= "(
+			select * 
+			from cf_movement where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_to_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and received_date is not null 
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
+		$params->table = translate_variable($params->table);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
+	}
+	
 	function db_completed_trans_so($params)
 	{
 		$params->select	= isset($params->select) ? $params->select : "
@@ -1090,7 +1207,6 @@ class Cashflow_Model extends CI_Model
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} 
 			and is_active = '1' and is_deleted = '0' and is_sotrx = '1'
-			-- and etd < current_date
 			and (select count(*) from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = o1.id) = (select count(*) from cf_order_line a1 where is_active = '1' and is_deleted = '0' and order_id = o1.id
 			and exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = a1.id))
 			and doc_date between '".$params->fdate."' and '".$params->tdate."'
@@ -1122,7 +1238,6 @@ class Cashflow_Model extends CI_Model
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} 
 			and is_active = '1' and is_deleted = '0' and is_sotrx = '1'
-			-- and etd < current_date
 			and (select count(*) from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = o1.id) = (select count(*) from cf_order_line a1 where is_active = '1' and is_deleted = '0' and order_id = o1.id
 			and exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = a1.id))
 			and doc_date between '".$params->fdate."' and '".$params->tdate."'
@@ -1154,7 +1269,6 @@ class Cashflow_Model extends CI_Model
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} 
 			and is_active = '1' and is_deleted = '0' and is_sotrx = '0'
-			-- and etd < current_date
 			and (select count(*) from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = o1.id) = (select count(*) from cf_order_line a1 where is_active = '1' and is_deleted = '0' and order_id = o1.id
 			and exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = a1.id))
 			and doc_date between '".$params->fdate."' and '".$params->tdate."'
@@ -1186,7 +1300,6 @@ class Cashflow_Model extends CI_Model
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} 
 			and is_active = '1' and is_deleted = '0' and is_sotrx = '0'
-			-- and etd < current_date
 			and (select count(*) from cf_order_line where is_active = '1' and is_deleted = '0' and order_id = o1.id) = (select count(*) from cf_order_line a1 where is_active = '1' and is_deleted = '0' and order_id = o1.id
 			and exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0' and is_completed = '1' and order_line_id = a1.id))
 			and doc_date between '".$params->fdate."' and '".$params->tdate."'
@@ -1215,9 +1328,8 @@ class Cashflow_Model extends CI_Model
 		$params->table 	= "(
 			select * from cf_order o1
 			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_sotrx = '1'	
-			-- and current_date > o1.etd 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and is_sotrx = '1'	
 			and exists(select 1 from cf_order_line a1 where is_active = '1' and is_deleted = '0' and order_id = o1.id 
 			and not exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id)
 			and doc_date between '".$params->fdate."' and '".$params->tdate."')
@@ -1246,9 +1358,8 @@ class Cashflow_Model extends CI_Model
 		$params->table 	= "(
 			select * from cf_order o1
 			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_sotrx = '1'	
-			-- and current_date > o1.etd 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and is_sotrx = '1'	
 			and exists(select 1 from cf_order_line a1 where is_active = '1' and is_deleted = '0' and order_id = o1.id 
 			and not exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id)
 			and doc_date between '".$params->fdate."' and '".$params->tdate."')
@@ -1274,8 +1385,8 @@ class Cashflow_Model extends CI_Model
 		$params->table 	= "(
 			select * from cf_order o1
 			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_sotrx = '0'	
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and is_sotrx = '0'	
 			and exists(select 1 from cf_order_line a1 where is_active = '1' and is_deleted = '0' and order_id = o1.id 
 			and not exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id)
 			and doc_date between '".$params->fdate."' and '".$params->tdate."')
@@ -1299,10 +1410,11 @@ class Cashflow_Model extends CI_Model
 		to_char(doc_date, '".$this->session->date_format."') as doc_date, 
 		to_char(eta, '".$this->session->date_format."') as eta";
 		$params->table 	= "(
-			select * from cf_order o1
+			select * 
+			from cf_order o1
 			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_sotrx = '0'	
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and is_sotrx = '0'	
 			and exists(select 1 from cf_order_line a1 where is_active = '1' and is_deleted = '0' and order_id = o1.id 
 			and not exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id)
 			and doc_date between '".$params->fdate."' and '".$params->tdate."')
@@ -2250,14 +2362,14 @@ class Cashflow_Model extends CI_Model
 		(select to_char(doc_date, '".$this->session->date_format."') from cf_order where id = t1.order_id) as doc_date_order,  
 		coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
 		$params->table 	= "(
-			select * from cf_request f1 where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' 
-			and exists (
-			select distinct(request_id) from cf_request_line a1 where is_active = '1' and is_deleted = '0' and is_stocked = '0'
-			and not exists (select * from cf_requisition_line b1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and request_line_id = a1.id)
-			and a1.request_id = f1.id)
-		)t1";
+			select * 
+			from cf_request f1 where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} 
+			and is_active = '1' and is_deleted = '0' 
+			and exists(select 1 from cf_request_line a1 where is_active = '1' and is_deleted = '0' and is_stocked = '0' and request_id = f1.id
+			and not exists(select 1 from cf_requisition_line b1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and request_line_id = a1.id))
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
@@ -2284,7 +2396,8 @@ class Cashflow_Model extends CI_Model
 			select * 
 			from cf_request f1 where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
-			and is_active = '1' and is_deleted = '0' and eta <= (current_date + 3) and order_id is not null 
+			and is_active = '1' and is_deleted = '0' and order_id is not null 
+			-- and eta <= (current_date + 3) 
 			and exists (select 1 from cf_request_line a1 where is_active = '1' and is_deleted = '0' and request_id = f1.id
 			and not exists (select 1 from cf_movement_line b1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and request_line_id = a1.id))
 			and doc_date between '".$params->fdate."' and '".$params->tdate."'
@@ -2338,7 +2451,7 @@ class Cashflow_Model extends CI_Model
 		$params->table = "(
 			select * 
 			from cf_movement where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_to_id in {orgtrx}   
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} 
 			and is_active = '1' and is_deleted = '0' and received_date is null 
 			and doc_date between '".$params->fdate."' and '".$params->tdate."'
 		) t1";

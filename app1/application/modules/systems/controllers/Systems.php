@@ -1520,6 +1520,7 @@ class Systems extends Getmeb
 			if (isset($this->params->q) && !empty($this->params->q))
 				$this->params->like = DBX::like_or('name', $this->params->q);
 		
+			$this->{$this->mdl}->a_menu($this->params);
 		}
 	}
 	
