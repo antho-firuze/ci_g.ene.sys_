@@ -2745,6 +2745,281 @@ class Cashflow extends Getmeb
 		}
 	}
 	
+	function rf_invoice_adj_reason()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, FALSE);
+		}
+	}
+	
+	function rf_scm_dt_reason()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, FALSE);
+		}
+	}
+	
+	function db_invoiced_so()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				't1.description',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			], TRUE);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+		}
+	}
+	
+	function db_invoiced_po()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				't1.description',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			], TRUE);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+		}
+	}
+	
+	function db_incomplete_request()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
+			'(select name from c_bpartner where id = t1.bpartner_id)',
+			'(select name from a_org where id = t1.org_id)',
+			'(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+		}
+	}
+
+	function db_incomplete_so()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			]);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_incomplete_po()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			]);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+		}
+	}
+
+	function db_incomplete_other_inflow()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+				't1.doc_no',
+				"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",
+				'(select name from c_bpartner where id = t1.bpartner_id)',
+				'(select name from a_org where id = t1.org_id)',
+				'(select name from a_org where id = t1.orgtrx_id)'
+			]);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_incomplete_other_outflow()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_invoice_customer_to_issue()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_invoice_customer_to_receive()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_invoice_customer_vs_bank()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_invoice_vendor_to_issue()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_invoice_vendor_to_pay()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_invoice_vendor_vs_bank()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
 	function db_unmatch_crp_so_vs_invoice()
 	{
 		if ($this->params->event == 'pre_get'){
@@ -2946,6 +3221,244 @@ class Cashflow extends Getmeb
 			$m = new \Moment\Moment();
 			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
 			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+		}
+	}
+
+	function db_unmatch_daily_entry()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(FALSE, FALSE);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : '1900-01-01';
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : '1900-01-01';
+			
+			/* Validation */
+			switch(isset($this->params->module_id) ? $this->params->module_id : 1){
+			case 1:
+				$this->params->module = 'Sales Order';
+				$this->params->table = 'cf_order';
+				$this->params->where = "is_sotrx = '1'";
+				break;
+			case 2:
+				$this->params->module = 'Shipment';
+				$this->params->table = 'cf_inout';
+				$this->params->where = "is_sotrx = '1'";
+				break;
+			case 3:
+				$this->params->module = 'Request/Planning';
+				$this->params->table = 'cf_request';
+				break;
+			case 4:
+				$this->params->module = 'Purchase Request';
+				$this->params->table = 'cf_requisition';
+				break;
+			case 5:
+				$this->params->module = 'Purchase Order';
+				$this->params->table = 'cf_order';
+				$this->params->where = "is_sotrx = '0'";
+				break;
+			case 6:
+				$this->params->module = 'Material Receipt';
+				$this->params->table = 'cf_inout';
+				$this->params->where = "is_sotrx = '0'";
+				break;
+			case 7:
+				$this->params->module = 'Inflow';
+				$this->params->table = 'cf_ar_ap';
+				$this->params->where = "is_receipt = '1'";
+				break;
+			case 8:
+				$this->params->module = 'Outflow';
+				$this->params->table = 'cf_ar_ap';
+				$this->params->where = "is_receipt = '0'";
+				break;
+			case 9:
+				$this->params->module = 'Invoice Customer';
+				$this->params->table = 'cf_invoice';
+				$this->params->where = "doc_type = '1'";
+				break;
+			case 10:
+				$this->params->module = 'Invoice Vendor';
+				$this->params->table = 'cf_invoice';
+				$this->params->where = "doc_type = '2'";
+				break;
+			case 11:
+				$this->params->module = 'Invoice Inflow';
+				$this->params->table = 'cf_invoice';
+				$this->params->where = "doc_type = '5'";
+				break;
+			case 12:
+				$this->params->module = 'Invoice Outflow';
+				$this->params->table = 'cf_invoice';
+				$this->params->where = "doc_type = '6'";
+				break;
+			case 13:
+				$this->params->module = 'Bank Received';
+				$this->params->table = 'cf_cashbank';
+				$this->params->where = "is_receipt = '1'";
+				break;
+			case 14:
+				$this->params->module = 'Bank Payment';
+				$this->params->table = 'cf_cashbank';
+				$this->params->where = "is_receipt = '0'";
+				break;
+			}
+			}
+	}
+
+	function db_unmatch_daily_entry_dd()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(FALSE, FALSE);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : '1900-01-01';
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : '1900-01-01';
+			$this->params->where['orgtrx_id'] = $this->params->orgtrx_id;
+			
+			/* Validation */
+			switch(isset($this->params->module_id) ? $this->params->module_id : 1){
+			case 1:
+				$this->params->module = 'Sales Order';
+				$this->params->table = 'cf_order';
+				$this->params->where[] = "is_sotrx = '1'";
+				break;
+			case 2:
+				$this->params->module = 'Shipment';
+				$this->params->table = 'cf_inout';
+				$this->params->where[] = "is_sotrx = '1'";
+				break;
+			case 3:
+				$this->params->module = 'Request/Planning';
+				$this->params->table = 'cf_request';
+				break;
+			case 4:
+				$this->params->module = 'Purchase Request';
+				$this->params->table = 'cf_requisition';
+				break;
+			case 5:
+				$this->params->module = 'Purchase Order';
+				$this->params->table = 'cf_order';
+				$this->params->where[] = "is_sotrx = '0'";
+				break;
+			case 6:
+				$this->params->module = 'Material Receipt';
+				$this->params->table = 'cf_inout';
+				$this->params->where[] = "is_sotrx = '0'";
+				break;
+			case 7:
+				$this->params->module = 'Inflow';
+				$this->params->table = 'cf_ar_ap';
+				$this->params->where[] = "is_receipt = '1'";
+				break;
+			case 8:
+				$this->params->module = 'Outflow';
+				$this->params->table = 'cf_ar_ap';
+				$this->params->where[] = "is_receipt = '0'";
+				break;
+			case 9:
+				$this->params->module = 'Invoice Customer';
+				$this->params->table = 'cf_invoice';
+				$this->params->where[] = "doc_type = '1'";
+				break;
+			case 10:
+				$this->params->module = 'Invoice Vendor';
+				$this->params->table = 'cf_invoice';
+				$this->params->where[] = "doc_type = '2'";
+				break;
+			case 11:
+				$this->params->module = 'Invoice Inflow';
+				$this->params->table = 'cf_invoice';
+				$this->params->where[] = "doc_type = '5'";
+				break;
+			case 12:
+				$this->params->module = 'Invoice Outflow';
+				$this->params->table = 'cf_invoice';
+				$this->params->where[] = "doc_type = '6'";
+				break;
+			case 13:
+				$this->params->module = 'Bank Received';
+				$this->params->table = 'cf_cashbank';
+				$this->params->where[] = "is_receipt = '1'";
+				break;
+			case 14:
+				$this->params->module = 'Bank Payment';
+				$this->params->table = 'cf_cashbank';
+				$this->params->where[] = "is_receipt = '0'";
+				break;
+			}
+			// debug($this->params->where);
+		}
+	}
+
+	function db_unmatch_invoice_vs_bank_payment()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.payment_status','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_unmatch_so_etd_vs_planner_etd()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
+		}
+	}
+
+	function db_unmatch_po_plan_vs_invoice_payment_plan()
+	{
+		if ($this->params->event == 'pre_get'){
+			$this->_get_filtered(TRUE, TRUE, [
+			't1.note', 't1.description',
+			'(select doc_no from cf_order where id = t1.order_id)',
+			'(select name from c_bpartner where id = t1.bpartner_id)',
+			'(select name from a_org where id = t1.org_id)',
+			'(select name from a_org where id = t1.orgtrx_id)',
+			], TRUE);
+			
+			if (isset($this->params->filter) && !empty($this->params->filter)) {
+				$filter = json_decode($this->params->filter);
+				$this->params = (object) array_merge((array) $this->params, (array) $filter);
+				unset($this->params->filter);
+			}
+			
+			$m = new \Moment\Moment();
+			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
+			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
+
 		}
 	}
 
@@ -3354,185 +3867,7 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function db_unmatch_daily_entry()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(FALSE, FALSE);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : '1900-01-01';
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : '1900-01-01';
-			
-			/* Validation */
-			switch(isset($this->params->module_id) ? $this->params->module_id : 1){
-			case 1:
-				$this->params->module = 'Sales Order';
-				$this->params->table = 'cf_order';
-				$this->params->where = "is_sotrx = '1'";
-				break;
-			case 2:
-				$this->params->module = 'Shipment';
-				$this->params->table = 'cf_inout';
-				$this->params->where = "is_sotrx = '1'";
-				break;
-			case 3:
-				$this->params->module = 'Request/Planning';
-				$this->params->table = 'cf_request';
-				break;
-			case 4:
-				$this->params->module = 'Purchase Request';
-				$this->params->table = 'cf_requisition';
-				break;
-			case 5:
-				$this->params->module = 'Purchase Order';
-				$this->params->table = 'cf_order';
-				$this->params->where = "is_sotrx = '0'";
-				break;
-			case 6:
-				$this->params->module = 'Material Receipt';
-				$this->params->table = 'cf_inout';
-				$this->params->where = "is_sotrx = '0'";
-				break;
-			case 7:
-				$this->params->module = 'Inflow';
-				$this->params->table = 'cf_ar_ap';
-				$this->params->where = "is_receipt = '1'";
-				break;
-			case 8:
-				$this->params->module = 'Outflow';
-				$this->params->table = 'cf_ar_ap';
-				$this->params->where = "is_receipt = '0'";
-				break;
-			case 9:
-				$this->params->module = 'Invoice Customer';
-				$this->params->table = 'cf_invoice';
-				$this->params->where = "doc_type = '1'";
-				break;
-			case 10:
-				$this->params->module = 'Invoice Vendor';
-				$this->params->table = 'cf_invoice';
-				$this->params->where = "doc_type = '2'";
-				break;
-			case 11:
-				$this->params->module = 'Invoice Inflow';
-				$this->params->table = 'cf_invoice';
-				$this->params->where = "doc_type = '5'";
-				break;
-			case 12:
-				$this->params->module = 'Invoice Outflow';
-				$this->params->table = 'cf_invoice';
-				$this->params->where = "doc_type = '6'";
-				break;
-			case 13:
-				$this->params->module = 'Bank Received';
-				$this->params->table = 'cf_cashbank';
-				$this->params->where = "is_receipt = '1'";
-				break;
-			case 14:
-				$this->params->module = 'Bank Payment';
-				$this->params->table = 'cf_cashbank';
-				$this->params->where = "is_receipt = '0'";
-				break;
-			}
-			}
-	}
-
-	function db_unmatch_daily_entry_dd()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(FALSE, FALSE);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : '1900-01-01';
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : '1900-01-01';
-			$this->params->where['orgtrx_id'] = $this->params->orgtrx_id;
-			
-			/* Validation */
-			switch(isset($this->params->module_id) ? $this->params->module_id : 1){
-			case 1:
-				$this->params->module = 'Sales Order';
-				$this->params->table = 'cf_order';
-				$this->params->where[] = "is_sotrx = '1'";
-				break;
-			case 2:
-				$this->params->module = 'Shipment';
-				$this->params->table = 'cf_inout';
-				$this->params->where[] = "is_sotrx = '1'";
-				break;
-			case 3:
-				$this->params->module = 'Request/Planning';
-				$this->params->table = 'cf_request';
-				break;
-			case 4:
-				$this->params->module = 'Purchase Request';
-				$this->params->table = 'cf_requisition';
-				break;
-			case 5:
-				$this->params->module = 'Purchase Order';
-				$this->params->table = 'cf_order';
-				$this->params->where[] = "is_sotrx = '0'";
-				break;
-			case 6:
-				$this->params->module = 'Material Receipt';
-				$this->params->table = 'cf_inout';
-				$this->params->where[] = "is_sotrx = '0'";
-				break;
-			case 7:
-				$this->params->module = 'Inflow';
-				$this->params->table = 'cf_ar_ap';
-				$this->params->where[] = "is_receipt = '1'";
-				break;
-			case 8:
-				$this->params->module = 'Outflow';
-				$this->params->table = 'cf_ar_ap';
-				$this->params->where[] = "is_receipt = '0'";
-				break;
-			case 9:
-				$this->params->module = 'Invoice Customer';
-				$this->params->table = 'cf_invoice';
-				$this->params->where[] = "doc_type = '1'";
-				break;
-			case 10:
-				$this->params->module = 'Invoice Vendor';
-				$this->params->table = 'cf_invoice';
-				$this->params->where[] = "doc_type = '2'";
-				break;
-			case 11:
-				$this->params->module = 'Invoice Inflow';
-				$this->params->table = 'cf_invoice';
-				$this->params->where[] = "doc_type = '5'";
-				break;
-			case 12:
-				$this->params->module = 'Invoice Outflow';
-				$this->params->table = 'cf_invoice';
-				$this->params->where[] = "doc_type = '6'";
-				break;
-			case 13:
-				$this->params->module = 'Bank Received';
-				$this->params->table = 'cf_cashbank';
-				$this->params->where[] = "is_receipt = '1'";
-				break;
-			case 14:
-				$this->params->module = 'Bank Payment';
-				$this->params->table = 'cf_cashbank';
-				$this->params->where[] = "is_receipt = '0'";
-				break;
-			}
-			// debug($this->params->where);
-		}
-	}
-
-	function db_invoice_customer_vs_bank()
+	function db_invoice_inflow_vs_bank()
 	{
 		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
@@ -3550,7 +3885,7 @@ class Cashflow extends Getmeb
 		}
 	}
 
-	function db_late_invoice_vs_bank_received_inflow()
+	function db_invoice_outflow_vs_bank()
 	{
 		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
@@ -3568,70 +3903,6 @@ class Cashflow extends Getmeb
 		}
 	}
 
-	function db_unmatch_invoice_vs_bank_payment()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.payment_status','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
-		}
-	}
-
-	function db_invoiced_so()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, [
-				't1.doc_no',
-				't1.description',
-				'(select name from c_bpartner where id = t1.bpartner_id)',
-				'(select name from a_org where id = t1.org_id)',
-				'(select name from a_org where id = t1.orgtrx_id)'
-			], TRUE);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-		}
-	}
-	
-	function db_invoiced_po()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, [
-				't1.doc_no',
-				't1.description',
-				'(select name from c_bpartner where id = t1.bpartner_id)',
-				'(select name from a_org where id = t1.org_id)',
-				'(select name from a_org where id = t1.orgtrx_id)'
-			], TRUE);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-		}
-	}
-	
 	function db_uninvoiced_sales_order()
 	{
 		if ($this->params->event == 'pre_get'){
@@ -3714,132 +3985,7 @@ class Cashflow extends Getmeb
 		}
 	}
 
-	function db_incomplete_request()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',
-			'(select name from c_bpartner where id = t1.bpartner_id)',
-			'(select name from a_org where id = t1.org_id)',
-			'(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-		}
-	}
-
-	function db_incomplete_so()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, [
-				't1.doc_no',
-				'(select name from c_bpartner where id = t1.bpartner_id)',
-				'(select name from a_org where id = t1.org_id)',
-				'(select name from a_org where id = t1.orgtrx_id)'
-			]);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
-		}
-	}
-
-	function db_incomplete_po()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, [
-				't1.doc_no',
-				'(select name from c_bpartner where id = t1.bpartner_id)',
-				'(select name from a_org where id = t1.org_id)',
-				'(select name from a_org where id = t1.orgtrx_id)'
-			]);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-		}
-	}
-
-	function db_incomplete_other_inflow()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, [
-				't1.doc_no',
-				"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",
-				'(select name from c_bpartner where id = t1.bpartner_id)',
-				'(select name from a_org where id = t1.org_id)',
-				'(select name from a_org where id = t1.orgtrx_id)'
-			]);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
-		}
-	}
-
-	function db_incomplete_other_outflow()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '1' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
-		}
-	}
-
-	function db_invoice_vendor_to_issue()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
-		}
-	}
-
-	function db_outstanding_invoice_other_inflow()
+	function db_invoice_inflow_to_issue()
 	{
 		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
@@ -3857,28 +4003,10 @@ class Cashflow extends Getmeb
 		}
 	}
 	
-	function db_outstanding_invoice_other_outflow()
+	function db_invoice_outflow_to_issue()
 	{
 		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
-		}
-	}
-
-	function db_unmatch_so_etd_vs_planner_etd()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
 			
 			if (isset($this->params->filter) && !empty($this->params->filter)) {
 				$filter = json_decode($this->params->filter);
@@ -3977,25 +4105,7 @@ class Cashflow extends Getmeb
 		}
 	}
 
-	function db_invoice_customer_to_issue()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no',"(select doc_no from cf_order where is_sotrx = '0' and id = t1.order_id)",'(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
-		}
-	}
-
-	function db_invoice_customer_to_receive()
+	function db_invoice_inflow_to_receive()
 	{
 		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
@@ -4013,82 +4123,10 @@ class Cashflow extends Getmeb
 		}
 	}
 
-	function db_invoice_vendor_to_payment()
+	function db_invoice_outflow_to_pay()
 	{
 		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
-		}
-	}
-
-	function db_outstanding_invoice_other_outflow_by_amount()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
-		}
-	}
-
-	function db_outstanding_invoice_other_inflow_by_amount()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
-		}
-	}
-
-	function db_invoice_vendor_vs_bank()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
-		}
-	}
-
-	function db_late_invoice_vs_bank_payment_outflow()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, ['t1.doc_no','(select name from c_bpartner where id = t1.bpartner_id)','t1.voucher_no','(select name from a_org where id = t1.org_id)','(select name from a_org where id = t1.orgtrx_id)']);
 			
 			if (isset($this->params->filter) && !empty($this->params->filter)) {
 				$filter = json_decode($this->params->filter);
@@ -4166,30 +4204,6 @@ class Cashflow extends Getmeb
 		}
 	}
 
-	function db_unmatch_po_plan_vs_invoice_payment_plan()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, TRUE, [
-			't1.note', 't1.description',
-			'(select doc_no from cf_order where id = t1.order_id)',
-			'(select name from c_bpartner where id = t1.bpartner_id)',
-			'(select name from a_org where id = t1.org_id)',
-			'(select name from a_org where id = t1.orgtrx_id)',
-			], TRUE);
-			
-			if (isset($this->params->filter) && !empty($this->params->filter)) {
-				$filter = json_decode($this->params->filter);
-				$this->params = (object) array_merge((array) $this->params, (array) $filter);
-				unset($this->params->filter);
-			}
-			
-			$m = new \Moment\Moment();
-			$this->params->fdate = isset($this->params->fdate) ? $this->params->fdate : $m->startOf('year')->format('Y-m-d');
-			$this->params->tdate = isset($this->params->tdate) ? $this->params->tdate : $m->endOf('year')->format('Y-m-d');
-
-		}
-	}
-
 	/* function rpt_cf_statement_invoice()
 	{
 		if ($this->params->event == 'pre_get'){
@@ -4233,20 +4247,6 @@ class Cashflow extends Getmeb
 			}
 		}
 	} */
-	
-	function rf_invoice_adj_reason()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, FALSE);
-		}
-	}
-	
-	function rf_scm_dt_reason()
-	{
-		if ($this->params->event == 'pre_get'){
-			$this->_get_filtered(TRUE, FALSE);
-		}
-	}
 	
 	function rpt_cashflow_projection()
 	{

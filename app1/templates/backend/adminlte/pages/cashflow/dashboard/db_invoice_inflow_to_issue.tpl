@@ -9,9 +9,29 @@
 	<!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+<link rel="stylesheet" href="{$.const.TEMPLATE_URL}plugins/daterangepicker/daterangepicker.css">
+<script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/moment.min.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/daterangepicker/daterangepicker.js"></script>
+<script src="{$.const.TEMPLATE_URL}plugins/bootstrap-validator/validator.min.js"></script>
 <script src="{$.const.TEMPLATE_URL}plugins/accounting/accounting.min.js"></script>
 <script>
 	var $url_module = "{$.php.base_url()~$class~'/'~$method}", $table = "{$table}", $bread = {$.php.json_encode($bread)};
+	{* Advance filter Init *}
+	var AdvanceFilter_Init = {
+		enable: true, 
+		params: [ 'fdate', 'tdate' ],
+		fdate: moment().startOf("year"),
+		tdate: moment().endOf("year"),
+		dateRanges: {
+			'This Week': [moment().startOf('week'), moment().endOf('week')],
+			'Last Week': [moment().subtract(1, 'week').startOf('week'), moment().subtract(1, 'week').endOf('week')],
+			'This Month': [moment().startOf('month'), moment().endOf('month')],
+			'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+			'This Year': [moment().startOf('year'), moment().endOf('year')],
+			'Last Year': [moment().subtract(1, 'year').startOf('year'), moment().subtract(1, 'year').endOf('year')],
+			'All Period': [moment('1601-01-01').startOf('year'), moment('9999-01-01').endOf('year')],
+		},
+	};
 	{* Toolbar Init *}
 	var Toolbar_Init = {
 		enable: true,
@@ -26,6 +46,7 @@
 	var DataTable_Init = {
 		enable: true,
 		tableWidth: '130%',
+		showColumnMenu: false,
 		act_menu: { copy: false, edit: false, delete: false },
 		sub_menu: [],
 		order: ['id desc'],
@@ -47,9 +68,16 @@
 						return $("<span>").addClass('label label-success').text(data).prop('outerHTML'); 
 				},
 			},
-			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"payment_plan_date", title:"Payment Date (Plan)" },
+			{ width:"50px", orderable:true, className:"dt-head-center dt-body-center", data:"received_plan_date", title:"Received Date (Plan)" },
 			{ width:"100px", orderable:true, data:"category_name", title:"Category" },
-			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"amount", title:"Outflow Taxable (Amount)", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"amount", title:"Base Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"adj_amount", title:"Adj Amount", render: function(data, type, row){ return format_money(data); } },
+			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"net_amount", title:"Net Amount", render: function(data, type, row){ return format_money(data); } },
+		],
+		footers: [
+			{ data: 'amount', 	title: 'Base Total' }, 
+			{ data: 'adj_amount', 	title: 'Adj. Total' }, 
+			{ data: 'net_amount', 	title: 'Grand Total' }, 
 		],
 	};
 	
