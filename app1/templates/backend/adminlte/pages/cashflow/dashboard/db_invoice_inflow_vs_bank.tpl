@@ -70,7 +70,6 @@
 						return $("<span>").addClass('label label-success').text(data).prop('outerHTML'); 
 				},
 			},
-			{ width:"100px", orderable:true, data:"voucher_no", title:"Voucher No" },
 			{ width:"200px", orderable:true, data:"note", title:"Payment Type" },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"amount", title:"Base Amount", render: function(data, type, row){ return format_money(data); } },
 			{ width:"100px", orderable:true, className:"dt-head-center dt-body-right", data:"adj_amount", title:"Adj Amount", render: function(data, type, row){ return format_money(data); } },

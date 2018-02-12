@@ -1220,15 +1220,16 @@ class Cashflow_Model extends CI_Model
 		(select name from a_org where id = t1.org_id) as org_name, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
 		t1.*, 
-		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date";
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date";
 		$params->table 	= "(
-			select * from cf_ar_ap t1 
+			select *
+			from cf_ar_ap t1 
 			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '1' and doc_date between '".$params->fdate."' and '".$params->tdate."'
-			and not exists (select 1 from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and ar_ap_id = f1.id)
-			) t1";
-
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and is_receipt = '1' and grand_total = 0
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
@@ -1241,13 +1242,13 @@ class Cashflow_Model extends CI_Model
 		t1.*, 
 		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, to_char(t1.doc_ref_date, '".$this->session->date_format."') as invoice_ref_date";
 		$params->table 	= "(
-			select * from cf_ar_ap t1 
+			select *
+			from cf_ar_ap t1 
 			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and doc_date between '".$params->fdate."' and '".$params->tdate."'
-			and not exists (select 1 from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and ar_ap_id = f1.id)
-			) t1";
-
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and is_receipt = '0' and grand_total = 0
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
@@ -1329,6 +1330,7 @@ class Cashflow_Model extends CI_Model
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
 			and is_active = '1' and is_deleted = '0' and doc_type = '1' and doc_date is not null
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id) 
 			and received_plan_date <= current_date 
 			and received_plan_date between '".$params->fdate."' and '".$params->tdate."'
 		) t1";
@@ -1363,6 +1365,7 @@ class Cashflow_Model extends CI_Model
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
 			and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and doc_date is not null 
+			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id) 
 			and payment_plan_date <= current_date 
 			and payment_plan_date between '".$params->fdate."' and '".$params->tdate."'
 		) t1";
@@ -1513,7 +1516,7 @@ class Cashflow_Model extends CI_Model
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 
-	/* function db_invoice_inflow_to_receive($params)
+	function db_invoice_inflow_vs_bank($params)
 	{
 		$params->select	= isset($params->select) ? $params->select : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -1529,21 +1532,18 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date,
 		to_char(t1.received_date, '".$this->session->date_format."') as received_date";
 		$params->table 	= "(
-				select * from (
-					select *, 
-					(select received_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = a1.id), 
-					(select f2.doc_no as voucher_no from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = a1.id) 
-					from cf_invoice a1 
-					where 
-					client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-					is_active = '1' and is_deleted = '0' and is_receipt = '1' and doc_type in ('5')
-				) t1
-				where extract(month from received_plan_date) = extract(month from current_date) and (received_date > received_plan_date or received_date is null)
-				--where (doc_date is not null and received_date is not null and (received_date > received_plan_date or received_plan_date > current_date) and (extract(month from received_plan_date) = extract(month from current_date) and extract(year from received_plan_date) = extract(year from current_date)))
-			) t1";
+			select *,
+			(select received_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = a1.id) 
+			from cf_invoice a1 
+			where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and doc_type = '5' and doc_date is not null 
+			and received_plan_date < (select received_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = a1.id) 
+			and received_plan_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
-	} */
+	}
 	
 	function db_invoice_outflow_vs_bank($params)
 	{
@@ -1561,17 +1561,15 @@ class Cashflow_Model extends CI_Model
 		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date,
 		to_char(t1.payment_date, '".$this->session->date_format."') as payment_date";
 		$params->table 	= "(
-				select * from (
-					select *, (select payment_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = a1.id) 
-					, (select f2.doc_no as voucher_no from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = a1.id) 
-					from cf_invoice a1 
-					where 
-					client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-					is_active = '1' and is_deleted = '0' and is_receipt = '0' and doc_type in ('6')
-				) t1
-				where extract(month from payment_plan_date) = extract(month from current_date) and (payment_date > payment_plan_date or payment_date is null)
-				--where (doc_date is not null and payment_date is not null and (payment_date > payment_plan_date or payment_plan_date > current_date) and (extract(month from payment_plan_date) = extract(month from current_date) and extract(year from payment_plan_date) = extract(year from current_date)))
-			) t1";
+			select *,
+			(select payment_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = a1.id)
+			from cf_invoice a1 
+			where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and doc_type = '6' and doc_date is not null 
+			and payment_plan_date < (select payment_date from cf_cashbank_line f1 inner join cf_cashbank f2 on f1.cashbank_id = f2.id where f1.is_active = '1' and f1.is_deleted = '0' and f1.invoice_id = a1.id) 
+			and payment_plan_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
@@ -1636,17 +1634,22 @@ class Cashflow_Model extends CI_Model
 		(select name from a_org where id = t1.org_id) as org_name, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
 		t1.*, 
-		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.plan_date, '".$this->session->date_format."') as invoice_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_ar_ap_plan where id = t1.ar_ap_id) as invoice_plan_date, (select doc_no from cf_ar_ap where id = t1.ar_ap_id) as ar_ap_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_ar_ap where id = t1.ar_ap_id) as ar_ap_date";
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id), 
+		(select so_top from c_bpartner where id = t1.bpartner_id), 
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date
+		";
 		$params->table 	= "(
-			select e1.doc_no, e1.doc_date,f1.ar_ap_id,f1.bpartner_id,e1.doc_ref_no,e1.doc_ref_date,e1.description,f1.note,e1.client_id,e1.org_id,e1.orgtrx_id,e1.is_deleted,e1.is_active,e1.id,e1.grand_total,f1.ttl_amt,f1.doc_date as plan_date from cf_ar_ap e1 inner join cf_ar_ap_plan f1 on e1.id=f1.ar_ap_id
-			WHERE
-			e1.client_id = {client_id} and e1.org_id = {org_id} and e1.orgtrx_id in {orgtrx} and 
-			e1.is_active = '1' and e1.is_deleted = '0' and e1.is_receipt ='1' and f1.is_active = '1' and f1.is_deleted = '0'
-			and not exists(
-			select distinct(id) from cf_invoice where 
-			is_active = '1' and is_deleted = '0' and ar_ap_plan_id = f1.id
-			) 
-			) t1";
+			select e1.*, f1.ar_ap_id, f1.account_id, f1.bpartner_id, f1.doc_date as invoice_plan_date, f1.received_plan_date, f1.payment_plan_date, f1.description, f1.note 
+			from cf_ar_ap e1 
+			inner join cf_ar_ap_plan f1 on e1.id = f1.ar_ap_id
+			where
+			e1.client_id = {client_id} and e1.org_id = {org_id} and e1.orgtrx_id in {orgtrx} 
+			and e1.is_active = '1' and e1.is_deleted = '0' and e1.is_receipt = '1' and f1.is_active = '1' and f1.is_deleted = '0'
+			and not exists(select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_plan_id = f1.id) 
+			and e1.doc_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
@@ -1657,17 +1660,22 @@ class Cashflow_Model extends CI_Model
 		(select name from a_org where id = t1.org_id) as org_name, 
 		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
 		t1.*, 
-		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, (select residence from c_bpartner where id = t1.bpartner_id) as residence, (select so_top from c_bpartner where id = t1.bpartner_id) as so_top, to_char(t1.plan_date, '".$this->session->date_format."') as invoice_date, (select to_char(doc_date, '".$this->session->date_format."') from cf_ar_ap_plan where id = t1.ar_ap_id) as invoice_plan_date, (select doc_no from cf_ar_ap where id = t1.ar_ap_id) as ar_ap_no, (select to_char(doc_date, '".$this->session->date_format."') from cf_ar_ap where id = t1.ar_ap_id) as ar_ap_date";
+		(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id), 
+		(select po_top from c_bpartner where id = t1.bpartner_id), 
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date
+		";
 		$params->table 	= "(
-			select e1.doc_no, e1.doc_date,f1.ar_ap_id,f1.bpartner_id,e1.doc_ref_no,e1.doc_ref_date,e1.description,f1.note,e1.client_id,e1.org_id,e1.orgtrx_id,e1.is_deleted,e1.is_active,e1.id,e1.grand_total,f1.ttl_amt,f1.doc_date as plan_date from cf_ar_ap e1 inner join cf_ar_ap_plan f1 on e1.id=f1.ar_ap_id
-			WHERE
-			e1.client_id = {client_id} and e1.org_id = {org_id} and e1.orgtrx_id in {orgtrx} and 
-			e1.is_active = '1' and e1.is_deleted = '0' and e1.is_receipt ='0' and f1.is_active = '1' and f1.is_deleted = '0'
-			and not exists(
-			select distinct(id) from cf_invoice where 
-			is_active = '1' and is_deleted = '0' and ar_ap_plan_id = f1.id
-			) 
-			) t1";
+			select e1.*, f1.ar_ap_id, f1.account_id, f1.bpartner_id, f1.doc_date as invoice_plan_date, f1.received_plan_date, f1.payment_plan_date, f1.description, f1.note 
+			from cf_ar_ap e1 
+			inner join cf_ar_ap_plan f1 on e1.id = f1.ar_ap_id
+			where
+			e1.client_id = {client_id} and e1.org_id = {org_id} and e1.orgtrx_id in {orgtrx} 
+			and e1.is_active = '1' and e1.is_deleted = '0' and e1.is_receipt = '0' and f1.is_active = '1' and f1.is_deleted = '0'
+			and not exists(select 1 from cf_invoice where is_active = '1' and is_deleted = '0' and ar_ap_plan_id = f1.id) 
+			and e1.doc_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
@@ -1793,8 +1801,8 @@ class Cashflow_Model extends CI_Model
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
 			and is_active = '1' and is_deleted = '0' and is_sotrx = '1'	
 			and exists(select 1 from cf_order_line a1 where is_active = '1' and is_deleted = '0' and order_id = o1.id 
-			and not exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id)
-			and doc_date between '".$params->fdate."' and '".$params->tdate."')
+			and not exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id))
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
 		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
@@ -1823,8 +1831,8 @@ class Cashflow_Model extends CI_Model
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
 			and is_active = '1' and is_deleted = '0' and is_sotrx = '1'	
 			and exists(select 1 from cf_order_line a1 where is_active = '1' and is_deleted = '0' and order_id = o1.id 
-			and not exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id)
-			and doc_date between '".$params->fdate."' and '".$params->tdate."')
+			and not exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id))
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
 		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
@@ -1850,8 +1858,8 @@ class Cashflow_Model extends CI_Model
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
 			and is_active = '1' and is_deleted = '0' and is_sotrx = '0'	
 			and exists(select 1 from cf_order_line a1 where is_active = '1' and is_deleted = '0' and order_id = o1.id 
-			and not exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id)
-			and doc_date between '".$params->fdate."' and '".$params->tdate."')
+			and not exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id))
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
 		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
@@ -1878,8 +1886,8 @@ class Cashflow_Model extends CI_Model
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
 			and is_active = '1' and is_deleted = '0' and is_sotrx = '0'	
 			and exists(select 1 from cf_order_line a1 where is_active = '1' and is_deleted = '0' and order_id = o1.id 
-			and not exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id)
-			and doc_date between '".$params->fdate."' and '".$params->tdate."')
+			and not exists(select 1 from cf_inout_line where is_active = '1' and is_deleted = '0'	and is_completed = '1' and order_line_id = a1.id))
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
 		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
@@ -1902,9 +1910,10 @@ class Cashflow_Model extends CI_Model
 			select * 
 			from cf_invoice 
 			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and doc_type = '5' and doc_date is null and invoice_plan_date <= current_date
-			) t1";
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and doc_type = '5' and doc_date is null and invoice_plan_date <= current_date
+			and invoice_plan_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
@@ -1926,9 +1935,10 @@ class Cashflow_Model extends CI_Model
 			select * 
 			from cf_invoice 
 			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and doc_type = '6' and doc_date is null and invoice_plan_date <= current_date
-			) t1";
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and doc_type = '6' and doc_date is null and invoice_plan_date <= current_date
+			and invoice_plan_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
@@ -1950,14 +1960,15 @@ class Cashflow_Model extends CI_Model
 		end as aging_ar_status, 
 		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
 		$params->table 	= "(
-			select *, (select id as cashbank_line_id from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
+			select * 
 			from cf_invoice f1
 			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active='1' and is_deleted='0' and payment_plan_date <= current_date and
-			doc_type in ('6') and doc_date is not null
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and doc_type = '6' and doc_date is not null 
 			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
-			) t1";
+			and payment_plan_date <= current_date 
+			and payment_plan_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
@@ -1970,21 +1981,24 @@ class Cashflow_Model extends CI_Model
 		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
 		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
 		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top,
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date,
 		(current_date-received_plan_date) as estimation_late,
 		case 
 		when (current_date-received_plan_date > 0) then 'Over Due' 
 		else 'On Due'
 		end as aging_ar_status,
-		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
-		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date,
 		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.id) as category_name";
 		$params->table 	= "(
-			select *, (select id as cashbank_line_id from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id ) from cf_invoice f1 where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active='1' and is_deleted='0' and received_plan_date <= current_date and
-			doc_type in ('5') and doc_date is not null
+			select * 
+			from cf_invoice f1
+			where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and doc_type = '5' and doc_date is not null 
 			and not exists(select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id )
-			) t1";
+			and received_plan_date <= current_date 
+			and received_plan_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
@@ -2200,26 +2214,28 @@ class Cashflow_Model extends CI_Model
 		case when coalesce(received_plan_date-(select received_plan_date from cf_ar_ap_plan where id = t1.ar_ap_plan_id), 0) < 1 then 0 else coalesce(received_plan_date-(select received_plan_date from cf_ar_ap_plan where id = t1.ar_ap_plan_id), 0) end as late,
 		(select to_char(doc_date, '".$this->session->date_format."') from cf_ar_ap where id = t1.ar_ap_id) as ar_date, 
 		(select to_char(doc_date, '".$this->session->date_format."') from cf_ar_ap_plan where id = t1.ar_ap_plan_id) as invoice_plan_date";
-
 		$params->table 	= "(
 			select *, 'by amount' as status from cf_invoice t1 
 			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '1' and ar_ap_plan_id is not null and extract(month from doc_date) = extract(month from current_date) and 
-			adj_amount <> 0 and doc_date = (select doc_date from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and id = t1.ar_ap_plan_id)
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and doc_type = '5' 
+			and adj_amount <> 0 and doc_date = invoice_plan_date
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
 			union all
 			select *, 'by date' as status from cf_invoice t1 
 			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '1' and ar_ap_plan_id is not null and extract(month from doc_date) = extract(month from current_date) and 
-			adj_amount = 0 and doc_date > (select doc_date from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and id = t1.ar_ap_plan_id)
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and doc_type = '5' 
+			and adj_amount = 0 and doc_date > invoice_plan_date
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
 			union all
 			select *, 'by amount & date' as status from cf_invoice t1 
 			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '1' and ar_ap_plan_id is not null and extract(month from doc_date) = extract(month from current_date) and 
-			adj_amount <> 0 and doc_date > (select doc_date from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and id = t1.ar_ap_plan_id)
-			) t1";
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and doc_type = '5' 
+			and adj_amount <> 0 and doc_date > invoice_plan_date
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
@@ -2244,22 +2260,25 @@ class Cashflow_Model extends CI_Model
 		$params->table 	= "(
 			select *, 'by amount' as status from cf_invoice t1 
 			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and ar_ap_plan_id is not null and extract(month from doc_date) = extract(month from current_date) and 
-			adj_amount <> 0 and doc_date = (select doc_date from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and id = t1.ar_ap_plan_id)
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and doc_type = '6' 
+			and adj_amount <> 0 and doc_date = invoice_plan_date
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
 			union all
 			select *, 'by date' as status from cf_invoice t1 
 			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and ar_ap_plan_id is not null and extract(month from doc_date) = extract(month from current_date) and 
-			adj_amount = 0 and doc_date > (select doc_date from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and id = t1.ar_ap_plan_id)
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and doc_type = '6' 
+			and adj_amount = 0 and doc_date > invoice_plan_date
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
 			union all
 			select *, 'by amount & date' as status from cf_invoice t1 
 			where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} and 
-			is_active = '1' and is_deleted = '0' and is_receipt = '0' and ar_ap_plan_id is not null and extract(month from doc_date) = extract(month from current_date) and 
-			adj_amount <> 0 and doc_date > (select doc_date from cf_ar_ap_plan where is_active = '1' and is_deleted = '0' and id = t1.ar_ap_plan_id)
-			) t1";
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and doc_type = '6' 
+			and adj_amount <> 0 and doc_date > invoice_plan_date
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
@@ -2432,7 +2451,8 @@ class Cashflow_Model extends CI_Model
 		
 	function db_unmatch_daily_entry_dd($params)
 	{
-		$params->select	= isset($params->select) ? $params->select : "'".$params->module."' as module, doc_no, 
+		$params->select	= isset($params->select) ? $params->select : "
+			'".$params->module."' as module, doc_no, 
 			to_char(doc_date, '".$this->session->date_format."') as doc_date, 
 			to_char(created_at::date, '".$this->session->date_format."') as created_at, 
 			(select name as client_name from a_client where id = t1.client_id),
