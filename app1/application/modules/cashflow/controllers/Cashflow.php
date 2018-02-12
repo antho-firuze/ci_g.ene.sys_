@@ -855,20 +855,19 @@ class Cashflow extends Getmeb
 						// and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
 					
 					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params->cashbank_id);
-					$params = $this->params;
-					$params['select']	= "t1.*, 
+					$this->params->select	= "t1.*, 
 					(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
 					to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
 					to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
 					coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
-					// $having = isset($params['having']) && $params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
-					$params['where']['bpartner_id'] = $cashbank->bpartner_id;
-					$params['where']['is_receipt'] = $cashbank->is_receipt;
-					$params['where_custom'][] = "doc_date is not null";
-					$params['where_custom'][] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
+					// $having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params->where['bpartner_id'] = $cashbank->bpartner_id;
+					$this->params->where['is_receipt'] = $cashbank->is_receipt;
+					$this->params->where_custom[] = "doc_date is not null";
+					$this->params->where_custom[] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
 						and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id) and f1.id = t1.id)";
-					$params['table'] 	= "cf_invoice as t1";
-					$result['data'] = $this->base_model->mget_rec($params);
+					$this->params->table 	= "cf_invoice as t1";
+					$result['data'] = $this->base_model->mget_rec($this->params);
 					xresponse(TRUE, $result);
 				} 
 			}
@@ -968,20 +967,19 @@ class Cashflow extends Getmeb
 						// and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id $having) and f1.id = t1.id)";
 
 					$cashbank = $this->base_model->getValue('bpartner_id, is_receipt', 'cf_cashbank', 'id', $this->params->cashbank_id);
-					$params = $this->params;
-					$params['select']	= "t1.*, 
+					$this->params->select	= "t1.*, 
 					(select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
 					to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
 					to_char(t1.doc_ref_date, '".$this->session->date_format."') as doc_ref_date, 
 					coalesce(t1.doc_no,'') ||'_'|| to_char(t1.doc_date, '".$this->session->date_format."') as code_name";
-					// $having = isset($params['having']) && $params['having'] == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
-					$params['where']['bpartner_id'] = $cashbank->bpartner_id;
-					$params['where']['is_receipt'] = $cashbank->is_receipt;
-					$params['where_custom'][] = "doc_date is not null";
-					$params['where_custom'][] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
+					// $having = isset($this->params->having) && $this->params->having == 'qty' ? 'having sum(qty) = f1.qty' : 'having sum(amount) = f1.amount';
+					$this->params->where['bpartner_id'] = $cashbank->bpartner_id;
+					$this->params->where['is_receipt'] = $cashbank->is_receipt;
+					$this->params->where_custom[] = "doc_date is not null";
+					$this->params->where_custom[] = "exists (select distinct(id) from cf_invoice f1 where is_active = '1' and is_deleted = '0' 
 						and not exists (select 1 from cf_cashbank_line where is_active = '1' and is_deleted = '0' and invoice_id = f1.id) and f1.id = t1.id)";
-					$params['table'] 	= "cf_invoice as t1";
-					$result['data'] = $this->base_model->mget_rec($params);
+					$this->params->table 	= "cf_invoice as t1";
+					$result['data'] = $this->base_model->mget_rec($this->params);
 					xresponse(TRUE, $result);
 				} 
 			}

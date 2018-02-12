@@ -200,8 +200,8 @@ class Getmeb extends CI_Controller
 			/* Must be checking permission before next process */
 			$this->_check_is_allow();
 
-			/* Become Array */
-			$this->params = $this->input->get();
+			/* Become Array to Object */
+			$this->params = (object) $this->input->get();
 			
 			$this->_record_permutation_delete();
 		}
