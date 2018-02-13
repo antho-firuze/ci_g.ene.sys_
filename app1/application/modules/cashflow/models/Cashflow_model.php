@@ -970,7 +970,7 @@ class Cashflow_Model extends CI_Model
 			from cf_requisition f1 where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} 
 			and is_active = '1' and is_deleted = '0' 
-			and exists(select 1 from cf_requisition_line a1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and requisition_id = f1.id
+			and exists(select 1 from cf_requisition_line a1 where is_active = '1' and is_deleted = '0' and requisition_id = f1.id
 			and not exists(select 1 from cf_order_line b1 where is_active = '1' and is_deleted = '0' and is_completed = '1' and requisition_line_id = a1.id))
 			and doc_date between '".$params->fdate."' and '".$params->tdate."'
 		) t1";
