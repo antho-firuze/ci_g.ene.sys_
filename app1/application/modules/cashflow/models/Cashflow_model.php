@@ -1866,7 +1866,7 @@ class Cashflow_Model extends CI_Model
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 
-	function db_total_invoice_customer($params)
+	function db_invoice_customer_issued($params)
 	{
 		$params->select	= isset($params->select) ? $params->select : "
 		(select name from a_org where id = t1.org_id) as org_name, 
@@ -1875,12 +1875,13 @@ class Cashflow_Model extends CI_Model
 		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
 		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top,
 		(current_date-received_plan_date) as estimation_late,
-		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date,
 		case 
 		when (current_date-received_plan_date > 0) then 'Over Due' 
 		else 'On Due'
 		end as aging_ar_status,
 		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
+		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date,
 		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
 		$params->table 	= "(
 			select *
@@ -1888,6 +1889,35 @@ class Cashflow_Model extends CI_Model
 			where 
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
 			and is_active = '1' and is_deleted = '0' and doc_type = '1' 
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
+		) as t1";
+		$params->table = translate_variable($params->table);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
+	}
+
+	function db_invoice_vendor_issued($params)
+	{
+		$params->select	= isset($params->select) ? $params->select : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top,
+		(current_date-received_plan_date) as estimation_late,
+		case 
+		when (current_date-received_plan_date > 0) then 'Over Due' 
+		else 'On Due'
+		end as aging_ar_status,
+		to_char(t1.doc_date, '".$this->session->date_format."') as doc_date, 
+		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
+		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date,
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name";
+		$params->table 	= "(
+			select *
+			from cf_invoice t1
+			where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and doc_type in ('2','3','4') and doc_date is not null 
 			and doc_date between '".$params->fdate."' and '".$params->tdate."'
 		) as t1";
 		$params->table = translate_variable($params->table);
@@ -2009,6 +2039,31 @@ class Cashflow_Model extends CI_Model
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
 	}
 	
+	function db_invoice_inflow_issued($params)
+	{
+		$params->select	= isset($params->select) ? $params->select : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
+		to_char(t1.received_plan_date, '".$this->session->date_format."') as received_plan_date, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name,
+		case when coalesce(current_date-t1.invoice_plan_date, 0) < 1 then 0 else coalesce(current_date-t1.invoice_plan_date, 0) end as late";
+		$params->table 	= "(
+			select * 
+			from cf_invoice a1
+			where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and doc_type = '5' and doc_date is not null 
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
+		$params->table = translate_variable($params->table);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
+	}
+
 	function db_invoice_inflow_on_time_received($params)
 	{
 		$params->select	= isset($params->select) ? $params->select : "
@@ -2081,6 +2136,31 @@ class Cashflow_Model extends CI_Model
 			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
 			and is_active = '1' and is_deleted = '0' and doc_type = '5' and doc_date is null and invoice_plan_date <= current_date
 			and invoice_plan_date between '".$params->fdate."' and '".$params->tdate."'
+		) t1";
+		$params->table = translate_variable($params->table);
+		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
+	}
+
+	function db_invoice_outflow_issued($params)
+	{
+		$params->select	= isset($params->select) ? $params->select : "
+		(select name from a_org where id = t1.org_id) as org_name, 
+		(select name from a_org where id = t1.orgtrx_id) as orgtrx_name, 
+		t1.*, (select name from c_bpartner where id = t1.bpartner_id) as bpartner_name, 
+		(select residence from c_bpartner where id = t1.bpartner_id) as residence, 
+		(select so_top from c_bpartner where id = t1.bpartner_id) as so_top, 
+		to_char(t1.doc_date, '".$this->session->date_format."') as invoice_date, 
+		to_char(t1.invoice_plan_date, '".$this->session->date_format."') as invoice_plan_date, 
+		to_char(t1.payment_plan_date, '".$this->session->date_format."') as payment_plan_date, 
+		(select string_agg((select name from m_itemcat where id = s1.itemcat_id), E'<br>') from cf_order_line s1 where order_id = t1.order_id) as category_name,
+		case when coalesce(current_date-t1.invoice_plan_date, 0) < 1 then 0 else coalesce(current_date-t1.invoice_plan_date, 0) end as late";
+		$params->table 	= "(
+			select * 
+			from cf_invoice a1
+			where 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx}  
+			and is_active = '1' and is_deleted = '0' and doc_type = '6' and doc_date is not null 
+			and doc_date between '".$params->fdate."' and '".$params->tdate."'
 		) t1";
 		$params->table = translate_variable($params->table);
 		xresponse(TRUE, ['data' => $this->base_model->mget_rec($params)]);
