@@ -108,14 +108,14 @@
 				}
 			},
 			error: function(data, status, errThrown) {
-				if (data.status==500){
+				if (data.status >= 500){
 					var message = data.statusText;
 				} else {
 					var error = JSON.parse(data.responseText);
 					var message = error.message;
 				}
 				setTimeout(function(){ form.find('[type="submit"]').removeAttr("disabled"); },1000);
-				BootstrapDialog.alert({ type:'modal-danger', title:'Error ('+data.status+') :', message:message });
+				BootstrapDialog.show({ type:'modal-danger', title:'Error ('+data.status+') :', message:message, buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }] });
 			}
 		});
 	}); 

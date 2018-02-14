@@ -278,13 +278,7 @@
 				var error = JSON.parse(data.responseText);
 				var message = error.message;
 			}
-			BootstrapDialog.show({ message:message, closable: false, type:'modal-danger', title:'Notification', 
-				buttons: [{ label: 'OK', hotkey: 13, 
-					action: function(dialogRef) {
-						dialogRef.close();
-					} 
-				}],
-			});
+			BootstrapDialog.show({ type:'modal-danger', title:'Notification', message:message, buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }] });
 		});
 	}
 	

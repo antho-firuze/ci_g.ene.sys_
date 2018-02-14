@@ -71,8 +71,14 @@
 	{
 		var col = [], row = [], a = [];
 		var form1 = BSHelper.Form({ autocomplete:"off" });
-		col.push("<h4 style='color:red; font-weight:bold;'>WARNING : All Menu in this Role will be replaced !</h4>");
+		col.push("<h4 style='color:red; font-weight:bold;'>WARNING : This process can delete current role !</h4>");
 		col.push(BSHelper.Combobox({ horz:false, label:"Source Role", idname:"copy_role_id", required:true, url:"{$.php.base_url('systems/a_role')}", remote: true }));
+		col.push(BSHelper.Combobox({ label:"Type", idname:"type", required: true, 
+			list: [
+				{ id:"update", name:"Update Existing Role" },
+				{ id:"replace", name:"Replace Existing Role" },
+			] 
+		}));
 		col.push( $('<dl class="dl-horizontal">').append(a) ); a = [];
 		row.push(subCol(12, col)); col = [];
 		form1.append(subRow(row));
@@ -81,7 +87,6 @@
 		(function blink(){
 			form1.find("h4").fadeOut().fadeIn(blink); 
 		})();
-		
 		
 		BootstrapDialog.show({
 			title: 'Copy Menu', type: BootstrapDialog.TYPE_SUCCESS, size: BootstrapDialog.SIZE_MEDIUM, message: form1, 
@@ -93,10 +98,10 @@
 						button.spin();
 						button.disable();
 						
+						form1.append(BSHelper.Input({ type:"hidden", idname:"xcopy", value:1 }));
 						form1.append(BSHelper.Input({ type:"hidden", idname:"role_id", value:data.role_id }));
 						
-						$.ajax({ url: $url_module+'_xcopy', method: "OPTIONS", async: true, dataType: 'json',
-							data: form1.serializeJSON(),
+						$.ajax({ url: $url_module+'_xcopy', method: "OPTIONS", async: true, dataType: 'json', data: form1.serializeJSON(),
 							success: function(data) {
 								BootstrapDialog.show({ closable: false, message:data.message, 
 									buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],
@@ -106,7 +111,7 @@
 								window.history.back(); 
 							},
 							error: function(data) {
-								if (data.status==500){
+								if (data.status >= 500){
 									var message = data.statusText;
 								} else {
 									var error = JSON.parse(data.responseText);
@@ -114,9 +119,7 @@
 								}
 								button.stopSpin();
 								button.enable();
-								BootstrapDialog.show({ closable: false, type:'modal-danger', title:'Notification', message:message, 
-									buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); window.history.back(); } }],
-								});
+								BootstrapDialog.show({ type:'modal-danger', title:'Notification', message:message, buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }] });
 							}
 						});
 					}
@@ -132,21 +135,6 @@
 			}
 		});
 	}
-	
-	{* btn-process1 in Toolbar *}
-	{* $(document.body).click('button', function(e){
-		switch($(e.target).attr('id')){
-			case 'btn-process1':
-				if (!confirm("All Menu in this Role will be replaced, Are you sure ?")) {
-					return false;
-				}
-				var $pageid = getURLParameter("pageid"), $filter = getURLParameter("filter");
-				$pageid = "?pageid="+$pageid+","+$(e.target).attr("data-pageid");
-				$filter = $filter ? "&filter="+$filter : "";
-				window.location.href = getURLOrigin()+$pageid+$filter+"&action=prc";
-				break;
-		}
-	});	 *}
 	
 </script>
 <script src="{$.const.ASSET_URL}js/window_view.js"></script>

@@ -112,9 +112,7 @@
 					var error = JSON.parse(result.responseText);
 					var message = error.message;
 				}
-				BootstrapDialog.show({ closable: false, type:'modal-danger', title:'Notification', message:message, 
-					buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }],
-				});
+				BootstrapDialog.show({ type:'modal-danger', title:'Notification', message:message, buttons: [{ label: 'OK', hotkey: 13, action: function(dialogRef){ dialogRef.close(); } }] });
 			}
 		});
 	});

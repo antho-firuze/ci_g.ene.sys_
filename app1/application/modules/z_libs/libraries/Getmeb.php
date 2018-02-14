@@ -215,6 +215,16 @@ class Getmeb extends CI_Controller
 			$this->params = json_decode($this->input->raw_input_stream);
 			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
 			
+			/* 	Check is in params have a variable "params" in json format 
+			*		Example:
+			*		&params={"xcopy":1,"type":"update","role_id":62,"copy_role_id":15}
+			*
+			*/
+			if (isset($this->params->params) && !empty($this->params->params)) {
+				$this->params = (object) array_merge((array) $this->params, (array) json_decode($this->params->params));
+				unset($this->params->params);
+			}
+			
 			/* Check is in params have a variable "is_allow" */
 			// if (isset($this->params->is_allow) && !empty($this->params->is_allow)) {
 				// xresponse(TRUE, ['is_allow' => 1]);

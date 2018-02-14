@@ -1275,29 +1275,73 @@ class Systems extends Getmeb
 	
 	function a_role_menu_xcopy()
 	{
-		if ($this->r_method == 'OPTIONS') {
-			/* For copy menu from another role */
-			$copy_role = $this->base_model->getValueArray($this->params->role_id.' as role_id, menu_id, is_active, permit_form, permit_process, permit_window', 'a_role_menu', ['role_id', 'is_active', 'is_deleted'], [$this->params->copy_role_id, '1', '0']);
-			
-			if ($copy_role){
-				/* Delete old role menu */
-				$this->db->delete('a_role_menu', ['role_id'=>$this->params->role_id]);
-				
-				$error_out = [];
-				foreach($copy_role as $k=>$v){
-					if (! $this->db->insert('a_role_menu', $copy_role[$k])){
-						$copy_role['status'] = $this->db->error()['message'];
-						$error_out[] = $copy_role;
+		if ($this->params->event == 'pre_options'){
+
+			if (isset($this->params->xcopy) && $this->params->xcopy){
+				if (isset($this->params->type)){
+					if ($this->params->type == 'update'){
+						// update query & insert if no exists
+						$str = "
+							update a_role_menu t0 
+							set role_id = t1.role_id, menu_id = t1.menu_id, is_active = t1.is_active, permit_form = t1.permit_form, permit_process = t1.permit_process, permit_window = t1.permit_window
+							from (
+							select ".$this->params->role_id." as role_id, menu_id, is_active, permit_form, permit_process, permit_window
+							from a_role_menu a1
+							where is_active = '1' and is_deleted = '0' and role_id = ".$this->params->copy_role_id." 
+							and exists(select 1 from a_role_menu where is_active = '1' and is_deleted = '0' and role_id = ".$this->params->role_id." and menu_id = a1.menu_id)
+							) t1
+							where t0.role_id = ".$this->params->role_id." and t0.menu_id = t1.menu_id;";
+						if (! $this->db->query($str))
+							xresponse(FALSE, ['message' => $this->db->error()['message']]);
+						
+						$str = "
+							insert into a_role_menu (role_id, menu_id, is_active, permit_form, permit_process, permit_window)
+							select ".$this->params->role_id." as role_id, menu_id, is_active, permit_form, permit_process, permit_window
+							from a_role_menu a1
+							where is_active = '1' and is_deleted = '0' and role_id = ".$this->params->copy_role_id." 
+							and not exists(select 1 from a_role_menu where is_active = '1' and is_deleted = '0' and role_id = ".$this->params->role_id." and menu_id = a1.menu_id);";
+						if (! $this->db->query($str))
+							xresponse(FALSE, ['message' => $this->db->error()['message']]);
 					}
-				}
-				if (count($error_out) > 1)
-					xresponse(TRUE, ['message' => $error_out]);
-				else
+					
+					if ($this->params->type == 'replace'){
+						// replace query
+						$str = "
+							delete from a_role_menu where role_id = ".$this->params->role_id.";
+							insert into a_role_menu (role_id, menu_id, is_active, permit_form, permit_process, permit_window)
+							select ".$this->params->role_id." as role_id, menu_id, is_active, permit_form, permit_process, permit_window
+							from a_role_menu a1 where is_active = '1' and is_deleted = '0' and role_id = ".$this->params->copy_role_id.";";
+						if (! $this->db->query($str))
+							xresponse(FALSE, ['message' => $this->db->error()['message']]);
+					}	
+					
 					xresponse(TRUE, ['message' => lang('success_saving')]);
+				}
 			}
-			
-			xresponse(TRUE, ['message' => lang('success_saving')]);
 		}
+		// if ($this->r_method == 'OPTIONS') {
+			// /* For copy menu from another role */
+			// $copy_role = $this->base_model->getValueArray($this->params->role_id.' as role_id, menu_id, is_active, permit_form, permit_process, permit_window', 'a_role_menu', ['role_id', 'is_active', 'is_deleted'], [$this->params->copy_role_id, '1', '0']);
+			
+			// if ($copy_role){
+				// /* Delete old role menu */
+				// $this->db->delete('a_role_menu', ['role_id'=>$this->params->role_id]);
+				
+				// $error_out = [];
+				// foreach($copy_role as $k=>$v){
+					// if (! $this->db->insert('a_role_menu', $copy_role[$k])){
+						// $copy_role['status'] = $this->db->error()['message'];
+						// $error_out[] = $copy_role;
+					// }
+				// }
+				// if (count($error_out) > 1)
+					// xresponse(TRUE, ['message' => $error_out]);
+				// else
+					// xresponse(TRUE, ['message' => lang('success_saving')]);
+			// }
+			
+			// xresponse(TRUE, ['message' => lang('success_saving')]);
+		// }
 	}
 	
 	function a_role_dashboard()
@@ -1348,29 +1392,75 @@ class Systems extends Getmeb
 	
 	function a_role_dashboard_xcopy()
 	{
-		if ($this->r_method == 'OPTIONS') {
-			/* For copy dashboard from another role */
-			$copy_role = $this->base_model->getValueArray($this->params->role_id.' as role_id, dashboard_id, is_active, is_readwrite, seq', 'a_role_dashboard', ['role_id', 'is_active', 'is_deleted'], [$this->params->copy_role_id, '1', '0']);
-			
-			if ($copy_role){
-				/* Delete old role dashboard */
-				$this->db->delete('a_role_dashboard', ['role_id'=>$this->params->role_id]);
-				
-				$error_out = [];
-				foreach($copy_role as $k=>$v){
-					if (! $this->db->insert('a_role_dashboard', array_merge($copy_role[$k], $this->create_log))){
-						$copy_role['status'] = $this->db->error()['message'];
-						$error_out[] = $copy_role;
+		if ($this->params->event == 'pre_options'){
+
+			if (isset($this->params->xcopy) && $this->params->xcopy){
+				if (isset($this->params->type)){
+					if ($this->params->type == 'update'){
+						// update query & insert if no exists
+						$str = "
+							update a_role_dashboard t0 
+							set role_id = t1.role_id, dashboard_id = t1.dashboard_id, is_active = t1.is_active, is_readwrite = t1.is_readwrite, seq = t1.seq
+							from (
+							select ".$this->params->role_id." as role_id, dashboard_id, is_active, is_readwrite, seq
+							from a_role_dashboard a1
+							where is_active = '1' and is_deleted = '0' and role_id = ".$this->params->copy_role_id." 
+							and exists(select 1 from a_role_dashboard where is_active = '1' and is_deleted = '0' and role_id = ".$this->params->role_id." and dashboard_id = a1.dashboard_id)
+							) t1
+							where t0.role_id = ".$this->params->role_id." and t0.dashboard_id = t1.dashboard_id;";
+						if (! $this->db->query($str))
+							xresponse(FALSE, ['message' => $this->db->error()['message']]);
+						
+						$str = "
+							insert into a_role_dashboard (role_id, dashboard_id, is_active, is_readwrite, seq)
+							select ".$this->params->role_id." as role_id, dashboard_id, is_active, is_readwrite, seq
+							from a_role_dashboard a1
+							where is_active = '1' and is_deleted = '0' and role_id = ".$this->params->copy_role_id." 
+							and not exists(select 1 from a_role_dashboard where is_active = '1' and is_deleted = '0' and role_id = ".$this->params->role_id." and dashboard_id = a1.dashboard_id);";
+						if (! $this->db->query($str))
+							xresponse(FALSE, ['message' => $this->db->error()['message']]);
 					}
-				}
-				if (count($error_out) > 1)
-					xresponse(TRUE, ['message' => $error_out]);
-				else
+					
+					if ($this->params->type == 'replace'){
+						// replace query
+						$this->db->delete('a_role_dashboard', ['role_id' => $this->params->role_id]);
+						$str = "
+							insert into a_role_dashboard (role_id, dashboard_id, is_active, is_readwrite, seq)
+							select ".$this->params->role_id." as role_id, dashboard_id, is_active, is_readwrite, seq
+							from a_role_dashboard a1 where is_active = '1' and is_deleted = '0' and role_id = ".$this->params->copy_role_id.";";
+						if (! $this->db->query($str))
+							xresponse(FALSE, ['message' => $this->db->error()['message']]);
+					}	
+					
 					xresponse(TRUE, ['message' => lang('success_saving')]);
+				}
 			}
-			
-			xresponse(TRUE, ['message' => lang('success_saving')]);
 		}
+		
+		
+		// if ($this->r_method == 'OPTIONS') {
+			// /* For copy dashboard from another role */
+			// $copy_role = $this->base_model->getValueArray($this->params->role_id.' as role_id, dashboard_id, is_active, is_readwrite, seq', 'a_role_dashboard', ['role_id', 'is_active', 'is_deleted'], [$this->params->copy_role_id, '1', '0']);
+			
+			// if ($copy_role){
+				// /* Delete old role dashboard */
+				// $this->db->delete('a_role_dashboard', ['role_id'=>$this->params->role_id]);
+				
+				// $error_out = [];
+				// foreach($copy_role as $k=>$v){
+					// if (! $this->db->insert('a_role_dashboard', array_merge($copy_role[$k], $this->create_log))){
+						// $copy_role['status'] = $this->db->error()['message'];
+						// $error_out[] = $copy_role;
+					// }
+				// }
+				// if (count($error_out) > 1)
+					// xresponse(TRUE, ['message' => $error_out]);
+				// else
+					// xresponse(TRUE, ['message' => lang('success_saving')]);
+			// }
+			
+			// xresponse(TRUE, ['message' => lang('success_saving')]);
+		// }
 	}
 	
 	function a_system()
@@ -1804,81 +1894,35 @@ class Systems extends Getmeb
 	function c_1country()
 	{
 		if ($this->params->event == 'pre_get'){
-			if (isset($this->params->id) && ($this->params->id !== '')) 
-				$this->params->where['t1.id'] = $this->params->id;
-			
-			if (isset($this->params->q) && !empty($this->params->q))
-				$this->params->like = DBX::like_or('t1.name', $this->params->q);
-
+			$this->_get_filtered(TRUE, TRUE);
 		}
 	}
 	
 	function c_2province()
 	{
 		if ($this->params->event == 'pre_get'){
-			if (isset($this->params->id) && ($this->params->id !== '')) 
-				$this->params->where['t1.id'] = $this->params->id;
-			
-			if (key_exists('country_id', $this->params) && !empty($this->params->country_id)) 
-				$this->params->where['t1.country_id'] = $this->params->country_id;
-			else
-				$this->params->where['t1.country_id'] = 0;
-			
-			if (isset($this->params->q) && !empty($this->params->q))
-				$this->params->like = DBX::like_or('t1.name', $this->params->q);
-
+			$this->_get_filtered(TRUE, TRUE);
 		}
 	}
 	
 	function c_3city()
 	{
 		if ($this->params->event == 'pre_get'){
-			if (isset($this->params->id) && ($this->params->id !== '')) 
-				$this->params->where['t1.id'] = $this->params->id;
-			
-			// $this->params->where['t1.province_id'] = isset($this->params->province_id) ? $this->params->province_id : 0;
-			if (key_exists('province_id', $this->params) && !empty($this->params->province_id)) 
-				$this->params->where['t1.province_id'] = $this->params->province_id;
-			else
-				$this->params->where['t1.province_id'] = 0;
-			
-			if (isset($this->params->q) && !empty($this->params->q))
-				$this->params->like = DBX::like_or('t1.name', $this->params->q);
-
+			$this->_get_filtered(TRUE, TRUE);
 		}
 	}
 	
 	function c_4district()
 	{
 		if ($this->params->event == 'pre_get'){
-			if (isset($this->params->id) && ($this->params->id !== '')) 
-				$this->params->where['t1.id'] = $this->params->id;
-			
-			if (key_exists('city_id', $this->params) && !empty($this->params->city_id)) 
-				$this->params->where['t1.city_id'] = $this->params->city_id;
-			else
-				$this->params->where['t1.city_id'] = 0;
-			
-			if (isset($this->params->q) && !empty($this->params->q))
-				$this->params->like = DBX::like_or('t1.name', $this->params->q);
-
+			$this->_get_filtered(TRUE, TRUE);
 		}
 	}
 	
 	function c_5village()
 	{
 		if ($this->params->event == 'pre_get'){
-			if (isset($this->params->id) && ($this->params->id !== '')) 
-				$this->params->where['t1.id'] = $this->params->id;
-			else 
-				if (isset($this->params->district_id) && !empty($this->params->district_id)) 
-					$this->params->where['t1.district_id'] = $this->params->district_id;
-				else
-					$this->params->where['t1.district_id'] = 0;
-
-			if (isset($this->params->q) && !empty($this->params->q))
-				$this->params->like = DBX::like_or('t1.name', $this->params->q);
-
+			$this->_get_filtered(TRUE, TRUE);
 		}
 	}
 	
