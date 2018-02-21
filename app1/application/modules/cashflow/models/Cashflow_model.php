@@ -2380,7 +2380,7 @@ class Cashflow_Model extends CI_Model
 		$params->table = "(
 			select * 
 			from cf_movement where 
-			client_id = {client_id} and org_id = {org_id} and orgtrx_id in {orgtrx} 
+			client_id = {client_id} and org_id = {org_id} and orgtrx_to_id in {orgtrx} 
 			and is_active = '1' and is_deleted = '0' and received_date is null 
 			and doc_date between '".$params->fdate."' and '".$params->tdate."'
 		) t1";
