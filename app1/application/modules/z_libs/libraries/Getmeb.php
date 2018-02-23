@@ -1,15 +1,18 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+require APPPATH . '/modules/z_libs/libraries/Jsonrpc.php';
+
+class Getmeb extends Jsonrpc 
 /* THIS IS CLASS FOR BASE CONTROLLER (BACKEND) */
-class Getmeb extends CI_Controller
+// class Getmeb extends CI_Controller
 {
 	/* DEFAULT TEMPLATE */
 	public $theme  	= 'adminlte';
 	/* FOR REQUEST METHOD */
-	public $r_method;	
+	// public $r_method;	
 	/* FOR CONTROLLER METHOD */
-	public $c_method;
+	// public $c_method;
 	/* FOR THIS METHOD USING WHICH TABLE*/
 	public $c_table;
 	/* FOR EXCEPTION METHOD */
@@ -55,8 +58,8 @@ class Getmeb extends CI_Controller
 	
 	function __construct() {
 		parent::__construct();
-		$this->r_method = $_SERVER['REQUEST_METHOD'];
-		$this->c_method = $this->uri->segment(2) ? $this->uri->segment(2) : 'index';
+		// $this->r_method = $_SERVER['REQUEST_METHOD'];
+		// $this->c_method = $this->uri->segment(2) ? $this->uri->segment(2) : 'index';
 		
 		/* Load models */
 		$this->mdl = strtolower(get_class($this)).'_model';
@@ -88,27 +91,39 @@ class Getmeb extends CI_Controller
 		$this->_heartbeat();
 		$this->_clear_tmp();
 		
-		/* This method for Login, unlock screen */
-		if (in_array($this->r_method, ['UNLOCK', 'LOCK'])) {
-			/* Become Object */
-			$this->params = json_decode($this->input->raw_input_stream);
-			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
-		} 
+		/* 
+		*		Request Method explanation: 
+		*		===========================
+		*		UNLOCK & LOCK 			for Login, unlock screen
+		*		PATCH								for selection Role
+		*		GET									for getting data
+		*		POST								for Insert
+		*		PUT									for Update
+		*		DELETE							for Delete
+		*		OPTIONS							for Report & Others
+		*
+		*/
+		// /* This method for Login, unlock screen */
+		// if (in_array($this->r_method, ['UNLOCK', 'LOCK'])) {
+			// /* Become Object */
+			// $this->params = json_decode($this->input->raw_input_stream);
+			// $this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
+		// } 
 		
 		/* This method for Selection Role Window */
-		if (in_array($this->r_method, ['PATCH'])) {
-			/* Become Object */
-			$this->params = json_decode($this->input->raw_input_stream);
-			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
-		}
+		// if (in_array($this->r_method, ['PATCH'])) {
+			// /* Become Object */
+			// $this->params = json_decode($this->input->raw_input_stream);
+			// $this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
+		// }
 		
 		/* This method for GETTING/VIEWING Data & Document */
 		if (in_array($this->r_method, ['GET'])) {
 			
 			/* Become Array */
-			$this->params = $this->input->get();
+			// $this->params = $this->input->get();
 			/* Become Object */
-			$this->params = (object) $this->params;
+			// $this->params = (object) $this->params;
 			
 			/* This params for getting process status */
 			if (isset($this->params->get_process) && !empty($this->params->get_process)) {
@@ -176,8 +191,8 @@ class Getmeb extends CI_Controller
 		/* This Request for INSERT & UPDATE Data */
 		if (in_array($this->r_method, ['POST','PUT'])) {
 			/* Become Object */
-			$this->params = json_decode($this->input->raw_input_stream);
-			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
+			// $this->params = json_decode($this->input->raw_input_stream);
+			// $this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
 			
 			/* Must be checking permission before next process */
 			$this->_check_is_allow();
@@ -201,7 +216,7 @@ class Getmeb extends CI_Controller
 			$this->_check_is_allow();
 
 			/* Become Array to Object */
-			$this->params = (object) $this->input->get();
+			// $this->params = (object) $this->input->get();
 			
 			$this->_record_permutation_delete();
 		}
@@ -212,8 +227,8 @@ class Getmeb extends CI_Controller
 			$this->_check_is_allow();
 			
 			/* Become Object */
-			$this->params = json_decode($this->input->raw_input_stream);
-			$this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
+			// $this->params = json_decode($this->input->raw_input_stream);
+			// $this->params = count($this->params) > 0 ? $this->params : (object)$_REQUEST;
 			
 			/* 	Check is in params have a variable "params" in json format 
 			*		Example:

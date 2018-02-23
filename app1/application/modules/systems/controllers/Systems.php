@@ -1559,12 +1559,6 @@ class Systems extends Getmeb
 		if ($this->params->event == 'pre_get'){
 			$this->_get_filtered(TRUE, FALSE);
 		}
-		if (($this->r_method == 'POST') || ($this->r_method == 'PUT')) {
-			if ($this->params->event == 'pre_post'){
-				// unset($this->mixed_data['client_id']);
-				// unset($this->mixed_data['org_id']);
-			}
-		}
 	}
 	
 	function a_menu()

@@ -114,7 +114,7 @@ $hook['post_controller_constructor'] = function()
 	if (is_private_ip($data['ip_address'])) {
 		$data['is_local'] = TRUE;
 	}
-	$data['method'] = $_SERVER['REQUEST_METHOD'];
+	$data['method'] = $_SERVER['REQUEST_METHOD']; 
 	$data['protocol'] = $_SERVER['REQUEST_SCHEME'];
 	$data['host'] = $_SERVER['HTTP_HOST'];
 	$data['request_uri'] = $_SERVER['REQUEST_URI'];
