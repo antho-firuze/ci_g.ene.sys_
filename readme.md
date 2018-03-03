@@ -34,3 +34,7 @@ extension=php_com_dotnet.dll
 3. Instalasi Composer untuk mendownload Dependencies yg dibutuhkan: [Download](https://getcomposer.org/Composer-Setup.exe).
    Buka command prompt, masuk ke folder ci_hdgroup, setelah itu jalankan perintah ``composer update``
 4. Done
+
+Contact
+---
+- Jika ada pertanyaan, kontak saya melalui [Facebook](https://www.facebook.com/antho.firuze) ~ [Email](mailto:antho.firuze@gmail.com)
