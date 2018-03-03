@@ -27,6 +27,7 @@ extension=php_pgsql.dll
 extension=php_gd2.dll
 extension=php_mbstring.dll
 extension=php_openssl.dll
+extension=php_com_dotnet.dll
 ```
   
 2. Instalasi Database PostgreSQL.  [Download](https://www.postgresql.org/download/windows/)
