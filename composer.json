@@ -20,7 +20,8 @@
 		"fightbulc/moment": "*",
 		"rmccue/requests": ">=1.0",
 		"peppeocchi/php-cron-scheduler": "2.*",
-		"swiftmailer/swiftmailer": "^6.0"
+		"swiftmailer/swiftmailer": "^6.0",
+		"phpoffice/phpspreadsheet": "^1.1"
 	},
 	"suggest": {
 		"paragonie/random_compat": "Provides better randomness in PHP 5.x"
