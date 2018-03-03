@@ -18,7 +18,14 @@ Installation
 
 For Windows:
 
-1. Instalasi Webserver. `Instalasi NGINX & PHP di Windows untuk Codeigniter <https://github.com/antho-firuze/windows-nginx-php-ci>`_ 
-2. Instalasi Composer untuk mendownload Dependencies yg dibutuhkan: Download Composer `disini <https://getcomposer.org/Composer-Setup.exe>`_.
+1. Instalasi Webserver. `Instalasi NGINX & PHP di Windows untuk Codeigniter <https://github.com/antho-firuze/windows-nginx-php-ci>`_
+   
+ Setting untuk file PHP.ini: 
+  ``` 
+  extension=php_pdo_pgsql.dll
+  extension=php_pgsql.dll 
+  ```
+2. Instalasi Database PostgreSQL. Download `disini <https://www.postgresql.org/download/windows/>`_ 
+3. Instalasi Composer untuk mendownload Dependencies yg dibutuhkan: Download Composer `disini <https://getcomposer.org/Composer-Setup.exe>`_.
    Buka command prompt, masuk ke folder ci_hdgroup, setelah itu jalankan perintah ``composer update``
 
