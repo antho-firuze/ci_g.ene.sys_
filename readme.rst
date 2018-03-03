@@ -11,7 +11,7 @@ What is CI HDGROUP
 Server Requirements
 *******************
 
-- PHP version 7.1 or newer is recommended.
+- PHP version 7.1.9 or newer is recommended.
 - PostgreSQL version 10.2 or newer.
 - NGINX version 1.13.8 or newer.
 
@@ -21,6 +21,7 @@ Installation
 
 For Windows:
 
-- Install Composer 'disini <https://getcomposer.org/Composer-Setup.exe>`_
-  *Buka command prompt, masuk ke folder ci_hdgroup, setelah itu jalankan perintah "composer update"
+- Install Dependencies: 
+  > Install Composer 'disini <https://getcomposer.org/Composer-Setup.exe>`_
+    Buka command prompt, masuk ke folder ci_hdgroup, setelah itu jalankan perintah "composer update"
 
