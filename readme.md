@@ -20,15 +20,15 @@ For Windows:
 
 1. Instalasi Webserver. [Instalasi NGINX & PHP di Windows untuk Codeigniter](https://github.com/antho-firuze/windows-nginx-php-ci)
 
-Settingan untuk file PHP.ini:
-```bash
-extension=php_pdo_pgsql.dll
-extension=php_pgsql.dll
-extension=php_gd2.dll
-extension=php_mbstring.dll
-extension=php_openssl.dll
-extension=php_com_dotnet.dll
-```
+	Settingan untuk file PHP.ini:
+	```bash
+	extension=php_pdo_pgsql.dll
+	extension=php_pgsql.dll
+	extension=php_gd2.dll
+	extension=php_mbstring.dll
+	extension=php_openssl.dll
+	extension=php_com_dotnet.dll
+	```
   
 2. Instalasi Database PostgreSQL.  [Download](https://www.postgresql.org/download/windows/)
 3. Instalasi Composer untuk mendownload Dependencies yg dibutuhkan: [Download](https://getcomposer.org/Composer-Setup.exe).
