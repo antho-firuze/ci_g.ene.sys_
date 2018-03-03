@@ -22,6 +22,6 @@ Installation
 For Windows:
 
 - Install Dependencies: 
-  > Install Composer 'disini <https://getcomposer.org/Composer-Setup.exe>`_
-    Buka command prompt, masuk ke folder ci_hdgroup, setelah itu jalankan perintah "composer update"
+  Install Composer `disini<https://getcomposer.org/Composer-Setup.exe>`_
+  Buka command prompt, masuk ke folder ci_hdgroup, setelah itu jalankan perintah "composer update"
 
