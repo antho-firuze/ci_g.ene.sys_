@@ -34,7 +34,13 @@ For Windows:
 3. Instalasi Composer untuk mendownload Dependencies yg dibutuhkan: [Download](https://getcomposer.org/Composer-Setup.exe).
    Buka command prompt, masuk ke folder ci_hdgroup, setelah itu jalankan perintah ``composer update``
 4. Restore Database, jalankan file ``pgrestore.bat`` di dalam folder database.
-5. Done
+5. Edit config file in folder ``ci_hdgroup\app1\config.inc.php``
+
+	Edit Database DSN
+	```
+	/* Database DSN */ 
+	define('DB_DSN', 'pgsql:host=127.0.0.1;port=5432;dbname=db_genesys;user=postgres;password='); 
+	```
 
 Contact
 ---
