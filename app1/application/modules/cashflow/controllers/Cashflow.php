@@ -4923,13 +4923,13 @@ class Cashflow extends Getmeb
 			
 			$str = "";
 			if (!empty($this->params->fdate) && !empty($this->params->tdate)) {
-				if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
-					xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
+				// if (date_differ($this->params->fdate, $this->params->tdate, 'day') > 60 || date_differ($this->params->fdate, $this->params->tdate, 'day') < 0)
+					// xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
 				$str = "and doc_date between '".$this->params->fdate."' and '".$this->params->tdate."'";
 			} else if (!empty($this->params->fdate) && empty($this->params->tdate)) {
-				if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
-					xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
+				// if (date_differ($this->params->fdate, date('Y-m-d'), 'day') > 60 || date_differ($this->params->fdate, date('Y-m-d'), 'day') < 0)
+					// xresponse(FALSE, ['message' => sprintf(lang('error_day_range_overload'), 60)],401);
 				
 				$str = "and doc_date >= '".$this->params->fdate."'";
 			}
@@ -5332,7 +5332,7 @@ class Cashflow extends Getmeb
 			if (isset($this->params->filter) && !empty($this->params->filter)) {
 				foreach (explode(",", $this->params->filter) as $value) {
 					list($k, $v) = explode('=', $value);
-					$this->params[$k] = $v;
+					$this->params->{$k} = $v;
 				}
 				
 				unset($this->params->filter);
@@ -5357,7 +5357,7 @@ class Cashflow extends Getmeb
 			if (isset($this->params->filter) && !empty($this->params->filter)) {
 				foreach (explode(",", $this->params->filter) as $value) {
 					list($k, $v) = explode('=', $value);
-					$this->params[$k] = $v;
+					$this->params->{$k} = $v;
 				}
 				
 				unset($this->params->filter);
