@@ -4189,6 +4189,21 @@ class Cashflow extends Getmeb
 				'(select name from a_org where id = t1.orgtrx_id)'
 			]);
 			
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'expected_dt_cust' 	=> 't1.expected_dt_cust', 
+					'etd' 				=> 't1.etd', 
+					'estimation_late' 	=> 'case when coalesce(etd - expected_dt_cust, 0) < 1 then 0 else coalesce(etd - expected_dt_cust, 0)', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+					'plan_total' 	=> 'coalesce(plan_total, 0)', 
+				];
+				$this->params->ob = strtr($this->params->ob, $sortFields);
+			}
+			
 			if (isset($this->params->filter) && !empty($this->params->filter)) {
 				$filter = json_decode($this->params->filter);
 				$this->params = (object) array_merge((array) $this->params, (array) $filter);
@@ -4210,6 +4225,21 @@ class Cashflow extends Getmeb
 				'(select name from a_org where id = t1.org_id)',
 				'(select name from a_org where id = t1.orgtrx_id)'
 			]);
+			
+			if (key_exists('ob', $this->params) && isset($this->params->ob)) {
+				$sortFields = [
+					'doc_no' 			=> 't1.doc_no', 
+					'doc_date' 		=> 't1.doc_date', 
+					'expected_dt_cust' 	=> 't1.expected_dt_cust', 
+					'etd' 				=> 't1.etd', 
+					'estimation_late' 	=> 'case when coalesce(etd - expected_dt_cust, 0) < 1 then 0 else coalesce(etd - expected_dt_cust, 0) end', 
+					'sub_total' 	=> 'coalesce(sub_total, 0)', 
+					'vat_total' 	=> 'coalesce(vat_total, 0)', 
+					'grand_total' => 'coalesce(grand_total, 0)', 
+					'plan_total' 	=> 'coalesce(plan_total, 0)', 
+				];
+				$this->params->ob = strtr($this->params->ob, $sortFields);
+			}
 			
 			if (isset($this->params->filter) && !empty($this->params->filter)) {
 				$filter = json_decode($this->params->filter);
