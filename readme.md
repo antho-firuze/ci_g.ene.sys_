@@ -1,4 +1,4 @@
-What is CI HDGROUP
+What is CI GENESYS
 ---
 
 -  Softwar Application berbasis Web Responsif yang dibuat menggunakan Bahasa Pemrograman PHP dengan Framework Codeigniter. Kenapa Codeigniter? karena Codeigniter salah satu Framework PHP yg simple & ringan, dan termasuk salah satu Framework PHP tercepat. [benchmark1](https://www.nixsolutions.com/blog/comparative-testing-php-frameworks/) - [benchmark2](https://github.com/kenjis/php-framework-benchmark).   
@@ -32,7 +32,7 @@ For Windows:
   
 2. Instalasi Database PostgreSQL.  [Download](https://www.postgresql.org/download/windows/)
 3. Instalasi Composer untuk mendownload Dependencies yg dibutuhkan: [Download](https://getcomposer.org/Composer-Setup.exe).
-   Buka command prompt, masuk ke folder ci_hdgroup, setelah itu jalankan perintah ``composer update``
+   Buka command prompt, masuk ke folder ci_genesys, setelah itu jalankan perintah ``composer update``
 4. Restore Database, jalankan file ``pgrestore.bat`` di dalam folder database.
 5. Edit config file in folder ``ci_hdgroup\app1\config.inc.php``
 
