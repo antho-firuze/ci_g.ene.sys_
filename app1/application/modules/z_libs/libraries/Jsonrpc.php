@@ -14,7 +14,7 @@ class Jsonrpc extends CI_Controller
 		if (in_array($this->r_method, ['UNLOCK','LOCK','PATCH','POST','PUT','OPTIONS'])) {
 			/* Become Object */
 			$this->params = json_decode($this->input->raw_input_stream);
-			$this->params = count($this->params) > 0 ? $this->params : (object) $_REQUEST;
+			// $this->params = count($this->params) > 0 ? $this->params : (object) $_REQUEST;
 		} 
 		
 		if (in_array($this->r_method, ['GET','DELETE'])) {
